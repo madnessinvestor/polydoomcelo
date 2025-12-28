@@ -29,7 +29,8 @@ class MainScene extends Phaser.Scene {
         this.add.rectangle(0, 0, width * 2, height * 2, 0x0a0a20).setOrigin(0);
         
         const platforms = this.physics.add.staticGroup();
-        for (let i = 0; i < 25; i++) {
+        // Aumentar número de plataformas para cobrir a largura maior
+        for (let i = 0; i < 50; i++) {
             platforms.create(i * 32, height - 16, 'jungle_tiles', 0).refreshBody();
         }
 
@@ -56,7 +57,7 @@ class MainScene extends Phaser.Scene {
         });
 
         this.add.text(width / 2, 30, 'GOKUARC VS CRIPTOIDES', { 
-            fontSize: '24px', 
+            fontSize: '32px', 
             color: '#4ade80',
             fontStyle: 'bold'
         }).setOrigin(0.5);
@@ -64,21 +65,21 @@ class MainScene extends Phaser.Scene {
 
     update() {
         if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-250);
+            this.player.setVelocityX(-400); // Velocidade maior para tela maior
             this.player.flipX = true;
         } else if (this.cursors.right.isDown) {
-            this.player.setVelocityX(250);
+            this.player.setVelocityX(400);
             this.player.flipX = false;
         } else {
             this.player.setVelocityX(0);
         }
 
         if (this.cursors.up.isDown && this.player.body?.touching.down) {
-            this.player.setVelocityY(-500);
+            this.player.setVelocityY(-700); // Pulo maior
         }
 
         if (this.cursors.up.isDown && !this.player.body?.touching.down) {
-            this.player.setVelocityY(-200);
+            this.player.setVelocityY(-300); // Voo mais potente
         }
 
         if (Phaser.Input.Keyboard.JustDown(this.keys.Z)) {
@@ -137,19 +138,20 @@ class MainScene extends Phaser.Scene {
     }
 
     spawnEnemy() {
-        const x = Phaser.Math.Between(400, 750);
+        const width = this.cameras.main.width;
+        const x = Phaser.Math.Between(width / 2, width - 50);
         const enemy = this.enemies.create(x, 0, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
         enemy.setBounce(0.2);
         enemy.setCollideWorldBounds(true);
-        enemy.setVelocityX(Phaser.Math.Between(-100, 100));
+        enemy.setVelocityX(Phaser.Math.Between(-150, 150));
         enemy.setData('health', 1);
     }
 
     attack() {
-        const punchX = this.player.flipX ? this.player.x - 40 : this.player.x + 40;
+        const punchX = this.player.flipX ? this.player.x - 60 : this.player.x + 60; // Alcance soco maior
         const targets = this.enemies.getChildren().filter(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
-            return Phaser.Math.Distance.Between(punchX, this.player.y, enemy.x, enemy.y) < 50;
+            return Phaser.Math.Distance.Between(punchX, this.player.y, enemy.x, enemy.y) < 80;
         });
         
         targets.forEach(e => {
@@ -159,11 +161,11 @@ class MainScene extends Phaser.Scene {
 
     shootMagic() {
         this.kiarc -= 20;
-        const magic = this.add.circle(this.player.x, this.player.y, 10, 0x60a5fa);
+        const magic = this.add.circle(this.player.x, this.player.y, 15, 0x60a5fa); // Magia maior
         this.physics.add.existing(magic);
         const body = magic.body as Phaser.Physics.Arcade.Body;
         body.setAllowGravity(false);
-        body.setVelocityX(this.player.flipX ? -600 : 600);
+        body.setVelocityX(this.player.flipX ? -800 : 800); // Magia mais rápida
         
         this.physics.add.overlap(magic, this.enemies, (m, e) => {
             m.destroy();
@@ -206,8 +208,8 @@ class MainScene extends Phaser.Scene {
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     parent: 'game-container',
-    width: 800,
-    height: 600,
+    width: 1600,
+    height: 1200,
     physics: {
         default: 'arcade',
         arcade: {
