@@ -12,6 +12,15 @@ class MainScene extends Phaser.Scene {
     private scoreText!: Phaser.GameObjects.Text;
     private kiarcBar!: Phaser.GameObjects.Graphics;
 
+    // Wave system variables
+    private currentWave: number = 1;
+    private isWaveInterval: boolean = false;
+    private waveTimer: number = 60;
+    private waveTimerEvent!: Phaser.Time.TimerEvent;
+    private waveText!: Phaser.GameObjects.Text;
+    private timerText!: Phaser.GameObjects.Text;
+    private spawnEvent!: Phaser.Time.TimerEvent;
+
     constructor() {
         super('MainScene');
     }
@@ -29,7 +38,6 @@ class MainScene extends Phaser.Scene {
         this.add.rectangle(0, 0, width * 2, height * 2, 0x0a0a20).setOrigin(0);
         
         const platforms = this.physics.add.staticGroup();
-        // Aumentar número de plataformas para cobrir a largura maior
         for (let i = 0; i < 50; i++) {
             platforms.create(i * 32, height - 16, 'jungle_tiles', 0).refreshBody();
         }
@@ -41,7 +49,11 @@ class MainScene extends Phaser.Scene {
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.keys = this.input.keyboard!.addKeys('Z,X,C,V');
 
-        this.scoreText = this.add.text(16, 16, 'Inimigos: 0', { fontSize: '20px', color: '#fff' });
+        // Enhanced HUD
+        this.scoreText = this.add.text(16, 16, 'Inimigos: 0', { fontSize: '24px', color: '#fff' });
+        this.waveText = this.add.text(16, 50, 'WAVE: 1', { fontSize: '32px', color: '#fbbf24', fontStyle: 'bold' });
+        this.timerText = this.add.text(width - 150, 16, '01:00', { fontSize: '32px', color: '#fff', fontStyle: 'bold' });
+        
         this.kiarcBar = this.add.graphics();
         this.updateHUD();
 
@@ -49,12 +61,7 @@ class MainScene extends Phaser.Scene {
         this.physics.add.collider(this.enemies, platforms);
         this.physics.add.overlap(this.player, this.enemies, this.handlePlayerEnemyCollision, undefined, this);
 
-        this.time.addEvent({
-            delay: 2000,
-            callback: this.spawnEnemy,
-            callbackScope: this,
-            loop: true
-        });
+        this.startWave();
 
         this.add.text(width / 2, 30, 'GOKUARC VS CRIPTOIDES', { 
             fontSize: '32px', 
@@ -63,9 +70,74 @@ class MainScene extends Phaser.Scene {
         }).setOrigin(0.5);
     }
 
+    startWave() {
+        this.isWaveInterval = false;
+        this.waveTimer = 60;
+        this.waveText.setText(`WAVE: ${this.currentWave}`);
+        this.waveText.setColor('#fbbf24');
+
+        if (this.spawnEvent) this.spawnEvent.destroy();
+        
+        // 50% more enemies per wave
+        const baseDelay = 1500;
+        const currentDelay = baseDelay / Math.pow(1.5, this.currentWave - 1);
+        
+        this.spawnEvent = this.time.addEvent({
+            delay: Math.max(150, currentDelay),
+            callback: this.spawnEnemy,
+            callbackScope: this,
+            loop: true
+        });
+
+        this.startTimer();
+    }
+
+    startInterval() {
+        this.isWaveInterval = true;
+        this.waveTimer = 30;
+        this.waveText.setText('INTERVALO');
+        this.waveText.setColor('#60a5fa');
+
+        if (this.spawnEvent) this.spawnEvent.destroy();
+        
+        this.spawnEvent = this.time.addEvent({
+            delay: 4000,
+            callback: this.spawnEnemy,
+            callbackScope: this,
+            loop: true
+        });
+
+        this.startTimer();
+    }
+
+    startTimer() {
+        if (this.waveTimerEvent) this.waveTimerEvent.destroy();
+        
+        this.waveTimerEvent = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                this.waveTimer--;
+                const mins = Math.floor(this.waveTimer / 60);
+                const secs = this.waveTimer % 60;
+                this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+
+                if (this.waveTimer <= 0) {
+                    if (this.isWaveInterval) {
+                        this.currentWave++;
+                        this.startWave();
+                    } else {
+                        this.startInterval();
+                    }
+                }
+            },
+            callbackScope: this,
+            loop: true
+        });
+    }
+
     update() {
         if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-400); // Velocidade maior para tela maior
+            this.player.setVelocityX(-400);
             this.player.flipX = true;
         } else if (this.cursors.right.isDown) {
             this.player.setVelocityX(400);
@@ -75,11 +147,11 @@ class MainScene extends Phaser.Scene {
         }
 
         if (this.cursors.up.isDown && this.player.body?.touching.down) {
-            this.player.setVelocityY(-700); // Pulo maior
+            this.player.setVelocityY(-700);
         }
 
         if (this.cursors.up.isDown && !this.player.body?.touching.down) {
-            this.player.setVelocityY(-300); // Voo mais potente
+            this.player.setVelocityY(-300);
         }
 
         if (Phaser.Input.Keyboard.JustDown(this.keys.Z)) {
@@ -112,7 +184,6 @@ class MainScene extends Phaser.Scene {
 
     shootArcamehameha() {
         this.kiarc -= 50;
-        // Aumentando o comprimento do raio de 400 para 800 e ajustando o offset
         const beamLength = 800;
         const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
         const beam = this.add.rectangle(beamX, this.player.y, beamLength, 25, 0x4ade80, 0.7);
@@ -120,15 +191,13 @@ class MainScene extends Phaser.Scene {
         const body = beam.body as Phaser.Physics.Arcade.Body;
         body.setAllowGravity(false);
         
-        // Efeito visual de tremor na câmera ao disparar
         this.cameras.main.shake(300, 0.015);
 
         this.physics.add.overlap(beam, this.enemies, (b, e) => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
-            this.hitEnemy(enemy, 100); // Dano massivo
+            this.hitEnemy(enemy, 100);
         }, undefined, this);
 
-        // Adicionar um efeito de brilho ou partículas se possível, mas mantendo simples
         this.tweens.add({
             targets: beam,
             alpha: 0,
@@ -143,12 +212,15 @@ class MainScene extends Phaser.Scene {
         const enemy = this.enemies.create(x, 0, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
         enemy.setBounce(0.2);
         enemy.setCollideWorldBounds(true);
-        enemy.setVelocityX(Phaser.Math.Between(-150, 150));
+        
+        // 10% more difficult per wave
+        const difficultyMultiplier = Math.pow(1.1, this.currentWave - 1);
+        enemy.setVelocityX(Phaser.Math.Between(-150, 150) * difficultyMultiplier);
         enemy.setData('health', 1);
     }
 
     attack() {
-        const punchX = this.player.flipX ? this.player.x - 60 : this.player.x + 60; // Alcance soco maior
+        const punchX = this.player.flipX ? this.player.x - 60 : this.player.x + 60;
         const targets = this.enemies.getChildren().filter(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
             return Phaser.Math.Distance.Between(punchX, this.player.y, enemy.x, enemy.y) < 80;
@@ -161,11 +233,11 @@ class MainScene extends Phaser.Scene {
 
     shootMagic() {
         this.kiarc -= 20;
-        const magic = this.add.circle(this.player.x, this.player.y, 15, 0x60a5fa); // Magia maior
+        const magic = this.add.circle(this.player.x, this.player.y, 15, 0x60a5fa);
         this.physics.add.existing(magic);
         const body = magic.body as Phaser.Physics.Arcade.Body;
         body.setAllowGravity(false);
-        body.setVelocityX(this.player.flipX ? -800 : 800); // Magia mais rápida
+        body.setVelocityX(this.player.flipX ? -800 : 800);
         
         this.physics.add.overlap(magic, this.enemies, (m, e) => {
             m.destroy();
@@ -174,7 +246,6 @@ class MainScene extends Phaser.Scene {
     }
 
     hitEnemy(enemy: Phaser.Physics.Arcade.Sprite, damage: number) {
-        // Efeito de trepidação (impacto)
         this.tweens.add({
             targets: enemy,
             x: enemy.x + Phaser.Math.Between(-5, 5),
@@ -190,6 +261,7 @@ class MainScene extends Phaser.Scene {
     }
 
     handlePlayerEnemyCollision() {
+        if (this.isWaveInterval) return;
         this.health -= 0.01;
         if (this.health < 0) this.health = 0;
     }
@@ -197,11 +269,13 @@ class MainScene extends Phaser.Scene {
     updateHUD() {
         this.kiarcBar.clear();
         this.kiarcBar.fillStyle(0x333333);
-        this.kiarcBar.fillRect(16, 45, 200, 15);
+        this.kiarcBar.fillRect(16, 105, 300, 20);
         this.kiarcBar.fillStyle(0x4ade80);
-        this.kiarcBar.fillRect(16, 45, (this.kiarc / this.maxKiarc) * 200, 15);
+        this.kiarcBar.fillRect(16, 105, (this.kiarc / this.maxKiarc) * 300, 20);
+        this.kiarcBar.fillStyle(0x333333);
+        this.kiarcBar.fillRect(16, 135, 300, 15);
         this.kiarcBar.fillStyle(0xff0000);
-        this.kiarcBar.fillRect(16, 65, (this.health / 100) * 200, 10);
+        this.kiarcBar.fillRect(16, 135, (this.health / 100) * 300, 15);
     }
 }
 
