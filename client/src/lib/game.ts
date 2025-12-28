@@ -100,6 +100,15 @@ class MainScene extends Phaser.Scene {
         this.updateHUD();
     }
 
+    chargeKiarc() {
+        if (this.kiarc < this.maxKiarc) {
+            this.kiarc += 0.5;
+            this.player.setTint(0x4ade80);
+        } else {
+            this.player.clearTint();
+        }
+    }
+
     shootArcamehameha() {
         this.kiarc -= 50;
         const beam = this.add.rectangle(this.player.x + (this.player.flipX ? -200 : 200), this.player.y, 400, 20, 0x4ade80, 0.7);
