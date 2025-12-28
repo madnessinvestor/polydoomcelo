@@ -146,14 +146,16 @@ class MainScene extends Phaser.Scene {
             this.player.setVelocityX(0);
         }
 
-        // Queda rápida (Fast Fall)
-        if (this.cursors.down.isDown && !this.player.body?.touching.down) {
+        // Queda rápida (Fast Fall) - Só funciona se tiver Ki (pelo menos 10)
+        if (this.cursors.down.isDown && !this.player.body?.touching.down && this.kiarc >= 10) {
             this.player.setVelocityY(1000); // Velocidade de queda extrema
             this.player.setData('isFastFalling', true);
+            this.kiarc -= 0.2; // Consumo contínuo de Ki durante a queda
         }
 
         // Impacto no chão (Ground Slam)
         if (this.player.body?.touching.down && this.player.getData('isFastFalling')) {
+            this.kiarc -= 5; // Custo extra para o impacto
             this.handleGroundImpact();
             this.player.setData('isFastFalling', false);
         }
@@ -320,15 +322,30 @@ class MainScene extends Phaser.Scene {
 
     updateHUD() {
         this.kiarcBar.clear();
+        
+        // ARCki Bar (Verde)
         this.kiarcBar.fillStyle(0x333333);
         this.kiarcBar.fillRect(16, 105, 300, 20);
         this.kiarcBar.fillStyle(0x4ade80);
         this.kiarcBar.fillRect(16, 105, (this.kiarc / this.maxKiarc) * 300, 20);
+        
+        if (!this.kiLabel) {
+            this.kiLabel = this.add.text(325, 105, 'ARCki', { fontSize: '16px', color: '#4ade80', fontStyle: 'bold' });
+        }
+
+        // ARChp Bar (Vermelho)
         this.kiarcBar.fillStyle(0x333333);
         this.kiarcBar.fillRect(16, 135, 300, 15);
         this.kiarcBar.fillStyle(0xff0000);
         this.kiarcBar.fillRect(16, 135, (this.health / 100) * 300, 15);
+
+        if (!this.hpLabel) {
+            this.hpLabel = this.add.text(325, 135, 'ARChp', { fontSize: '16px', color: '#ff0000', fontStyle: 'bold' });
+        }
     }
+
+    private kiLabel!: Phaser.GameObjects.Text;
+    private hpLabel!: Phaser.GameObjects.Text;
 }
 
 const config: Phaser.Types.Core.GameConfig = {
