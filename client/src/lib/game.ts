@@ -186,21 +186,21 @@ class MainScene extends Phaser.Scene {
     }
 
     handleGroundImpact() {
-        // Efeito visual de tremor na câmera
-        this.cameras.main.shake(300, 0.02);
+        // Efeito visual de tremor na câmera mais forte
+        this.cameras.main.shake(400, 0.04);
         
-        // Círculo de impacto visual
-        const impactCircle = this.add.circle(this.player.x, this.player.y + 16, 20, 0x4ade80, 0.5);
+        // Círculo de impacto visual maior
+        const impactCircle = this.add.circle(this.player.x, this.player.y + 16, 20, 0x4ade80, 0.6);
         this.tweens.add({
             targets: impactCircle,
-            radius: 200,
+            radius: 400,
             alpha: 0,
-            duration: 300,
+            duration: 400,
             onComplete: () => impactCircle.destroy()
         });
 
-        // Afastar inimigos próximos
-        const impactRadius = 250;
+        // Afastar inimigos próximos com muito mais força
+        const impactRadius = 400;
         this.enemies.getChildren().forEach(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
             const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
@@ -208,14 +208,18 @@ class MainScene extends Phaser.Scene {
             if (distance < impactRadius) {
                 // Calcular direção da força
                 const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
-                const force = (impactRadius - distance) * 5;
                 
+                // Multiplicador de força aumentado significativamente
+                const forceMultiplier = 15;
+                const force = (impactRadius - distance) * forceMultiplier;
+                
+                // Aplicar velocidade explosiva
                 enemy.setVelocity(
                     Math.cos(angle) * force,
-                    Math.sin(angle) * force - 200 // Joga um pouco para cima também
+                    Math.sin(angle) * force - 600 // Joga MUITO para cima
                 );
 
-                // Dano leve pelo impacto
+                // Dano massivo pelo impacto direto
                 this.hitEnemy(enemy, 1);
             }
         });
