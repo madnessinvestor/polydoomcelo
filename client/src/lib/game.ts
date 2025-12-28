@@ -146,8 +146,8 @@ class MainScene extends Phaser.Scene {
             this.player.setVelocityX(0);
         }
 
-        // Queda rápida (Fast Fall) - Só funciona se tiver Ki (pelo menos 10)
-        if (this.cursors.down.isDown && !this.player.body?.touching.down && this.kiarc >= 10) {
+        // Queda rápida (Fast Fall) - Só funciona se tiver Ki (pelo menos 25%)
+        if (this.cursors.down.isDown && !this.player.body?.touching.down && this.kiarc >= (this.maxKiarc * 0.25)) {
             this.player.setVelocityY(1000); // Velocidade de queda extrema
             this.player.setData('isFastFalling', true);
             this.kiarc -= 0.2; // Consumo contínuo de Ki durante a queda
@@ -180,7 +180,7 @@ class MainScene extends Phaser.Scene {
             this.shootMagic();
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.keys.V) && this.kiarc >= 50) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.V) && this.kiarc >= (this.maxKiarc * 0.5)) {
             this.shootArcamehameha();
         }
 
