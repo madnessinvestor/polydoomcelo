@@ -93,7 +93,32 @@ class MainScene extends Phaser.Scene {
             this.shootMagic();
         }
 
+        if (Phaser.Input.Keyboard.JustDown(this.keys.V) && this.kiarc >= 50) {
+            this.shootArcamehameha();
+        }
+
         this.updateHUD();
+    }
+
+    shootArcamehameha() {
+        this.kiarc -= 50;
+        const beam = this.add.rectangle(this.player.x + (this.player.flipX ? -200 : 200), this.player.y, 400, 20, 0x4ade80, 0.7);
+        this.physics.add.existing(beam);
+        const body = beam.body as Phaser.Physics.Arcade.Body;
+        body.setAllowGravity(false);
+        
+        // Efeito visual de tremor na câmera ao disparar
+        this.cameras.main.shake(200, 0.01);
+
+        this.physics.add.overlap(beam, this.enemies, (b, e) => {
+            const enemy = e as Phaser.Physics.Arcade.Sprite;
+            this.hitEnemy(enemy, 100); // Dano massivo
+        }, undefined, this);
+
+        this.time.addEvent({
+            delay: 300,
+            callback: () => beam.destroy()
+        });
     }
 
     spawnEnemy() {
@@ -102,6 +127,7 @@ class MainScene extends Phaser.Scene {
         enemy.setBounce(0.2);
         enemy.setCollideWorldBounds(true);
         enemy.setVelocityX(Phaser.Math.Between(-100, 100));
+        enemy.setData('health', 1);
     }
 
     attack() {
@@ -112,19 +138,8 @@ class MainScene extends Phaser.Scene {
         });
         
         targets.forEach(e => {
-            e.destroy();
-            this.score++;
-            this.scoreText.setText('Inimigos: ' + this.score);
+            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 1);
         });
-    }
-
-    chargeKiarc() {
-        if (this.kiarc < this.maxKiarc) {
-            this.kiarc += 0.5;
-            this.player.setTint(0x4ade80);
-        } else {
-            this.player.clearTint();
-        }
     }
 
     shootMagic() {
@@ -137,10 +152,24 @@ class MainScene extends Phaser.Scene {
         
         this.physics.add.overlap(magic, this.enemies, (m, e) => {
             m.destroy();
-            e.destroy();
-            this.score++;
-            this.scoreText.setText('Inimigos: ' + this.score);
+            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 1);
         }, undefined, this);
+    }
+
+    hitEnemy(enemy: Phaser.Physics.Arcade.Sprite, damage: number) {
+        // Efeito de trepidação (impacto)
+        this.tweens.add({
+            targets: enemy,
+            x: enemy.x + Phaser.Math.Between(-5, 5),
+            duration: 50,
+            yoyo: true,
+            repeat: 2,
+            onComplete: () => {
+                enemy.destroy();
+                this.score++;
+                this.scoreText.setText('Inimigos: ' + this.score);
+            }
+        });
     }
 
     handlePlayerEnemyCollision() {
