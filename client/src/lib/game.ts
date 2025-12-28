@@ -217,6 +217,15 @@ const config: Phaser.Types.Core.GameConfig = {
             debug: false
         }
     },
+    render: {
+        pixelArt: true,
+        antialias: false,
+        powerPreference: 'high-performance'
+    },
+    fps: {
+        target: 60,
+        forceSetTimeOut: true
+    },
     scene: MainScene
 };
 
