@@ -146,6 +146,18 @@ class MainScene extends Phaser.Scene {
             this.player.setVelocityX(0);
         }
 
+        // Queda rápida (Fast Fall)
+        if (this.cursors.down.isDown && !this.player.body?.touching.down) {
+            this.player.setVelocityY(1000); // Velocidade de queda extrema
+            this.player.setData('isFastFalling', true);
+        }
+
+        // Impacto no chão (Ground Slam)
+        if (this.player.body?.touching.down && this.player.getData('isFastFalling')) {
+            this.handleGroundImpact();
+            this.player.setData('isFastFalling', false);
+        }
+
         if (this.cursors.up.isDown && this.player.body?.touching.down) {
             this.player.setVelocityY(-700);
         }
@@ -171,6 +183,42 @@ class MainScene extends Phaser.Scene {
         }
 
         this.updateHUD();
+    }
+
+    handleGroundImpact() {
+        // Efeito visual de tremor na câmera
+        this.cameras.main.shake(300, 0.02);
+        
+        // Círculo de impacto visual
+        const impactCircle = this.add.circle(this.player.x, this.player.y + 16, 20, 0x4ade80, 0.5);
+        this.tweens.add({
+            targets: impactCircle,
+            radius: 200,
+            alpha: 0,
+            duration: 300,
+            onComplete: () => impactCircle.destroy()
+        });
+
+        // Afastar inimigos próximos
+        const impactRadius = 250;
+        this.enemies.getChildren().forEach(e => {
+            const enemy = e as Phaser.Physics.Arcade.Sprite;
+            const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+            
+            if (distance < impactRadius) {
+                // Calcular direção da força
+                const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+                const force = (impactRadius - distance) * 5;
+                
+                enemy.setVelocity(
+                    Math.cos(angle) * force,
+                    Math.sin(angle) * force - 200 // Joga um pouco para cima também
+                );
+
+                // Dano leve pelo impacto
+                this.hitEnemy(enemy, 1);
+            }
+        });
     }
 
     chargeKiarc() {
