@@ -111,22 +111,28 @@ class MainScene extends Phaser.Scene {
 
     shootArcamehameha() {
         this.kiarc -= 50;
-        const beam = this.add.rectangle(this.player.x + (this.player.flipX ? -200 : 200), this.player.y, 400, 20, 0x4ade80, 0.7);
+        // Aumentando o comprimento do raio de 400 para 800 e ajustando o offset
+        const beamLength = 800;
+        const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
+        const beam = this.add.rectangle(beamX, this.player.y, beamLength, 25, 0x4ade80, 0.7);
         this.physics.add.existing(beam);
         const body = beam.body as Phaser.Physics.Arcade.Body;
         body.setAllowGravity(false);
         
         // Efeito visual de tremor na câmera ao disparar
-        this.cameras.main.shake(200, 0.01);
+        this.cameras.main.shake(300, 0.015);
 
         this.physics.add.overlap(beam, this.enemies, (b, e) => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
             this.hitEnemy(enemy, 100); // Dano massivo
         }, undefined, this);
 
-        this.time.addEvent({
-            delay: 300,
-            callback: () => beam.destroy()
+        // Adicionar um efeito de brilho ou partículas se possível, mas mantendo simples
+        this.tweens.add({
+            targets: beam,
+            alpha: 0,
+            duration: 400,
+            onComplete: () => beam.destroy()
         });
     }
 
