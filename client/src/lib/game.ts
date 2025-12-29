@@ -1120,7 +1120,7 @@ class MainScene extends Phaser.Scene {
         const kameDamage = stats.kame;
         
         this.kiarc -= 50;
-        const beamLength = 800;
+        const beamLength = 2400;
         const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
         const beam = this.add.rectangle(beamX, this.player.y, beamLength, 25, 0xffdd00, 0.7);
         this.physics.add.existing(beam);
