@@ -1276,13 +1276,48 @@ class MainScene extends Phaser.Scene {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
             this.hitEnemy(enemy, punchDamage * damageMultiplier);
             
-            // Efeito visual simples de soco (amarelo, pequeno e bem transparente)
-            const flash = this.add.circle(enemy.x, enemy.y, 15, 0xffdd00, 0.2);
+            // Efeito visual de soco tipo RPG (pequeno, amarelo, impacto com brilho)
+            const flash = this.add.circle(enemy.x, enemy.y, 10, 0xffdd00, 0.4);
+            const sparkCount = 4;
+            for (let i = 0; i < sparkCount; i++) {
+                const angle = (Math.PI * 2 / sparkCount) * i;
+                const spark = this.add.rectangle(
+                    enemy.x, 
+                    enemy.y, 
+                    10, 2, 0xffffff, 0.9
+                );
+                spark.setRotation(angle);
+                this.tweens.add({
+                    targets: spark,
+                    x: enemy.x + Math.cos(angle) * 35,
+                    y: enemy.y + Math.sin(angle) * 35,
+                    alpha: 0,
+                    scaleX: 0.05,
+                    duration: 180,
+                    ease: 'Power2',
+                    onComplete: () => spark.destroy()
+                });
+            }
+
+            // Adiciona um brilho central rápido em cruz
+            const hLine = this.add.rectangle(enemy.x, enemy.y, 25, 2, 0xffffff, 0.8);
+            const vLine = this.add.rectangle(enemy.x, enemy.y, 2, 25, 0xffffff, 0.8);
+            this.tweens.add({
+                targets: [hLine, vLine],
+                alpha: 0,
+                scale: 0.1,
+                duration: 120,
+                onComplete: () => {
+                    hLine.destroy();
+                    vLine.destroy();
+                }
+            });
+
             this.tweens.add({
                 targets: flash,
-                scale: 1.2,
+                scale: 2.5,
                 alpha: 0,
-                duration: 80,
+                duration: 150,
                 onComplete: () => flash.destroy()
             });
         });
