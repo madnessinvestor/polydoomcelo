@@ -93,6 +93,7 @@ class MainScene extends Phaser.Scene {
 
         this.enemies = this.physics.add.group();
         this.physics.add.collider(this.enemies, platforms);
+        this.physics.add.collider(this.enemies, this.enemies); // Add collision between enemies
         this.physics.add.overlap(this.player, this.enemies, this.handlePlayerEnemyCollision, undefined, this);
 
         this.startWave();
@@ -144,6 +145,8 @@ class MainScene extends Phaser.Scene {
         boss.setData('isBoss', true);
         boss.setData('sides', sides);
         boss.setData('size', size);
+        boss.body!.setCollideWorldBounds(true);
+        boss.body!.setBounce(0.5, 0.5);
         
         // Create graphics for polygon rendering
         const bossGraphics = this.add.graphics();
