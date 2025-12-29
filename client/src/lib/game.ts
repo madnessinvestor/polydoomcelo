@@ -174,23 +174,29 @@ class MainScene extends Phaser.Scene {
             strokeThickness: 6
         }).setOrigin(0.5).setScrollFactor(0);
 
-        // Simple boss health bar
         const healthBar = this.add.graphics();
+        const outline = this.add.graphics();
+        
         const updateHUD = () => {
             if (boss.active) {
+                // Update Health Bar
                 healthBar.clear();
-                // Bar background
                 healthBar.fillStyle(0x000000, 1);
                 healthBar.fillRect(boss.x - 75, boss.y - 80, 150, 15);
-                // Health fill
                 healthBar.fillStyle(0xff0000, 1);
                 const healthRatio = boss.getData('health') / health;
                 healthBar.fillRect(boss.x - 75, boss.y - 80, healthRatio * 150, 15);
-                // Outline
                 healthBar.lineStyle(2, 0xffffff, 1);
                 healthBar.strokeRect(boss.x - 75, boss.y - 80, 150, 15);
+
+                // Update Outline
+                outline.clear();
+                outline.lineStyle(4, 0x4ade80, 1); // Green outline like player
+                const drawSize = 32 * boss.scale;
+                outline.strokeRect(boss.x - drawSize / 2, boss.y - drawSize / 2, drawSize, drawSize);
             } else {
                 healthBar.destroy();
+                outline.destroy();
                 bossText.destroy();
                 this.events.off('update', updateHUD);
             }
