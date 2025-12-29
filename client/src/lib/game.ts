@@ -847,28 +847,47 @@ class MainScene extends Phaser.Scene {
 
     spawnEnemy() {
         const width = this.cameras.main.width;
-        // Spawn from the top of the screen
         const x = Phaser.Math.Between(50, width - 50);
         const y = -50;
 
+        const config = this.getWaveConfig(this.currentWave);
+        const enemyTypes = Object.keys(config.types);
+        const typeName = Phaser.Utils.Array.GetRandom(enemyTypes);
+
         const enemy = this.enemies.create(x, y, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
         enemy.setBounce(0.5);
-        enemy.setCollideWorldBounds(true); 
+        enemy.setCollideWorldBounds(true);
+        enemy.setData('type', typeName);
 
-        // At wave 1: size=1, damage=1
-        // At wave 2: size=1.5, damage=1.5
-        // At wave 3: size=2.25, damage=2.25
-        const multiplier = Math.pow(1.5, this.currentWave - 1);
-        enemy.setScale(multiplier);
-        enemy.setData('damage', multiplier * 0.01); 
+        // Stats table from user
+        const stats: { [key: string]: { hp: number, damage: number, sides: number, color: number, speed: number } } = {
+            'Ground Crawler': { hp: 20, damage: 8, sides: 4, color: 0x94a3b8, speed: 100 },
+            'Slider': { hp: 25, damage: 10, sides: 4, color: 0x60a5fa, speed: 200 },
+            'Hopper': { hp: 25, damage: 12, sides: 3, color: 0xf87171, speed: 150 },
+            'Flyer': { hp: 20, damage: 9, sides: 12, color: 0x4ade80, speed: 120 },
+            'Orb Mage': { hp: 30, damage: 15, sides: 6, color: 0xc084fc, speed: 80 },
+            'Charger': { hp: 35, damage: 18, sides: 5, color: 0xfacc15, speed: 250 },
+            'Splitter': { hp: 40, damage: 14, sides: 8, color: 0xf472b6, speed: 100 },
+            'Shielded': { hp: 50, damage: 16, sides: 4, color: 0x334155, speed: 70 },
+            'Sniper': { hp: 30, damage: 20, sides: 3, color: 0xfb923c, speed: 90 },
+            'Arc Warden': { hp: 60, damage: 25, sides: 10, color: 0x2dd4bf, speed: 110 }
+        };
 
-        // HP based on requirements (20-60)
-        const health = Phaser.Math.Between(20, 60);
-        enemy.setData('health', health);
+        const enemyStat = stats[typeName] || stats['Ground Crawler'];
         
-        // Target player
+        // Multiplier for wave scaling (keeping original progression feel but starting with table values)
+        const waveMultiplier = 1 + (this.currentWave - 1) * 0.2;
+        
+        enemy.setData('health', enemyStat.hp * waveMultiplier);
+        // Player health is 100, damage in handlePlayerEnemyCollision uses decimal scaling (0.01)
+        // Table "8 HP" damage relative to 100 total HP means 0.08 damage in internal logic
+        enemy.setData('damage', (enemyStat.damage / 100) * waveMultiplier);
+        enemy.setData('sides', enemyStat.sides);
+        enemy.setData('color', enemyStat.color);
+        
+        // Initial movement towards player
         const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
-        const speed = Phaser.Math.Between(50, 150);
+        const speed = enemyStat.speed;
         enemy.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
     }
 
