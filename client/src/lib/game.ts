@@ -138,6 +138,7 @@ class MainScene extends Phaser.Scene {
         
         const baseSize = 25;
         const size = (baseSize + sides * 1.5) * 3;
+        const hitAreaSize = size * 2; // Approximate diameter
 
         boss.setData('health', health);
         boss.setData('maxHealth', health);
@@ -145,7 +146,10 @@ class MainScene extends Phaser.Scene {
         boss.setData('isBoss', true);
         boss.setData('sides', sides);
         boss.setData('size', size);
+        
         const bossBody = boss.body as Phaser.Physics.Arcade.Body;
+        bossBody.setSize(hitAreaSize, hitAreaSize);
+        bossBody.setOffset(-hitAreaSize/2 + 16, -hitAreaSize/2 + 16);
         bossBody.setCollideWorldBounds(true);
         bossBody.setBounce(0.5, 0.5);
         
