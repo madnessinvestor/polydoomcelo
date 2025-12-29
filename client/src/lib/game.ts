@@ -18,6 +18,8 @@ class MainScene extends Phaser.Scene {
     private genkidama: Phaser.GameObjects.Arc | null = null;
     private isChargingGenkidama: boolean = false;
     private genkidamaChargeAmount: number = 0;
+    private genkidamaText: Phaser.GameObjects.Text | null = null;
+    private genkidamaPercentText: Phaser.GameObjects.Text | null = null;
 
     // Wave system variables
     private currentWave: number = 1;
@@ -1005,9 +1007,34 @@ class MainScene extends Phaser.Scene {
                 this.shootGenkidama();
             } else {
                 // Fail to launch if threshold not met
+                const failText = this.add.text(this.player.x, this.player.y - 50, 'FAIL', {
+                    fontSize: '32px',
+                    color: '#ff0000',
+                    fontStyle: 'bold',
+                    stroke: '#000',
+                    strokeThickness: 6,
+                    fontFamily: '"Courier New", Courier, monospace'
+                }).setOrigin(0.5);
+
+                this.tweens.add({
+                    targets: failText,
+                    y: failText.y - 50,
+                    alpha: 0,
+                    duration: 1000,
+                    onComplete: () => failText.destroy()
+                });
+
                 if (this.genkidama) {
                     this.genkidama.destroy();
                     this.genkidama = null;
+                }
+                if (this.genkidamaText) {
+                    this.genkidamaText.destroy();
+                    this.genkidamaText = null;
+                }
+                if (this.genkidamaPercentText) {
+                    this.genkidamaPercentText.destroy();
+                    this.genkidamaPercentText = null;
                 }
                 this.genkidamaChargeAmount = 0;
                 this.isChargingGenkidama = false;
@@ -1221,12 +1248,45 @@ class MainScene extends Phaser.Scene {
             
             if (!this.genkidama) {
                 this.genkidama = this.add.circle(this.player.x, this.player.y - 100, 10, 0xadd8e6, 0.6);
+                
+                this.genkidamaText = this.add.text(this.player.x, this.player.y - 30, 'All Arcs, share your power', {
+                    fontSize: '14px',
+                    color: '#add8e6',
+                    fontStyle: 'bold',
+                    stroke: '#000',
+                    strokeThickness: 3,
+                    fontFamily: '"Courier New", Courier, monospace'
+                }).setOrigin(0.5);
+
+                this.genkidamaPercentText = this.add.text(this.player.x, this.player.y - 50, '0%', {
+                    fontSize: '18px',
+                    color: '#ffffff',
+                    fontStyle: 'bold',
+                    stroke: '#000',
+                    strokeThickness: 4,
+                    fontFamily: '"Courier New", Courier, monospace'
+                }).setOrigin(0.5);
+            }
+            
+            // Percentage: 200 KI = 100%
+            const percent = Math.floor((this.genkidamaChargeAmount / 200) * 100);
+            if (this.genkidamaPercentText) {
+                this.genkidamaPercentText.setText(`${percent}%`);
+                this.genkidamaPercentText.setPosition(this.player.x, this.player.y - 60);
+                // Change color if ready
+                if (percent >= 100) {
+                    this.genkidamaPercentText.setColor('#4ade80');
+                }
+            }
+
+            if (this.genkidamaText) {
+                this.genkidamaText.setPosition(this.player.x, this.player.y - 40);
             }
             
             // Size is proportional to charge
             const size = 10 + (this.genkidamaChargeAmount * 1.5);
             this.genkidama.setRadius(size);
-            this.genkidama.setPosition(this.player.x, this.player.y - size - 40);
+            this.genkidama.setPosition(this.player.x, this.player.y - size - 80);
             
             // Charging visual effect
             if (this.time.now % 100 < 20) {
@@ -1246,9 +1306,20 @@ class MainScene extends Phaser.Scene {
     shootGenkidama() {
         if (!this.genkidama) return;
         
+        // Clean up texts
+        if (this.genkidamaText) {
+            this.genkidamaText.destroy();
+            this.genkidamaText = null;
+        }
+        if (this.genkidamaPercentText) {
+            this.genkidamaPercentText.destroy();
+            this.genkidamaPercentText = null;
+        }
+
         const genki = this.genkidama;
         this.genkidama = null;
-        const damage = this.genkidamaChargeAmount / 10;
+        // Damage logic: 10 KI = 2 Damage
+        const damage = (this.genkidamaChargeAmount / 10) * 2;
         const chargeUsed = this.genkidamaChargeAmount;
         this.genkidamaChargeAmount = 0;
         this.isChargingGenkidama = false;
