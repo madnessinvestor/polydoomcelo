@@ -356,11 +356,12 @@ class MainScene extends Phaser.Scene {
         // Pickup Notification System
         this.pickupNotificationBg = this.add.graphics().setScrollFactor(0).setDepth(2001).setVisible(false);
         this.pickupNotification = this.add.text(16, 160, '', {
-            fontSize: '14px',
+            fontSize: '18px',
             color: '#ffffff',
+            fontStyle: 'bold',
             fontFamily: 'Arial, sans-serif',
             backgroundColor: '#000000',
-            padding: { x: 8, y: 4 }
+            padding: { x: 12, y: 6 }
         }).setScrollFactor(0).setDepth(2002).setVisible(false);
 
         this.updateHUD();
@@ -1839,23 +1840,23 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        // Update notification position to be below bars
-        const notifyY = kiY + kiHeight + 10;
+        // Update buff icons position
+        if (this.buffIconsContainer) {
+            this.buffIconsContainer.setPosition(16, 160);
+        }
+
+        // Update notification position to be below buff icons
+        const notifyY = 160 + (this.buffIconsContainer ? 50 : 0);
         if (this.pickupNotification) {
             this.pickupNotification.setPosition(16, notifyY);
             if (this.pickupNotification.visible) {
                 const bounds = this.pickupNotification.getBounds();
                 this.pickupNotificationBg.clear();
                 this.pickupNotificationBg.fillStyle(0x000000, 0.8);
-                this.pickupNotificationBg.lineStyle(1, 0x4ade80, 1);
-                this.pickupNotificationBg.fillRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
-                this.pickupNotificationBg.strokeRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
+                this.pickupNotificationBg.lineStyle(2, 0x4ade80, 1);
+                this.pickupNotificationBg.fillRoundedRect(bounds.x - 8, bounds.y - 4, bounds.width + 16, bounds.height + 8, 6);
+                this.pickupNotificationBg.strokeRoundedRect(bounds.x - 8, bounds.y - 4, bounds.width + 16, bounds.height + 8, 6);
             }
-        }
-
-        // Update buff icons position below notification
-        if (this.buffIconsContainer) {
-            this.buffIconsContainer.setPosition(16, notifyY + 40);
         }
     }
 
