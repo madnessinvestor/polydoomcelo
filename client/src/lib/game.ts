@@ -647,6 +647,7 @@ class MainScene extends Phaser.Scene {
             }
         }
 
+        // Horizontal movement
         if (this.cursors.left.isDown) {
             this.player.setVelocityX(-currentSpeed);
             this.player.flipX = true;
@@ -657,26 +658,23 @@ class MainScene extends Phaser.Scene {
             this.player.setVelocityX(0);
         }
 
-        // Queda rápida (Fast Fall) - Só funciona se tiver Ki (pelo menos 25%)
-        if (this.cursors.down.isDown && !this.player.body?.touching.down && this.kiarc >= (this.maxKiarc * 0.25)) {
-            this.player.setVelocityY(1000); // Velocidade de queda extrema
+        // Vertical movement (Flying/Jumping)
+        if (this.cursors.up.isDown) {
+            this.player.setVelocityY(-currentSpeed);
+        } else if (this.cursors.down.isDown) {
+            this.player.setVelocityY(currentSpeed);
             this.player.setData('isFastFalling', true);
-            this.kiarc -= 0.2; // Consumo contínuo de Ki durante a queda
+        } else if (!this.player.body?.touching.down) {
+            // Optional: Slight gravity or hover effect if needed, 
+            // but the prompt implies direct control "voando para cima ou para baixo"
+            // If we want it to feel like flying, we might want to disable gravity or just let velocity work
         }
 
-        // Impacto no chão (Ground Slam)
+        // Ground Impact logic (keep existing functionality but adapt to new movement)
         if (this.player.body?.touching.down && this.player.getData('isFastFalling')) {
-            this.kiarc -= 5; // Custo extra para o impacto
+            this.kiarc -= 5;
             this.handleGroundImpact();
             this.player.setData('isFastFalling', false);
-        }
-
-        if (this.cursors.up.isDown && this.player.body?.touching.down) {
-            this.player.setVelocityY(-700);
-        }
-
-        if (this.cursors.up.isDown && !this.player.body?.touching.down) {
-            this.player.setVelocityY(-300);
         }
 
         if (Phaser.Input.Keyboard.JustDown(this.keys.Z)) {
