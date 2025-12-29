@@ -421,15 +421,16 @@ class MainScene extends Phaser.Scene {
         
         // Determine sides based on wave
         let sides = 4; // Default to square
-        if (this.currentWave === 1) sides = 4;      // Square
-        else if (this.currentWave === 2) sides = 5; // Pentagon
-        else if (this.currentWave === 3) sides = 6; // Hexagon
-        else if (this.currentWave === 4) sides = 7; // Heptagon
-        else if (this.currentWave === 5) sides = 8; // Octagon
-        else if (this.currentWave === 6) sides = 9; // Nonagon
-        else if (this.currentWave === 7) sides = 10; // Decagon
-        else if (this.currentWave === 8) sides = 12; // Dodecagon
-        else if (this.currentWave === 9) sides = 15; // Complex Polygon
+        const waveToUse = Math.min(this.currentWave, 10);
+        if (waveToUse === 1) sides = 4;      // Square
+        else if (waveToUse === 2) sides = 5; // Pentagon
+        else if (waveToUse === 3) sides = 6; // Hexagon
+        else if (waveToUse === 4) sides = 7; // Heptagon
+        else if (waveToUse === 5) sides = 8; // Octagon
+        else if (waveToUse === 6) sides = 9; // Nonagon
+        else if (waveToUse === 7) sides = 10; // Decagon
+        else if (waveToUse === 8) sides = 12; // Dodecagon
+        else if (waveToUse === 9) sides = 15; // Complex Polygon
         else sides = 16 + Math.random() * 4; // Arcane form variation
 
         // Custom HP Progression from User
@@ -437,13 +438,22 @@ class MainScene extends Phaser.Scene {
             1: 100, 2: 180, 3: 260, 4: 360, 5: 500,
             6: 700, 7: 950, 8: 1250, 9: 1600, 10: 2000
         };
-        const health = hpProgression[this.currentWave] || (2000 + (this.currentWave - 10) * 500);
         
-        const normalEnemyDamage = Math.pow(1.5, this.currentWave - 1) * 0.01;
-        const damage = normalEnemyDamage * 4;
+        let health = hpProgression[waveToUse] || (2000 + (waveToUse - 10) * 500);
+        const normalEnemyDamage = Math.pow(1.5, waveToUse - 1) * 0.01;
+        let damage = normalEnemyDamage * 4;
+        let sizeMultiplier = 1.0;
+
+        if (this.currentWave > 10) {
+            const infinityLevel = this.currentWave - 10;
+            // Dano do boss vai aumentar em 200% e o HP também em 200% a cada wave infinita
+            health *= Math.pow(3.0, infinityLevel);
+            damage *= Math.pow(3.0, infinityLevel);
+            sizeMultiplier = 2.0; // Dobro do tamanho
+        }
         
         const baseSize = 25;
-        const size = (baseSize + sides * 1.5) * 3;
+        const size = (baseSize + sides * 1.5) * 3 * sizeMultiplier;
         const hitAreaSize = size * 2; // Approximate diameter
 
         boss.setData('health', health);
@@ -613,12 +623,13 @@ class MainScene extends Phaser.Scene {
         });
 
         // Visual name or shape representation
+        const waveToUse = Math.min(this.currentWave, 10);
         const shapes = [
             'SQUARE', 'PENTAGON', 'HEXAGON', 'HEPTAGON', 
             'OCTAGON', 'NONAGON', 'DECAGON', 'DODECAGON', 
             'COMPLEX POLYGON', 'ARCANE FORM'
         ];
-        const shapeName = this.currentWave <= 10 ? shapes[this.currentWave - 1] : 'ARCANE FORM';
+        const shapeName = shapes[waveToUse - 1] || 'ARCANE FORM';
         
         const hudScale = Math.max(1, this.cameras.main.width / 800);
         const bossFontSize = Math.floor(36 * hudScale);
@@ -673,15 +684,19 @@ class MainScene extends Phaser.Scene {
         this.waveStartTime = this.time.now;
         
         // Waves increase total enemies: 60, 90, 130... 100 base
-        this.totalEnemiesInWave = 60 + (this.currentWave - 1) * 40;
+        this.totalEnemiesInWave = 60 + (Math.min(this.currentWave, 10) - 1) * 40;
+        if (this.currentWave > 10) {
+            this.totalEnemiesInWave += (this.currentWave - 10) * 100;
+        }
 
-        this.waveText.setText(`WAVE: ${this.currentWave}`);
+        const waveName = this.currentWave > 10 ? `INFINITY WAVE ${this.currentWave}` : `WAVE: ${this.currentWave}`;
+        this.waveText.setText(waveName);
         this.waveText.setColor('#fbbf24');
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
         this.spawnEvent = this.time.addEvent({
-            delay: 1000,
+            delay: this.currentWave > 10 ? 500 : 1000,
             callback: this.spawnBatch,
             callbackScope: this,
             loop: true
@@ -691,6 +706,11 @@ class MainScene extends Phaser.Scene {
         this.time.delayedCall(10000, () => {
             if (!this.isWaveInterval && !this.isGameOver && !this.bossSpawned) {
                 this.spawnBoss();
+                if (this.currentWave > 10) {
+                    // Spawn 2 more bosses for Infinity Wave (total 3)
+                    this.time.delayedCall(2000, () => this.spawnBoss());
+                    this.time.delayedCall(4000, () => this.spawnBoss());
+                }
                 this.bossSpawned = true;
             }
         });
@@ -738,26 +758,47 @@ class MainScene extends Phaser.Scene {
         const y = this.cameras.main.height - 100;
 
         const config = this.getWaveConfig(this.currentWave);
-        if (!config || !config.enemies) {
-            this.createEnemyObject(x, y, this.enemyTypes[0]);
-            this.enemiesSpawnedInWave++;
-            return;
-        }
-
-        const rand = Math.random();
-        let cumulative = 0;
         let selectedTypeId = 'ground_biter';
 
-        for (const [typeId, chance] of Object.entries(config.enemies)) {
-            cumulative += (chance as number);
-            if (rand <= cumulative) {
-                selectedTypeId = typeId;
-                break;
+        if (!config || !config.enemies) {
+            // Use Wave 10 config for Infinity Wave
+            const infinityConfig = this.waveConfigs[9];
+            const rand = Math.random();
+            let cumulative = 0;
+            for (const [typeId, chance] of Object.entries(infinityConfig.enemies)) {
+                cumulative += (chance as number);
+                if (rand <= cumulative) {
+                    selectedTypeId = typeId;
+                    break;
+                }
+            }
+        } else {
+            const rand = Math.random();
+            let cumulative = 0;
+            for (const [typeId, chance] of Object.entries(config.enemies)) {
+                cumulative += (chance as number);
+                if (rand <= cumulative) {
+                    selectedTypeId = typeId;
+                    break;
+                }
             }
         }
 
         const typeInfo = this.enemyTypes.find(t => t.id === selectedTypeId) || this.enemyTypes[0];
-        this.createEnemyObject(x, y, typeInfo);
+        
+        let scaleModifier = 1.0;
+        let damageModifier = 1.0;
+        let hpModifier = 1.0;
+
+        if (this.currentWave > 10) {
+            const infinityLevel = this.currentWave - 10;
+            scaleModifier = Math.pow(1.2, infinityLevel);
+            damageModifier = Math.pow(1.2, infinityLevel);
+        } else if (this.currentWave >= 2) {
+            scaleModifier = Math.pow(1.4, this.currentWave - 1);
+        }
+
+        this.createEnemyObject(x, y, { ...typeInfo, scale: (typeInfo.scale || 1) * scaleModifier }, damageModifier, hpModifier);
         this.enemiesSpawnedInWave++;
     }
 
@@ -766,11 +807,24 @@ class MainScene extends Phaser.Scene {
         const x = Phaser.Math.Between(0, 1) === 0 ? -50 : width + 50;
         const y = this.cameras.main.height - 100;
         const typeInfo = this.enemyTypes.find(t => t.id === typeId) || this.enemyTypes[0];
-        this.createEnemyObject(x, y, typeInfo);
+        
+        // Size and damage scaling for Infinity Wave or Waves 2-10
+        let scaleModifier = 1.0;
+        let damageModifier = 1.0;
+        let hpModifier = 1.0;
+
+        if (this.currentWave > 10) {
+            const infinityLevel = this.currentWave - 10;
+            scaleModifier = Math.pow(1.2, infinityLevel);
+            damageModifier = Math.pow(1.2, infinityLevel);
+        } else if (this.currentWave >= 2) {
+            scaleModifier = Math.pow(1.4, this.currentWave - 1);
+        }
+
+        this.createEnemyObject(x, y, { ...typeInfo, scale: (typeInfo.scale || 1) * scaleModifier }, damageModifier, hpModifier);
     }
 
-
-    private createEnemyObject(x: number, y: number, typeInfo: any) {
+    private createEnemyObject(x: number, y: number, typeInfo: any, extraDamageMult: number = 1, extraHpMult: number = 1) {
         const enemy = this.enemies.create(x, y, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
         enemy.setBounce(0.5);
         enemy.setCollideWorldBounds(true);
@@ -780,16 +834,20 @@ class MainScene extends Phaser.Scene {
         const waveMultiplier = 1 + (this.currentWave - 1) * 0.2;
         const isElite = typeInfo.behavior === 'elite';
         
-        enemy.setData('health', (isElite ? 200 : 20) * waveMultiplier);
-        enemy.setData('damage', (isElite ? 0.2 : 0.05) * waveMultiplier);
+        enemy.setData('health', (isElite ? 200 : 20) * waveMultiplier * extraHpMult);
+        enemy.setData('damage', (isElite ? 0.2 : 0.05) * waveMultiplier * extraDamageMult);
         enemy.setData('sides', typeInfo.sides);
         enemy.setData('color', typeInfo.color);
         
         enemy.setAlpha(0);
         const graphics = this.add.graphics();
-        graphics.setDepth(8); // Ensure it's behind HUD but visible
+        graphics.setDepth(8);
 
         const size = (isElite ? 32 : 16) * (typeInfo.scale || 1);
+        enemy.setData('size', size);
+        
+        const body = enemy.body as Phaser.Physics.Arcade.Body;
+        body.setSize(size * 2, size * 2);
         
         const updateGraphics = () => {
             if (enemy.active) {
@@ -804,13 +862,11 @@ class MainScene extends Phaser.Scene {
         };
         this.events.on('update', updateGraphics);
         
-        const body = enemy.body as Phaser.Physics.Arcade.Body;
         if (typeInfo.behavior === 'fly' || isElite) {
             body.setAllowGravity(false);
             enemy.y = Phaser.Math.Between(100, 400);
         }
 
-        // Initial movement towards player
         const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
         const speed = 150 * waveMultiplier;
         enemy.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
