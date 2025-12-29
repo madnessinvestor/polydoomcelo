@@ -1440,6 +1440,25 @@ class MainScene extends Phaser.Scene {
         const type = item.getData('type');
         const stats = this.levelStats[this.level - 1];
 
+        // Efeito de texto subindo na cabeça do personagem
+        const pickupText = this.add.text(this.player.x, this.player.y - 30, type, {
+            fontSize: '24px',
+            color: '#ffffff',
+            fontStyle: 'bold',
+            stroke: '#000',
+            strokeThickness: 4,
+            fontFamily: 'Arial, sans-serif'
+        }).setOrigin(0.5);
+
+        this.tweens.add({
+            targets: pickupText,
+            y: pickupText.y - 100,
+            alpha: 0,
+            duration: 1500,
+            ease: 'Cubic.easeOut',
+            onComplete: () => pickupText.destroy()
+        });
+
         switch (type) {
             case 'ArcHP':
                 this.health = Math.min(this.maxHealth, this.health + this.maxHealth * 0.3);
