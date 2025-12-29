@@ -1025,37 +1025,57 @@ class MainScene extends Phaser.Scene {
     }
 
     handleGroundImpact() {
-        // Efeito visual de tremor na câmera mais forte
-        this.cameras.main.shake(400, 0.04);
+        // Multiplicador de nível baseado na solicitação do usuário
+        const levelMultipliers: { [key: number]: number } = {
+            1: 0.05,
+            2: 0.08,
+            3: 0.10,
+            4: 0.15,
+            5: 0.20,
+            6: 0.25,
+            7: 0.30,
+            8: 0.40,
+            9: 0.50,
+            10: 1.00
+        };
         
-        // Círculo de impacto visual maior
+        const multiplier = levelMultipliers[this.level] || (this.level > 10 ? 1.0 : 0.05);
+
+        // Efeito visual de tremor na câmera proporcional ao nível
+        this.cameras.main.shake(400, 0.04 * multiplier);
+        
+        // Círculo de impacto visual proporcional ao nível
+        const baseRadius = 400;
+        const currentRadius = baseRadius * multiplier;
         const impactCircle = this.add.circle(this.player.x, this.player.y + 16, 20, 0x4ade80, 0.6);
         this.tweens.add({
             targets: impactCircle,
-            radius: 400,
+            radius: currentRadius,
             alpha: 0,
             duration: 400,
             onComplete: () => impactCircle.destroy()
         });
 
-        // Afastar inimigos próximos com muito mais força
-        const impactRadius = 400;
+        // Afastar inimigos próximos com força proporcional ao nível
+        const impactRadius = currentRadius;
         this.enemies.getChildren().forEach(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
+            if (!enemy || !enemy.active || !enemy.body) return;
+
             const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
             
             if (distance < impactRadius) {
                 // Calcular direção da força
                 const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
                 
-                // Multiplicador de força aumentado significativamente
-                const forceMultiplier = 15;
-                const force = (impactRadius - distance) * forceMultiplier;
+                // Multiplicador de força proporcional ao nível
+                const baseForceMultiplier = 15;
+                const force = (impactRadius - distance) * baseForceMultiplier;
                 
-                // Aplicar velocidade explosiva
+                // Aplicar velocidade explosiva (Knockback proporcional)
                 enemy.setVelocity(
                     Math.cos(angle) * force,
-                    Math.sin(angle) * force - 600 // Joga MUITO para cima
+                    Math.sin(angle) * force - (600 * multiplier) // Joga para cima proporcionalmente
                 );
 
                 // Dano massivo pelo impacto direto
