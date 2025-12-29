@@ -595,50 +595,38 @@ class MainScene extends Phaser.Scene {
         });
     }
 
+    private getDamageMultiplier(level: number): number {
+        const multipliers: { [key: number]: number } = {
+            1: 1.0,
+            2: 1.5,
+            3: 2.2,
+            4: 3.2,
+            5: 4.5,
+            6: 6.0,
+            7: 7.5,
+            8: 9.0,
+            9: 11.0,
+            10: 15.0
+        };
+        return multipliers[level] || (level > 10 ? 15.0 + (level - 10) * 2.0 : 1.0);
+    }
+
+    private getPlayerSpeed(level: number): number {
+        const baseSpeed = 400;
+        // Each level increases speed by 20%
+        return baseSpeed * (1 + (level - 1) * 0.2);
+    }
+
     update() {
         if (this.isGameOver) return;
         
-        // Handle Level 10 AOE Damage
-        if (this.level >= 10) {
-            const scaleFactor = 1 + (this.level - 1) * 0.08;
-            const size = 16 * scaleFactor;
-            const auraRadius = size + 30;
-            this.enemies.getChildren().forEach((enemy: any) => {
-                if (enemy.active) {
-                    const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
-                    if (dist < auraRadius) {
-                        const currentHealth = enemy.getData('health');
-                        enemy.setData('health', (currentHealth || 0) - 10);
-                        
-                        // Visual feedback for aura damage
-                        if (this.time.now % 500 < 20) {
-                            enemy.setTint(0x00ffff);
-                            this.time.delayedCall(100, () => {
-                                if (enemy.active) enemy.clearTint();
-                            });
-                        }
-
-                        if (enemy.getData('health') <= 0) {
-                            if (enemy.getData('isBoss')) {
-                                const bossScore = 20 * Math.pow(5, this.currentWave - 1);
-                                this.score += bossScore;
-                            } else {
-                                this.score++;
-                            }
-                            this.enemiesDefeated++;
-                            this.createExplosion(enemy.x, enemy.y);
-                            enemy.destroy();
-                        }
-                    }
-                }
-            });
-        }
+        const currentSpeed = this.getPlayerSpeed(this.level);
 
         if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-400);
+            this.player.setVelocityX(-currentSpeed);
             this.player.flipX = true;
         } else if (this.cursors.right.isDown) {
-            this.player.setVelocityX(400);
+            this.player.setVelocityX(currentSpeed);
             this.player.flipX = false;
         } else {
             this.player.setVelocityX(0);
@@ -682,7 +670,45 @@ class MainScene extends Phaser.Scene {
             this.shootArcamehameha();
         }
 
-        // Redraw player square every frame
+        // Handle Level 10 AOE Damage
+        if (this.level >= 10) {
+            const scaleFactor = 1 + (this.level - 1) * 0.08;
+            const size = 16 * scaleFactor;
+            const auraRadius = size + 30;
+            this.enemies.getChildren().forEach((enemy: any) => {
+                if (enemy.active) {
+                    const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+                    if (dist < auraRadius) {
+                        const currentHealth = enemy.getData('health');
+                        // Aura damage also scales? The prompt didn't specify, keeping it 10 or scaling with multi?
+                        // User said "Poder ao redor do personagem que dá dano nos inimigos 10 de dano" in previous prompt.
+                        // I'll keep it at 10 as specified or scale it if it feels right. User didn't ask to scale aura damage here.
+                        enemy.setData('health', (currentHealth || 0) - 10);
+                        
+                        // Visual feedback for aura damage
+                        if (this.time.now % 500 < 20) {
+                            enemy.setTint(0x00ffff);
+                            this.time.delayedCall(100, () => {
+                                if (enemy.active) enemy.clearTint();
+                            });
+                        }
+
+                        if (enemy.getData('health') <= 0) {
+                            if (enemy.getData('isBoss')) {
+                                const bossScore = 20 * Math.pow(5, this.currentWave - 1);
+                                this.score += bossScore;
+                            } else {
+                                this.score++;
+                            }
+                            this.enemiesDefeated++;
+                            this.createExplosion(enemy.x, enemy.y);
+                            enemy.destroy();
+                        }
+                    }
+                }
+            });
+        }
+
         this.drawPlayerSquare(this.level);
         
         this.updateHUD();
