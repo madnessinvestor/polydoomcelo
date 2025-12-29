@@ -1077,8 +1077,8 @@ class MainScene extends Phaser.Scene {
                     Math.sin(angle) * force - (600 * multiplier) // Joga para cima proporcionalmente
                 );
 
-                // Dano massivo pelo impacto direto
-                this.hitEnemy(enemy, 1);
+                // Apenas knockback, sem dano conforme solicitado
+                // this.hitEnemy(enemy, 1);
             }
         });
     }
