@@ -1069,6 +1069,28 @@ class MainScene extends Phaser.Scene {
         if (this.kiarc < this.maxKiarc) {
             this.kiarc += 0.5;
             this.player.setTint(0xffffff); // Flash white when charging
+
+            // Blue energy particles effect
+            const particleCount = 2;
+            for (let i = 0; i < particleCount; i++) {
+                const px = this.player.x + Phaser.Math.Between(-20, 20);
+                const py = this.player.y + 16;
+                const particle = this.add.circle(px, py, Phaser.Math.Between(2, 4), 0x60a5fa, 0.8);
+                this.physics.add.existing(particle);
+                const body = particle.body as Phaser.Physics.Arcade.Body;
+                body.setAllowGravity(false);
+                body.setVelocityY(Phaser.Math.Between(-100, -300));
+                body.setVelocityX(Phaser.Math.Between(-30, 30));
+
+                this.tweens.add({
+                    targets: particle,
+                    alpha: 0,
+                    scale: 0.2,
+                    duration: 800,
+                    ease: 'Power2',
+                    onComplete: () => particle.destroy()
+                });
+            }
         } else {
             this.player.setTint(0x4ade80);
         }
