@@ -84,9 +84,9 @@ class MainScene extends Phaser.Scene {
         this.keys = this.input.keyboard!.addKeys('Z,X,C,V');
 
         // Enhanced HUD
-        this.scoreText = this.add.text(16, 16, `Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { fontSize: '24px', color: '#fff', fontFamily: '8-BIT WONDER' });
-        this.waveText = this.add.text(16, 50, 'WAVE: 1', { fontSize: '32px', color: '#fbbf24', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
-        this.timerText = this.add.text(width - 150, 16, '01:00', { fontSize: '32px', color: '#fff', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
+        this.scoreText = this.add.text(16, 16, `Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { fontSize: '96px', color: '#fff', fontFamily: '8-BIT WONDER' });
+        this.waveText = this.add.text(16, 50, 'WAVE: 1', { fontSize: '128px', color: '#fbbf24', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
+        this.timerText = this.add.text(width - 150, 16, '01:00', { fontSize: '128px', color: '#fff', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
         
         this.kiarcBar = this.add.graphics();
         this.updateHUD();
@@ -99,7 +99,7 @@ class MainScene extends Phaser.Scene {
         this.startWave();
 
         this.add.text(width / 2, 30, 'GOKUARC VS CRIPTOIDES', { 
-            fontSize: '32px', 
+            fontSize: '128px', 
             color: '#4ade80',
             fontStyle: 'bold',
             fontFamily: '8-BIT WONDER'
@@ -293,7 +293,7 @@ class MainScene extends Phaser.Scene {
         const shapeName = this.currentWave <= 10 ? shapes[this.currentWave - 1] : 'ARCANE FORM';
         
         const bossText = this.add.text(x, 50, `BOSS: ${shapeName}`, { 
-            fontSize: '36px',
+            fontSize: '144px',
             color: '#ff0000', 
             fontStyle: 'bold',
             stroke: '#000000',
@@ -350,7 +350,7 @@ class MainScene extends Phaser.Scene {
 
         // 10-second countdown before boss spawn
         const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'BOSS IN: 10', {
-            fontSize: '48px',
+            fontSize: '192px',
             color: '#ff0000',
             fontStyle: 'bold',
             stroke: '#000000',
