@@ -85,9 +85,6 @@ class MainScene extends Phaser.Scene {
         const sides = this.currentWave + 3;
         const health = sides * 15; 
         
-        // At wave 1: normal enemy damage = 0.01
-        // Boss damage must be 4x normal enemy
-        // Normal enemy damage also scales by wave (multiplier = 1.5^(wave-1))
         const normalEnemyDamage = Math.pow(1.5, this.currentWave - 1) * 0.01;
         const damage = normalEnemyDamage * 4; 
         
@@ -99,6 +96,27 @@ class MainScene extends Phaser.Scene {
         boss.setData('damage', damage);
         boss.setData('isBoss', true);
         boss.setData('sides', sides);
+        
+        // Boss Movement Logic (Floating/Chase)
+        const updateMovement = () => {
+            if (!boss.active || !this.player.active) return;
+            
+            // Floating sinusoidal movement
+            const time = this.time.now / 1000;
+            const offsetY = Math.sin(time * 2) * 100;
+            const targetY = 200 + offsetY;
+            
+            // Move horizontally towards player
+            const dx = this.player.x - boss.x;
+            boss.setVelocityX(dx * 0.5);
+            
+            // Smoothly interpolate vertical position
+            const dy = targetY - boss.y;
+            boss.setVelocityY(dy * 2);
+        };
+        
+        this.events.on('update', updateMovement);
+        boss.on('destroy', () => this.events.off('update', updateMovement));
 
         // Visual name or shape representation
         const shapes = [
@@ -118,7 +136,7 @@ class MainScene extends Phaser.Scene {
 
         // Simple boss health bar
         const healthBar = this.add.graphics();
-        this.events.on('update', () => {
+        const updateHUD = () => {
             if (boss.active) {
                 healthBar.clear();
                 // Bar background
@@ -134,8 +152,10 @@ class MainScene extends Phaser.Scene {
             } else {
                 healthBar.destroy();
                 bossText.destroy();
+                this.events.off('update', updateHUD);
             }
-        });
+        };
+        this.events.on('update', updateHUD);
     }
 
     startWave() {
