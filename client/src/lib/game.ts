@@ -145,8 +145,9 @@ class MainScene extends Phaser.Scene {
         boss.setData('isBoss', true);
         boss.setData('sides', sides);
         boss.setData('size', size);
-        boss.body!.setCollideWorldBounds(true);
-        boss.body!.setBounce(0.5, 0.5);
+        const bossBody = boss.body as Phaser.Physics.Arcade.Body;
+        bossBody.setCollideWorldBounds(true);
+        bossBody.setBounce(0.5, 0.5);
         
         // Create graphics for polygon rendering
         const bossGraphics = this.add.graphics();
