@@ -1011,15 +1011,29 @@ class MainScene extends Phaser.Scene {
                             align: 'center',
                             fontFamily: '"8-BIT WONDER"'
                         }).setOrigin(0.5).setScrollFactor(1);
+
+                        // Update to follow player
+                        const updateFollow = () => {
+                            if (levelUpText.active && this.player.active) {
+                                levelUpText.x = this.player.x;
+                            } else {
+                                this.events.off('update', updateFollow);
+                            }
+                        };
+                        this.events.on('update', updateFollow);
                         
+                        // Pulse animation relative to current position
                         this.tweens.add({
                             targets: levelUpText,
                             scaleY: 1.5,
                             alpha: 0,
-                            y: this.player.y - 180,
+                            y: '-=80',
                             duration: 1500,
                             ease: 'Quad.easeOut',
-                            onComplete: () => levelUpText.destroy()
+                            onComplete: () => {
+                                levelUpText.destroy();
+                                this.events.off('update', updateFollow);
+                            }
                         });
                         
                         this.updatePlayerVisual();
