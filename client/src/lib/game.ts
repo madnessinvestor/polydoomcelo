@@ -1273,7 +1273,18 @@ class MainScene extends Phaser.Scene {
         });
         
         targets.forEach(e => {
-            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, punchDamage * damageMultiplier);
+            const enemy = e as Phaser.Physics.Arcade.Sprite;
+            this.hitEnemy(enemy, punchDamage * damageMultiplier);
+            
+            // Efeito visual simples de soco
+            const flash = this.add.circle(enemy.x, enemy.y, 30, 0xffffff, 0.5);
+            this.tweens.add({
+                targets: flash,
+                scale: 1.5,
+                alpha: 0,
+                duration: 100,
+                onComplete: () => flash.destroy()
+            });
         });
     }
 
