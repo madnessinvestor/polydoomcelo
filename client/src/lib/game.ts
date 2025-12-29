@@ -33,16 +33,16 @@ class MainScene extends Phaser.Scene {
 
     // Enemy Type Definitions
     private enemyTypes = [
-        { id: 'ground_biter', name: 'Ground Biter', sides: 4, color: 0x888888, behavior: 'melee', scale: 1 },
-        { id: 'charger_ram', name: 'Charger Ram', sides: 5, color: 0xff4400, behavior: 'charge', scale: 1.2 },
-        { id: 'arc_shooter', name: 'Arc Shooter', sides: 3, color: 0x00ffcc, behavior: 'ranged', scale: 1 },
-        { id: 'hover_mage', name: 'Hover Mage', sides: 6, color: 0xaa00ff, behavior: 'fly', scale: 1.1 },
-        { id: 'pouncer', name: 'Pouncer', sides: 3, color: 0xccff00, behavior: 'jump', scale: 1.1, inverted: true },
-        { id: 'knockback_brute', name: 'Knockback Brute', sides: 4, color: 0xff0044, behavior: 'knockback', scale: 1.5, ratio: 1.5 },
-        { id: 'blink_stalker', name: 'Blink Stalker', sides: 8, color: 0x000000, behavior: 'teleport', scale: 0.9 },
-        { id: 'split_core', name: 'Split Core', sides: 8, color: 0x00ff00, behavior: 'split', scale: 1.2 },
-        { id: 'shield_sentinel', name: 'Shield Sentinel', sides: 4, color: 0x4444ff, behavior: 'shield', scale: 1.3, doubleBorder: true },
-        { id: 'arc_phantom', name: 'Arc Phantom', sides: 10, color: 0xffffff, behavior: 'elite', scale: 1.8 }
+        { id: 'ground_biter', name: 'Ground Biter', sides: 4, color: 0x4ade80, behavior: 'melee', scale: 1.0 },
+        { id: 'charger_ram', name: 'Charger Ram', sides: 5, color: 0x4ade80, behavior: 'charge', scale: 1.2 },
+        { id: 'arc_shooter', name: 'Arc Shooter', sides: 3, color: 0x4ade80, behavior: 'ranged', scale: 1.0 },
+        { id: 'hover_mage', name: 'Hover Mage', sides: 6, color: 0x4ade80, behavior: 'fly', scale: 1.1 },
+        { id: 'pouncer', name: 'Pouncer', sides: 3, color: 0x4ade80, behavior: 'jump', scale: 0.8, inverted: true },
+        { id: 'knockback_brute', name: 'Knockback Brute', sides: 4, color: 0x4ade80, behavior: 'knockback', scale: 1.5, ratio: 1.5 },
+        { id: 'blink_stalker', name: 'Blink Stalker', sides: 8, color: 0x4ade80, behavior: 'teleport', scale: 0.8 },
+        { id: 'split_core', name: 'Split Core', sides: 8, color: 0x4ade80, behavior: 'split', scale: 1.2 },
+        { id: 'shield_sentinel', name: 'Shield Sentinel', sides: 4, color: 0x4ade80, behavior: 'shield', scale: 1.3, doubleBorder: true },
+        { id: 'arc_phantom', name: 'Arc Phantom', sides: 10, color: 0x4ade80, behavior: 'elite', scale: 1.8 }
     ];
 
     private waveConfigs = [
@@ -112,15 +112,14 @@ class MainScene extends Phaser.Scene {
     private drawPolygon(graphics: Phaser.GameObjects.Graphics, sides: number, size: number, color: number) {
         graphics.clear();
         const points = this.createPolygonGeometry(sides, size);
-        graphics.fillStyle(color, 1);
+        graphics.lineStyle(2, 0x4ade80, 1); // Verde fixo
         graphics.beginPath();
         graphics.moveTo(points[0].x, points[0].y);
         for (let i = 1; i < points.length; i++) {
             graphics.lineTo(points[i].x, points[i].y);
         }
         graphics.closePath();
-        graphics.fillPath();
-        graphics.lineStyle(2, 0x4ade80, 1);
+        // Sem preenchimento (vazado)
         graphics.strokePath();
     }
 
@@ -414,7 +413,7 @@ class MainScene extends Phaser.Scene {
         else if (this.currentWave === 8) sides = 12; // Dodecagon
         else if (this.currentWave === 9) sides = 15; // Complex Polygon
         else sides = 16 + Math.random() * 4; // Arcane form variation
-        
+
         // Custom HP Progression from User
         const hpProgression: { [key: number]: number } = {
             1: 100, 2: 180, 3: 260, 4: 360, 5: 500,
@@ -445,6 +444,29 @@ class MainScene extends Phaser.Scene {
         // Create graphics for polygon rendering
         const bossGraphics = this.add.graphics();
         this.bossGraphicsMap.set(boss, bossGraphics);
+
+        // Update Boss rendering to be hollow and green
+        const renderBoss = () => {
+            if (!boss.active) return;
+            bossGraphics.clear();
+            const bSize = boss.getData('size');
+            const bSides = boss.getData('sides');
+            const points = this.createPolygonGeometry(bSides, bSize);
+            
+            bossGraphics.lineStyle(4, 0x4ade80, 1); // Border green
+            bossGraphics.beginPath();
+            bossGraphics.moveTo(boss.x + points[0].x, boss.y + points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                bossGraphics.lineTo(boss.x + points[i].x, boss.y + points[i].y);
+            }
+            bossGraphics.closePath();
+            bossGraphics.strokePath();
+        };
+        this.events.on('update', renderBoss);
+        boss.on('destroy', () => {
+            this.events.off('update', renderBoss);
+            bossGraphics.destroy();
+        });
         
         // Boss Movement & Attack Logic
         let lastAttackTime = 0;
