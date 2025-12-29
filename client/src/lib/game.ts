@@ -12,6 +12,7 @@ class MainScene extends Phaser.Scene {
     private score: number = 0;
     private keys!: any;
     private scoreText!: Phaser.GameObjects.Text;
+    private enemyCounterText!: Phaser.GameObjects.Text;
     private kiarcBar!: Phaser.GameObjects.Graphics;
 
     // Wave system variables
@@ -248,6 +249,14 @@ class MainScene extends Phaser.Scene {
         this.scoreText = this.add.text(16, 16, `Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
+            fontFamily: 'Pixel',
+            stroke: '#000',
+            strokeThickness: 4
+        }).setScrollFactor(0).setDepth(1000);
+
+        this.enemyCounterText = this.add.text(16, 16 + fontSize + 10, 'On Screen: 0', {
+            fontSize: `${fontSize}px`,
+            color: '#ff4444',
             fontFamily: 'Pixel',
             stroke: '#000',
             strokeThickness: 4
@@ -1106,6 +1115,11 @@ class MainScene extends Phaser.Scene {
 
         if (this.scoreText) {
             this.scoreText.setText(`Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
+        }
+
+        if (this.enemyCounterText) {
+            const activeEnemies = this.enemies.countActive(true);
+            this.enemyCounterText.setText(`On Screen: ${activeEnemies}`);
         }
 
         this.kiarcBar.clear();
