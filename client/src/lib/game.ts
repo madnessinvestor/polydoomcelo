@@ -1519,8 +1519,9 @@ class MainScene extends Phaser.Scene {
     private tooltipBg!: Phaser.GameObjects.Graphics;
     private tooltipTitle!: Phaser.GameObjects.Text;
     private tooltipText!: Phaser.GameObjects.Text;
+}
 
-    constructor() {
+const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     parent: 'game-container',
     width: 1600,
