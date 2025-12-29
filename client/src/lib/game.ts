@@ -1246,11 +1246,6 @@ class MainScene extends Phaser.Scene {
             this.kiarc -= kiToConsume;
             this.genkidamaChargeAmount += kiToConsume;
             
-            // Only start growing/showing after 150 KI
-            if (this.genkidamaChargeAmount < 150) {
-                return;
-            }
-
             if (!this.genkidama) {
                 this.genkidama = this.add.circle(this.player.x, this.player.y - 100, 10, 0xadd8e6, 0.6);
                 
@@ -1288,8 +1283,8 @@ class MainScene extends Phaser.Scene {
                 this.genkidamaText.setPosition(this.player.x, this.player.y - 40);
             }
             
-            // Size is proportional to charge, offset by the initial 150
-            const size = 10 + ((this.genkidamaChargeAmount - 150) * 1.5);
+            // Size is proportional to charge
+            const size = 10 + (this.genkidamaChargeAmount * 1.5);
             this.genkidama.setRadius(size);
             this.genkidama.setPosition(this.player.x, this.player.y - size - 80);
             
