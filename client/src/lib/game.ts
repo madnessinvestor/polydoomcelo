@@ -310,7 +310,7 @@ class MainScene extends Phaser.Scene {
         this.scoreText = this.add.text(16, 16, `Score: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
-            fontFamily: 'Pixel',
+            fontFamily: 'Arial, sans-serif',
             stroke: '#000',
             strokeThickness: 4
         }).setScrollFactor(0).setDepth(1000);
@@ -318,7 +318,7 @@ class MainScene extends Phaser.Scene {
         this.enemyCounterText = this.add.text(width - 16, 16 + fontSize * 2 + 20, `0/${this.totalEnemiesInWave}`, {
             fontSize: `${fontSize}px`,
             color: '#ff4444',
-            fontFamily: 'Pixel',
+            fontFamily: 'Arial, sans-serif',
             stroke: '#000',
             strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
@@ -327,7 +327,7 @@ class MainScene extends Phaser.Scene {
             fontSize: `${fontSize}px`, 
             color: '#fbbf24', 
             fontStyle: 'bold', 
-            fontFamily: 'Pixel',
+            fontFamily: 'Arial, sans-serif',
             stroke: '#000',
             strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
@@ -336,7 +336,7 @@ class MainScene extends Phaser.Scene {
             fontSize: `${fontSize}px`, 
             color: '#fff', 
             fontStyle: 'bold', 
-            fontFamily: 'Pixel',
+            fontFamily: 'Arial, sans-serif',
             stroke: '#000',
             strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
@@ -349,8 +349,8 @@ class MainScene extends Phaser.Scene {
         // Tooltip System
         this.tooltipContainer = this.add.container(0, 0).setScrollFactor(0).setDepth(2000).setVisible(false);
         this.tooltipBg = this.add.graphics();
-        this.tooltipTitle = this.add.text(10, 10, '', { fontSize: '18px', color: '#fbbf24', fontStyle: 'bold', fontFamily: 'Pixel' });
-        this.tooltipText = this.add.text(10, 35, '', { fontSize: '14px', color: '#ffffff', fontFamily: 'Pixel', wordWrap: { width: 200 } });
+        this.tooltipTitle = this.add.text(10, 10, '', { fontSize: '18px', color: '#fbbf24', fontStyle: 'bold', fontFamily: 'Arial, sans-serif' });
+        this.tooltipText = this.add.text(10, 35, '', { fontSize: '14px', color: '#ffffff', fontFamily: 'Arial, sans-serif', wordWrap: { width: 200 } });
         this.tooltipContainer.add([this.tooltipBg, this.tooltipTitle, this.tooltipText]);
 
         // Pickup Notification System
@@ -358,7 +358,7 @@ class MainScene extends Phaser.Scene {
         this.pickupNotification = this.add.text(16, 160, '', {
             fontSize: '14px',
             color: '#ffffff',
-            fontFamily: 'Pixel',
+            fontFamily: 'Arial, sans-serif',
             backgroundColor: '#000000',
             padding: { x: 8, y: 4 }
         }).setScrollFactor(0).setDepth(2002).setVisible(false);
@@ -1278,7 +1278,7 @@ class MainScene extends Phaser.Scene {
                             stroke: '#000',
                             strokeThickness: 8,
                             align: 'center',
-                            fontFamily: '"8-BIT WONDER"'
+                            fontFamily: 'Arial, sans-serif'
                         }).setOrigin(0.5).setScrollFactor(1);
 
                         // Update to follow player
