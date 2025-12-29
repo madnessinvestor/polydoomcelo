@@ -1756,8 +1756,14 @@ class MainScene extends Phaser.Scene {
                 fontFamily: 'Pixel' 
             }).setScrollFactor(0).setDepth(1001);
         }
-        this.hpLabel.setText(`HP: ${Math.ceil(this.health)}/${this.maxHealth}`);
-        this.hpLabel.setPosition(hbX + 10, hbY + 1);
+        if (this.hpLabel && this.hpLabel.active && this.hpLabel.scene) {
+            try {
+                this.hpLabel.setText(`HP: ${Math.ceil(this.health)}/${this.maxHealth}`);
+                this.hpLabel.setPosition(hbX + 10, hbY + 1);
+            } catch (e) {
+                console.warn('Error updating hpLabel:', e);
+            }
+        }
 
         // Ki Bar (Right side or below)
         const kiWidth = 200 * hudScale;
@@ -1786,8 +1792,14 @@ class MainScene extends Phaser.Scene {
                 fontFamily: 'Pixel' 
             }).setScrollFactor(0).setDepth(1001);
         }
-        this.kiLabel.setText(`KI: ${Math.ceil(this.kiarc)}/${this.maxKiarc}`);
-        this.kiLabel.setPosition(kiX + 10, kiY + 0);
+        if (this.kiLabel && this.kiLabel.active && this.kiLabel.scene) {
+            try {
+                this.kiLabel.setText(`KI: ${Math.ceil(this.kiarc)}/${this.maxKiarc}`);
+                this.kiLabel.setPosition(kiX + 10, kiY + 0);
+            } catch (e) {
+                console.warn('Error updating kiLabel:', e);
+            }
+        }
 
         // Update notification position to be below bars
         const notifyY = kiY + kiHeight + 10;
