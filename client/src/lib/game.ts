@@ -647,6 +647,14 @@ class MainScene extends Phaser.Scene {
             loop: true
         });
 
+        // Spawn boss after 10 seconds
+        this.time.delayedCall(10000, () => {
+            if (!this.isWaveInterval && !this.isGameOver && !this.bossSpawned) {
+                this.spawnBoss();
+                this.bossSpawned = true;
+            }
+        });
+
         // Elite Arc Phantom logic
         if (this.currentWave >= 9) {
             const delay = this.currentWave === 9 ? 90000 : 45000;
