@@ -836,7 +836,10 @@ class MainScene extends Phaser.Scene {
     }
 
     shootArcamehameha() {
-        const damageMultiplier = this.getDamageMultiplier(this.level);
+        const stats = this.levelStats[this.level - 1];
+        const damageMultiplier = stats.mult;
+        const kameDamage = stats.kame;
+        
         this.kiarc -= 50;
         const beamLength = 800;
         const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
@@ -849,7 +852,7 @@ class MainScene extends Phaser.Scene {
 
         this.physics.add.overlap(beam, this.enemies, (b, e) => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
-            this.hitEnemy(enemy, 50 * damageMultiplier);
+            this.hitEnemy(enemy, kameDamage * damageMultiplier);
         }, undefined, this);
 
         this.tweens.add({
@@ -907,7 +910,10 @@ class MainScene extends Phaser.Scene {
     }
 
     attack() {
-        const damageMultiplier = this.getDamageMultiplier(this.level);
+        const stats = this.levelStats[this.level - 1];
+        const damageMultiplier = stats.mult;
+        const punchDamage = stats.punch;
+        
         const punchX = this.player.flipX ? this.player.x - 60 : this.player.x + 60;
         const targets = this.enemies.getChildren().filter(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
@@ -915,12 +921,15 @@ class MainScene extends Phaser.Scene {
         });
         
         targets.forEach(e => {
-            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 10 * damageMultiplier);
+            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, punchDamage * damageMultiplier);
         });
     }
 
     shootMagic() {
-        const damageMultiplier = this.getDamageMultiplier(this.level);
+        const stats = this.levelStats[this.level - 1];
+        const damageMultiplier = stats.mult;
+        const magicDamage = stats.magic;
+        
         this.kiarc -= 20;
         const magic = this.add.circle(this.player.x, this.player.y, 15, 0x60a5fa);
         this.physics.add.existing(magic);
@@ -930,7 +939,7 @@ class MainScene extends Phaser.Scene {
         
         this.physics.add.overlap(magic, this.enemies, (m, e) => {
             m.destroy();
-            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 10 * damageMultiplier);
+            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, magicDamage * damageMultiplier);
         }, undefined, this);
     }
 
@@ -972,33 +981,15 @@ class MainScene extends Phaser.Scene {
                 yoyo: true,
                 repeat: 2,
                 onComplete: () => {
-                    if (enemy.getData('isBoss')) {
-                        const bossScore = 20 * Math.pow(5, this.currentWave - 1);
-                        this.score += bossScore;
-                        this.cameras.main.flash(500, 255, 0, 0);
-                        
-                        const scoreText = this.add.text(enemy.x, enemy.y - 80, `+${bossScore.toLocaleString()}`, {
-                            fontSize: '48px',
-                            color: '#fbbf24',
-                            fontStyle: 'bold',
-                            stroke: '#000',
-                            strokeThickness: 6,
-                            fontFamily: '"8-BIT WONDER"'
-                        }).setOrigin(0.5).setScrollFactor(1);
-                        
-                        this.tweens.add({
-                            targets: scoreText,
-                            scaleY: 1.5,
-                            alpha: 0,
-                            y: enemy.y + 40,
-                            duration: 1500,
-                            ease: 'Quad.easeOut',
-                            onComplete: () => scoreText.destroy()
-                        });
-                    } else {
-                        // Standard score increase by 1 per enemy
-                        this.score++;
-                    }
+                        if (enemy.getData('isBoss')) {
+                            const bossScore = 20 * Math.pow(5, this.currentWave - 1);
+                            this.score += bossScore;
+                            this.checkLevelUp();
+                        } else {
+                            // Standard score increase by 1 per enemy
+                            this.score++;
+                            this.checkLevelUp();
+                        }
 
                     // Level progression logic based on standard threshold
                     const nextLevelThreshold = this.level * 10;
@@ -1122,11 +1113,18 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    handlePlayerEnemyCollision(obj1: any, obj2: any) {
+    private handlePlayerEnemyCollision(obj1: any, obj2: any) {
         if (this.isGameOver || this.isWaveInterval) return;
         const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
-        const damage = enemy.getData('damage') !== undefined ? enemy.getData('damage') : 0.01;
-        this.health -= damage;
+        
+        // Get resistance from current level stats
+        const stats = this.levelStats[this.level - 1];
+        const resMultiplier = 1 - (stats.res || 0);
+        
+        const baseDamage = enemy.getData('damage') !== undefined ? enemy.getData('damage') : 0.01;
+        const finalDamage = baseDamage * resMultiplier;
+        
+        this.health -= finalDamage;
         
         // Efeito de piscar em vermelho semi-transparente no gráfico
         let flashColor = 0xff4444;
@@ -1174,6 +1172,35 @@ class MainScene extends Phaser.Scene {
         });
     }
 
+    private checkLevelUp() {
+        if (this.level >= 10) return;
+        
+        const nextLevelData = this.levelStats[this.level]; 
+        if (this.score >= nextLevelData.score) {
+            this.level++;
+            const stats = this.levelStats[this.level - 1];
+            
+            // Update stats
+            this.maxHealth = stats.hp;
+            this.health = this.maxHealth;
+            this.maxKiarc = stats.ki;
+            this.kiarc = this.maxKiarc;
+            
+            // Visual feedback
+            this.cameras.main.flash(500, 255, 255, 0);
+            this.drawPlayerSquare(this.level);
+            
+            const levelTitles = [
+                'Arc Initiate', 'Arc Novice', 'Arc Apprentice', 'Arc Adept', 'Arc Mage',
+                'Arc Master', 'Arc Grandmaster', 'Arc Sage', 'Arc Archon', 'Arc Legend'
+            ];
+            this.levelTitle = levelTitles[this.level - 1] || 'Arc Legend';
+            
+            this.updateHUD();
+            this.updatePlayerVisual();
+        }
+    }
+
     updateHUD() {
         // Character level progression logic based on enemies defeated
         const nextLevelThreshold = this.level * 10;
@@ -1219,7 +1246,7 @@ class MainScene extends Phaser.Scene {
         this.kiarcBar.fillStyle(0x333333);
         this.kiarcBar.fillRect(16, 135, 300, 15);
         this.kiarcBar.fillStyle(0xff0000);
-        this.kiarcBar.fillRect(16, 135, (this.health / 100) * 300, 15);
+        this.kiarcBar.fillRect(16, 135, (this.health / this.maxHealth) * 300, 15);
 
         if (!this.hpLabel) {
             this.hpLabel = this.add.text(325, 135, 'ARChp', { fontSize: '16px', color: '#ff0000', fontStyle: 'bold', fontFamily: 'Pixel' });
