@@ -91,7 +91,7 @@ class MainScene extends Phaser.Scene {
         this.scoreText = this.add.text(16, 16, `Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
-            fontFamily: 'monospace',
+            fontFamily: '"8-BIT WONDER"',
             stroke: '#000',
             strokeThickness: 4
         }).setScrollFactor(0).setDepth(1000);
@@ -100,7 +100,7 @@ class MainScene extends Phaser.Scene {
             fontSize: `${fontSize}px`, 
             color: '#fbbf24', 
             fontStyle: 'bold', 
-            fontFamily: 'monospace',
+            fontFamily: '"8-BIT WONDER"',
             stroke: '#000',
             strokeThickness: 4
         }).setScrollFactor(0).setDepth(1000);
@@ -109,7 +109,7 @@ class MainScene extends Phaser.Scene {
             fontSize: `${fontSize}px`, 
             color: '#fff', 
             fontStyle: 'bold', 
-            fontFamily: 'monospace',
+            fontFamily: '"8-BIT WONDER"',
             stroke: '#000',
             strokeThickness: 4
         }).setScrollFactor(0).setDepth(1000);
@@ -128,7 +128,7 @@ class MainScene extends Phaser.Scene {
             fontSize: `${titleFontSize}px`, 
             color: '#4ade80',
             fontStyle: 'bold',
-            fontFamily: 'monospace',
+            fontFamily: '"8-BIT WONDER"',
             stroke: '#000',
             strokeThickness: 6
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
@@ -329,7 +329,7 @@ class MainScene extends Phaser.Scene {
             fontStyle: 'bold',
             stroke: '#000000',
             strokeThickness: 6,
-            fontFamily: 'monospace'
+            fontFamily: '"8-BIT WONDER"'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
 
         const healthBar = this.add.graphics();
@@ -389,7 +389,7 @@ class MainScene extends Phaser.Scene {
             fontStyle: 'bold',
             stroke: '#000000',
             strokeThickness: 8,
-            fontFamily: 'monospace'
+            fontFamily: '"8-BIT WONDER"'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
 
         let timeLeft = 10;
