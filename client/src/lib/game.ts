@@ -1165,7 +1165,7 @@ class MainScene extends Phaser.Scene {
         // Círculo de impacto visual proporcional ao nível
         const baseRadius = 400;
         const currentRadius = baseRadius * multiplier;
-        const impactCircle = this.add.circle(this.player.x, this.player.y + 16, 20, 0xffdd00, 0.4);
+        const impactCircle = this.add.circle(this.player.x, this.player.y + 16, 20, 0xffdd00, 0.24);
         this.tweens.add({
             targets: impactCircle,
             radius: currentRadius,
