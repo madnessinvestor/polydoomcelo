@@ -148,7 +148,7 @@ class MainScene extends Phaser.Scene {
         this.scoreText = this.add.text(16, 16, `Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
-            fontFamily: '"8-BIT WONDER"',
+            fontFamily: 'Pixel',
             stroke: '#000',
             strokeThickness: 4
         }).setScrollFactor(0).setDepth(1000);
@@ -157,7 +157,7 @@ class MainScene extends Phaser.Scene {
             fontSize: `${fontSize}px`, 
             color: '#fbbf24', 
             fontStyle: 'bold', 
-            fontFamily: '"8-BIT WONDER"',
+            fontFamily: 'Pixel',
             stroke: '#000',
             strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
@@ -166,7 +166,7 @@ class MainScene extends Phaser.Scene {
             fontSize: `${fontSize}px`, 
             color: '#fff', 
             fontStyle: 'bold', 
-            fontFamily: '"8-BIT WONDER"',
+            fontFamily: 'Pixel',
             stroke: '#000',
             strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
@@ -377,7 +377,7 @@ class MainScene extends Phaser.Scene {
             fontStyle: 'bold',
             stroke: '#000000',
             strokeThickness: 6,
-            fontFamily: '"8-BIT WONDER"'
+            fontFamily: 'Pixel'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
 
         const healthBar = this.add.graphics();
@@ -437,7 +437,7 @@ class MainScene extends Phaser.Scene {
             fontStyle: 'bold',
             stroke: '#000000',
             strokeThickness: 8,
-            fontFamily: '"8-BIT WONDER"'
+            fontFamily: 'Pixel'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
 
         let timeLeft = 10;
