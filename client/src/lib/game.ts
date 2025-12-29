@@ -87,13 +87,13 @@ class MainScene extends Phaser.Scene {
         { lvl: 1, hp: 300, ki: 100, mult: 1.0, punch: 10, magic: 10, kame: 50, res: 0.00, score: 0 },
         { lvl: 2, hp: 420, ki: 140, mult: 1.5, punch: 15, magic: 15, kame: 75, res: 0.03, score: 50 },
         { lvl: 3, hp: 600, ki: 200, mult: 2.2, punch: 22, magic: 22, kame: 110, res: 0.06, score: 200 },
-        { lvl: 4, hp: 850, ki: 280, mult: 3.2, punch: 32, magic: 32, kame: 160, res: 0.10, score: 1000 },
-        { lvl: 5, hp: 1200, ki: 380, mult: 4.5, punch: 45, magic: 45, kame: 225, res: 0.15, score: 5000 },
-        { lvl: 6, hp: 1700, ki: 520, mult: 6.0, punch: 60, magic: 60, kame: 300, res: 0.20, score: 25000 },
-        { lvl: 7, hp: 2300, ki: 700, mult: 7.5, punch: 75, magic: 75, kame: 375, res: 0.25, score: 125000 },
-        { lvl: 8, hp: 3100, ki: 950, mult: 9.0, punch: 90, magic: 90, kame: 450, res: 0.30, score: 600000 },
-        { lvl: 9, hp: 4000, ki: 1300, mult: 11.0, punch: 110, magic: 110, kame: 550, res: 0.35, score: 3000000 },
-        { lvl: 10, hp: 5200, ki: 1800, mult: 15.0, punch: 150, magic: 150, kame: 750, res: 0.40, score: 15000000 }
+        { lvl: 4, hp: 850, ki: 280, mult: 3.2, punch: 32, magic: 32, kame: 160, res: 0.10, score: 500 },
+        { lvl: 5, hp: 1200, ki: 380, mult: 4.5, punch: 45, magic: 45, kame: 225, res: 0.15, score: 1000 },
+        { lvl: 6, hp: 1700, ki: 520, mult: 6.0, punch: 60, magic: 60, kame: 300, res: 0.20, score: 2000 },
+        { lvl: 7, hp: 2300, ki: 700, mult: 7.5, punch: 75, magic: 75, kame: 375, res: 0.25, score: 4000 },
+        { lvl: 8, hp: 3100, ki: 950, mult: 9.0, punch: 90, magic: 90, kame: 450, res: 0.30, score: 8000 },
+        { lvl: 9, hp: 4000, ki: 1300, mult: 11.0, punch: 110, magic: 110, kame: 550, res: 0.35, score: 20000 },
+        { lvl: 10, hp: 5200, ki: 1800, mult: 15.0, punch: 150, magic: 150, kame: 750, res: 0.40, score: 1000000000 }
     ];
 
     constructor() {
