@@ -268,11 +268,11 @@ class MainScene extends Phaser.Scene {
         enemy.setCollideWorldBounds(true);
         
         // At wave 1: size=1, damage=1
-        // At wave 2: size=2, damage=2
-        // At wave 3: size=4, damage=4
-        const multiplier = Math.pow(2, this.currentWave - 1);
+        // At wave 2: size=1.5, damage=1.5
+        // At wave 3: size=2.25, damage=2.25
+        const multiplier = Math.pow(1.5, this.currentWave - 1);
         enemy.setScale(multiplier);
-        enemy.setData('damage', multiplier);
+        enemy.setData('damage', multiplier * 0.01); // Mantendo base de dano baixa
 
         // 10% more velocity per wave
         const difficultyMultiplier = Math.pow(1.1, this.currentWave - 1);
@@ -324,7 +324,7 @@ class MainScene extends Phaser.Scene {
     handlePlayerEnemyCollision(obj1: any, obj2: any) {
         if (this.isWaveInterval) return;
         const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
-        const damage = enemy.getData('damage') || 0.01;
+        const damage = enemy.getData('damage') !== undefined ? enemy.getData('damage') : 0.01;
         this.health -= damage;
         if (this.health < 0) this.health = 0;
     }
