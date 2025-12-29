@@ -3,11 +3,16 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
+import express from "express";
+import path from "path";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  
+  // Serve attached_assets folder statically
+  app.use('/attached_assets', express.static(path.resolve(process.cwd(), 'attached_assets')));
   
   app.get(api.scores.list.path, async (req, res) => {
     const scores = await storage.getScores();
