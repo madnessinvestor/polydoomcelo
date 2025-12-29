@@ -819,15 +819,17 @@ class MainScene extends Phaser.Scene {
         this.cameras.main.flash(500, 255, 255, 255);
         this.cameras.main.shake(500, 0.05);
 
-        // Restart game after delay
-        this.time.delayedCall(2000, () => {
-            this.scene.restart();
-            this.health = 100;
-            this.kiarc = 0;
-            this.score = 0;
-            this.currentWave = 1;
-            this.isGameOver = false;
-        });
+        // ONLY restart if it's the player exploding (Game Over)
+        if (this.isGameOver) {
+            this.time.delayedCall(2000, () => {
+                this.scene.restart();
+                this.health = 100;
+                this.kiarc = 0;
+                this.score = 0;
+                this.currentWave = 1;
+                this.isGameOver = false;
+            });
+        }
     }
 
     handlePlayerEnemyCollision(obj1: any, obj2: any) {
