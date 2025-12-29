@@ -83,7 +83,13 @@ class MainScene extends Phaser.Scene {
         
         // Geometric Boss Progression
         const sides = this.currentWave + 3;
-        const health = sides * 15; 
+        
+        // Custom HP Progression from User
+        const hpProgression: { [key: number]: number } = {
+            1: 100, 2: 180, 3: 260, 4: 360, 5: 500,
+            6: 700, 7: 950, 8: 1250, 9: 1600, 10: 2000
+        };
+        const health = hpProgression[this.currentWave] || (2000 + (this.currentWave - 10) * 500);
         
         const normalEnemyDamage = Math.pow(1.5, this.currentWave - 1) * 0.01;
         const damage = normalEnemyDamage * 4; 
