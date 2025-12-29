@@ -84,9 +84,9 @@ class MainScene extends Phaser.Scene {
         this.keys = this.input.keyboard!.addKeys('Z,X,C,V');
 
         // Enhanced HUD
-        this.scoreText = this.add.text(16, 16, `Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { fontSize: '24px', color: '#fff' });
-        this.waveText = this.add.text(16, 50, 'WAVE: 1', { fontSize: '32px', color: '#fbbf24', fontStyle: 'bold' });
-        this.timerText = this.add.text(width - 150, 16, '01:00', { fontSize: '32px', color: '#fff', fontStyle: 'bold' });
+        this.scoreText = this.add.text(16, 16, `Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { fontSize: '24px', color: '#fff', fontFamily: '8-BIT WONDER' });
+        this.waveText = this.add.text(16, 50, 'WAVE: 1', { fontSize: '32px', color: '#fbbf24', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
+        this.timerText = this.add.text(width - 150, 16, '01:00', { fontSize: '32px', color: '#fff', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
         
         this.kiarcBar = this.add.graphics();
         this.updateHUD();
@@ -101,7 +101,8 @@ class MainScene extends Phaser.Scene {
         this.add.text(width / 2, 30, 'GOKUARC VS CRIPTOIDES', { 
             fontSize: '32px', 
             color: '#4ade80',
-            fontStyle: 'bold'
+            fontStyle: 'bold',
+            fontFamily: '8-BIT WONDER'
         }).setOrigin(0.5);
     }
 
@@ -296,7 +297,8 @@ class MainScene extends Phaser.Scene {
             color: '#ff0000', 
             fontStyle: 'bold',
             stroke: '#000000',
-            strokeThickness: 6
+            strokeThickness: 6,
+            fontFamily: '8-BIT WONDER'
         }).setOrigin(0.5).setScrollFactor(0);
 
         const healthBar = this.add.graphics();
@@ -352,7 +354,8 @@ class MainScene extends Phaser.Scene {
             color: '#ff0000',
             fontStyle: 'bold',
             stroke: '#000000',
-            strokeThickness: 8
+            strokeThickness: 8,
+            fontFamily: '8-BIT WONDER'
         }).setOrigin(0.5).setScrollFactor(0);
 
         let timeLeft = 10;
@@ -610,7 +613,8 @@ class MainScene extends Phaser.Scene {
                             color: '#fbbf24',
                             fontStyle: 'bold',
                             stroke: '#000',
-                            strokeThickness: 6
+                            strokeThickness: 6,
+                            fontFamily: '8-BIT WONDER'
                         }).setOrigin(0.5).setScrollFactor(1);
                         
                         // Pulse animation from top to bottom
@@ -641,7 +645,8 @@ class MainScene extends Phaser.Scene {
                             fontStyle: 'bold',
                             stroke: '#000',
                             strokeThickness: 8,
-                            align: 'center'
+                            align: 'center',
+                            fontFamily: '8-BIT WONDER'
                         }).setOrigin(0.5).setScrollFactor(1);
                         
                         // Pulse animation from bottom to top
@@ -767,7 +772,7 @@ class MainScene extends Phaser.Scene {
         this.kiarcBar.fillRect(16, 105, (this.kiarc / this.maxKiarc) * 300, 20);
         
         if (!this.kiLabel) {
-            this.kiLabel = this.add.text(325, 105, 'ARCki', { fontSize: '16px', color: '#4ade80', fontStyle: 'bold' });
+            this.kiLabel = this.add.text(325, 105, 'ARCki', { fontSize: '16px', color: '#4ade80', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
         }
 
         // ARChp Bar (Vermelho)
@@ -777,7 +782,7 @@ class MainScene extends Phaser.Scene {
         this.kiarcBar.fillRect(16, 135, (this.health / 100) * 300, 15);
 
         if (!this.hpLabel) {
-            this.hpLabel = this.add.text(325, 135, 'ARChp', { fontSize: '16px', color: '#ff0000', fontStyle: 'bold' });
+            this.hpLabel = this.add.text(325, 135, 'ARChp', { fontSize: '16px', color: '#ff0000', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
         }
     }
 
