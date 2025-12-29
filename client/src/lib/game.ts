@@ -21,8 +21,40 @@ class MainScene extends Phaser.Scene {
     private timerText!: Phaser.GameObjects.Text;
     private spawnEvent!: Phaser.Time.TimerEvent;
 
+    // Boss polygon graphics map
+    private bossGraphicsMap = new Map<Phaser.Physics.Arcade.Sprite, Phaser.GameObjects.Graphics>();
+
     constructor() {
         super('MainScene');
+    }
+
+    // Draw a regular polygon and return the vertices
+    private createPolygonGeometry(sides: number, radius: number): Phaser.Geom.Point[] {
+        const points: Phaser.Geom.Point[] = [];
+        const angleSlice = (Math.PI * 2) / sides;
+        for (let i = 0; i < sides; i++) {
+            const angle = i * angleSlice - Math.PI / 2;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            points.push(new Phaser.Geom.Point(x, y));
+        }
+        return points;
+    }
+
+    // Draw a polygon with graphics
+    private drawPolygon(graphics: Phaser.GameObjects.Graphics, sides: number, size: number, color: number) {
+        graphics.clear();
+        const points = this.createPolygonGeometry(sides, size);
+        graphics.fillStyle(color, 1);
+        graphics.beginPath();
+        graphics.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            graphics.lineTo(points[i].x, points[i].y);
+        }
+        graphics.closePath();
+        graphics.fillPath();
+        graphics.lineStyle(2, 0x4ade80, 1);
+        graphics.strokePath();
     }
 
     preload() {
@@ -78,11 +110,20 @@ class MainScene extends Phaser.Scene {
         const boss = this.enemies.create(x, 100, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
         boss.setBounce(0.5);
         boss.setCollideWorldBounds(true);
-        boss.setTint(0xff0000); // Bosses are solid red
-        boss.setAlpha(1); // Ensure full opacity
+        boss.setAlpha(0); // Hide sprite, use graphics instead
         
-        // Geometric Boss Progression
-        const sides = this.currentWave + 3;
+        // Determine sides based on wave
+        let sides = 4; // Default to square
+        if (this.currentWave === 1) sides = 4;      // Square
+        else if (this.currentWave === 2) sides = 5; // Pentagon
+        else if (this.currentWave === 3) sides = 6; // Hexagon
+        else if (this.currentWave === 4) sides = 7; // Heptagon
+        else if (this.currentWave === 5) sides = 8; // Octagon
+        else if (this.currentWave === 6) sides = 9; // Nonagon
+        else if (this.currentWave === 7) sides = 10; // Decagon
+        else if (this.currentWave === 8) sides = 12; // Dodecagon
+        else if (this.currentWave === 9) sides = 15; // Complex Polygon
+        else sides = 16 + Math.random() * 4; // Arcane form variation
         
         // Custom HP Progression from User
         const hpProgression: { [key: number]: number } = {
@@ -92,23 +133,28 @@ class MainScene extends Phaser.Scene {
         const health = hpProgression[this.currentWave] || (2000 + (this.currentWave - 10) * 500);
         
         const normalEnemyDamage = Math.pow(1.5, this.currentWave - 1) * 0.01;
-        const damage = normalEnemyDamage * 4; 
+        const damage = normalEnemyDamage * 4;
         
-        const size = 3 + (sides * 0.3); 
+        const baseSize = 25;
+        const size = baseSize + sides * 1.5;
 
-        boss.setScale(size);
         boss.setData('health', health);
         boss.setData('maxHealth', health);
         boss.setData('damage', damage);
         boss.setData('isBoss', true);
         boss.setData('sides', sides);
+        boss.setData('size', size);
+        
+        // Create graphics for polygon rendering
+        const bossGraphics = this.add.graphics();
+        this.bossGraphicsMap.set(boss, bossGraphics);
         
         // Boss Movement & Attack Logic
         let lastAttackTime = 0;
         let lastMovementTime = 0;
-        let moveTarget = { x: boss.x, y: boss.y };
         let orbitAngle = 0;
         let isTeleporting = false;
+        let polygonRotation = 0;
 
         const updateMovement = () => {
             if (!boss.active || !this.player.active) return;
@@ -127,11 +173,11 @@ class MainScene extends Phaser.Scene {
                 // Special Attack: Teleport for Wave 9+
                 if (wave >= 9 && Math.random() > 0.5) {
                     isTeleporting = true;
-                    boss.setAlpha(0);
+                    bossGraphics.setAlpha(0);
                     this.time.delayedCall(300, () => {
                         if (!boss.active) return;
                         boss.setPosition(this.player.x + Phaser.Math.Between(-100, 100), this.player.y - 200);
-                        boss.setAlpha(1);
+                        bossGraphics.setAlpha(1);
                         isTeleporting = false;
                         this.cameras.main.flash(200, 255, 0, 0, true);
                     });
@@ -139,12 +185,10 @@ class MainScene extends Phaser.Scene {
                 }
 
                 boss.setData('isDashing', true);
-                boss.setTint(0xffffff);
                 
                 const dashDelay = wave >= 5 ? 300 : 500;
                 this.time.delayedCall(dashDelay, () => {
                     if (!boss.active) return;
-                    boss.setTint(0xff0000);
                     
                     const angle = Phaser.Math.Angle.Between(boss.x, boss.y, this.player.x, this.player.y);
                     const dashSpeed = wave >= 6 ? 1000 : 800;
@@ -219,21 +263,28 @@ class MainScene extends Phaser.Scene {
                 const jitterY = Math.cos(time/100) * 20;
                 boss.setVelocity(Math.cos(angle) * 450 + jitterX, Math.sin(angle) * 450 + jitterY);
             }
+            
+            // Update polygon rotation
+            polygonRotation += 0.01;
         };
         
         this.events.on('update', updateMovement);
-        boss.on('destroy', () => this.events.off('update', updateMovement));
+        boss.on('destroy', () => {
+            this.events.off('update', updateMovement);
+            bossGraphics.destroy();
+            this.bossGraphicsMap.delete(boss);
+        });
 
         // Visual name or shape representation
         const shapes = [
             'QUADRADO', 'PENTÁGONO', 'HEXÁGONO', 'HEPTÁGONO', 
-            'OCTÓGONO', 'NONÁGONO', 'DECÁGONO', 'ENNEÁGONO', 
-            'DODECÁGONO', 'POLÍGONO COMPLEXO'
+            'OCTÓGONO', 'NONÁGONO', 'DECÁGONO', 'DODECÁGONO', 
+            'POLÍGONO COMPLEXO', 'FORMA ARCANA'
         ];
         const shapeName = this.currentWave <= 10 ? shapes[this.currentWave - 1] : 'FORMA ARCANA';
         
         const bossText = this.add.text(x, 50, `CHEFE: ${shapeName}`, { 
-            fontSize: '36px', // Larger text
+            fontSize: '36px',
             color: '#ff0000', 
             fontStyle: 'bold',
             stroke: '#000000',
@@ -241,28 +292,27 @@ class MainScene extends Phaser.Scene {
         }).setOrigin(0.5).setScrollFactor(0);
 
         const healthBar = this.add.graphics();
-        const outline = this.add.graphics();
         
         const updateHUD = () => {
             if (boss.active) {
+                // Draw polygon boss using container positioning
+                bossGraphics.clear();
+                bossGraphics.x = boss.x;
+                bossGraphics.y = boss.y;
+                bossGraphics.rotation = polygonRotation;
+                this.drawPolygon(bossGraphics, Math.floor(sides), size, 0xff0000);
+                
                 // Update Health Bar
                 healthBar.clear();
                 healthBar.fillStyle(0x000000, 1);
-                healthBar.fillRect(boss.x - 75, boss.y - 80, 150, 15);
+                healthBar.fillRect(boss.x - 75, boss.y - (size + 20), 150, 15);
                 healthBar.fillStyle(0xff0000, 1);
                 const healthRatio = boss.getData('health') / health;
-                healthBar.fillRect(boss.x - 75, boss.y - 80, healthRatio * 150, 15);
+                healthBar.fillRect(boss.x - 75, boss.y - (size + 20), healthRatio * 150, 15);
                 healthBar.lineStyle(2, 0xffffff, 1);
-                healthBar.strokeRect(boss.x - 75, boss.y - 80, 150, 15);
-
-                // Update Outline
-                outline.clear();
-                outline.lineStyle(4, 0x4ade80, 1); // Green outline like player
-                const drawSize = 32 * boss.scale;
-                outline.strokeRect(boss.x - drawSize / 2, boss.y - drawSize / 2, drawSize, drawSize);
+                healthBar.strokeRect(boss.x - 75, boss.y - (size + 20), 150, 15);
             } else {
                 healthBar.destroy();
-                outline.destroy();
                 bossText.destroy();
                 this.events.off('update', updateHUD);
             }
