@@ -1598,7 +1598,7 @@ class MainScene extends Phaser.Scene {
         
         // Update labels
         this.scoreText.setText(`Score: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
-        this.enemyCounterText.setText(`${this.enemiesDefeated - this.totalEnemiesBeforeWave}/${this.totalEnemiesInWave}`);
+        this.enemyCounterText.setText(`${this.enemiesDefeated - this.totalEnemiesBeforeWave}`);
 
         // Health and Ki arc rendering
         this.kiarcBar.clear();
