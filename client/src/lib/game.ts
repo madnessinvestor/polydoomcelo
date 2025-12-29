@@ -82,11 +82,16 @@ class MainScene extends Phaser.Scene {
         boss.setAlpha(1); // Ensure full opacity
         
         // Geometric Boss Progression
-        // Sides: Wave 1=4 (Square), 2=5 (Pentagon), 3=6 (Hexagon), etc.
         const sides = this.currentWave + 3;
-        const health = sides * 15; // Increased boss health significantly
-        const damage = sides * 0.15; // Slightly more damage
-        const size = 3 + (sides * 0.3); // Larger visual scaling for better visibility
+        const health = sides * 15; 
+        
+        // At wave 1: normal enemy damage = 0.01
+        // Boss damage must be 4x normal enemy
+        // Normal enemy damage also scales by wave (multiplier = 1.5^(wave-1))
+        const normalEnemyDamage = Math.pow(1.5, this.currentWave - 1) * 0.01;
+        const damage = normalEnemyDamage * 4; 
+        
+        const size = 3 + (sides * 0.3); 
 
         boss.setScale(size);
         boss.setData('health', health);
