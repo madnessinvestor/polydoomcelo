@@ -1579,7 +1579,8 @@ class MainScene extends Phaser.Scene {
 
         // Screen flash
         this.cameras.main.flash(500, 255, 255, 255);
-        this.cameras.main.shake(500, 0.05);
+        const shakeIntensity = this.level >= 10 ? 0.025 : 0.05;
+        this.cameras.main.shake(500, shakeIntensity);
 
         // ONLY restart if it's the player exploding (Game Over)
         if (this.isGameOver) {
