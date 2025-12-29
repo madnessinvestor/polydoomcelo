@@ -84,7 +84,7 @@ class MainScene extends Phaser.Scene {
         this.keys = this.input.keyboard!.addKeys('Z,X,C,V');
 
         // Enhanced HUD
-        this.scoreText.setText(`Inimigos: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
+        this.scoreText = this.add.text(16, 16, `Inimigos: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { fontSize: '24px', color: '#fff' });
         this.waveText = this.add.text(16, 50, 'WAVE: 1', { fontSize: '32px', color: '#fbbf24', fontStyle: 'bold' });
         this.timerText = this.add.text(width - 150, 16, '01:00', { fontSize: '32px', color: '#fff', fontStyle: 'bold' });
         
