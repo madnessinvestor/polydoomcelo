@@ -1046,7 +1046,7 @@ class MainScene extends Phaser.Scene {
         // Círculo de impacto visual proporcional ao nível
         const baseRadius = 400;
         const currentRadius = baseRadius * multiplier;
-        const impactCircle = this.add.circle(this.player.x, this.player.y + 16, 20, 0x4ade80, 0.6);
+        const impactCircle = this.add.circle(this.player.x, this.player.y + 16, 20, 0xffdd00, 0.4);
         this.tweens.add({
             targets: impactCircle,
             radius: currentRadius,
@@ -1122,7 +1122,7 @@ class MainScene extends Phaser.Scene {
         this.kiarc -= 50;
         const beamLength = 800;
         const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
-        const beam = this.add.rectangle(beamX, this.player.y, beamLength, 25, 0x4ade80, 0.7);
+        const beam = this.add.rectangle(beamX, this.player.y, beamLength, 25, 0xffdd00, 0.7);
         this.physics.add.existing(beam);
         const body = beam.body as Phaser.Physics.Arcade.Body;
         body.setAllowGravity(false);
@@ -1164,7 +1164,7 @@ class MainScene extends Phaser.Scene {
         const magicDamage = stats.magic;
         
         this.kiarc -= 20;
-        const magic = this.add.circle(this.player.x, this.player.y, 15, 0x60a5fa);
+        const magic = this.add.circle(this.player.x, this.player.y, 15, 0xffdd00);
         this.physics.add.existing(magic);
         const body = magic.body as Phaser.Physics.Arcade.Body;
         body.setAllowGravity(false);
