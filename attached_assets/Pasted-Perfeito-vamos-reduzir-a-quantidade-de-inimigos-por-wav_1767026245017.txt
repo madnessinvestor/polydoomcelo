@@ -1,0 +1,280 @@
+Perfeito — vamos reduzir a quantidade de inimigos por wave para algo mais saudável, mantendo:
+
+sensação de horda
+
+waves de 2 minutos
+
+performance estável
+
+coerência com o HP alto do personagem
+
+desafio vindo de variedade + pressão, não só número bruto
+
+A ideia é: menos inimigos simultâneos, mais controle e leitura.
+
+🌊 QUANTIDADE DE INIMIGOS POR WAVE (AJUSTADA)
+📌 Nova curva (10 waves)
+Wave	Total de Inimigos	Observação
+Wave 1	60	Introdução, aprendizado
+Wave 2	90	Começa a pressionar
+Wave 3	130	Primeira horda real
+Wave 4	180	Ritmo consistente
+Wave 5	240	Mid game
+Wave 6	310	Pressão contínua
+Wave 7	400	Alta intensidade
+Wave 8	520	Caos controlado
+Wave 9	680	Pré-final
+Wave 10	850	Final insano, mas justo
+
+➡️ Ainda é muito inimigo, só não é exagero injusto.
+
+⏱️ Spawn médio por segundo (2 minutos)
+Wave	Inimigos / segundo
+Wave 1	0.5
+Wave 3	1.1
+Wave 5	2.0
+Wave 7	3.3
+Wave 10	7.1
+
+(spawn sempre em batches pequenos)
+
+⚙️ Regras importantes de spawn
+
+❌ Nunca spawnar tudo de uma vez
+
+✅ Spawn contínuo durante os 120s
+
+✅ Cap simultâneo recomendado: 120–200 inimigos
+
+✅ Inimigos mortos liberam espaço
+
+🧠 Por que isso é melhor
+
+Menos caos visual
+
+Menos queda de FPS
+
+Jogador consegue ler padrões
+
+Arcamehameha continua satisfatório
+
+Chefes continuam relevantes
+
+📌 Texto curto pra pedir ao Replit
+
+“Reduzir a quantidade total de inimigos por wave para uma curva mais equilibrada (60 → 850 ao longo de 10 waves), mantendo spawn contínuo em 2 minutos e limite de inimigos simultâneos.”
+
+Se quiser, no próximo passo posso:
+
+redistribuir tipos de inimigos nessa nova curva
+
+ajustar spawn rate progressivo dentro da wave
+
+balancear modo fácil / difícil
+
+Quer ajustar distribuição por tipo agora?
+
+Fale também quais inimigos são igual fez lá em cima
+
+Perfeito 👍
+Vou refazer a tabela completa, agora com:
+
+✅ quantidade reduzida por wave
+
+✅ 2 minutos de duração
+
+✅ quais inimigos aparecem em cada wave
+
+✅ progressão clara (inimigos novos entram, antigos continuam)
+
+✅ tudo coerente com HP/dano do personagem
+
+👾 WAVES + TIPOS DE INIMIGOS (AJUSTADO)
+📌 Lembrete rápido dos inimigos
+
+Ground Crawler (Quadrado) – anda no chão, dano por contato
+
+Slider (Retângulo) – desliza rápido no chão
+
+Hopper (Triângulo) – pula em arcos
+
+Flyer (Círculo) – voa
+
+Orb Mage (Hexágono) – lança magia
+
+Charger (Pentágono) – investida rápida
+
+Splitter (Octógono) – divide ao morrer
+
+Shielded (Quadrado borda dupla) – reduz dano frontal
+
+Sniper (Triângulo alongado) – ataque à distância
+
+Arc Warden (Polígono complexo) – elite mágico
+
+🌊 WAVES (10 WAVES)
+🟢 Wave 1 — 60 inimigos
+
+Ground Crawler: 60
+
+(aprendizado total)
+
+🟢 Wave 2 — 90 inimigos
+
+Ground Crawler: 50
+
+Slider: 25
+
+Hopper: 15
+
+🟢 Wave 3 — 130 inimigos
+
+Ground Crawler: 60
+
+Slider: 30
+
+Hopper: 20
+
+Flyer: 20
+
+🟡 Wave 4 — 180 inimigos
+
+Ground Crawler: 70
+
+Slider: 35
+
+Hopper: 30
+
+Flyer: 25
+
+Orb Mage: 20
+
+🟡 Wave 5 — 240 inimigos
+
+Ground Crawler: 80
+
+Slider: 45
+
+Hopper: 40
+
+Flyer: 35
+
+Orb Mage: 25
+
+Charger: 15
+
+🟠 Wave 6 — 310 inimigos
+
+Ground Crawler: 90
+
+Slider: 55
+
+Hopper: 50
+
+Flyer: 45
+
+Orb Mage: 35
+
+Charger: 25
+
+Splitter: 10
+
+🔴 Wave 7 — 400 inimigos
+
+Ground Crawler: 110
+
+Slider: 70
+
+Hopper: 60
+
+Flyer: 55
+
+Orb Mage: 45
+
+Charger: 35
+
+Splitter: 20
+
+Shielded: 5
+
+🔴 Wave 8 — 520 inimigos
+
+Ground Crawler: 130
+
+Slider: 85
+
+Hopper: 80
+
+Flyer: 70
+
+Orb Mage: 60
+
+Charger: 50
+
+Splitter: 30
+
+Shielded: 10
+
+Sniper: 5
+
+🔴 Wave 9 — 680 inimigos
+
+Ground Crawler: 160
+
+Slider: 110
+
+Hopper: 100
+
+Flyer: 90
+
+Orb Mage: 80
+
+Charger: 65
+
+Splitter: 40
+
+Shielded: 20
+
+Sniper: 10
+
+Arc Warden: 5
+
+🔥 Wave 10 — 850 inimigos
+
+Todos os inimigos ativos
+
+Sugestão de peso:
+
+Mais Flyers, Mages e Snipers
+
+Arc Warden: 15–20
+
+Shielded e Splitter em maior número
+
+Caos máximo, porém controlado
+
+⚙️ REGRAS IMPORTANTES (IMPLEMENTAÇÃO)
+
+Spawn contínuo ao longo de 120 segundos
+
+Spawn em lotes pequenos
+
+Cap simultâneo recomendado: 120–200
+
+Inimigos mortos liberam espaço
+
+Chefes entram após os 2 minutos
+
+🧠 Leitura de dificuldade
+
+Waves 1–3: aprendizado
+
+Waves 4–6: pressão crescente
+
+Waves 7–9: sobrevivência
+
+Wave 10: prova final
+
+📌 Texto curto pra enviar ao Replit
+
+“Cada wave deve ter spawn progressivo por 2 minutos, com tipos de inimigos específicos por wave conforme tabela, mantendo inimigos antigos e adicionando novos gradualmente.”
