@@ -58,7 +58,16 @@ class MainScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.spritesheet('gokuarc', '/attached_assets/generated_images/pixel_art_gokuarc_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.image('arc_lvl_1', '/attached_assets/Arc_Lvl_1_1767022253715.png');
+        this.load.image('arc_lvl_2', '/attached_assets/Arc_Lvl_2_1767022253716.png');
+        this.load.image('arc_lvl_3', '/attached_assets/Arc_Lvl_3_1767022253717.png');
+        this.load.image('arc_lvl_4', '/attached_assets/Arc_Lvl_4_1767022253717.png');
+        this.load.image('arc_lvl_5', '/attached_assets/Arc_Lvl_5_1767022253717.png');
+        this.load.image('arc_lvl_6', '/attached_assets/Arc_Lvl_6_1767022253718.png');
+        this.load.image('arc_lvl_7', '/attached_assets/Arc_Lvl_7_1767022253718.png');
+        this.load.image('arc_lvl_8', '/attached_assets/Arc_Lvl_8_1767022253714.png');
+        this.load.image('arc_lvl_9', '/attached_assets/Arc_Lvl_9_1767022253715.png');
+        this.load.image('arc_lvl_10', '/attached_assets/Arc_Lvl_10_1767022253715.png');
         this.load.spritesheet('criptoide_basic', '/attached_assets/generated_images/pixel_art_criptoide_basic_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('jungle_tiles', '/attached_assets/generated_images/pixel_art_jungle_tileset.png', { frameWidth: 32, frameHeight: 32 });
     }
@@ -74,7 +83,7 @@ class MainScene extends Phaser.Scene {
             platforms.create(i * 32, height - 16, 'jungle_tiles', 0).refreshBody();
         }
 
-        this.player = this.physics.add.sprite(100, height - 100, 'gokuarc');
+        this.player = this.physics.add.sprite(100, height - 100, 'arc_lvl_1');
         this.player.setCollideWorldBounds(true);
         this.player.setTint(0x4ade80); // Green triangle
         this.player.setScale(1.5);
