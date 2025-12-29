@@ -588,14 +588,20 @@ class MainScene extends Phaser.Scene {
     private spawnBatch() {
         if (this.isWaveInterval || this.isGameOver) return;
 
+        if (!this.enemies) return;
         const activeEnemies = this.enemies.countActive(true);
         if (activeEnemies >= this.maxSimultaneousEnemies) return;
 
         const remainingToSpawn = this.totalEnemiesInWave - this.enemiesSpawnedInWave;
         if (remainingToSpawn <= 0) return;
 
-        // Spawn 20-40 enemies per batch
-        const batchSize = Math.min(Phaser.Math.Between(20, 40), remainingToSpawn, this.maxSimultaneousEnemies - activeEnemies);
+        // Ensure we spawn everything within a reasonable time (e.g., 60 seconds)
+        // If we have many remaining, increase batch size
+        const batchSize = Math.min(
+            Phaser.Math.Between(20, 40), 
+            remainingToSpawn, 
+            this.maxSimultaneousEnemies - activeEnemies
+        );
 
         for (let i = 0; i < batchSize; i++) {
             this.spawnEnemy();
@@ -1118,7 +1124,7 @@ class MainScene extends Phaser.Scene {
         }
 
         if (this.enemyCounterText) {
-            const activeEnemies = this.enemies.countActive(true);
+            const activeEnemies = this.enemies ? this.enemies.countActive(true) : 0;
             this.enemyCounterText.setText(`On Screen: ${activeEnemies}`);
         }
 
