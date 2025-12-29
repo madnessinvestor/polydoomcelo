@@ -1069,8 +1069,11 @@ class MainScene extends Phaser.Scene {
                     if (this.enemiesDefeated + 1 >= nextLevelThreshold && this.level < 10) {
                         this.level++;
                         
-                        // Level up recovery: restore HP and KI
-                        this.health = 100;
+                        // Update max stats for new level and restore to 100%
+                        const newLevelStats = this.levelStats[this.level - 1];
+                        this.maxHealth = newLevelStats.hp;
+                        this.maxKiarc = newLevelStats.ki;
+                        this.health = this.maxHealth;
                         this.kiarc = this.maxKiarc;
                         
                         const titles = [
