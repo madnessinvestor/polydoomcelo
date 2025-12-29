@@ -353,6 +353,16 @@ class MainScene extends Phaser.Scene {
         this.tooltipText = this.add.text(10, 35, '', { fontSize: '14px', color: '#ffffff', fontFamily: 'Pixel', wordWrap: { width: 200 } });
         this.tooltipContainer.add([this.tooltipBg, this.tooltipTitle, this.tooltipText]);
 
+        // Pickup Notification System
+        this.pickupNotificationBg = this.add.graphics().setScrollFactor(0).setDepth(2001).setVisible(false);
+        this.pickupNotification = this.add.text(16, 10, '', {
+            fontSize: '14px',
+            color: '#ffffff',
+            fontFamily: 'Pixel',
+            backgroundColor: '#000000',
+            padding: { x: 8, y: 4 }
+        }).setScrollFactor(0).setDepth(2002).setVisible(false);
+
         this.updateHUD();
 
         // Update buff icons in real-time
@@ -1365,6 +1375,27 @@ class MainScene extends Phaser.Scene {
         });
     }
 
+    private showPickupNotification(title: string, description: string) {
+        if (this.pickupTimer) this.pickupTimer.remove();
+        
+        this.pickupNotification.setText(`${title}: ${description}`);
+        this.pickupNotification.setVisible(true);
+        
+        // Background for the notification
+        const bounds = this.pickupNotification.getBounds();
+        this.pickupNotificationBg.clear();
+        this.pickupNotificationBg.fillStyle(0x000000, 0.8);
+        this.pickupNotificationBg.lineStyle(1, 0x4ade80, 1);
+        this.pickupNotificationBg.fillRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
+        this.pickupNotificationBg.strokeRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
+        this.pickupNotificationBg.setVisible(true);
+
+        this.pickupTimer = this.time.delayedCall(3000, () => {
+            this.pickupNotification.setVisible(false);
+            this.pickupNotificationBg.setVisible(false);
+        });
+    }
+
     private handlePlayerItemCollision(player: any, item: any) {
         const type = item.getData('type');
         const stats = this.levelStats[this.level - 1];
@@ -1373,15 +1404,18 @@ class MainScene extends Phaser.Scene {
             case 'ArcHP':
                 this.health = Math.min(this.maxHealth, this.health + this.maxHealth * 0.3);
                 this.cameras.main.flash(200, 0, 255, 0, true);
+                this.showPickupNotification('ArcHP', 'Recupera 30% de Vida.');
                 break;
             case 'ArcKI':
                 this.kiarc = Math.min(this.maxKiarc, this.kiarc + this.maxKiarc * 0.4);
                 this.cameras.main.flash(200, 0, 0, 255, true);
+                this.showPickupNotification('ArcKI', 'Recupera 40% de Energia (KI).');
                 break;
             case 'ArcPower':
                 this.hasPowerBoost = true;
                 this.addBuff('ArcPower', 'Power Boost', 'Dobra todo o dano do personagem (Soco, Magia e Arcamehameha).', 20);
                 this.cameras.main.flash(500, 255, 0, 0, true);
+                this.showPickupNotification('ArcPower', 'Dano Dobrado por 20 segundos!');
                 this.time.delayedCall(20000, () => {
                     this.hasPowerBoost = false;
                     this.removeBuff('ArcPower');
@@ -1391,6 +1425,7 @@ class MainScene extends Phaser.Scene {
                 this.hasScoreBoost = true;
                 this.addBuff('ArcScore', 'Score Boost', 'Dobra todo o score ganho de inimigos e chefes.', 20);
                 this.cameras.main.flash(500, 255, 215, 0, true);
+                this.showPickupNotification('ArcScore', 'Pontuação Dobrada por 20 segundos!');
                 this.time.delayedCall(20000, () => {
                     this.hasScoreBoost = false;
                     this.removeBuff('ArcScore');
@@ -1401,6 +1436,7 @@ class MainScene extends Phaser.Scene {
                 this.invincibilityTimer = 20000; // 20 seconds
                 this.addBuff('ArcBarrier', 'Invencibilidade', 'Personagem fica invencível e não recebe dano.', 20);
                 this.cameras.main.flash(300, 255, 0, 255, true);
+                this.showPickupNotification('ArcBarrier', 'Invencibilidade por 20 segundos!');
                 this.time.delayedCall(20000, () => {
                     this.isInvincible = false;
                     this.removeBuff('ArcBarrier');
@@ -1832,6 +1868,9 @@ class MainScene extends Phaser.Scene {
     private tooltipBg!: Phaser.GameObjects.Graphics;
     private tooltipTitle!: Phaser.GameObjects.Text;
     private tooltipText!: Phaser.GameObjects.Text;
+    private pickupNotification!: Phaser.GameObjects.Text;
+    private pickupNotificationBg!: Phaser.GameObjects.Graphics;
+    private pickupTimer!: Phaser.Time.TimerEvent;
 }
 
 const config: Phaser.Types.Core.GameConfig = {
