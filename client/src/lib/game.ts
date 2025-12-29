@@ -97,20 +97,60 @@ class MainScene extends Phaser.Scene {
         boss.setData('isBoss', true);
         boss.setData('sides', sides);
         
-        // Boss Movement Logic (Floating/Chase)
+        // Boss Movement & Attack Logic
+        let lastAttackTime = 0;
         const updateMovement = () => {
             if (!boss.active || !this.player.active) return;
             
-            // Floating sinusoidal movement
-            const time = this.time.now / 1000;
-            const offsetY = Math.sin(time * 2) * 100;
+            const time = this.time.now;
+            const isDashing = boss.getData('isDashing');
+
+            if (isDashing) {
+                // Keep moving in dash direction
+                return;
+            }
+
+            // Attack Logic: Dash towards player every 3 seconds
+            if (time - lastAttackTime > 3000) {
+                lastAttackTime = time;
+                boss.setData('isDashing', true);
+                
+                // Visual cue before dash
+                boss.setTint(0xffffff);
+                this.time.delayedCall(500, () => {
+                    if (!boss.active) return;
+                    boss.setTint(0xff0000);
+                    
+                    // Dash
+                    const angle = Phaser.Math.Angle.Between(boss.x, boss.y, this.player.x, this.player.y);
+                    const dashSpeed = 800;
+                    boss.setVelocity(Math.cos(angle) * dashSpeed, Math.sin(angle) * dashSpeed);
+                    
+                    // Trail effect
+                    const trail = this.add.circle(boss.x, boss.y, 10, 0xff0000, 0.5);
+                    this.tweens.add({
+                        targets: trail,
+                        alpha: 0,
+                        duration: 500,
+                        onComplete: () => trail.destroy()
+                    });
+
+                    // Stop dash after 1 second
+                    this.time.delayedCall(1000, () => {
+                        if (boss.active) boss.setData('isDashing', false);
+                    });
+                });
+                return;
+            }
+            
+            // Default Movement: Floating sinusoidal chase
+            const seconds = time / 1000;
+            const offsetY = Math.sin(seconds * 2) * 100;
             const targetY = 200 + offsetY;
             
-            // Move horizontally towards player
             const dx = this.player.x - boss.x;
             boss.setVelocityX(dx * 0.5);
             
-            // Smoothly interpolate vertical position
             const dy = targetY - boss.y;
             boss.setVelocityY(dy * 2);
         };
