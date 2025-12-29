@@ -283,7 +283,7 @@ class MainScene extends Phaser.Scene {
             delay: 50,
             callback: () => {
                 if (this.player.active && this.player.body && this.player.body.velocity.length() > 100) {
-                    const trail = this.add.circle(this.player.x, this.player.y, 16, 0x4ade80, 0.3);
+                    const trail = this.add.circle(this.player.x, this.player.y, 16, 0xffd700, 0.3);
                     trail.setDepth(5);
                     this.tweens.add({
                         targets: trail,
