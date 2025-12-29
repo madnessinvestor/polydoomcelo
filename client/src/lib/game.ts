@@ -855,12 +855,53 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    updateHUD() {
-        // Update Player Sprite based on level
-        const currentLvl = Math.min(10, this.level);
-        const textureKey = `arc_lvl_${currentLvl}`;
+    updatePlayerVisual() {
+        if (!this.player.active) return;
+        
+        const visualLevel = Math.min(10, this.level);
+        const textureKey = `arc_lvl_${visualLevel}`;
+        
         if (this.player.texture.key !== textureKey) {
             this.player.setTexture(textureKey);
+            
+            this.cameras.main.flash(200, 255, 255, 255);
+            
+            const levelUpText = this.add.text(this.player.x, this.player.y - 50, 'LEVEL UP!', {
+                fontSize: '24px',
+                fontFamily: 'Pixel',
+                color: '#4ade80',
+                stroke: '#000',
+                strokeThickness: 4
+            }).setOrigin(0.5);
+            
+            this.tweens.add({
+                targets: levelUpText,
+                y: levelUpText.y - 100,
+                alpha: 0,
+                duration: 1500,
+                onComplete: () => levelUpText.destroy()
+            });
+        }
+    }
+
+    updateHUD() {
+        // Character level progression logic based on enemies defeated
+        const nextLevelThreshold = this.level * 10;
+        if (this.enemiesDefeated >= nextLevelThreshold && this.level < 10) {
+            this.level++;
+            
+            const titles = [
+                'Arc Initiate', 'Arc Squire', 'Arc Warrior', 'Arc Knight', 
+                'Arc Commander', 'Arc Master', 'Arc Grandmaster', 
+                'Arc Sage', 'Arc Eternal', 'Arc Divine'
+            ];
+            this.levelTitle = titles[this.level - 1];
+            
+            this.updatePlayerVisual();
+        }
+
+        if (this.scoreText) {
+            this.scoreText.setText(`Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
         }
 
         this.kiarcBar.clear();
@@ -872,7 +913,7 @@ class MainScene extends Phaser.Scene {
         this.kiarcBar.fillRect(16, 105, (this.kiarc / this.maxKiarc) * 300, 20);
         
         if (!this.kiLabel) {
-            this.kiLabel = this.add.text(325, 105, 'ARCki', { fontSize: '16px', color: '#4ade80', fontStyle: 'bold', fontFamily: '"8-BIT WONDER"' });
+            this.kiLabel = this.add.text(325, 105, 'ARCki', { fontSize: '16px', color: '#4ade80', fontStyle: 'bold', fontFamily: 'Pixel' });
         }
 
         // ARChp Bar (Vermelho)
@@ -882,7 +923,7 @@ class MainScene extends Phaser.Scene {
         this.kiarcBar.fillRect(16, 135, (this.health / 100) * 300, 15);
 
         if (!this.hpLabel) {
-            this.hpLabel = this.add.text(325, 135, 'ARChp', { fontSize: '16px', color: '#ff0000', fontStyle: 'bold', fontFamily: '"8-BIT WONDER"' });
+            this.hpLabel = this.add.text(325, 135, 'ARChp', { fontSize: '16px', color: '#ff0000', fontStyle: 'bold', fontFamily: 'Pixel' });
         }
     }
 
