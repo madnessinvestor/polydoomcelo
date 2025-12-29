@@ -272,7 +272,7 @@ class MainScene extends Phaser.Scene {
             strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
 
-        this.timerText = this.add.text(width - 16, 16 + fontSize + 10, '02:00', { 
+        this.timerText = this.add.text(width - 16, 16 + fontSize + 10, '01:00', { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
             fontStyle: 'bold', 
@@ -550,7 +550,7 @@ class MainScene extends Phaser.Scene {
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
-        // Spawn batch size: total / 120s
+        // Spawn batch size: total / 60s
         const spawnDelay = 1000; // once per second
         this.spawnEvent = this.time.addEvent({
             delay: spawnDelay,
@@ -562,8 +562,8 @@ class MainScene extends Phaser.Scene {
         const hudScale = Math.max(1, this.cameras.main.width / 800);
         const countdownFontSize = Math.floor(48 * hudScale);
 
-        // 120-second countdown before boss spawn
-        const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'BOSS IN: 120', {
+        // Countdown before boss spawn (e.g. 60 seconds after wave start)
+        const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'BOSS IN: 60', {
             fontSize: `${countdownFontSize}px`,
             color: '#ff0000',
             fontStyle: 'bold',
@@ -572,10 +572,10 @@ class MainScene extends Phaser.Scene {
             fontFamily: 'Pixel'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
 
-        let timeLeft = 120;
+        let timeLeft = 60;
         this.time.addEvent({
             delay: 1000,
-            repeat: 119,
+            repeat: 59,
             callback: () => {
                 timeLeft--;
                 countdownText.setText(`BOSS IN: ${timeLeft}`);
@@ -595,8 +595,17 @@ class MainScene extends Phaser.Scene {
         const activeEnemies = this.enemies.countActive(true);
         if (activeEnemies >= this.maxSimultaneousEnemies) return;
 
-        // Spread spawn over 120s
-        const enemiesPerSecond = Math.ceil(this.totalEnemiesInWave / 120);
+        // Spread spawn over 60s as requested ("lançamento de inimigos ocorre por volta de 1 minuto")
+        // Stop spawning when wave total is reached
+        if (this.enemiesSpawnedInWave >= this.totalEnemiesInWave) {
+            if (this.spawnEvent) {
+                this.spawnEvent.destroy();
+                this.spawnEvent = undefined as any;
+            }
+            return;
+        }
+
+        const enemiesPerSecond = Math.ceil(this.totalEnemiesInWave / 60);
         const batchSize = Math.min(
             enemiesPerSecond, 
             this.totalEnemiesInWave - this.enemiesSpawnedInWave,
@@ -659,9 +668,9 @@ class MainScene extends Phaser.Scene {
             const secs = elapsed % 60;
             this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
 
-            // Wave lasts 2 minutes (120 seconds)
-            // After 2 minutes, check if all enemies are defeated to finish
-            if (elapsed >= 120 && this.enemies.countActive(true) === 0) {
+            // Wave conclusion: No duration limit, just check if all enemies are defeated
+            // Spawning should have ended (handled in spawnBatch)
+            if (this.enemiesSpawnedInWave >= this.totalEnemiesInWave && this.enemies.countActive(true) === 0 && !this.isWaveInterval) {
                 this.startInterval();
             }
         } else {
