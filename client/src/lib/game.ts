@@ -355,7 +355,7 @@ class MainScene extends Phaser.Scene {
 
         // Pickup Notification System
         this.pickupNotificationBg = this.add.graphics().setScrollFactor(0).setDepth(2001).setVisible(false);
-        this.pickupNotification = this.add.text(16, 10, '', {
+        this.pickupNotification = this.add.text(16, 160, '', {
             fontSize: '14px',
             color: '#ffffff',
             fontFamily: 'Pixel',
@@ -1790,9 +1790,23 @@ class MainScene extends Phaser.Scene {
         this.kiLabel.setText(`KI: ${Math.ceil(this.kiarc)}/${this.maxKiarc}`);
         this.kiLabel.setPosition(kiX + 10, kiY + 0);
 
-        // Update buff icons position
+        // Update notification position to be below bars
+        const notifyY = kiY + kiHeight + 10;
+        if (this.pickupNotification) {
+            this.pickupNotification.setPosition(16, notifyY);
+            if (this.pickupNotification.visible) {
+                const bounds = this.pickupNotification.getBounds();
+                this.pickupNotificationBg.clear();
+                this.pickupNotificationBg.fillStyle(0x000000, 0.8);
+                this.pickupNotificationBg.lineStyle(1, 0x4ade80, 1);
+                this.pickupNotificationBg.fillRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
+                this.pickupNotificationBg.strokeRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
+            }
+        }
+
+        // Update buff icons position below notification
         if (this.buffIconsContainer) {
-            this.buffIconsContainer.setPosition(16, kiY + kiHeight + 15);
+            this.buffIconsContainer.setPosition(16, notifyY + 40);
         }
     }
 
