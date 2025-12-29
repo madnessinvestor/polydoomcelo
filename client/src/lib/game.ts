@@ -320,14 +320,17 @@ class MainScene extends Phaser.Scene {
         ];
         const shapeName = this.currentWave <= 10 ? shapes[this.currentWave - 1] : 'ARCANE FORM';
         
-        const bossText = this.add.text(x, 50, `BOSS: ${shapeName}`, { 
-            fontSize: '144px',
+        const hudScale = Math.max(1, this.cameras.main.width / 800);
+        const bossFontSize = Math.floor(36 * hudScale);
+
+        const bossText = this.add.text(x, 80, `BOSS: ${shapeName}`, { 
+            fontSize: `${bossFontSize}px`,
             color: '#ff0000', 
             fontStyle: 'bold',
             stroke: '#000000',
             strokeThickness: 6,
-            fontFamily: '8-BIT WONDER'
-        }).setOrigin(0.5).setScrollFactor(0);
+            fontFamily: 'monospace'
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
 
         const healthBar = this.add.graphics();
         
@@ -376,15 +379,18 @@ class MainScene extends Phaser.Scene {
             loop: true
         });
 
+        const hudScale = Math.max(1, this.cameras.main.width / 800);
+        const countdownFontSize = Math.floor(48 * hudScale);
+
         // 10-second countdown before boss spawn
         const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'BOSS IN: 10', {
-            fontSize: '192px',
+            fontSize: `${countdownFontSize}px`,
             color: '#ff0000',
             fontStyle: 'bold',
             stroke: '#000000',
             strokeThickness: 8,
-            fontFamily: '8-BIT WONDER'
-        }).setOrigin(0.5).setScrollFactor(0);
+            fontFamily: 'monospace'
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
 
         let timeLeft = 10;
         this.time.addEvent({
