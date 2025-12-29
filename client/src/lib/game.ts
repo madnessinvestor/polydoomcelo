@@ -1521,9 +1521,81 @@ class MainScene extends Phaser.Scene {
     }
 
     updateHUD() {
-        // ... (existing logic)
+        const width = this.cameras.main.width;
+        const hudScale = Math.max(1, width / 800);
+        const fontSize = Math.floor(24 * hudScale);
         
-        this.updateBuffsUI();
+        // Update labels
+        this.scoreText.setText(`Score: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
+        this.enemyCounterText.setText(`${this.enemiesDefeated - this.totalEnemiesBeforeWave}/${this.totalEnemiesInWave}`);
+
+        // Health and Ki arc rendering
+        this.kiarcBar.clear();
+        
+        // Health Bar (Left side)
+        const hbWidth = 300 * hudScale;
+        const hbHeight = 25 * hudScale;
+        const hbX = 16;
+        const hbY = 16 + fontSize + 10;
+
+        // BG
+        this.kiarcBar.fillStyle(0x000000, 0.7);
+        this.kiarcBar.fillRect(hbX, hbY, hbWidth, hbHeight);
+        
+        // Health Fill
+        const healthRatio = Math.max(0, this.health / this.maxHealth);
+        this.kiarcBar.fillStyle(0xff4444, 1);
+        this.kiarcBar.fillRect(hbX, hbY, hbWidth * healthRatio, hbHeight);
+        
+        // Border
+        this.kiarcBar.lineStyle(2, 0xffffff, 1);
+        this.kiarcBar.strokeRect(hbX, hbY, hbWidth, hbHeight);
+
+        // HP Text
+        if (!this.hpLabel) {
+            this.hpLabel = this.add.text(hbX + 10, hbY + 2, '', { 
+                fontSize: `${Math.floor(16 * hudScale)}px`, 
+                color: '#fff', 
+                fontFamily: 'Pixel' 
+            }).setScrollFactor(0).setDepth(1001);
+        }
+        this.hpLabel.setText(`HP: ${Math.ceil(this.health)}/${this.maxHealth}`);
+        this.hpLabel.setPosition(hbX + 10, hbY + 2);
+
+        // Ki Bar (Right side or below)
+        const kiWidth = 300 * hudScale;
+        const kiHeight = 20 * hudScale;
+        const kiX = 16;
+        const kiY = hbY + hbHeight + 10;
+
+        // BG
+        this.kiarcBar.fillStyle(0x000000, 0.7);
+        this.kiarcBar.fillRect(kiX, kiY, kiWidth, kiHeight);
+        
+        // Ki Fill
+        const kiRatio = Math.max(0, this.kiarc / this.maxKiarc);
+        this.kiarcBar.fillStyle(0x60a5fa, 1);
+        this.kiarcBar.fillRect(kiX, kiY, kiWidth * kiRatio, kiHeight);
+        
+        // Border
+        this.kiarcBar.lineStyle(2, 0xffffff, 1);
+        this.kiarcBar.strokeRect(kiX, kiY, kiWidth, kiHeight);
+
+        // KI Text
+        if (!this.kiLabel) {
+            this.kiLabel = this.add.text(kiX + 10, kiY + 1, '', { 
+                fontSize: `${Math.floor(14 * hudScale)}px`, 
+                color: '#fff', 
+                fontFamily: 'Pixel' 
+            }).setScrollFactor(0).setDepth(1001);
+        }
+        this.kiLabel.setText(`KI: ${Math.ceil(this.kiarc)}/${this.maxKiarc}`);
+        this.kiLabel.setPosition(kiX + 10, kiY + 1);
+
+        // Update buff icons position
+        if (this.buffIconsContainer) {
+            this.buffIconsContainer.setPosition(16, kiY + kiHeight + 15);
+        }
     }
 
     private updateBuffsUI() {
