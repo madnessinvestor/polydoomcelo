@@ -162,14 +162,14 @@ class MainScene extends Phaser.Scene {
             strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
 
-        this.timerText = this.add.text(width - 150, 16, '01:00', { 
+        this.timerText = this.add.text(width - 16, 16 + fontSize + 10, '01:00', { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
             fontStyle: 'bold', 
             fontFamily: '"8-BIT WONDER"',
             stroke: '#000',
             strokeThickness: 4
-        }).setScrollFactor(0).setDepth(1000);
+        }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
         
         this.kiarcBar = this.add.graphics().setScrollFactor(0).setDepth(1000);
         this.updateHUD();
