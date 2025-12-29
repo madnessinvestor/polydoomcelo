@@ -15,6 +15,9 @@ class MainScene extends Phaser.Scene {
     private scoreText!: Phaser.GameObjects.Text;
     private enemyCounterText!: Phaser.GameObjects.Text;
     private kiarcBar!: Phaser.GameObjects.Graphics;
+    private genkidama: Phaser.GameObjects.Arc | null = null;
+    private isChargingGenkidama: boolean = false;
+    private genkidamaChargeAmount: number = 0;
 
     // Wave system variables
     private currentWave: number = 1;
@@ -300,7 +303,7 @@ class MainScene extends Phaser.Scene {
         this.physics.add.collider(this.player, platforms);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
-        this.keys = this.input.keyboard!.addKeys('Z,X,C,V');
+        this.keys = this.input.keyboard!.addKeys('Z,X,C,V,B');
 
         // Enhanced HUD
         const hudScale = Math.max(1, width / 800);
@@ -981,6 +984,13 @@ class MainScene extends Phaser.Scene {
             this.shootArcamehameha();
         }
 
+        // Handle ArcGenkiDama (B Key)
+        if (this.keys.B.isDown && this.kiarc > 0) {
+            this.chargeGenkidama();
+        } else if (Phaser.Input.Keyboard.JustUp(this.keys.B) && this.isChargingGenkidama) {
+            this.shootGenkidama();
+        }
+
         // Handle Level 10 AOE Damage
         if (this.level >= 10) {
             const scaleFactor = 1 + (this.level - 1) * 0.08;
@@ -1177,6 +1187,79 @@ class MainScene extends Phaser.Scene {
             m.destroy();
             this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, magicDamage * damageMultiplier);
         }, undefined, this);
+    }
+
+    chargeGenkidama() {
+        this.isChargingGenkidama = true;
+        const kiToConsume = 0.5;
+        if (this.kiarc >= kiToConsume) {
+            this.kiarc -= kiToConsume;
+            this.genkidamaChargeAmount += kiToConsume;
+            
+            if (!this.genkidama) {
+                this.genkidama = this.add.circle(this.player.x, this.player.y - 100, 10, 0x0000ff, 0.6);
+            }
+            
+            // Size is proportional to charge
+            const size = 10 + (this.genkidamaChargeAmount * 1.5);
+            this.genkidama.setRadius(size);
+            this.genkidama.setPosition(this.player.x, this.player.y - size - 40);
+            
+            // Charging visual effect
+            if (this.time.now % 100 < 20) {
+                const particle = this.add.circle(this.player.x + Phaser.Math.Between(-50, 50), this.player.y + Phaser.Math.Between(-50, 50), 4, 0x0000ff, 0.8);
+                this.tweens.add({
+                    targets: particle,
+                    x: this.genkidama.x,
+                    y: this.genkidama.y,
+                    scale: 0.1,
+                    duration: 400,
+                    onComplete: () => particle.destroy()
+                });
+            }
+        }
+    }
+
+    shootGenkidama() {
+        if (!this.genkidama) return;
+        
+        const genki = this.genkidama;
+        this.genkidama = null;
+        const damage = this.genkidamaChargeAmount / 10;
+        const chargeUsed = this.genkidamaChargeAmount;
+        this.genkidamaChargeAmount = 0;
+        this.isChargingGenkidama = false;
+        
+        this.physics.add.existing(genki);
+        const body = genki.body as Phaser.Physics.Arcade.Body;
+        body.setAllowGravity(false);
+        
+        const centerX = this.cameras.main.width / 2;
+        const centerY = this.cameras.main.height / 2;
+        
+        this.physics.moveTo(genki, centerX, centerY, 400);
+        
+        this.physics.add.overlap(genki, this.enemies, (g, e) => {
+            const enemy = e as Phaser.Physics.Arcade.Sprite;
+            this.hitEnemy(enemy, damage * this.levelStats[this.level-1].mult);
+            
+            // AOE explosion on impact
+            const explosion = this.add.circle(genki.x, genki.y, genki.radius * 2, 0x0000ff, 0.3);
+            this.tweens.add({
+                targets: explosion,
+                scale: 2,
+                alpha: 0,
+                duration: 500,
+                onComplete: () => explosion.destroy()
+            });
+            
+            genki.destroy();
+        }, undefined, this);
+
+        // Auto destroy if it leaves screen or takes too long
+        this.time.delayedCall(5000, () => {
+            if (genki.active) genki.destroy();
+        });
     }
 
     hitEnemy(enemy: Phaser.Physics.Arcade.Sprite, damage: number) {
