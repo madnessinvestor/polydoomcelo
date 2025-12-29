@@ -613,12 +613,71 @@ class MainScene extends Phaser.Scene {
         }
     }
 
+    private isGameOver: boolean = false;
+
+    // Mega Man style explosion effect
+    private createExplosion(x: number, y: number) {
+        const colors = [0xffffff, 0x4ade80, 0x60a5fa];
+        const particles = 12;
+
+        for (let i = 0; i < particles; i++) {
+            const angle = (i / particles) * Math.PI * 2;
+            const velocityX = Math.cos(angle) * 200;
+            const velocityY = Math.sin(angle) * 200;
+
+            const particle = this.add.circle(x, y, 8, colors[i % colors.length]);
+            this.physics.add.existing(particle);
+            const body = particle.body as Phaser.Physics.Arcade.Body;
+            body.setAllowGravity(false);
+            body.setVelocity(velocityX, velocityY);
+
+            this.tweens.add({
+                targets: particle,
+                alpha: 0,
+                scale: 0.2,
+                duration: 1000,
+                onComplete: () => particle.destroy()
+            });
+        }
+
+        // Screen flash
+        this.cameras.main.flash(500, 255, 255, 255);
+        this.cameras.main.shake(500, 0.05);
+
+        // Restart game after delay
+        this.time.delayedCall(2000, () => {
+            this.scene.restart();
+            this.health = 100;
+            this.kiarc = 0;
+            this.score = 0;
+            this.currentWave = 1;
+            this.isGameOver = false;
+        });
+    }
+
     handlePlayerEnemyCollision(obj1: any, obj2: any) {
-        if (this.isWaveInterval) return;
+        if (this.isGameOver || this.isWaveInterval) return;
         const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
         const damage = enemy.getData('damage') !== undefined ? enemy.getData('damage') : 0.01;
         this.health -= damage;
-        if (this.health < 0) this.health = 0;
+        
+        this.player.setTint(0xff0000);
+        this.time.delayedCall(100, () => {
+            if (!this.isGameOver && this.player.active) {
+                this.player.setTint(0x4ade80);
+            }
+        });
+
+        if (this.health <= 0) {
+            this.isGameOver = true;
+            this.health = 0;
+            this.player.setVisible(false);
+            this.player.setActive(false);
+            if (this.player.body) {
+                this.player.body.enable = false;
+            }
+            this.createExplosion(this.player.x, this.player.y);
+        }
     }
 
     updateHUD() {
