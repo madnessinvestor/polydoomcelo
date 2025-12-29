@@ -84,7 +84,7 @@ class MainScene extends Phaser.Scene {
         this.keys = this.input.keyboard!.addKeys('Z,X,C,V');
 
         // Enhanced HUD
-        this.scoreText = this.add.text(16, 16, 'Inimigos: 0', { fontSize: '24px', color: '#fff' });
+        this.scoreText.setText(`Inimigos: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
         this.waveText = this.add.text(16, 50, 'WAVE: 1', { fontSize: '32px', color: '#fbbf24', fontStyle: 'bold' });
         this.timerText = this.add.text(width - 150, 16, '01:00', { fontSize: '32px', color: '#fff', fontStyle: 'bold' });
         
@@ -600,13 +600,39 @@ class MainScene extends Phaser.Scene {
                 repeat: 2,
                 onComplete: () => {
                     if (enemy.getData('isBoss')) {
-                        this.score += 50; // Extra points for boss
+                        const bossScore = 20 * Math.pow(5, this.currentWave - 1);
+                        this.score += bossScore;
                         this.cameras.main.flash(500, 255, 0, 0);
+                        
+                        // Boss defeat special effect
+                        this.add.text(enemy.x, enemy.y, `+${bossScore.toLocaleString()}`, {
+                            fontSize: '48px',
+                            color: '#fbbf24',
+                            fontStyle: 'bold',
+                            stroke: '#000',
+                            strokeThickness: 6
+                        }).setOrigin(0.5).setScrollFactor(1);
                     } else {
                         this.score++;
                     }
+
+                    // Check level up
+                    const result = this.getLevelTitle(this.score);
+                    if (result.level > this.level) {
+                        this.level = result.level;
+                        this.levelTitle = result.title;
+                        this.cameras.main.flash(500, 0, 255, 0);
+                        this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2, `LEVEL UP: ${this.levelTitle}`, {
+                            fontSize: '64px',
+                            color: '#4ade80',
+                            fontStyle: 'bold',
+                            stroke: '#000',
+                            strokeThickness: 8
+                        }).setOrigin(0.5).setScrollFactor(0);
+                    }
+
                     enemy.destroy();
-                    this.scoreText.setText('Inimigos: ' + this.score);
+                    this.scoreText.setText(`Inimigos: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
                 }
             });
         } else {
@@ -622,6 +648,24 @@ class MainScene extends Phaser.Scene {
     }
 
     private isGameOver: boolean = false;
+    private level: number = 1;
+    private levelTitle: string = 'Arc Initiate';
+
+    private getLevelTitle(score: number): { level: number, title: string } {
+        const levels = [
+            { threshold: 15000000, title: 'Arc Prime', level: 10 },
+            { threshold: 3000000, title: 'Arc Ascendant', level: 9 },
+            { threshold: 600000, title: 'Arc Architect', level: 8 },
+            { threshold: 125000, title: 'Arc Spartan', level: 7 },
+            { threshold: 25000, title: 'Arc Vanguard', level: 6 },
+            { threshold: 5000, title: 'Arc Sentinel', level: 5 },
+            { threshold: 1000, title: 'Arc Forged', level: 4 },
+            { threshold: 200, title: 'Arc Adept', level: 3 },
+            { threshold: 50, title: 'Arc Seeker', level: 2 },
+            { threshold: 0, title: 'Arc Initiate', level: 1 }
+        ];
+        return levels.find(l => score >= l.threshold) || levels[levels.length - 1];
+    }
 
     // Mega Man style explosion effect
     private createExplosion(x: number, y: number) {
