@@ -1920,7 +1920,7 @@ class MainScene extends Phaser.Scene {
         this.tooltipBg.fillRoundedRect(0, 0, width, height, 8);
         this.tooltipBg.strokeRoundedRect(0, 0, width, height, 8);
 
-        this.tooltipContainer.setPosition(x + 20, y - height - 10);
+        this.tooltipContainer.setPosition(x + 20, y + 25);
         if (this.tooltipContainer.x + width > this.cameras.main.width) {
             this.tooltipContainer.x = x - width - 20;
         }
