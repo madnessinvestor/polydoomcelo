@@ -70,6 +70,58 @@ class MainScene extends Phaser.Scene {
         }).setOrigin(0.5);
     }
 
+    private spawnBoss() {
+        const width = this.cameras.main.width;
+        const x = width / 2;
+        const boss = this.enemies.create(x, 100, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
+        boss.setBounce(0.5);
+        boss.setCollideWorldBounds(true);
+        boss.setTint(0xff0000); // Bosses are red
+        
+        // Geometric Boss Progression
+        // Sides: Wave 1=4 (Square), 2=5 (Pentagon), 3=6 (Hexagon), etc.
+        const sides = this.currentWave + 3;
+        const health = sides * 5; // More sides = more health
+        const damage = sides * 0.1; // More sides = more damage
+        const size = 2 + (sides * 0.2); // Visual scaling
+
+        boss.setScale(size);
+        boss.setData('health', health);
+        boss.setData('maxHealth', health);
+        boss.setData('damage', damage);
+        boss.setData('isBoss', true);
+        boss.setData('sides', sides);
+
+        // Visual name or shape representation
+        const shapes = [
+            'QUADRADO', 'PENTÁGONO', 'HEXÁGONO', 'HEPTÁGONO', 
+            'OCTÓGONO', 'NONÁGONO', 'DECÁGONO', 'ENNEÁGONO', 
+            'DODECÁGONO', 'POLÍGONO COMPLEXO'
+        ];
+        const shapeName = this.currentWave <= 10 ? shapes[this.currentWave - 1] : 'FORMA ARCANA';
+        
+        const bossText = this.add.text(x, 50, `CHEFE: ${shapeName}`, { 
+            fontSize: '24px', 
+            color: '#ff0000', 
+            fontStyle: 'bold' 
+        }).setOrigin(0.5);
+
+        // Simple boss health bar
+        const healthBar = this.add.graphics();
+        this.events.on('update', () => {
+            if (boss.active) {
+                healthBar.clear();
+                healthBar.fillStyle(0x000000);
+                healthBar.fillRect(boss.x - 50, boss.y - 60, 100, 10);
+                healthBar.fillStyle(0xff0000);
+                healthBar.fillRect(boss.x - 50, boss.y - 60, (boss.getData('health') / health) * 100, 10);
+            } else {
+                healthBar.destroy();
+                bossText.destroy();
+            }
+        });
+    }
+
     startWave() {
         this.isWaveInterval = false;
         this.waveTimer = 60;
@@ -78,7 +130,6 @@ class MainScene extends Phaser.Scene {
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
-        // 50% more enemies per wave
         const baseDelay = 1500;
         const currentDelay = baseDelay / Math.pow(1.5, this.currentWave - 1);
         
@@ -88,6 +139,9 @@ class MainScene extends Phaser.Scene {
             callbackScope: this,
             loop: true
         });
+
+        // Spawn Boss at the start of each wave
+        this.spawnBoss();
 
         this.startTimer();
     }
@@ -307,18 +361,38 @@ class MainScene extends Phaser.Scene {
     }
 
     hitEnemy(enemy: Phaser.Physics.Arcade.Sprite, damage: number) {
-        this.tweens.add({
-            targets: enemy,
-            x: enemy.x + Phaser.Math.Between(-5, 5),
-            duration: 50,
-            yoyo: true,
-            repeat: 2,
-            onComplete: () => {
-                enemy.destroy();
-                this.score++;
-                this.scoreText.setText('Inimigos: ' + this.score);
-            }
-        });
+        let health = enemy.getData('health') || 1;
+        health -= damage;
+        enemy.setData('health', health);
+
+        if (health <= 0) {
+            this.tweens.add({
+                targets: enemy,
+                x: enemy.x + Phaser.Math.Between(-5, 5),
+                duration: 50,
+                yoyo: true,
+                repeat: 2,
+                onComplete: () => {
+                    if (enemy.getData('isBoss')) {
+                        this.score += 50; // Extra points for boss
+                        this.cameras.main.flash(500, 255, 0, 0);
+                    } else {
+                        this.score++;
+                    }
+                    enemy.destroy();
+                    this.scoreText.setText('Inimigos: ' + this.score);
+                }
+            });
+        } else {
+            // Flash white when hit but not dead
+            enemy.setTint(0xffffff);
+            this.time.delayedCall(100, () => {
+                if (enemy.active) {
+                    enemy.setTint(enemy.getData('isBoss') ? 0xff0000 : 0xffffff);
+                    if (!enemy.getData('isBoss')) enemy.clearTint();
+                }
+            });
+        }
     }
 
     handlePlayerEnemyCollision(obj1: any, obj2: any) {
