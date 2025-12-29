@@ -1104,7 +1104,19 @@ class MainScene extends Phaser.Scene {
 
     hitEnemy(enemy: Phaser.Physics.Arcade.Sprite, damage: number) {
         let health = enemy.getData('health') || 1;
-        const finalDamage = this.hasPowerBoost ? damage * 2 : damage;
+        const typeId = enemy.getData('typeId');
+        let finalDamage = this.hasPowerBoost ? damage * 2 : damage;
+
+        // 9. Shield Sentinel - Reduz dano frontal
+        if (typeId === 'shield_sentinel') {
+            const angleToPlayer = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+            const velocityAngle = Math.atan2(enemy.body.velocity.y, enemy.body.velocity.x);
+            // If player is roughly in front of where enemy is moving/facing
+            if (Math.abs(Phaser.Math.Angle.Wrap(angleToPlayer - velocityAngle)) < Math.PI / 3) {
+                finalDamage *= 0.3; // 70% reduction
+            }
+        }
+
         health -= finalDamage;
         enemy.setData('health', health);
 
@@ -1112,8 +1124,11 @@ class MainScene extends Phaser.Scene {
         enemy.setTint(0xffffff);
         this.time.delayedCall(100, () => {
             if (enemy.active) {
-                enemy.setTint(enemy.getData('isBoss') ? 0xff0000 : 0xffffff);
-                if (!enemy.getData('isBoss')) enemy.clearTint();
+                if (enemy.getData('isBoss')) {
+                    enemy.setTint(0xff0000);
+                } else {
+                    enemy.clearTint();
+                }
             }
         });
         
@@ -1133,6 +1148,14 @@ class MainScene extends Phaser.Scene {
             // Ensure each enemy defeat counts as exactly one
             if (enemy.getData('isDefeated')) return;
             enemy.setData('isDefeated', true);
+
+            // 8. Split Core - Divide em 2 menores
+            if (typeId === 'split_core') {
+                for (let i = 0; i < 2; i++) {
+                    const smallType = { ...this.enemyTypes.find(t => t.id === 'split_core'), scale: 0.6, behavior: 'melee' };
+                    this.createEnemyObject(enemy.x + Phaser.Math.Between(-20, 20), enemy.y, smallType);
+                }
+            }
 
             this.tweens.add({
                 targets: enemy,

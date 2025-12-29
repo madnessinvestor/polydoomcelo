@@ -1,0 +1,238 @@
+👾 REGRA GLOBAL DOS INIMIGOS (IMPORTANTE)
+🔒 Regras que valem para TODOS
+
+Todos os inimigos atacam de perto (contato físico)
+
+Alguns inimigos também:
+
+atacam de longe
+
+usam magia
+
+investem
+
+empurram
+
+se teleportam
+
+Nenhum inimigo tem preenchimento de cor
+
+Todos são formas geométricas vazadas
+
+Visual:
+
+❌ sem fill
+
+✅ apenas borda/estrutura verde
+
+a borda define o tamanho e hitbox
+
+O tamanho varia por inimigo (pequeno / médio / grande)
+
+👉 Visual minimalista, leitura imediata.
+
+🎨 PADRÃO VISUAL (FIXO)
+
+Cor da borda: verde
+
+Espessura da borda varia conforme perigo
+
+Sem textura, sem cor interna
+
+Efeitos (quando existirem) também em verde
+
+drawShape():
+  strokeColor = green
+  fill = none
+
+👾 INIMIGOS — DESCRIÇÃO COMPLETA (PROGRAMÁVEL)
+1️⃣ Ground Biter — Básico de Pressão
+
+Forma: Quadrado
+
+Tamanho: Médio
+
+Ataque perto: contato contínuo
+
+Ataque longe: ❌
+
+Velocidade: Normal
+
+Comportamento: anda direto em direção ao player
+
+🎯 Base da horda
+📌 Sempre presente
+
+2️⃣ Arc Shooter — Ranged Móvel
+
+Forma: Triângulo
+
+Tamanho: Médio
+
+Ataque perto: contato
+
+Ataque longe: dispara projéteis retos
+
+Magia: Sim
+
+Velocidade: Lenta
+
+Comportamento: mantém distância média
+
+🎯 Pressão constante
+📌 Prioridade média
+
+3️⃣ Hover Mage — Mago Voador
+
+Forma: Hexágono
+
+Tamanho: Médio
+
+Ataque perto: contato aéreo
+
+Ataque longe: magia em arco
+
+Magia: Sim
+
+Movimento: voa
+
+Velocidade: Lenta
+
+🎯 Controle aéreo
+📌 Obriga mirar para cima
+
+4️⃣ Charger Ram — Investida
+
+Forma: Pentágono
+
+Tamanho: Médio
+
+Ataque perto: contato forte
+
+Ataque longe: ❌
+
+Especial: investida rápida em linha reta
+
+Velocidade: Alta (durante investida)
+
+🎯 Quebra posicionamento
+📌 Punição por ficar parado
+
+5️⃣ Pouncer — Salto Rápido
+
+Forma: Triângulo invertido
+
+Tamanho: Pequeno
+
+Ataque perto: impacto do salto
+
+Ataque longe: ❌
+
+Especial: saltos longos
+
+Velocidade: Alta
+
+🎯 Ataque surpresa
+📌 Pressão vertical
+
+6️⃣ Knockback Brute — Controle de Espaço
+
+Forma: Retângulo largo
+
+Tamanho: Grande
+
+Ataque perto: golpe pesado
+
+Ataque longe: ❌
+
+Especial: empurra o jogador para longe
+
+Velocidade: Baixa
+
+🎯 Joga o player dentro da horda
+📌 Extremamente perigoso em grupo
+
+7️⃣ Blink Stalker — Teleporte
+
+Forma: Octógono
+
+Tamanho: Pequeno
+
+Ataque perto: contato rápido
+
+Ataque longe: ❌
+
+Especial: teleporte curto
+
+Velocidade: Muito alta (via blink)
+
+🎯 Quebra zonas seguras
+📌 Imprevisível
+
+8️⃣ Split Core — Multiplicador
+
+Forma: Octógono
+
+Tamanho: Médio
+
+Ataque perto: contato
+
+Ataque longe: ❌
+
+Especial: divide em 2 menores ao morrer
+
+Velocidade: Normal
+
+🎯 Aumenta densidade
+📌 Caos controlado
+
+9️⃣ Shield Sentinel — Defesa Direcional
+
+Forma: Quadrado com borda dupla
+
+Tamanho: Grande
+
+Ataque perto: contato
+
+Ataque longe: ❌
+
+Especial: reduz dano frontal
+
+Velocidade: Lenta
+
+🎯 Trava avanço
+📌 Força reposicionamento
+
+🔟 Arc Phantom — Elite Total
+
+Forma: Polígono complexo
+
+Tamanho: Grande
+
+Ataque perto: contato forte
+
+Ataque longe: magia em área
+
+Magia: Sim
+
+Especial: teleporte + alternância de ataques
+
+Velocidade: Variável
+
+🎯 Ameaça máxima
+📌 Mini-chefe / elite
+
+🧠 RESUMO DE LEITURA RÁPIDA
+Tipo	O que indica
+Pequeno + rápido	Surpresa
+Grande + lento	Controle
+Voador	Prioridade
+Ranged	Pressão
+Teleporte	Insegurança
+Borda dupla	Defesa
+
+Tudo isso sem cores, só pela forma e tamanho.
+
+📌 TEXTO CURTO PRA PEDIR AO REPLIT
+
+“Todos os inimigos devem atacar por contato, mas alguns também atacam à distância, usam magia, investem, empurram ou se teleportam. Todos devem ser formas geométricas vazadas, sem preenchimento, apenas com bordas verdes que definem tamanho e hitbo
