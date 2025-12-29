@@ -1434,65 +1434,74 @@ class MainScene extends Phaser.Scene {
         const floorY = this.cameras.main.height - 32;
         
         this.physics.moveTo(genki, centerX, floorY, 400);
+
+        // Helper to trigger explosion
+        const triggerExplosion = () => {
+            if (!genki.active) return;
+
+            // AOE explosion on impact
+            const explosion = this.add.circle(genki.x, genki.y, genki.radius * 4, 0xadd8e6, 0.3);
+            this.tweens.add({
+                targets: explosion,
+                scale: 3,
+                alpha: 0,
+                duration: 600,
+                onComplete: () => explosion.destroy()
+            });
+
+            this.cameras.main.shake(800, 0.04);
+            this.cameras.main.flash(1500, 255, 255, 255);
+
+            // Extra durable glow effect
+            const glow = this.add.circle(genki.x, genki.y, genki.radius * 6, 0xffffff, 0.8);
+            this.tweens.add({
+                targets: glow,
+                alpha: 0,
+                scale: 2,
+                duration: 1500,
+                ease: 'Quad.easeOut',
+                onComplete: () => glow.destroy()
+            });
+
+            // Damage and Knockback ALL enemies on screen
+            this.enemies.getChildren().forEach((e) => {
+                const enemy = e as Phaser.Physics.Arcade.Sprite;
+                if (enemy.active && enemy.body) {
+                    this.hitEnemy(enemy, damage * this.levelStats[this.level - 1].mult);
+                    
+                    // Massive knockback away from center
+                    const angle = Phaser.Math.Angle.Between(centerX, floorY, enemy.x, enemy.y);
+                    const force = 3000; // Even faster!
+                    enemy.setVelocity(
+                        Math.cos(angle) * force,
+                        Math.sin(angle) * force - 1200 // More height
+                    );
+                }
+            });
+
+            genki.destroy();
+        };
         
-        // Use a timer to check for floor impact since we want it to hit the center floor
+        // Timer for independent explosion after 3 seconds
+        const explosionTimer = this.time.delayedCall(3000, triggerExplosion);
+
+        // Impact check for floor
         const checkImpact = this.time.addEvent({
             delay: 50,
             callback: () => {
                 if (genki.active && genki.y >= floorY - 20) {
-                    // AOE explosion on impact
-                    const explosion = this.add.circle(genki.x, genki.y, genki.radius * 4, 0xadd8e6, 0.3);
-                    this.tweens.add({
-                        targets: explosion,
-                        scale: 3,
-                        alpha: 0,
-                        duration: 600,
-                        onComplete: () => explosion.destroy()
-                    });
-
-                    this.cameras.main.shake(800, 0.04);
-                    this.cameras.main.flash(1500, 255, 255, 255);
-
-                    // Extra durable glow effect
-                    const glow = this.add.circle(genki.x, genki.y, genki.radius * 6, 0xffffff, 0.8);
-                    this.tweens.add({
-                        targets: glow,
-                        alpha: 0,
-                        scale: 2,
-                        duration: 1500,
-                        ease: 'Quad.easeOut',
-                        onComplete: () => glow.destroy()
-                    });
-
-                    // Damage and Knockback ALL enemies on screen
-                    this.enemies.getChildren().forEach((e) => {
-                        const enemy = e as Phaser.Physics.Arcade.Sprite;
-                        if (enemy.active && enemy.body) {
-                            this.hitEnemy(enemy, damage * this.levelStats[this.level - 1].mult);
-                            
-                            // Massive knockback away from center
-                            const angle = Phaser.Math.Angle.Between(centerX, floorY, enemy.x, enemy.y);
-                            const force = 3000; // Even faster!
-                            enemy.setVelocity(
-                                Math.cos(angle) * force,
-                                Math.sin(angle) * force - 1200 // More height
-                            );
-                        }
-                    });
-
-                    genki.destroy();
+                    triggerExplosion();
+                    explosionTimer.remove();
                     checkImpact.remove();
                 }
             },
             loop: true
         });
 
-        // Auto destroy if it takes too long
-        this.time.delayedCall(5000, () => {
-            if (genki.active) {
-                genki.destroy();
-                checkImpact.remove();
-            }
+        // Cleanup if destroyed otherwise
+        genki.on('destroy', () => {
+            checkImpact.remove();
+            explosionTimer.remove();
         });
     }
 
