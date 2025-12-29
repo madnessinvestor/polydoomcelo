@@ -78,14 +78,15 @@ class MainScene extends Phaser.Scene {
         const boss = this.enemies.create(x, 100, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
         boss.setBounce(0.5);
         boss.setCollideWorldBounds(true);
-        boss.setTint(0xff0000); // Bosses are red
+        boss.setTint(0xff0000); // Bosses are solid red
+        boss.setAlpha(1); // Ensure full opacity
         
         // Geometric Boss Progression
         // Sides: Wave 1=4 (Square), 2=5 (Pentagon), 3=6 (Hexagon), etc.
         const sides = this.currentWave + 3;
-        const health = sides * 5; // More sides = more health
-        const damage = sides * 0.1; // More sides = more damage
-        const size = 2 + (sides * 0.2); // Visual scaling
+        const health = sides * 15; // Increased boss health significantly
+        const damage = sides * 0.15; // Slightly more damage
+        const size = 3 + (sides * 0.3); // Larger visual scaling for better visibility
 
         boss.setScale(size);
         boss.setData('health', health);
@@ -103,20 +104,28 @@ class MainScene extends Phaser.Scene {
         const shapeName = this.currentWave <= 10 ? shapes[this.currentWave - 1] : 'FORMA ARCANA';
         
         const bossText = this.add.text(x, 50, `CHEFE: ${shapeName}`, { 
-            fontSize: '24px', 
+            fontSize: '36px', // Larger text
             color: '#ff0000', 
-            fontStyle: 'bold' 
-        }).setOrigin(0.5);
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 6
+        }).setOrigin(0.5).setScrollFactor(0);
 
         // Simple boss health bar
         const healthBar = this.add.graphics();
         this.events.on('update', () => {
             if (boss.active) {
                 healthBar.clear();
-                healthBar.fillStyle(0x000000);
-                healthBar.fillRect(boss.x - 50, boss.y - 60, 100, 10);
-                healthBar.fillStyle(0xff0000);
-                healthBar.fillRect(boss.x - 50, boss.y - 60, (boss.getData('health') / health) * 100, 10);
+                // Bar background
+                healthBar.fillStyle(0x000000, 1);
+                healthBar.fillRect(boss.x - 75, boss.y - 80, 150, 15);
+                // Health fill
+                healthBar.fillStyle(0xff0000, 1);
+                const healthRatio = boss.getData('health') / health;
+                healthBar.fillRect(boss.x - 75, boss.y - 80, healthRatio * 150, 15);
+                // Outline
+                healthBar.lineStyle(2, 0xffffff, 1);
+                healthBar.strokeRect(boss.x - 75, boss.y - 80, 150, 15);
             } else {
                 healthBar.destroy();
                 bossText.destroy();
