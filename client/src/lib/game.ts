@@ -254,13 +254,13 @@ class MainScene extends Phaser.Scene {
             strokeThickness: 4
         }).setScrollFactor(0).setDepth(1000);
 
-        this.enemyCounterText = this.add.text(16, 16 + fontSize + 10, 'On Screen: 0', {
+        this.enemyCounterText = this.add.text(width - 16, 16 + fontSize * 2 + 20, 'On Screen: 0', {
             fontSize: `${fontSize}px`,
             color: '#ff4444',
             fontFamily: 'Pixel',
             stroke: '#000',
             strokeThickness: 4
-        }).setScrollFactor(0).setDepth(1000);
+        }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
 
         this.waveText = this.add.text(width - 16, 16, 'WAVE: 1', { 
             fontSize: `${fontSize}px`, 
@@ -843,7 +843,7 @@ class MainScene extends Phaser.Scene {
 
         const enemy = this.enemies.create(x, y, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
         enemy.setBounce(0.5);
-        enemy.setCollideWorldBounds(false); 
+        enemy.setCollideWorldBounds(true); 
 
         // At wave 1: size=1, damage=1
         // At wave 2: size=1.5, damage=1.5
