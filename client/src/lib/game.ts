@@ -806,6 +806,13 @@ class MainScene extends Phaser.Scene {
     }
 
     updateHUD() {
+        // Update Player Sprite based on level
+        const currentLvl = Math.min(10, this.level);
+        const textureKey = `arc_lvl_${currentLvl}`;
+        if (this.player.texture.key !== textureKey) {
+            this.player.setTexture(textureKey);
+        }
+
         this.kiarcBar.clear();
         
         // ARCki Bar (Verde)
