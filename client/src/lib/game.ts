@@ -1261,15 +1261,25 @@ class MainScene extends Phaser.Scene {
                         onComplete: () => explosion.destroy()
                     });
 
-                    // Damage ALL enemies on screen
+                    this.cameras.main.shake(500, 0.02);
+                    this.cameras.main.flash(500, 255, 255, 255);
+
+                    // Damage and Knockback ALL enemies on screen
                     this.enemies.getChildren().forEach((e) => {
                         const enemy = e as Phaser.Physics.Arcade.Sprite;
-                        if (enemy.active) {
+                        if (enemy.active && enemy.body) {
                             this.hitEnemy(enemy, damage * this.levelStats[this.level - 1].mult);
+                            
+                            // Massive knockback away from center
+                            const angle = Phaser.Math.Angle.Between(centerX, floorY, enemy.x, enemy.y);
+                            const force = 1500; // Very fast
+                            enemy.setVelocity(
+                                Math.cos(angle) * force,
+                                Math.sin(angle) * force - 800 // Also launch upwards
+                            );
                         }
                     });
 
-                    this.cameras.main.shake(500, 0.02);
                     genki.destroy();
                     checkImpact.remove();
                 }
