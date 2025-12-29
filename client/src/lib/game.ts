@@ -1311,7 +1311,8 @@ class MainScene extends Phaser.Scene {
                     graphics.moveTo(item.x - 6, item.y - 6);
                     graphics.lineTo(item.x + 6, item.y - 6);
                     graphics.lineTo(item.x + 6, item.y + 2);
-                    graphics.quadraticCurveTo(item.x, item.y + 8, item.x - 6, item.y + 2);
+                    graphics.lineTo(item.x, item.y + 8);
+                    graphics.lineTo(item.x - 6, item.y + 2);
                     graphics.closePath();
                     graphics.strokePath();
                     break;
