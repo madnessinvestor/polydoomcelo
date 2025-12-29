@@ -1,0 +1,215 @@
+👾 SISTEMA DE WAVES — ALTA DENSIDADE DE INIMIGOS
+📌 Premissas (importantes)
+
+Inimigos têm HP baixo (20–60)
+
+Jogador escala dano forte (até 15×)
+
+Desafio vem de quantidade + variedade, não de HP alto
+
+Chefes continuam existindo separadamente (como você já definiu)
+
+🌊 QUANTIDADE DE INIMIGOS POR WAVE (10 WAVES)
+
+Progressão agressiva, mas controlada:
+
+Wave	Total de Inimigos
+Wave 1	100
+Wave 2	140
+Wave 3	190
+Wave 4	250
+Wave 5	320
+Wave 6	400
+Wave 7	500
+Wave 8	650
+Wave 9	850
+Wave 10	1 100
+
+👉 Isso cria sensação clara de escala absurda, principalmente com Arcamehameha.
+
+🔺 DISTRIBUIÇÃO DE INIMIGOS POR TIPO
+
+Inimigos novos entram, os antigos continuam aparecendo.
+
+Wave 1 (100)
+
+Ground Crawler (Quadrado): 100
+
+Wave 2 (140)
+
+Ground Crawler: 90
+
+Slider: 30
+
+Hopper: 20
+
+Wave 3 (190)
+
+Ground Crawler: 100
+
+Slider: 40
+
+Hopper: 30
+
+Flyer: 20
+
+Wave 4 (250)
+
+Ground Crawler: 120
+
+Slider: 40
+
+Hopper: 40
+
+Flyer: 30
+
+Orb Mage: 20
+
+Wave 5 (320)
+
+Ground Crawler: 140
+
+Slider: 50
+
+Hopper: 50
+
+Flyer: 40
+
+Orb Mage: 25
+
+Charger: 15
+
+Wave 6 (400)
+
+Ground Crawler: 160
+
+Slider: 60
+
+Hopper: 60
+
+Flyer: 50
+
+Orb Mage: 35
+
+Charger: 25
+
+Splitter: 10
+
+Wave 7 (500)
+
+Ground Crawler: 180
+
+Slider: 80
+
+Hopper: 70
+
+Flyer: 60
+
+Orb Mage: 45
+
+Charger: 35
+
+Splitter: 20
+
+Shielded: 10
+
+Wave 8 (650)
+
+Ground Crawler: 200
+
+Slider: 100
+
+Hopper: 90
+
+Flyer: 80
+
+Orb Mage: 60
+
+Charger: 50
+
+Splitter: 40
+
+Shielded: 20
+
+Sniper: 10
+
+Wave 9 (850)
+
+Ground Crawler: 250
+
+Slider: 130
+
+Hopper: 120
+
+Flyer: 110
+
+Orb Mage: 80
+
+Charger: 70
+
+Splitter: 60
+
+Shielded: 40
+
+Sniper: 20
+
+Arc Warden: 10
+
+Wave 10 (1 100)
+
+Todos os tipos ativos
+
+Distribuição livre, com:
+
+mais flyers
+
+mais ranged
+
+mais splitters
+
+Arc Warden: 20+
+
+⚙️ SPAWN (IMPORTANTE PARA PERFORMANCE)
+
+Para não travar o jogo:
+
+Não spawnar tudo de uma vez
+
+Usar spawn em batches
+
+Exemplo:
+
+Spawn 20–40 inimigos por segundo
+
+
+Manter cap máximo simultâneo (ex: 150–250 na tela)
+
+Inimigos mortos liberam espaço
+
+🧠 POR QUE ISSO FUNCIONA
+
+Dano alto do jogador = sensação de poder
+
+Muitos inimigos = caos divertido
+
+Formas geométricas mantêm leitura visual
+
+Arcamehameha vira limpa-horda
+
+Chefes ainda se destacam
+
+📌 Frase curta pra enviar ao Replit
+
+“As waves devem ser de alta densidade, começando com ~100 inimigos e aumentando progressivamente até mais de 1.000 na wave 10, com spawn em lotes para manter performance.”
+
+Se quiser, no próximo passo eu posso:
+
+ajustar cap de inimigos simultâneos
+
+definir dano exato de cada tipo
+
+balancear XP/pontos com essa quantidade
+
+sugerir otimizações de performance (pooling)
+
+Quer seguir pra performance ou balanceamento de dano agora?
