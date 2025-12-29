@@ -946,6 +946,10 @@ class MainScene extends Phaser.Scene {
         });
 
         if (health <= 0) {
+            // Ensure each enemy defeat counts as exactly one
+            if (enemy.getData('isDefeated')) return;
+            enemy.setData('isDefeated', true);
+
             this.tweens.add({
                 targets: enemy,
                 x: enemy.x + Phaser.Math.Between(-5, 5),
@@ -958,7 +962,6 @@ class MainScene extends Phaser.Scene {
                         this.score += bossScore;
                         this.cameras.main.flash(500, 255, 0, 0);
                         
-                        // Boss defeat special effect - pulse from top to bottom
                         const scoreText = this.add.text(enemy.x, enemy.y - 80, `+${bossScore.toLocaleString()}`, {
                             fontSize: '48px',
                             color: '#fbbf24',
@@ -968,7 +971,6 @@ class MainScene extends Phaser.Scene {
                             fontFamily: '"8-BIT WONDER"'
                         }).setOrigin(0.5).setScrollFactor(1);
                         
-                        // Pulse animation from top to bottom
                         this.tweens.add({
                             targets: scoreText,
                             scaleY: 1.5,
@@ -979,17 +981,27 @@ class MainScene extends Phaser.Scene {
                             onComplete: () => scoreText.destroy()
                         });
                     } else {
+                        // Standard score increase by 1 per enemy
                         this.score++;
                     }
 
-                    // Check level up
-                    const result = this.getLevelTitle(this.score);
-                    if (result.level > this.level) {
-                        this.level = result.level;
-                        this.levelTitle = result.title;
+                    // Level progression logic based on standard threshold
+                    const nextLevelThreshold = this.level * 10;
+                    if (this.enemiesDefeated + 1 >= nextLevelThreshold && this.level < 10) {
+                        this.level++;
+                        
+                        // Level up recovery: restore HP and KI
+                        this.health = 100;
+                        this.kiarc = this.maxKiarc;
+                        
+                        const titles = [
+                            'Arc Initiate', 'Arc Squire', 'Arc Warrior', 'Arc Knight', 
+                            'Arc Commander', 'Arc Master', 'Arc Grandmaster', 
+                            'Arc Sage', 'Arc Eternal', 'Arc Divine'
+                        ];
+                        this.levelTitle = titles[this.level - 1];
                         this.cameras.main.flash(500, 0, 255, 0);
                         
-                        // Level Up text above player - pulse from bottom to top
                         const levelUpText = this.add.text(this.player.x, this.player.y - 100, `Level Up\n${this.levelTitle}`, {
                             fontSize: '48px',
                             color: '#4ade80',
@@ -1000,7 +1012,6 @@ class MainScene extends Phaser.Scene {
                             fontFamily: '"8-BIT WONDER"'
                         }).setOrigin(0.5).setScrollFactor(1);
                         
-                        // Pulse animation from bottom to top
                         this.tweens.add({
                             targets: levelUpText,
                             scaleY: 1.5,
@@ -1010,6 +1021,8 @@ class MainScene extends Phaser.Scene {
                             ease: 'Quad.easeOut',
                             onComplete: () => levelUpText.destroy()
                         });
+                        
+                        this.updatePlayerVisual();
                     }
 
                     this.enemiesDefeated++;
