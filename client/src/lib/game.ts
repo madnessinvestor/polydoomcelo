@@ -25,6 +25,7 @@ class MainScene extends Phaser.Scene {
     private spawnEvent!: Phaser.Time.TimerEvent;
     private enemiesSpawnedInWave: number = 0;
     private totalEnemiesInWave: number = 100;
+    private totalEnemiesBeforeWave: number = 0;
     private maxSimultaneousEnemies: number = 200;
     private waveStartTime: number = 0;
     private bossSpawned: boolean = false;
@@ -246,7 +247,7 @@ class MainScene extends Phaser.Scene {
         const fontSize = Math.floor(24 * hudScale);
         const titleFontSize = Math.floor(32 * hudScale);
         
-        this.scoreText = this.add.text(16, 16, `Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { 
+        this.scoreText = this.add.text(16, 16, `Score: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
             fontFamily: 'Pixel',
@@ -254,7 +255,7 @@ class MainScene extends Phaser.Scene {
             strokeThickness: 4
         }).setScrollFactor(0).setDepth(1000);
 
-        this.enemyCounterText = this.add.text(width - 16, 16 + fontSize * 2 + 20, 'On Screen: 0', {
+        this.enemyCounterText = this.add.text(width - 16, 16 + fontSize * 2 + 20, `0/${this.totalEnemiesInWave}`, {
             fontSize: `${fontSize}px`,
             color: '#ff4444',
             fontFamily: 'Pixel',
@@ -537,6 +538,7 @@ class MainScene extends Phaser.Scene {
     startWave() {
         this.isWaveInterval = false;
         this.enemiesSpawnedInWave = 0;
+        this.totalEnemiesBeforeWave = this.enemiesDefeated;
         this.bossSpawned = false;
         this.waveStartTime = this.time.now;
         
@@ -1120,12 +1122,12 @@ class MainScene extends Phaser.Scene {
         }
 
         if (this.scoreText) {
-            this.scoreText.setText(`Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
+            this.scoreText.setText(`Score: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
         }
 
         if (this.enemyCounterText) {
-            const activeEnemies = this.enemies ? this.enemies.countActive(true) : 0;
-            this.enemyCounterText.setText(`On Screen: ${activeEnemies}`);
+            const enemiesDefeatedInWave = this.enemiesDefeated - (this.totalEnemiesBeforeWave || 0);
+            this.enemyCounterText.setText(`${enemiesDefeatedInWave}/${this.totalEnemiesInWave}`);
         }
 
         this.kiarcBar.clear();
