@@ -288,8 +288,28 @@ class MainScene extends Phaser.Scene {
             loop: true
         });
 
-        // Spawn Boss at the start of each wave
-        this.spawnBoss();
+        // 10-second countdown before boss spawn
+        const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'CHEFE EM: 10', {
+            fontSize: '48px',
+            color: '#ff0000',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 8
+        }).setOrigin(0.5).setScrollFactor(0);
+
+        let timeLeft = 10;
+        this.time.addEvent({
+            delay: 1000,
+            repeat: 9,
+            callback: () => {
+                timeLeft--;
+                countdownText.setText(`CHEFE EM: ${timeLeft}`);
+                if (timeLeft <= 0) {
+                    countdownText.destroy();
+                    this.spawnBoss();
+                }
+            }
+        });
 
         this.startTimer();
     }
