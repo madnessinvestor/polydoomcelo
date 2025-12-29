@@ -739,16 +739,33 @@ class MainScene extends Phaser.Scene {
         
         enemy.setAlpha(0);
         const graphics = this.add.graphics();
-        this.bossGraphicsMap.set(enemy, graphics);
+        graphics.setDepth(8); // Ensure it's behind HUD but visible
 
         const size = (isElite ? 32 : 16) * (typeInfo.scale || 1);
-        this.drawEnemyShape(graphics, typeInfo, size);
-
+        
+        const updateGraphics = () => {
+            if (enemy.active) {
+                graphics.clear();
+                graphics.x = enemy.x;
+                graphics.y = enemy.y;
+                this.drawEnemyShape(graphics, typeInfo, size);
+            } else {
+                graphics.destroy();
+                this.events.off('update', updateGraphics);
+            }
+        };
+        this.events.on('update', updateGraphics);
+        
+        const body = enemy.body as Phaser.Physics.Arcade.Body;
         if (typeInfo.behavior === 'fly' || isElite) {
-            const body = enemy.body as Phaser.Physics.Arcade.Body;
             body.setAllowGravity(false);
             enemy.y = Phaser.Math.Between(100, 400);
         }
+
+        // Initial movement towards player
+        const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        const speed = 150 * waveMultiplier;
+        enemy.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
     }
 
     private drawEnemyShape(graphics: Phaser.GameObjects.Graphics, type: any, size: number) {
