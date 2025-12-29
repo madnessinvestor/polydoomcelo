@@ -391,7 +391,7 @@ class MainScene extends Phaser.Scene {
 
         this.physics.add.overlap(beam, this.enemies, (b, e) => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
-            this.hitEnemy(enemy, 100);
+            this.hitEnemy(enemy, 50); // damage is now 50
         }, undefined, this);
 
         this.tweens.add({
@@ -430,7 +430,7 @@ class MainScene extends Phaser.Scene {
         });
         
         targets.forEach(e => {
-            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 1);
+            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 10); // damage is now 10
         });
     }
 
@@ -444,7 +444,7 @@ class MainScene extends Phaser.Scene {
         
         this.physics.add.overlap(magic, this.enemies, (m, e) => {
             m.destroy();
-            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 1);
+            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 10); // damage is now 10
         }, undefined, this);
     }
 
