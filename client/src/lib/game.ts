@@ -23,6 +23,12 @@ class MainScene extends Phaser.Scene {
 
     // Boss polygon graphics map
     private bossGraphicsMap = new Map<Phaser.Physics.Arcade.Sprite, Phaser.GameObjects.Graphics>();
+    
+    // Level and progression tracking
+    private isGameOver: boolean = false;
+    private level: number = 1;
+    private levelTitle: string = 'Arc Initiate';
+    private enemiesDefeated: number = 0;
 
     constructor() {
         super('MainScene');
@@ -147,14 +153,14 @@ class MainScene extends Phaser.Scene {
             strokeThickness: 4
         }).setScrollFactor(0).setDepth(1000);
 
-        this.waveText = this.add.text(16, 16 + fontSize + 10, 'WAVE: 1', { 
+        this.waveText = this.add.text(width - 16, 16, 'WAVE: 1', { 
             fontSize: `${fontSize}px`, 
             color: '#fbbf24', 
             fontStyle: 'bold', 
             fontFamily: '"8-BIT WONDER"',
             stroke: '#000',
             strokeThickness: 4
-        }).setScrollFactor(0).setDepth(1000);
+        }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
 
         this.timerText = this.add.text(width - 150, 16, '01:00', { 
             fontSize: `${fontSize}px`, 
@@ -365,7 +371,7 @@ class MainScene extends Phaser.Scene {
         const hudScale = Math.max(1, this.cameras.main.width / 800);
         const bossFontSize = Math.floor(36 * hudScale);
 
-        const bossText = this.add.text(x, 80, `BOSS: ${shapeName}`, { 
+        const bossText = this.add.text(x, 140, `BOSS: ${shapeName}`, { 
             fontSize: `${bossFontSize}px`,
             color: '#ff0000', 
             fontStyle: 'bold',
@@ -767,10 +773,6 @@ class MainScene extends Phaser.Scene {
             });
         }
     }
-
-    private isGameOver: boolean = false;
-    private level: number = 1;
-    private levelTitle: string = 'Arc Initiate';
 
     private getLevelTitle(score: number): { level: number, title: string } {
         const levels = [
