@@ -31,12 +31,31 @@ export default function Home() {
   return (
     <div className="min-h-screen w-full bg-black flex flex-col items-center justify-center overflow-hidden">
       <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden" />
-      <div className="mt-4 text-slate-400 text-4xl flex gap-4">
-        <span>Arrow Keys: Move / Jump</span>
-        <span>Z: Punch</span>
-        <span>X: Charge Kiarc</span>
-        <span>C: Magic</span>
-        <span>V: Arcamehameha</span>
+      <div className="mt-4 text-slate-400 text-2xl flex flex-wrap justify-center gap-x-6 gap-y-2 px-4">
+        <div className="flex gap-2">
+          <span className="text-white">Arrow Keys:</span>
+          <span className="text-slate-400">Move / Jump</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="text-white">Z:</span>
+          <span className="text-slate-400">Punch</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="text-white">X:</span>
+          <span className="text-slate-400">Charge KiArc</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="text-white">C:</span>
+          <span className="text-slate-400">Magic</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="text-white">V:</span>
+          <span className="text-slate-400">ArcKamehameha</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="text-white">B:</span>
+          <span className="text-slate-400">ArcGenkiDama</span>
+        </div>
       </div>
     </div>
   );
