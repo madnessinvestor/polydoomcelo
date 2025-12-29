@@ -1944,6 +1944,8 @@ const config: Phaser.Types.Core.GameConfig = {
     parent: 'game-container',
     width: 1600,
     height: 1200,
+    resolution: window.devicePixelRatio || 1,
+    antialias: true,
     physics: {
         default: 'arcade',
         arcade: {
@@ -1952,8 +1954,8 @@ const config: Phaser.Types.Core.GameConfig = {
         }
     },
     render: {
-        pixelArt: true,
-        antialias: false,
+        pixelArt: false,
+        antialias: true,
         powerPreference: 'high-performance',
         roundPixels: true
     },
