@@ -84,11 +84,37 @@ class MainScene extends Phaser.Scene {
         this.keys = this.input.keyboard!.addKeys('Z,X,C,V');
 
         // Enhanced HUD
-        this.scoreText = this.add.text(16, 16, `Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { fontSize: '96px', color: '#fff', fontFamily: '8-BIT WONDER' });
-        this.waveText = this.add.text(16, 50, 'WAVE: 1', { fontSize: '128px', color: '#fbbf24', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
-        this.timerText = this.add.text(width - 150, 16, '01:00', { fontSize: '128px', color: '#fff', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
+        const hudScale = Math.max(1, width / 800);
+        const fontSize = Math.floor(24 * hudScale);
+        const titleFontSize = Math.floor(32 * hudScale);
         
-        this.kiarcBar = this.add.graphics();
+        this.scoreText = this.add.text(16, 16, `Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { 
+            fontSize: `${fontSize}px`, 
+            color: '#fff', 
+            fontFamily: 'monospace',
+            stroke: '#000',
+            strokeThickness: 4
+        }).setScrollFactor(0).setDepth(1000);
+
+        this.waveText = this.add.text(16, 16 + fontSize + 10, 'WAVE: 1', { 
+            fontSize: `${fontSize}px`, 
+            color: '#fbbf24', 
+            fontStyle: 'bold', 
+            fontFamily: 'monospace',
+            stroke: '#000',
+            strokeThickness: 4
+        }).setScrollFactor(0).setDepth(1000);
+
+        this.timerText = this.add.text(width - 150, 16, '01:00', { 
+            fontSize: `${fontSize}px`, 
+            color: '#fff', 
+            fontStyle: 'bold', 
+            fontFamily: 'monospace',
+            stroke: '#000',
+            strokeThickness: 4
+        }).setScrollFactor(0).setDepth(1000);
+        
+        this.kiarcBar = this.add.graphics().setScrollFactor(0).setDepth(1000);
         this.updateHUD();
 
         this.enemies = this.physics.add.group();
@@ -98,12 +124,14 @@ class MainScene extends Phaser.Scene {
 
         this.startWave();
 
-        this.add.text(width / 2, 30, 'GOKUARC VS CRIPTOIDES', { 
-            fontSize: '128px', 
+        this.add.text(width / 2, 60, 'GOKUARC VS CRIPTOIDES', { 
+            fontSize: `${titleFontSize}px`, 
             color: '#4ade80',
             fontStyle: 'bold',
-            fontFamily: '8-BIT WONDER'
-        }).setOrigin(0.5);
+            fontFamily: 'monospace',
+            stroke: '#000',
+            strokeThickness: 6
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
     }
 
     private spawnBoss() {
