@@ -39,6 +39,9 @@ class MainScene extends Phaser.Scene {
     private levelTitle: string = 'Arc Initiate';
     private enemiesDefeated: number = 0;
     
+    // Power-up states and timers
+    private activeBuffs: Map<string, { title: string, description: string, duration?: number, startTime?: number }> = new Map();
+    
     // Power-up states
     private hasPowerBoost: boolean = false;
     private hasScoreBoost: boolean = false;
@@ -325,6 +328,25 @@ class MainScene extends Phaser.Scene {
         this.tooltipContainer.add([this.tooltipBg, this.tooltipTitle, this.tooltipText]);
 
         this.updateHUD();
+
+        // Update buff icons in real-time
+        this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                let changed = false;
+                this.activeBuffs.forEach((buff, type) => {
+                    if (buff.duration && buff.startTime) {
+                        const elapsed = (this.time.now - buff.startTime) / 1000;
+                        if (elapsed >= buff.duration) {
+                            this.activeBuffs.delete(type);
+                            changed = true;
+                        }
+                    }
+                });
+                if (changed) this.updateBuffIcons();
+            },
+            loop: true
+        });
 
         this.enemies = this.physics.add.group();
         this.items = this.physics.add.group();
@@ -1218,16 +1240,31 @@ class MainScene extends Phaser.Scene {
                 break;
             case 'ArcPower':
                 this.hasPowerBoost = true;
+                this.addBuff('ArcPower', 'Power Boost', 'Dobra todo o dano do personagem (Soco, Magia e Arcamehameha).', 20);
                 this.cameras.main.flash(500, 255, 0, 0, true);
+                this.time.delayedCall(20000, () => {
+                    this.hasPowerBoost = false;
+                    this.removeBuff('ArcPower');
+                });
                 break;
             case 'ArcScore':
                 this.hasScoreBoost = true;
+                this.addBuff('ArcScore', 'Score Boost', 'Dobra todo o score ganho de inimigos e chefes.', 20);
                 this.cameras.main.flash(500, 255, 215, 0, true);
+                this.time.delayedCall(20000, () => {
+                    this.hasScoreBoost = false;
+                    this.removeBuff('ArcScore');
+                });
                 break;
             case 'ArcBarrier':
                 this.isInvincible = true;
-                this.invincibilityTimer = 10000; // 10 seconds
+                this.invincibilityTimer = 20000; // 20 seconds
+                this.addBuff('ArcBarrier', 'Invencibilidade', 'Personagem fica invencível e não recebe dano.', 20);
                 this.cameras.main.flash(300, 255, 0, 255, true);
+                this.time.delayedCall(20000, () => {
+                    this.isInvincible = false;
+                    this.removeBuff('ArcBarrier');
+                });
                 break;
         }
 
@@ -1237,6 +1274,70 @@ class MainScene extends Phaser.Scene {
             graphics.destroy();
         }
         item.destroy();
+    }
+
+    private updateBuffIcons() {
+        if (!this.buffIconsContainer) return;
+        this.buffIconsContainer.removeAll(true);
+        let xOffset = 0;
+
+        this.activeBuffs.forEach((buff, type) => {
+            const iconSize = 24;
+            const bg = this.add.graphics();
+            const color = this.getItemColor(type);
+            
+            bg.fillStyle(color, 0.8);
+            bg.lineStyle(1, 0xffffff, 1);
+            bg.fillRoundedRect(0, 0, iconSize, iconSize, 4);
+            bg.strokeRoundedRect(0, 0, iconSize, iconSize, 4);
+            
+            const icon = this.add.container(xOffset, 0, [bg]);
+            icon.setSize(iconSize, iconSize);
+            icon.setInteractive(new Phaser.Geom.Rectangle(0, 0, iconSize, iconSize), Phaser.Geom.Rectangle.Contains);
+
+            icon.on('pointerover', (pointer: Phaser.Input.Pointer) => {
+                let durationText = '';
+                if (buff.duration && buff.startTime) {
+                    const elapsed = (this.time.now - buff.startTime) / 1000;
+                    const remaining = Math.max(0, buff.duration - elapsed);
+                    durationText = remaining > 0 ? `${Math.ceil(remaining)}s` : 'Partida';
+                }
+                this.showTooltip(pointer.x, pointer.y, buff.title, buff.description, durationText);
+            });
+
+            icon.on('pointerout', () => {
+                this.tooltipContainer.setVisible(false);
+            });
+
+            this.buffIconsContainer.add(icon);
+            xOffset += iconSize + 8;
+        });
+    }
+
+    private addBuff(type: string, title: string, description: string, duration?: number) {
+        this.activeBuffs.set(type, {
+            title,
+            description,
+            duration,
+            startTime: duration ? this.time.now : undefined
+        });
+        this.updateBuffIcons();
+    }
+
+    private removeBuff(type: string) {
+        if (this.activeBuffs.has(type)) {
+            this.activeBuffs.delete(type);
+            this.updateBuffIcons();
+        }
+    }
+
+    private getItemColor(type: string): number {
+        switch (type) {
+            case 'ArcPower': return 0xff0000;
+            case 'ArcScore': return 0xffd700;
+            case 'ArcBarrier': return 0x800080;
+            default: return 0xffffff;
+        }
     }
 
     private drawItems() {
