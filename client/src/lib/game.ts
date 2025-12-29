@@ -1266,10 +1266,10 @@ class MainScene extends Phaser.Scene {
         const damageMultiplier = stats.mult;
         const punchDamage = stats.punch;
         
-        const punchX = this.player.flipX ? this.player.x - 60 : this.player.x + 60;
+        const punchX = this.player.flipX ? this.player.x - 20 : this.player.x + 20;
         const targets = this.enemies.getChildren().filter(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
-            return Phaser.Math.Distance.Between(punchX, this.player.y, enemy.x, enemy.y) < 80;
+            return Phaser.Math.Distance.Between(punchX, this.player.y, enemy.x, enemy.y) < 40;
         });
         
         targets.forEach(e => {
