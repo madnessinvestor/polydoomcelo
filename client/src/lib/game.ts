@@ -76,12 +76,11 @@ class MainScene extends Phaser.Scene {
         this.playerAuraGraphics.clear();
         
         const yellowColor = 0xffdd00;
-        const greenColor = 0x4ade80;
         
         // Rules: Hollow square, thickness/complexity grows with level
         if (level === 1) {
-            // Lvl 1: Small, hollow, thin line, green, static
-            this.playerGraphics.lineStyle(1.5, greenColor, 1);
+            // Lvl 1: Small, hollow, thin line, yellow, static
+            this.playerGraphics.lineStyle(1.5, yellowColor, 1);
             this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
         } else if (level === 2) {
             // Lvl 2: Slightly larger, thicker contour
