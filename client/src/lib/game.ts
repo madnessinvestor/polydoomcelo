@@ -1673,8 +1673,8 @@ class MainScene extends Phaser.Scene {
         this.kiarcBar.clear();
         
         // Health Bar (Left side)
-        const hbWidth = 300 * hudScale;
-        const hbHeight = 25 * hudScale;
+        const hbWidth = 200 * hudScale;
+        const hbHeight = 20 * hudScale;
         const hbX = 16;
         const hbY = 16 + fontSize + 10;
 
@@ -1693,20 +1693,20 @@ class MainScene extends Phaser.Scene {
 
         // HP Text
         if (!this.hpLabel) {
-            this.hpLabel = this.add.text(hbX + 10, hbY + 2, '', { 
-                fontSize: `${Math.floor(16 * hudScale)}px`, 
+            this.hpLabel = this.add.text(hbX + 10, hbY + 1, '', { 
+                fontSize: `${Math.floor(14 * hudScale)}px`, 
                 color: '#fff', 
                 fontFamily: 'Pixel' 
             }).setScrollFactor(0).setDepth(1001);
         }
         this.hpLabel.setText(`HP: ${Math.ceil(this.health)}/${this.maxHealth}`);
-        this.hpLabel.setPosition(hbX + 10, hbY + 2);
+        this.hpLabel.setPosition(hbX + 10, hbY + 1);
 
         // Ki Bar (Right side or below)
-        const kiWidth = 300 * hudScale;
-        const kiHeight = 20 * hudScale;
+        const kiWidth = 200 * hudScale;
+        const kiHeight = 16 * hudScale;
         const kiX = 16;
-        const kiY = hbY + hbHeight + 10;
+        const kiY = hbY + hbHeight + 8;
 
         // BG
         this.kiarcBar.fillStyle(0x000000, 0.7);
@@ -1723,14 +1723,14 @@ class MainScene extends Phaser.Scene {
 
         // KI Text
         if (!this.kiLabel) {
-            this.kiLabel = this.add.text(kiX + 10, kiY + 1, '', { 
-                fontSize: `${Math.floor(14 * hudScale)}px`, 
+            this.kiLabel = this.add.text(kiX + 10, kiY + 0, '', { 
+                fontSize: `${Math.floor(12 * hudScale)}px`, 
                 color: '#fff', 
                 fontFamily: 'Pixel' 
             }).setScrollFactor(0).setDepth(1001);
         }
         this.kiLabel.setText(`KI: ${Math.ceil(this.kiarc)}/${this.maxKiarc}`);
-        this.kiLabel.setPosition(kiX + 10, kiY + 1);
+        this.kiLabel.setPosition(kiX + 10, kiY + 0);
 
         // Update buff icons position
         if (this.buffIconsContainer) {
