@@ -44,6 +44,8 @@ class MainScene extends Phaser.Scene {
 
         this.player = this.physics.add.sprite(100, height - 100, 'gokuarc');
         this.player.setCollideWorldBounds(true);
+        this.player.setTint(0x4ade80); // Green triangle
+        this.player.setScale(1.5);
         this.physics.add.collider(this.player, platforms);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
@@ -284,9 +286,9 @@ class MainScene extends Phaser.Scene {
     chargeKiarc() {
         if (this.kiarc < this.maxKiarc) {
             this.kiarc += 0.5;
-            this.player.setTint(0x4ade80);
+            this.player.setTint(0xffffff); // Flash white when charging
         } else {
-            this.player.clearTint();
+            this.player.setTint(0x4ade80);
         }
     }
 
