@@ -31,7 +31,7 @@ export default function Home() {
   return (
     <div className="min-h-screen w-full bg-black flex flex-col items-center justify-center overflow-hidden">
       <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden" />
-      <div className="mt-4 text-slate-400 text-sm flex gap-4">
+      <div className="mt-4 text-slate-400 text-4xl flex gap-4">
         <span>Setas: Mover/Pular</span>
         <span>Z: Soco</span>
         <span>X: Carregar Kiarc</span>
