@@ -822,7 +822,7 @@ class MainScene extends Phaser.Scene {
         this.kiarcBar.fillRect(16, 105, (this.kiarc / this.maxKiarc) * 300, 20);
         
         if (!this.kiLabel) {
-            this.kiLabel = this.add.text(325, 105, 'ARCki', { fontSize: '16px', color: '#4ade80', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
+            this.kiLabel = this.add.text(325, 105, 'ARCki', { fontSize: '16px', color: '#4ade80', fontStyle: 'bold', fontFamily: '"8-BIT WONDER"' });
         }
 
         // ARChp Bar (Vermelho)
@@ -832,7 +832,7 @@ class MainScene extends Phaser.Scene {
         this.kiarcBar.fillRect(16, 135, (this.health / 100) * 300, 15);
 
         if (!this.hpLabel) {
-            this.hpLabel = this.add.text(325, 135, 'ARChp', { fontSize: '16px', color: '#ff0000', fontStyle: 'bold', fontFamily: '8-BIT WONDER' });
+            this.hpLabel = this.add.text(325, 135, 'ARChp', { fontSize: '16px', color: '#ff0000', fontStyle: 'bold', fontFamily: '"8-BIT WONDER"' });
         }
     }
 
