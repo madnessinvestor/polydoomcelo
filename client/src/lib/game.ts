@@ -34,11 +34,18 @@ class MainScene extends Phaser.Scene {
     // Boss polygon graphics map
     private bossGraphicsMap = new Map<Phaser.Physics.Arcade.Sprite, Phaser.GameObjects.Graphics>();
     
-    // Level and progression tracking
     private isGameOver: boolean = false;
     private level: number = 1;
     private levelTitle: string = 'Arc Initiate';
     private enemiesDefeated: number = 0;
+    
+    // Power-up states
+    private hasPowerBoost: boolean = false;
+    private hasScoreBoost: boolean = false;
+    private isInvincible: boolean = false;
+    private invincibilityTimer: number = 0;
+    private items!: Phaser.Physics.Arcade.Group;
+    private itemGraphicsMap = new Map<Phaser.Physics.Arcade.Sprite, Phaser.GameObjects.Graphics>();
     
     // Level stats configuration
     private levelStats = [
@@ -87,7 +94,7 @@ class MainScene extends Phaser.Scene {
         graphics.strokePath();
     }
 
-    // Draw evolving yellow square player based on level
+        // Draw evolving yellow square player based on level
     private drawPlayerSquare(level: number) {
         // Base size grows progressiveley
         const baseSize = 16;
@@ -98,11 +105,20 @@ class MainScene extends Phaser.Scene {
         this.playerAuraGraphics.clear();
         
         const yellowColor = 0xffdd00;
+
+        // Visual for Invincibility
+        if (this.isInvincible) {
+            this.playerAuraGraphics.lineStyle(2, 0x800080, 0.6);
+            this.playerAuraGraphics.strokeCircle(this.player.x, this.player.y, size + 15);
+        }
+
+        // Visual for Power Boost
+        const drawColor = this.hasPowerBoost ? 0xff0000 : yellowColor;
         
         // Rules: Hollow square, thickness/complexity grows with level
         if (level === 1) {
             // Lvl 1: Small, hollow, thin line, yellow, static
-            this.playerGraphics.lineStyle(1.5, yellowColor, 1);
+            this.playerGraphics.lineStyle(1.5, drawColor, 1);
             this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
         } else if (level === 2) {
             // Lvl 2: Slightly larger, thicker contour
@@ -300,9 +316,20 @@ class MainScene extends Phaser.Scene {
         this.updateHUD();
 
         this.enemies = this.physics.add.group();
+        this.items = this.physics.add.group();
         this.physics.add.collider(this.enemies, platforms);
+        this.physics.add.collider(this.items, platforms);
         this.physics.add.collider(this.enemies, this.enemies); // Add collision between enemies
         this.physics.add.overlap(this.player, this.enemies, this.handlePlayerEnemyCollision, undefined, this);
+        this.physics.add.overlap(this.player, this.items, this.handlePlayerItemCollision, undefined, this);
+
+        // Item spawn timer (every 15 seconds)
+        this.time.addEvent({
+            delay: 15000,
+            callback: this.spawnRandomItem,
+            callbackScope: this,
+            loop: true
+        });
 
         this.startWave();
     }
@@ -673,6 +700,14 @@ class MainScene extends Phaser.Scene {
 
     update(time: number, delta: number) {
         if (this.isGameOver) return;
+
+        // Handle power-up timers
+        if (this.isInvincible) {
+            this.invincibilityTimer -= delta;
+            if (this.invincibilityTimer <= 0) {
+                this.isInvincible = false;
+            }
+        }
         
         const currentSpeed = this.getPlayerSpeed(this.level);
 
@@ -782,6 +817,7 @@ class MainScene extends Phaser.Scene {
         }
 
         this.drawPlayerSquare(this.level);
+        this.drawItems();
         
         this.updateHUD();
     }
@@ -945,7 +981,8 @@ class MainScene extends Phaser.Scene {
 
     hitEnemy(enemy: Phaser.Physics.Arcade.Sprite, damage: number) {
         let health = enemy.getData('health') || 1;
-        health -= damage;
+        const finalDamage = this.hasPowerBoost ? damage * 2 : damage;
+        health -= finalDamage;
         enemy.setData('health', health);
 
         // Visual feedback for hitting
@@ -981,15 +1018,18 @@ class MainScene extends Phaser.Scene {
                 yoyo: true,
                 repeat: 2,
                 onComplete: () => {
-                        if (enemy.getData('isBoss')) {
-                            const bossScore = 20 * Math.pow(5, this.currentWave - 1);
-                            this.score += bossScore;
-                            this.checkLevelUp();
-                        } else {
-                            // Standard score increase by 1 per enemy
-                            this.score++;
-                            this.checkLevelUp();
-                        }
+                    if (enemy.getData('isBoss')) {
+                        let bossScore = 20 * Math.pow(5, this.currentWave - 1);
+                        if (this.hasScoreBoost) bossScore *= 2;
+                        this.score += bossScore;
+                        this.checkLevelUp();
+                    } else {
+                        // Standard score increase by 1 per enemy
+                        let gainedScore = 1;
+                        if (this.hasScoreBoost) gainedScore *= 2;
+                        this.score += gainedScore;
+                        this.checkLevelUp();
+                    }
 
                     // Level progression logic based on standard threshold
                     const nextLevelThreshold = this.level * 10;
@@ -1113,8 +1153,174 @@ class MainScene extends Phaser.Scene {
         }
     }
 
+    private spawnRandomItem() {
+        if (this.isGameOver) return;
+        
+        // Limit to 1 item on screen
+        if (this.items.countActive(true) >= 1) return;
+
+        const width = this.cameras.main.width;
+        const x = Phaser.Math.Between(50, width - 50);
+        const y = -50;
+
+        const itemTypes = ['ArcHP', 'ArcKI', 'ArcPower', 'ArcScore', 'ArcBarrier'];
+        const type = Phaser.Utils.Array.GetRandom(itemTypes);
+
+        const item = this.items.create(x, y, 'jungle_tiles', 0) as Phaser.Physics.Arcade.Sprite;
+        item.setAlpha(0); // Use graphics for items
+        item.setData('type', type);
+        item.setBounce(0.5);
+        item.setCollideWorldBounds(true);
+
+        const itemGraphics = this.add.graphics();
+        this.itemGraphicsMap.set(item, itemGraphics);
+
+        // Item disappearance timer
+        this.time.delayedCall(10000, () => {
+            if (item.active) {
+                this.tweens.add({
+                    targets: itemGraphics,
+                    alpha: 0,
+                    duration: 500,
+                    onComplete: () => {
+                        this.itemGraphicsMap.delete(item);
+                        itemGraphics.destroy();
+                        item.destroy();
+                    }
+                });
+            }
+        });
+    }
+
+    private handlePlayerItemCollision(player: any, item: any) {
+        const type = item.getData('type');
+        const stats = this.levelStats[this.level - 1];
+
+        switch (type) {
+            case 'ArcHP':
+                this.health = Math.min(this.maxHealth, this.health + this.maxHealth * 0.3);
+                this.cameras.main.flash(200, 0, 255, 0, true);
+                break;
+            case 'ArcKI':
+                this.kiarc = Math.min(this.maxKiarc, this.kiarc + this.maxKiarc * 0.4);
+                this.cameras.main.flash(200, 0, 0, 255, true);
+                break;
+            case 'ArcPower':
+                this.hasPowerBoost = true;
+                this.cameras.main.flash(500, 255, 0, 0, true);
+                break;
+            case 'ArcScore':
+                this.hasScoreBoost = true;
+                this.cameras.main.flash(500, 255, 215, 0, true);
+                break;
+            case 'ArcBarrier':
+                this.isInvincible = true;
+                this.invincibilityTimer = 10000; // 10 seconds
+                this.cameras.main.flash(300, 255, 0, 255, true);
+                break;
+        }
+
+        const graphics = this.itemGraphicsMap.get(item);
+        if (graphics) {
+            this.itemGraphicsMap.delete(item);
+            graphics.destroy();
+        }
+        item.destroy();
+    }
+
+    private drawItems() {
+        this.items.getChildren().forEach((item: any) => {
+            const graphics = this.itemGraphicsMap.get(item);
+            if (!graphics) return;
+
+            graphics.clear();
+            const type = item.getData('type');
+            const pulse = (Math.sin(this.time.now / 200) * 0.2) + 1;
+            const size = 15 * pulse;
+
+            switch (type) {
+                case 'ArcHP': // Circle, Green, + icon
+                    graphics.lineStyle(2, 0xffffff, 1);
+                    graphics.fillStyle(0x00ff00, 0.8);
+                    graphics.fillCircle(item.x, item.y, size);
+                    graphics.strokeCircle(item.x, item.y, size);
+                    graphics.lineStyle(3, 0xffffff, 1);
+                    graphics.lineBetween(item.x - 5, item.y, item.x + 5, item.y);
+                    graphics.lineBetween(item.x, item.y - 5, item.x, item.y + 5);
+                    break;
+                case 'ArcKI': // Hexagon, Blue, lightning
+                    graphics.lineStyle(2, 0xffffff, 1);
+                    graphics.fillStyle(0x0000ff, 0.8);
+                    const points = this.createPolygonGeometry(6, size);
+                    graphics.beginPath();
+                    graphics.moveTo(item.x + points[0].x, item.y + points[0].y);
+                    for (let i = 1; i < points.length; i++) {
+                        graphics.lineTo(item.x + points[i].x, item.y + points[i].y);
+                    }
+                    graphics.closePath();
+                    graphics.fillPath();
+                    graphics.strokePath();
+                    // Simple lightning bolt
+                    graphics.lineStyle(2, 0xffffff, 1);
+                    graphics.beginPath();
+                    graphics.moveTo(item.x + 2, item.y - 7);
+                    graphics.lineTo(item.x - 4, item.y + 1);
+                    graphics.lineTo(item.x + 4, item.y - 1);
+                    graphics.lineTo(item.x - 2, item.y + 7);
+                    graphics.strokePath();
+                    break;
+                case 'ArcPower': // Triangle, Red, Up arrow
+                    graphics.lineStyle(2, 0xffffff, 1);
+                    graphics.fillStyle(0xff0000, 0.8);
+                    const tPoints = this.createPolygonGeometry(3, size);
+                    graphics.beginPath();
+                    graphics.moveTo(item.x + tPoints[0].x, item.y + tPoints[0].y);
+                    for (let i = 1; i < tPoints.length; i++) {
+                        graphics.lineTo(item.x + tPoints[i].x, item.y + tPoints[i].y);
+                    }
+                    graphics.closePath();
+                    graphics.fillPath();
+                    graphics.strokePath();
+                    break;
+                case 'ArcScore': // Star, Gold, particles
+                    graphics.lineStyle(2, 0xffffff, 1);
+                    graphics.fillStyle(0xffd700, 0.8);
+                    // Draw simple star
+                    const starPoints = 5;
+                    graphics.beginPath();
+                    for (let i = 0; i < starPoints * 2; i++) {
+                        const r = i % 2 === 0 ? size : size / 2;
+                        const angle = (i * Math.PI) / starPoints;
+                        const px = Math.cos(angle - Math.PI/2) * r;
+                        const py = Math.sin(angle - Math.PI/2) * r;
+                        if (i === 0) graphics.moveTo(item.x + px, item.y + py);
+                        else graphics.lineTo(item.x + px, item.y + py);
+                    }
+                    graphics.closePath();
+                    graphics.fillPath();
+                    graphics.strokePath();
+                    break;
+                case 'ArcBarrier': // Square, Purple, shield icon
+                    graphics.lineStyle(2, 0xffffff, 1);
+                    graphics.fillStyle(0x800080, 0.8);
+                    graphics.fillRect(item.x - size, item.y - size, size * 2, size * 2);
+                    graphics.strokeRect(item.x - size, item.y - size, size * 2, size * 2);
+                    // Shield symbol
+                    graphics.lineStyle(2, 0xffffff, 1);
+                    graphics.beginPath();
+                    graphics.moveTo(item.x - 6, item.y - 6);
+                    graphics.lineTo(item.x + 6, item.y - 6);
+                    graphics.lineTo(item.x + 6, item.y + 2);
+                    graphics.quadraticCurveTo(item.x, item.y + 8, item.x - 6, item.y + 2);
+                    graphics.closePath();
+                    graphics.strokePath();
+                    break;
+            }
+        });
+    }
+
     private handlePlayerEnemyCollision(obj1: any, obj2: any) {
-        if (this.isGameOver || this.isWaveInterval) return;
+        if (this.isGameOver || this.isWaveInterval || this.isInvincible) return;
         const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
         
         // Get resistance from current level stats
