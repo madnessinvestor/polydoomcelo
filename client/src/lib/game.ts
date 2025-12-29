@@ -84,7 +84,7 @@ class MainScene extends Phaser.Scene {
         this.keys = this.input.keyboard!.addKeys('Z,X,C,V');
 
         // Enhanced HUD
-        this.scoreText = this.add.text(16, 16, `Inimigos: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { fontSize: '24px', color: '#fff' });
+        this.scoreText = this.add.text(16, 16, `Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { fontSize: '24px', color: '#fff' });
         this.waveText = this.add.text(16, 50, 'WAVE: 1', { fontSize: '32px', color: '#fbbf24', fontStyle: 'bold' });
         this.timerText = this.add.text(width - 150, 16, '01:00', { fontSize: '32px', color: '#fff', fontStyle: 'bold' });
         
@@ -285,13 +285,13 @@ class MainScene extends Phaser.Scene {
 
         // Visual name or shape representation
         const shapes = [
-            'QUADRADO', 'PENTÁGONO', 'HEXÁGONO', 'HEPTÁGONO', 
-            'OCTÓGONO', 'NONÁGONO', 'DECÁGONO', 'DODECÁGONO', 
-            'POLÍGONO COMPLEXO', 'FORMA ARCANA'
+            'SQUARE', 'PENTAGON', 'HEXAGON', 'HEPTAGON', 
+            'OCTAGON', 'NONAGON', 'DECAGON', 'DODECAGON', 
+            'COMPLEX POLYGON', 'ARCANE FORM'
         ];
-        const shapeName = this.currentWave <= 10 ? shapes[this.currentWave - 1] : 'FORMA ARCANA';
+        const shapeName = this.currentWave <= 10 ? shapes[this.currentWave - 1] : 'ARCANE FORM';
         
-        const bossText = this.add.text(x, 50, `CHEFE: ${shapeName}`, { 
+        const bossText = this.add.text(x, 50, `BOSS: ${shapeName}`, { 
             fontSize: '36px',
             color: '#ff0000', 
             fontStyle: 'bold',
@@ -347,7 +347,7 @@ class MainScene extends Phaser.Scene {
         });
 
         // 10-second countdown before boss spawn
-        const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'CHEFE EM: 10', {
+        const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'BOSS IN: 10', {
             fontSize: '48px',
             color: '#ff0000',
             fontStyle: 'bold',
@@ -361,7 +361,7 @@ class MainScene extends Phaser.Scene {
             repeat: 9,
             callback: () => {
                 timeLeft--;
-                countdownText.setText(`CHEFE EM: ${timeLeft}`);
+                countdownText.setText(`BOSS IN: ${timeLeft}`);
                 if (timeLeft <= 0) {
                     countdownText.destroy();
                     this.spawnBoss();
@@ -375,7 +375,7 @@ class MainScene extends Phaser.Scene {
     startInterval() {
         this.isWaveInterval = true;
         this.waveTimer = 30;
-        this.waveText.setText('INTERVALO');
+        this.waveText.setText('INTERVAL');
         this.waveText.setColor('#60a5fa');
 
         if (this.spawnEvent) this.spawnEvent.destroy();
@@ -604,14 +604,25 @@ class MainScene extends Phaser.Scene {
                         this.score += bossScore;
                         this.cameras.main.flash(500, 255, 0, 0);
                         
-                        // Boss defeat special effect
-                        this.add.text(enemy.x, enemy.y, `+${bossScore.toLocaleString()}`, {
+                        // Boss defeat special effect - pulse from top to bottom
+                        const scoreText = this.add.text(enemy.x, enemy.y - 80, `+${bossScore.toLocaleString()}`, {
                             fontSize: '48px',
                             color: '#fbbf24',
                             fontStyle: 'bold',
                             stroke: '#000',
                             strokeThickness: 6
                         }).setOrigin(0.5).setScrollFactor(1);
+                        
+                        // Pulse animation from top to bottom
+                        this.tweens.add({
+                            targets: scoreText,
+                            scaleY: 1.5,
+                            alpha: 0,
+                            y: enemy.y + 40,
+                            duration: 1500,
+                            ease: 'Quad.easeOut',
+                            onComplete: () => scoreText.destroy()
+                        });
                     } else {
                         this.score++;
                     }
@@ -622,17 +633,31 @@ class MainScene extends Phaser.Scene {
                         this.level = result.level;
                         this.levelTitle = result.title;
                         this.cameras.main.flash(500, 0, 255, 0);
-                        this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2, `LEVEL UP: ${this.levelTitle}`, {
-                            fontSize: '64px',
+                        
+                        // Level Up text above player - pulse from bottom to top
+                        const levelUpText = this.add.text(this.player.x, this.player.y - 100, `Level Up\n${this.levelTitle}`, {
+                            fontSize: '48px',
                             color: '#4ade80',
                             fontStyle: 'bold',
                             stroke: '#000',
-                            strokeThickness: 8
-                        }).setOrigin(0.5).setScrollFactor(0);
+                            strokeThickness: 8,
+                            align: 'center'
+                        }).setOrigin(0.5).setScrollFactor(1);
+                        
+                        // Pulse animation from bottom to top
+                        this.tweens.add({
+                            targets: levelUpText,
+                            scaleY: 1.5,
+                            alpha: 0,
+                            y: this.player.y - 180,
+                            duration: 1500,
+                            ease: 'Quad.easeOut',
+                            onComplete: () => levelUpText.destroy()
+                        });
                     }
 
                     enemy.destroy();
-                    this.scoreText.setText(`Inimigos: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
+                    this.scoreText.setText(`Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
                 }
             });
         } else {
