@@ -831,9 +831,9 @@ class MainScene extends Phaser.Scene {
 
     spawnEnemy() {
         const width = this.cameras.main.width;
-        const side = Math.random() > 0.5 ? 'left' : 'right';
-        const x = side === 'left' ? -50 : width + 50;
-        const y = Phaser.Math.Between(100, this.cameras.main.height - 100);
+        // Spawn from the top of the screen
+        const x = Phaser.Math.Between(50, width - 50);
+        const y = -50;
 
         const enemy = this.enemies.create(x, y, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
         enemy.setBounce(0.5);
