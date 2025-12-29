@@ -1,0 +1,168 @@
+👾 INIMIGOS — DESIGN FINAL (10 TIPOS ÚNICOS)
+📌 Regras gerais
+
+Cada inimigo tem:
+
+papel claro (melee, ranged, controle, pressão)
+
+leitura visual imediata
+
+comportamento próprio
+
+O perigo vem da combinação deles
+
+Todos são compatíveis com:
+
+dano alto do jogador
+
+horda
+
+waves longas
+
+1️⃣ Ground Biter — Ataque Corpo a Corpo
+
+Forma: Quadrado
+
+Movimento: Anda no chão
+
+Ataque: Dano por contato contínuo
+
+Função: Pressão básica
+
+Gameplay: Força o jogador a se mover
+
+🧠 Inimigo base
+
+2️⃣ Charger Ram — Investida Brutal
+
+Forma: Pentágono
+
+Movimento: Corre em linha reta
+
+Ataque: Dash rápido
+
+Efeito: Empurra levemente o jogador
+
+Função: Quebra posicionamento
+
+🧠 Punição por ficar parado
+
+3️⃣ Arc Shooter — Ataque à Distância
+
+Forma: Triângulo
+
+Movimento: Lento
+
+Ataque: Dispara projéteis retos
+
+Função: Pressão constante à distância
+
+🧠 Prioridade de alvo
+
+4️⃣ Hover Mage — Voador Mágico
+
+Forma: Hexágono
+
+Movimento: Voa
+
+Ataque: Bolas mágicas em arco
+
+Função: Controle aéreo
+
+🧠 Obriga atacar para cima
+
+5️⃣ Pouncer — Salto Agressivo
+
+Forma: Triângulo invertido
+
+Movimento: Saltos longos
+
+Ataque: Queda com impacto
+
+Função: Ataque surpresa
+
+🧠 Timing e leitura
+
+6️⃣ Knockback Brute — Controle de Espaço
+
+Forma: Retângulo largo
+
+Movimento: Lento
+
+Ataque: Golpe de impacto
+
+Efeito: Empurra o jogador para longe
+
+Função: Jogar o jogador na horda
+
+🧠 Extremamente perigoso em grupo
+
+7️⃣ Blink Stalker — Teleporte
+
+Forma: Octógono
+
+Movimento: Teleporte curto
+
+Ataque: Surge perto do jogador
+
+Função: Quebra segurança
+
+🧠 Imprevisibilidade
+
+8️⃣ Split Core — Multiplicador de Caos
+
+Forma: Octógono
+
+Movimento: Médio
+
+Ataque: Contato
+
+Especial: Divide em 2 menores ao morrer
+
+Função: Aumenta densidade
+
+🧠 Gerenciamento de horda
+
+9️⃣ Shield Sentinel — Defesa Direcional
+
+Forma: Quadrado com borda dupla
+
+Movimento: Lento
+
+Ataque: Contato
+
+Especial: Reduz dano frontal
+
+Função: Trava avanço
+
+🧠 Força reposicionamento
+
+🔟 Arc Phantom — Elite Avançado
+
+Forma: Polígono complexo
+
+Movimento: Flutua + teleporte
+
+Ataque: Magia + contato
+
+Especial: Alterna ataque melee/ranged
+
+Função: Inimigo de alta prioridade
+
+🧠 Mini-chefe de wave
+
+🧠 COMO ISSO MUDA O JOGO
+Situação	Quem causa
+Pressão direta	Ground Biter
+Perda de posição	Charger / Knockback
+Dano constante	Shooter / Mage
+Surpresa	Pouncer / Teleporter
+Caos	Split Core
+Trava avanço	Shield Sentinel
+Pânico	Arc Phantom
+
+➡️ O jogador precisa decidir alvos, não só bater.
+
+📌 TEXTO CURTO PRA PEDIR AO REPLIT
+
+“Criar pelo menos 10 inimigos com comportamentos realmente distintos (melee, ranged, voador, salto, knockback, teleporte, split, defesa direcional), cada um com forma geométrica própria e função clara no gameplay.”

@@ -31,6 +31,33 @@ class MainScene extends Phaser.Scene {
     private waveStartTime: number = 0;
     private bossSpawned: boolean = false;
 
+    // Enemy Type Definitions
+    private enemyTypes = [
+        { id: 'ground_biter', name: 'Ground Biter', sides: 4, color: 0x888888, behavior: 'melee', scale: 1 },
+        { id: 'charger_ram', name: 'Charger Ram', sides: 5, color: 0xff4400, behavior: 'charge', scale: 1.2 },
+        { id: 'arc_shooter', name: 'Arc Shooter', sides: 3, color: 0x00ffcc, behavior: 'ranged', scale: 1 },
+        { id: 'hover_mage', name: 'Hover Mage', sides: 6, color: 0xaa00ff, behavior: 'fly', scale: 1.1 },
+        { id: 'pouncer', name: 'Pouncer', sides: 3, color: 0xccff00, behavior: 'jump', scale: 1.1, inverted: true },
+        { id: 'knockback_brute', name: 'Knockback Brute', sides: 4, color: 0xff0044, behavior: 'knockback', scale: 1.5, ratio: 1.5 },
+        { id: 'blink_stalker', name: 'Blink Stalker', sides: 8, color: 0x000000, behavior: 'teleport', scale: 0.9 },
+        { id: 'split_core', name: 'Split Core', sides: 8, color: 0x00ff00, behavior: 'split', scale: 1.2 },
+        { id: 'shield_sentinel', name: 'Shield Sentinel', sides: 4, color: 0x4444ff, behavior: 'shield', scale: 1.3, doubleBorder: true },
+        { id: 'arc_phantom', name: 'Arc Phantom', sides: 10, color: 0xffffff, behavior: 'elite', scale: 1.8 }
+    ];
+
+    private waveConfigs = [
+        { wave: 1, enemies: { ground_biter: 1.0 } },
+        { wave: 2, enemies: { ground_biter: 0.7, pouncer: 0.3 } },
+        { wave: 3, enemies: { ground_biter: 0.5, arc_shooter: 0.3, pouncer: 0.2 } },
+        { wave: 4, enemies: { ground_biter: 0.4, arc_shooter: 0.25, hover_mage: 0.2, pouncer: 0.15 } },
+        { wave: 5, enemies: { ground_biter: 0.35, charger_ram: 0.25, arc_shooter: 0.2, hover_mage: 0.2 } },
+        { wave: 6, enemies: { ground_biter: 0.3, charger_ram: 0.2, knockback_brute: 0.2, arc_shooter: 0.15, hover_mage: 0.15 } },
+        { wave: 7, enemies: { ground_biter: 0.25, split_core: 0.2, charger_ram: 0.15, knockback_brute: 0.15, arc_shooter: 0.15, hover_mage: 0.1 } },
+        { wave: 8, enemies: { ground_biter: 0.2, split_core: 0.2, blink_stalker: 0.2, arc_shooter: 0.15, hover_mage: 0.15, knockback_brute: 0.1 } },
+        { wave: 9, enemies: { ground_biter: 0.15, shield_sentinel: 0.2, split_core: 0.2, blink_stalker: 0.15, arc_shooter: 0.15, hover_mage: 0.15, arc_phantom: 0.05 } },
+        { wave: 10, enemies: { ground_biter: 0.1, charger_ram: 0.15, knockback_brute: 0.15, split_core: 0.15, blink_stalker: 0.15, shield_sentinel: 0.1, arc_shooter: 0.1, hover_mage: 0.1, arc_phantom: 0.1 } }
+    ];
+
     // Boss polygon graphics map
     private bossGraphicsMap = new Map<Phaser.Physics.Arcade.Sprite, Phaser.GameObjects.Graphics>();
     
@@ -595,19 +622,7 @@ class MainScene extends Phaser.Scene {
     }
 
     private getWaveConfig(wave: number) {
-        const configs: { [key: number]: { total: number, types: { [key: string]: number } } } = {
-            1: { total: 60, types: { 'Ground Crawler': 60 } },
-            2: { total: 90, types: { 'Ground Crawler': 50, 'Slider': 25, 'Hopper': 15 } },
-            3: { total: 130, types: { 'Ground Crawler': 60, 'Slider': 30, 'Hopper': 20, 'Flyer': 20 } },
-            4: { total: 180, types: { 'Ground Crawler': 70, 'Slider': 35, 'Hopper': 30, 'Flyer': 25, 'Orb Mage': 20 } },
-            5: { total: 240, types: { 'Ground Crawler': 80, 'Slider': 45, 'Hopper': 40, 'Flyer': 35, 'Orb Mage': 25, 'Charger': 15 } },
-            6: { total: 310, types: { 'Ground Crawler': 90, 'Slider': 55, 'Hopper': 50, 'Flyer': 45, 'Orb Mage': 35, 'Charger': 25, 'Splitter': 10 } },
-            7: { total: 400, types: { 'Ground Crawler': 110, 'Slider': 70, 'Hopper': 60, 'Flyer': 55, 'Orb Mage': 45, 'Charger': 35, 'Splitter': 20, 'Shielded': 5 } },
-            8: { total: 520, types: { 'Ground Crawler': 130, 'Slider': 85, 'Hopper': 80, 'Flyer': 70, 'Orb Mage': 60, 'Charger': 50, 'Splitter': 30, 'Shielded': 10, 'Sniper': 5 } },
-            9: { total: 680, types: { 'Ground Crawler': 160, 'Slider': 110, 'Hopper': 100, 'Flyer': 90, 'Orb Mage': 80, 'Charger': 65, 'Splitter': 40, 'Shielded': 20, 'Sniper': 10, 'Arc Warden': 5 } },
-            10: { total: 850, types: { 'Ground Crawler': 180, 'Slider': 130, 'Hopper': 120, 'Flyer': 110, 'Orb Mage': 100, 'Charger': 80, 'Splitter': 60, 'Shielded': 40, 'Sniper': 20, 'Arc Warden': 20 } }
-        };
-        return configs[wave] || configs[10];
+        return this.waveConfigs[Math.min(wave - 1, this.waveConfigs.length - 1)];
     }
 
     startWave() {
@@ -617,61 +632,39 @@ class MainScene extends Phaser.Scene {
         this.bossSpawned = false;
         this.waveStartTime = this.time.now;
         
-        const config = this.getWaveConfig(this.currentWave);
-        this.totalEnemiesInWave = config.total;
+        // Waves increase total enemies: 60, 90, 130... 100 base
+        this.totalEnemiesInWave = 60 + (this.currentWave - 1) * 40;
 
         this.waveText.setText(`WAVE: ${this.currentWave}`);
         this.waveText.setColor('#fbbf24');
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
-        // Spawn batch size: total / 60s
-        const spawnDelay = 1000; // once per second
         this.spawnEvent = this.time.addEvent({
-            delay: spawnDelay,
+            delay: 1000,
             callback: this.spawnBatch,
             callbackScope: this,
             loop: true
         });
 
-        const hudScale = Math.max(1, this.cameras.main.width / 800);
-        const countdownFontSize = Math.floor(48 * hudScale);
-
-        // Countdown before boss spawn (10 seconds after wave start)
-        const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'BOSS IN: 10', {
-            fontSize: `${countdownFontSize}px`,
-            color: '#ff0000',
-            fontStyle: 'bold',
-            stroke: '#000000',
-            strokeThickness: 8,
-            fontFamily: 'Pixel'
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
-
-        let timeLeft = 10;
-        this.time.addEvent({
-            delay: 1000,
-            repeat: 9,
-            callback: () => {
-                timeLeft--;
-                countdownText.setText(`BOSS IN: ${timeLeft}`);
-                if (timeLeft <= 0) {
-                    countdownText.destroy();
-                    this.spawnBoss();
-                    this.bossSpawned = true;
+        // Elite Arc Phantom logic
+        if (this.currentWave >= 9) {
+            const delay = this.currentWave === 9 ? 90000 : 45000;
+            this.time.delayedCall(delay, () => {
+                if (!this.isWaveInterval && !this.isGameOver) {
+                    this.spawnEnemyOfType('arc_phantom');
                 }
-            }
-        });
+            });
+        }
     }
 
     private spawnBatch() {
         if (this.isWaveInterval || this.isGameOver) return;
-
         if (!this.enemies) return;
+
         const activeEnemies = this.enemies.countActive(true);
         if (activeEnemies >= this.maxSimultaneousEnemies) return;
 
-        // Spread spawn over 60s as requested ("lançamento de inimigos ocorre por volta de 1 minuto")
-        // Stop spawning when wave total is reached
         if (this.enemiesSpawnedInWave >= this.totalEnemiesInWave) {
             if (this.spawnEvent) {
                 this.spawnEvent.destroy();
@@ -680,17 +673,106 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        const enemiesPerSecond = Math.ceil(this.totalEnemiesInWave / 60);
         const batchSize = Math.min(
-            enemiesPerSecond, 
+            Math.ceil(this.totalEnemiesInWave / 60), 
             this.totalEnemiesInWave - this.enemiesSpawnedInWave,
             this.maxSimultaneousEnemies - activeEnemies
         );
 
         for (let i = 0; i < batchSize; i++) {
             this.spawnEnemy();
-            this.enemiesSpawnedInWave++;
         }
+    }
+
+    private spawnEnemyOfType(typeId: string) {
+        const width = this.cameras.main.width;
+        const x = Phaser.Math.Between(0, 1) === 0 ? -50 : width + 50;
+        const y = this.cameras.main.height - 100;
+        const typeInfo = this.enemyTypes.find(t => t.id === typeId) || this.enemyTypes[0];
+        this.createEnemyObject(x, y, typeInfo);
+    }
+
+    spawnEnemy() {
+        const width = this.cameras.main.width;
+        const x = Phaser.Math.Between(0, 1) === 0 ? -50 : width + 50;
+        const y = this.cameras.main.height - 100;
+
+        const waveConfig = this.getWaveConfig(this.currentWave);
+        const rand = Math.random();
+        let cumulative = 0;
+        let selectedTypeId = 'ground_biter';
+
+        for (const [typeId, chance] of Object.entries(waveConfig.enemies)) {
+            cumulative += chance;
+            if (rand <= cumulative) {
+                selectedTypeId = typeId;
+                break;
+            }
+        }
+
+        const typeInfo = this.enemyTypes.find(t => t.id === selectedTypeId) || this.enemyTypes[0];
+        this.createEnemyObject(x, y, typeInfo);
+        this.enemiesSpawnedInWave++;
+    }
+
+    private createEnemyObject(x: number, y: number, typeInfo: any) {
+        const enemy = this.enemies.create(x, y, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
+        enemy.setBounce(0.5);
+        enemy.setCollideWorldBounds(true);
+        enemy.setData('typeId', typeInfo.id);
+        enemy.setData('behavior', typeInfo.behavior);
+        
+        const waveMultiplier = 1 + (this.currentWave - 1) * 0.2;
+        const isElite = typeInfo.behavior === 'elite';
+        
+        enemy.setData('health', (isElite ? 200 : 20) * waveMultiplier);
+        enemy.setData('damage', (isElite ? 0.2 : 0.05) * waveMultiplier);
+        enemy.setData('sides', typeInfo.sides);
+        enemy.setData('color', typeInfo.color);
+        
+        enemy.setAlpha(0);
+        const graphics = this.add.graphics();
+        this.bossGraphicsMap.set(enemy, graphics);
+
+        const size = (isElite ? 32 : 16) * (typeInfo.scale || 1);
+        this.drawEnemyShape(graphics, typeInfo, size);
+
+        if (typeInfo.behavior === 'fly' || isElite) {
+            const body = enemy.body as Phaser.Physics.Arcade.Body;
+            body.setAllowGravity(false);
+            enemy.y = Phaser.Math.Between(100, 400);
+        }
+    }
+
+    private drawEnemyShape(graphics: Phaser.GameObjects.Graphics, type: any, size: number) {
+        graphics.clear();
+        graphics.lineStyle(2, 0xffffff, 1);
+        graphics.fillStyle(type.color, 0.8);
+
+        if (type.doubleBorder) {
+            graphics.lineStyle(4, 0xffffff, 0.5);
+        }
+
+        const sides = type.sides;
+        const points: Phaser.Geom.Point[] = [];
+        const angleSlice = (Math.PI * 2) / sides;
+        const offset = type.inverted ? Math.PI : -Math.PI / 2;
+
+        for (let i = 0; i < sides; i++) {
+            const angle = i * angleSlice + offset;
+            const rx = Math.cos(angle) * size * (type.ratio || 1);
+            const ry = Math.sin(angle) * size;
+            points.push(new Phaser.Geom.Point(rx, ry));
+        }
+
+        graphics.beginPath();
+        graphics.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            graphics.lineTo(points[i].x, points[i].y);
+        }
+        graphics.closePath();
+        graphics.fillPath();
+        graphics.strokePath();
     }
 
     startInterval() {
