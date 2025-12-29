@@ -1272,10 +1272,10 @@ class MainScene extends Phaser.Scene {
                             
                             // Massive knockback away from center
                             const angle = Phaser.Math.Angle.Between(centerX, floorY, enemy.x, enemy.y);
-                            const force = 1500; // Very fast
+                            const force = 3000; // Even faster!
                             enemy.setVelocity(
                                 Math.cos(angle) * force,
-                                Math.sin(angle) * force - 800 // Also launch upwards
+                                Math.sin(angle) * force - 1200 // More height
                             );
                         }
                     });
