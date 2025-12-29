@@ -916,10 +916,10 @@ class MainScene extends Phaser.Scene {
         }
 
         // Horizontal movement
-        if (this.cursors.left.isDown) {
+        if (this.cursors.left.isDown && !this.keys.B.isDown) {
             this.player.setVelocityX(-currentSpeed);
             this.player.flipX = true;
-        } else if (this.cursors.right.isDown) {
+        } else if (this.cursors.right.isDown && !this.keys.B.isDown) {
             this.player.setVelocityX(currentSpeed);
             this.player.flipX = false;
         } else {
@@ -927,12 +927,12 @@ class MainScene extends Phaser.Scene {
         }
 
         // Vertical movement (Flying/Jumping)
-        if (this.cursors.up.isDown) {
+        if (this.cursors.up.isDown && !this.keys.B.isDown) {
             this.player.setVelocityY(-currentSpeed);
-        } else if (this.cursors.down.isDown) {
+        } else if (this.cursors.down.isDown && !this.keys.B.isDown) {
             this.player.setVelocityY(currentSpeed);
             this.player.setData('isFastFalling', true);
-        } else if (!this.player.body?.touching.down) {
+        } else if (!this.player.body?.touching.down && !this.keys.B.isDown) {
             // Optional: Slight gravity or hover effect if needed, 
             // but the prompt implies direct control "voando para cima ou para baixo"
             // If we want it to feel like flying, we might want to disable gravity or just let velocity work
@@ -968,34 +968,50 @@ class MainScene extends Phaser.Scene {
             this.player.setData('isFastFalling', false);
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.keys.Z)) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.Z) && !this.keys.B.isDown) {
             this.attack();
         }
         
-        if (this.keys.X.isDown) {
+        if (this.keys.X.isDown && !this.keys.B.isDown) {
             this.chargeKiarc();
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.keys.C) && this.kiarc >= 20) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.C) && this.kiarc >= 20 && !this.keys.B.isDown) {
             this.shootMagic();
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.keys.V) && this.kiarc >= (this.maxKiarc * 0.5)) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.V) && this.kiarc >= (this.maxKiarc * 0.5) && !this.keys.B.isDown) {
             this.shootArcamehameha();
         }
 
         // Handle ArcGenkiDama (B Key)
-        if (this.keys.B.isDown && this.kiarc > 0) {
-            this.player.setVelocity(0, 0);
-            if (this.player.body) {
-                this.player.body.allowGravity = false;
+        if (this.keys.B.isDown) {
+            if (this.kiarc > 0) {
+                this.player.setVelocity(0, 0);
+                if (this.player.body) {
+                    this.player.body.allowGravity = false;
+                }
+                this.chargeGenkidama();
+            } else if (this.isChargingGenkidama) {
+                // If ki reaches zero, stop charging
+                // Growth stops because kiarc is 0 in chargeGenkidama check, 
+                // but we keep the current dama until released
             }
-            this.chargeGenkidama();
         } else if (Phaser.Input.Keyboard.JustUp(this.keys.B) && this.isChargingGenkidama) {
             if (this.player.body) {
                 this.player.body.allowGravity = true;
             }
-            this.shootGenkidama();
+            if (this.genkidamaChargeAmount >= 200) {
+                this.shootGenkidama();
+            } else {
+                // Fail to launch if threshold not met
+                if (this.genkidama) {
+                    this.genkidama.destroy();
+                    this.genkidama = null;
+                }
+                this.genkidamaChargeAmount = 0;
+                this.isChargingGenkidama = false;
+            }
         }
 
         // Handle Level 10 AOE Damage
@@ -1261,8 +1277,19 @@ class MainScene extends Phaser.Scene {
                         onComplete: () => explosion.destroy()
                     });
 
-                    this.cameras.main.shake(500, 0.02);
-                    this.cameras.main.flash(500, 255, 255, 255);
+                    this.cameras.main.shake(800, 0.04);
+                    this.cameras.main.flash(1500, 255, 255, 255);
+
+                    // Extra durable glow effect
+                    const glow = this.add.circle(genki.x, genki.y, genki.radius * 6, 0xffffff, 0.8);
+                    this.tweens.add({
+                        targets: glow,
+                        alpha: 0,
+                        scale: 2,
+                        duration: 1500,
+                        ease: 'Quad.easeOut',
+                        onComplete: () => glow.destroy()
+                    });
 
                     // Damage and Knockback ALL enemies on screen
                     this.enemies.getChildren().forEach((e) => {
