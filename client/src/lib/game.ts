@@ -810,11 +810,10 @@ class MainScene extends Phaser.Scene {
 
     private drawEnemyShape(graphics: Phaser.GameObjects.Graphics, type: any, size: number) {
         graphics.clear();
-        graphics.lineStyle(2, 0xffffff, 1);
-        graphics.fillStyle(type.color, 0.8);
+        graphics.lineStyle(2, 0x4ade80, 1); // Fixed green outline
 
         if (type.doubleBorder) {
-            graphics.lineStyle(4, 0xffffff, 0.5);
+            graphics.lineStyle(2, 0x4ade80, 0.5); // Fixed green outline
         }
 
         const sides = type.sides;
@@ -835,7 +834,7 @@ class MainScene extends Phaser.Scene {
             graphics.lineTo(points[i].x, points[i].y);
         }
         graphics.closePath();
-        graphics.fillPath();
+        // No fillPath() - Wireframe only
         graphics.strokePath();
     }
 
