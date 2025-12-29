@@ -838,10 +838,20 @@ class MainScene extends Phaser.Scene {
         const damage = enemy.getData('damage') !== undefined ? enemy.getData('damage') : 0.01;
         this.health -= damage;
         
+        // Efeito de piscar em vermelho semi-transparente
         this.player.setTint(0xff0000);
-        this.time.delayedCall(100, () => {
-            if (!this.isGameOver && this.player.active) {
-                this.player.setTint(0x4ade80);
+        const originalAlpha = this.player.alpha;
+        this.player.setAlpha(0.6); // Semi-transparente
+        
+        this.tweens.add({
+            targets: this.player,
+            alpha: originalAlpha,
+            duration: 300,
+            ease: 'Quad.easeOut',
+            onComplete: () => {
+                if (!this.isGameOver && this.player.active) {
+                    this.player.setTint(0x4ade80);
+                }
             }
         });
 
