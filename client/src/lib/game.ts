@@ -105,60 +105,120 @@ class MainScene extends Phaser.Scene {
         
         // Boss Movement & Attack Logic
         let lastAttackTime = 0;
+        let lastMovementTime = 0;
+        let moveTarget = { x: boss.x, y: boss.y };
+        let orbitAngle = 0;
+        let isTeleporting = false;
+
         const updateMovement = () => {
             if (!boss.active || !this.player.active) return;
             
             const time = this.time.now;
+            const wave = this.currentWave;
             const isDashing = boss.getData('isDashing');
 
-            if (isDashing) {
-                // Keep moving in dash direction
-                return;
-            }
+            if (isTeleporting) return;
 
-            // Attack Logic: Dash towards player every 3 seconds
-            if (time - lastAttackTime > 3000) {
+            // Attack Logic (All waves have dash but with different patterns)
+            const attackInterval = wave >= 6 ? 2000 : 3000;
+            if (time - lastAttackTime > attackInterval && !isDashing) {
                 lastAttackTime = time;
-                boss.setData('isDashing', true);
                 
-                // Visual cue before dash
+                // Special Attack: Teleport for Wave 9+
+                if (wave >= 9 && Math.random() > 0.5) {
+                    isTeleporting = true;
+                    boss.setAlpha(0);
+                    this.time.delayedCall(300, () => {
+                        if (!boss.active) return;
+                        boss.setPosition(this.player.x + Phaser.Math.Between(-100, 100), this.player.y - 200);
+                        boss.setAlpha(1);
+                        isTeleporting = false;
+                        this.cameras.main.flash(200, 255, 0, 0, true);
+                    });
+                    return;
+                }
+
+                boss.setData('isDashing', true);
                 boss.setTint(0xffffff);
-                this.time.delayedCall(500, () => {
+                
+                const dashDelay = wave >= 5 ? 300 : 500;
+                this.time.delayedCall(dashDelay, () => {
                     if (!boss.active) return;
                     boss.setTint(0xff0000);
                     
-                    // Dash
                     const angle = Phaser.Math.Angle.Between(boss.x, boss.y, this.player.x, this.player.y);
-                    const dashSpeed = 800;
+                    const dashSpeed = wave >= 6 ? 1000 : 800;
                     boss.setVelocity(Math.cos(angle) * dashSpeed, Math.sin(angle) * dashSpeed);
                     
-                    // Trail effect
-                    const trail = this.add.circle(boss.x, boss.y, 10, 0xff0000, 0.5);
-                    this.tweens.add({
-                        targets: trail,
-                        alpha: 0,
-                        duration: 500,
-                        onComplete: () => trail.destroy()
-                    });
-
-                    // Stop dash after 1 second
                     this.time.delayedCall(1000, () => {
                         if (boss.active) boss.setData('isDashing', false);
                     });
                 });
                 return;
             }
-            
-            // Default Movement: Floating sinusoidal chase
-            const seconds = time / 1000;
-            const offsetY = Math.sin(seconds * 2) * 100;
-            const targetY = 200 + offsetY;
-            
-            const dx = this.player.x - boss.x;
-            boss.setVelocityX(dx * 0.5);
-            
-            const dy = targetY - boss.y;
-            boss.setVelocityY(dy * 2);
+
+            if (isDashing) return;
+
+            // Progressive Movement Patterns
+            if (wave === 1) { // Square: Slow, straight, 4 directions, pauses
+                if (time - lastMovementTime > 2000) {
+                    lastMovementTime = time;
+                    const dirs = [[1,0], [-1,0], [0,1], [0,-1]];
+                    const dir = dirs[Math.floor(Math.random() * dirs.length)];
+                    boss.setVelocity(dir[0] * 100, dir[1] * 100);
+                }
+            } 
+            else if (wave === 2) { // Pentagon: Straight, more frequent, less pause
+                if (time - lastMovementTime > 1200) {
+                    lastMovementTime = time;
+                    const angle = Math.floor(Math.random() * 5) * (Math.PI * 2 / 5);
+                    boss.setVelocity(Math.cos(angle) * 150, Math.sin(angle) * 150);
+                }
+            }
+            else if (wave === 3) { // Hexagon: Continuous, orbit player
+                orbitAngle += 0.02;
+                const targetX = this.player.x + Math.cos(orbitAngle) * 300;
+                const targetY = this.player.y + Math.sin(orbitAngle) * 300;
+                boss.setVelocity((targetX - boss.x) * 2, (targetY - boss.y) * 2);
+            }
+            else if (wave === 4) { // Heptagon: Short dashes/retreats, irregular
+                if (time - lastMovementTime > 800) {
+                    lastMovementTime = time;
+                    const dist = Phaser.Math.Distance.Between(boss.x, boss.y, this.player.x, this.player.y);
+                    const angle = Phaser.Math.Angle.Between(boss.x, boss.y, this.player.x, this.player.y);
+                    const speed = dist > 400 ? 400 : -300;
+                    boss.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+                }
+            }
+            else if (wave === 5) { // Octagon: Constant circulation, reactive
+                const angle = Phaser.Math.Angle.Between(width/2, 600, boss.x, boss.y) + 0.03;
+                const targetX = width/2 + Math.cos(angle) * 500;
+                const targetY = 600 + Math.sin(angle) * 400;
+                boss.setVelocity((targetX - boss.x) * 3, (targetY - boss.y) * 3);
+            }
+            else if (wave === 6) { // Nonagon: Short dash sequence, unpredictable
+                if (time - lastMovementTime > 500) {
+                    lastMovementTime = time;
+                    const angle = Math.random() * Math.PI * 2;
+                    boss.setVelocity(Math.cos(angle) * 600, Math.sin(angle) * 600);
+                }
+            }
+            else if (wave >= 7 && wave <= 8) { // Decagon/Dodecagon: Active chase + patterns
+                const angle = Phaser.Math.Angle.Between(boss.x, boss.y, this.player.x, this.player.y);
+                const speed = wave === 8 ? 400 : 300;
+                boss.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+                
+                if (wave === 8) { // Add some rotation to the chase
+                    boss.x += Math.cos(time/500) * 5;
+                    boss.y += Math.sin(time/500) * 5;
+                }
+            }
+            else if (wave >= 9) { // Complex/Arcane: Fluid, unstable, reactive
+                const angle = Phaser.Math.Angle.Between(boss.x, boss.y, this.player.x, this.player.y);
+                const jitterX = Math.sin(time/100) * 20;
+                const jitterY = Math.cos(time/100) * 20;
+                boss.setVelocity(Math.cos(angle) * 450 + jitterX, Math.sin(angle) * 450 + jitterY);
+            }
         };
         
         this.events.on('update', updateMovement);
