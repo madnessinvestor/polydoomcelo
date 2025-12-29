@@ -17,11 +17,16 @@ class MainScene extends Phaser.Scene {
     // Wave system variables
     private currentWave: number = 1;
     private isWaveInterval: boolean = false;
-    private waveTimer: number = 60;
+    private waveTimer: number = 0;
     private waveTimerEvent!: Phaser.Time.TimerEvent;
     private waveText!: Phaser.GameObjects.Text;
     private timerText!: Phaser.GameObjects.Text;
     private spawnEvent!: Phaser.Time.TimerEvent;
+    private enemiesSpawnedInWave: number = 0;
+    private totalEnemiesInWave: number = 100;
+    private maxSimultaneousEnemies: number = 200;
+    private waveStartTime: number = 0;
+    private bossSpawned: boolean = false;
 
     // Boss polygon graphics map
     private bossGraphicsMap = new Map<Phaser.Physics.Arcade.Sprite, Phaser.GameObjects.Graphics>();
@@ -504,20 +509,40 @@ class MainScene extends Phaser.Scene {
         this.events.on('update', updateHUD);
     }
 
+    private getWaveConfig(wave: number) {
+        const configs: { [key: number]: { total: number, types: { [key: string]: number } } } = {
+            1: { total: 100, types: { 'Ground Crawler': 100 } },
+            2: { total: 140, types: { 'Ground Crawler': 90, 'Slider': 30, 'Hopper': 20 } },
+            3: { total: 190, types: { 'Ground Crawler': 100, 'Slider': 40, 'Hopper': 30, 'Flyer': 20 } },
+            4: { total: 250, types: { 'Ground Crawler': 120, 'Slider': 40, 'Hopper': 40, 'Flyer': 30, 'Orb Mage': 20 } },
+            5: { total: 320, types: { 'Ground Crawler': 140, 'Slider': 50, 'Hopper': 50, 'Flyer': 40, 'Orb Mage': 25, 'Charger': 15 } },
+            6: { total: 400, types: { 'Ground Crawler': 160, 'Slider': 60, 'Hopper': 60, 'Flyer': 50, 'Orb Mage': 35, 'Charger': 25, 'Splitter': 10 } },
+            7: { total: 500, types: { 'Ground Crawler': 180, 'Slider': 80, 'Hopper': 70, 'Flyer': 60, 'Orb Mage': 45, 'Charger': 35, 'Splitter': 20, 'Shielded': 10 } },
+            8: { total: 650, types: { 'Ground Crawler': 200, 'Slider': 100, 'Hopper': 90, 'Flyer': 80, 'Orb Mage': 60, 'Charger': 50, 'Splitter': 40, 'Shielded': 20, 'Sniper': 10 } },
+            9: { total: 850, types: { 'Ground Crawler': 250, 'Slider': 130, 'Hopper': 120, 'Flyer': 110, 'Orb Mage': 80, 'Charger': 70, 'Splitter': 60, 'Shielded': 40, 'Sniper': 20, 'Arc Warden': 10 } },
+            10: { total: 1100, types: { 'Ground Crawler': 300, 'Slider': 150, 'Hopper': 150, 'Flyer': 150, 'Orb Mage': 100, 'Charger': 100, 'Splitter': 80, 'Shielded': 50, 'Sniper': 20 } }
+        };
+        return configs[wave] || configs[10];
+    }
+
     startWave() {
         this.isWaveInterval = false;
-        this.waveTimer = 60;
+        this.enemiesSpawnedInWave = 0;
+        this.bossSpawned = false;
+        this.waveStartTime = this.time.now;
+        
+        const config = this.getWaveConfig(this.currentWave);
+        this.totalEnemiesInWave = config.total;
+
         this.waveText.setText(`WAVE: ${this.currentWave}`);
         this.waveText.setColor('#fbbf24');
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
-        const baseDelay = 1500;
-        const currentDelay = baseDelay / Math.pow(1.5, this.currentWave - 1);
-        
+        // Continuous spawn check
         this.spawnEvent = this.time.addEvent({
-            delay: Math.max(150, currentDelay),
-            callback: this.spawnEnemy,
+            delay: 1000,
+            callback: this.spawnBatch,
             callbackScope: this,
             loop: true
         });
@@ -545,53 +570,40 @@ class MainScene extends Phaser.Scene {
                 if (timeLeft <= 0) {
                     countdownText.destroy();
                     this.spawnBoss();
+                    this.bossSpawned = true;
                 }
             }
         });
+    }
 
-        this.startTimer();
+    private spawnBatch() {
+        if (this.isWaveInterval || this.isGameOver) return;
+
+        const activeEnemies = this.enemies.countActive(true);
+        if (activeEnemies >= this.maxSimultaneousEnemies) return;
+
+        const remainingToSpawn = this.totalEnemiesInWave - this.enemiesSpawnedInWave;
+        if (remainingToSpawn <= 0) return;
+
+        // Spawn 20-40 enemies per batch
+        const batchSize = Math.min(Phaser.Math.Between(20, 40), remainingToSpawn, this.maxSimultaneousEnemies - activeEnemies);
+
+        for (let i = 0; i < batchSize; i++) {
+            this.spawnEnemy();
+            this.enemiesSpawnedInWave++;
+        }
     }
 
     startInterval() {
         this.isWaveInterval = true;
-        this.waveTimer = 30;
-        this.waveText.setText('INTERVAL');
+        this.waveText.setText('WAVE COMPLETE');
         this.waveText.setColor('#60a5fa');
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
-        this.spawnEvent = this.time.addEvent({
-            delay: 4000,
-            callback: this.spawnEnemy,
-            callbackScope: this,
-            loop: true
-        });
-
-        this.startTimer();
-    }
-
-    startTimer() {
-        if (this.waveTimerEvent) this.waveTimerEvent.destroy();
-        
-        this.waveTimerEvent = this.time.addEvent({
-            delay: 1000,
-            callback: () => {
-                this.waveTimer--;
-                const mins = Math.floor(this.waveTimer / 60);
-                const secs = this.waveTimer % 60;
-                this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
-
-                if (this.waveTimer <= 0) {
-                    if (this.isWaveInterval) {
-                        this.currentWave++;
-                        this.startWave();
-                    } else {
-                        this.startInterval();
-                    }
-                }
-            },
-            callbackScope: this,
-            loop: true
+        this.time.delayedCall(3000, () => {
+            this.currentWave++;
+            this.startWave();
         });
     }
 
@@ -617,10 +629,23 @@ class MainScene extends Phaser.Scene {
         return baseSpeed * (1 + (level - 1) * 0.2);
     }
 
-    update() {
+    update(time: number, delta: number) {
         if (this.isGameOver) return;
         
         const currentSpeed = this.getPlayerSpeed(this.level);
+
+        // Update timer display
+        if (!this.isWaveInterval) {
+            const elapsed = Math.floor((time - this.waveStartTime) / 1000);
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+
+            // Check wave completion
+            if (this.enemiesSpawnedInWave >= this.totalEnemiesInWave && this.enemies.countActive(true) === 0) {
+                this.startInterval();
+            }
+        }
 
         if (this.cursors.left.isDown) {
             this.player.setVelocityX(-currentSpeed);
@@ -790,22 +815,29 @@ class MainScene extends Phaser.Scene {
 
     spawnEnemy() {
         const width = this.cameras.main.width;
-        const x = Phaser.Math.Between(width / 2, width - 50);
-        const enemy = this.enemies.create(x, 0, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
-        enemy.setBounce(0.2);
-        enemy.setCollideWorldBounds(true);
-        
+        const side = Math.random() > 0.5 ? 'left' : 'right';
+        const x = side === 'left' ? -50 : width + 50;
+        const y = Phaser.Math.Between(100, this.cameras.main.height - 100);
+
+        const enemy = this.enemies.create(x, y, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
+        enemy.setBounce(0.5);
+        enemy.setCollideWorldBounds(false); 
+
         // At wave 1: size=1, damage=1
         // At wave 2: size=1.5, damage=1.5
         // At wave 3: size=2.25, damage=2.25
         const multiplier = Math.pow(1.5, this.currentWave - 1);
         enemy.setScale(multiplier);
-        enemy.setData('damage', multiplier * 0.01); // Mantendo base de dano baixa
+        enemy.setData('damage', multiplier * 0.01); 
 
-        // 10% more velocity per wave
-        const difficultyMultiplier = Math.pow(1.1, this.currentWave - 1);
-        enemy.setVelocityX(Phaser.Math.Between(-150, 150) * difficultyMultiplier);
-        enemy.setData('health', 1);
+        // HP based on requirements (20-60)
+        const health = Phaser.Math.Between(20, 60);
+        enemy.setData('health', health);
+        
+        // Target player
+        const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        const speed = Phaser.Math.Between(50, 150);
+        enemy.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
     }
 
     attack() {
