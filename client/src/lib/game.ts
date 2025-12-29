@@ -958,7 +958,6 @@ class MainScene extends Phaser.Scene {
 
         // Ground Impact logic (keep existing functionality but adapt to new movement)
         if (this.player.body?.touching.down && this.player.getData('isFastFalling')) {
-            this.kiarc -= 5;
             this.handleGroundImpact();
             this.player.setData('isFastFalling', false);
         }
