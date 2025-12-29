@@ -272,7 +272,7 @@ class MainScene extends Phaser.Scene {
             strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
 
-        this.timerText = this.add.text(width - 16, 16 + fontSize + 10, '01:00', { 
+        this.timerText = this.add.text(width - 16, 16 + fontSize + 10, '02:00', { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
             fontStyle: 'bold', 
@@ -521,16 +521,16 @@ class MainScene extends Phaser.Scene {
 
     private getWaveConfig(wave: number) {
         const configs: { [key: number]: { total: number, types: { [key: string]: number } } } = {
-            1: { total: 100, types: { 'Ground Crawler': 100 } },
-            2: { total: 140, types: { 'Ground Crawler': 90, 'Slider': 30, 'Hopper': 20 } },
-            3: { total: 190, types: { 'Ground Crawler': 100, 'Slider': 40, 'Hopper': 30, 'Flyer': 20 } },
-            4: { total: 250, types: { 'Ground Crawler': 120, 'Slider': 40, 'Hopper': 40, 'Flyer': 30, 'Orb Mage': 20 } },
-            5: { total: 320, types: { 'Ground Crawler': 140, 'Slider': 50, 'Hopper': 50, 'Flyer': 40, 'Orb Mage': 25, 'Charger': 15 } },
-            6: { total: 400, types: { 'Ground Crawler': 160, 'Slider': 60, 'Hopper': 60, 'Flyer': 50, 'Orb Mage': 35, 'Charger': 25, 'Splitter': 10 } },
-            7: { total: 500, types: { 'Ground Crawler': 180, 'Slider': 80, 'Hopper': 70, 'Flyer': 60, 'Orb Mage': 45, 'Charger': 35, 'Splitter': 20, 'Shielded': 10 } },
-            8: { total: 650, types: { 'Ground Crawler': 200, 'Slider': 100, 'Hopper': 90, 'Flyer': 80, 'Orb Mage': 60, 'Charger': 50, 'Splitter': 40, 'Shielded': 20, 'Sniper': 10 } },
-            9: { total: 850, types: { 'Ground Crawler': 250, 'Slider': 130, 'Hopper': 120, 'Flyer': 110, 'Orb Mage': 80, 'Charger': 70, 'Splitter': 60, 'Shielded': 40, 'Sniper': 20, 'Arc Warden': 10 } },
-            10: { total: 1100, types: { 'Ground Crawler': 300, 'Slider': 150, 'Hopper': 150, 'Flyer': 150, 'Orb Mage': 100, 'Charger': 100, 'Splitter': 80, 'Shielded': 50, 'Sniper': 20 } }
+            1: { total: 60, types: { 'Ground Crawler': 60 } },
+            2: { total: 90, types: { 'Ground Crawler': 50, 'Slider': 25, 'Hopper': 15 } },
+            3: { total: 130, types: { 'Ground Crawler': 60, 'Slider': 30, 'Hopper': 20, 'Flyer': 20 } },
+            4: { total: 180, types: { 'Ground Crawler': 70, 'Slider': 35, 'Hopper': 30, 'Flyer': 25, 'Orb Mage': 20 } },
+            5: { total: 240, types: { 'Ground Crawler': 80, 'Slider': 45, 'Hopper': 40, 'Flyer': 35, 'Orb Mage': 25, 'Charger': 15 } },
+            6: { total: 310, types: { 'Ground Crawler': 90, 'Slider': 55, 'Hopper': 50, 'Flyer': 45, 'Orb Mage': 35, 'Charger': 25, 'Splitter': 10 } },
+            7: { total: 400, types: { 'Ground Crawler': 110, 'Slider': 70, 'Hopper': 60, 'Flyer': 55, 'Orb Mage': 45, 'Charger': 35, 'Splitter': 20, 'Shielded': 5 } },
+            8: { total: 520, types: { 'Ground Crawler': 130, 'Slider': 85, 'Hopper': 80, 'Flyer': 70, 'Orb Mage': 60, 'Charger': 50, 'Splitter': 30, 'Shielded': 10, 'Sniper': 5 } },
+            9: { total: 680, types: { 'Ground Crawler': 160, 'Slider': 110, 'Hopper': 100, 'Flyer': 90, 'Orb Mage': 80, 'Charger': 65, 'Splitter': 40, 'Shielded': 20, 'Sniper': 10, 'Arc Warden': 5 } },
+            10: { total: 850, types: { 'Ground Crawler': 180, 'Slider': 130, 'Hopper': 120, 'Flyer': 110, 'Orb Mage': 100, 'Charger': 80, 'Splitter': 60, 'Shielded': 40, 'Sniper': 20, 'Arc Warden': 20 } }
         };
         return configs[wave] || configs[10];
     }
@@ -543,8 +543,6 @@ class MainScene extends Phaser.Scene {
         this.waveStartTime = this.time.now;
         
         const config = this.getWaveConfig(this.currentWave);
-        // Set total enemies based on 1 minute at 2 enemies/sec (total 120) 
-        // OR keep the wave config total but ensure spawning doesn't exceed 2/sec
         this.totalEnemiesInWave = config.total;
 
         this.waveText.setText(`WAVE: ${this.currentWave}`);
@@ -552,9 +550,10 @@ class MainScene extends Phaser.Scene {
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
-        // Continuous spawn check
+        // Spawn batch size: total / 120s
+        const spawnDelay = 1000; // once per second
         this.spawnEvent = this.time.addEvent({
-            delay: 1000,
+            delay: spawnDelay,
             callback: this.spawnBatch,
             callbackScope: this,
             loop: true
@@ -563,8 +562,8 @@ class MainScene extends Phaser.Scene {
         const hudScale = Math.max(1, this.cameras.main.width / 800);
         const countdownFontSize = Math.floor(48 * hudScale);
 
-        // 10-second countdown before boss spawn
-        const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'BOSS IN: 10', {
+        // 120-second countdown before boss spawn
+        const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'BOSS IN: 120', {
             fontSize: `${countdownFontSize}px`,
             color: '#ff0000',
             fontStyle: 'bold',
@@ -573,10 +572,10 @@ class MainScene extends Phaser.Scene {
             fontFamily: 'Pixel'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
 
-        let timeLeft = 10;
+        let timeLeft = 120;
         this.time.addEvent({
             delay: 1000,
-            repeat: 9,
+            repeat: 119,
             callback: () => {
                 timeLeft--;
                 countdownText.setText(`BOSS IN: ${timeLeft}`);
@@ -596,9 +595,11 @@ class MainScene extends Phaser.Scene {
         const activeEnemies = this.enemies.countActive(true);
         if (activeEnemies >= this.maxSimultaneousEnemies) return;
 
-        // Limited to 2 enemies per second
+        // Spread spawn over 120s
+        const enemiesPerSecond = Math.ceil(this.totalEnemiesInWave / 120);
         const batchSize = Math.min(
-            2, 
+            enemiesPerSecond, 
+            this.totalEnemiesInWave - this.enemiesSpawnedInWave,
             this.maxSimultaneousEnemies - activeEnemies
         );
 
@@ -658,9 +659,9 @@ class MainScene extends Phaser.Scene {
             const secs = elapsed % 60;
             this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
 
-            // Wave lasts 1 minute (60 seconds)
-            // After 1 minute, check if all enemies are defeated to finish
-            if (elapsed >= 60 && this.enemies.countActive(true) === 0) {
+            // Wave lasts 2 minutes (120 seconds)
+            // After 2 minutes, check if all enemies are defeated to finish
+            if (elapsed >= 120 && this.enemies.countActive(true) === 0) {
                 this.startInterval();
             }
         } else {
@@ -1108,6 +1109,10 @@ class MainScene extends Phaser.Scene {
         const nextLevelThreshold = this.level * 10;
         if (this.enemiesDefeated >= nextLevelThreshold && this.level < 10) {
             this.level++;
+            
+            // Level up recovery: restore HP and KI
+            this.health = 100;
+            this.kiarc = this.maxKiarc;
             
             const titles = [
                 'Arc Initiate', 'Arc Squire', 'Arc Warrior', 'Arc Knight', 
