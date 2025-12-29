@@ -136,7 +136,7 @@ class MainScene extends Phaser.Scene {
         const damage = normalEnemyDamage * 4;
         
         const baseSize = 25;
-        const size = baseSize + sides * 1.5;
+        const size = (baseSize + sides * 1.5) * 3;
 
         boss.setData('health', health);
         boss.setData('maxHealth', health);
