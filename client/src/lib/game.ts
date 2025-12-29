@@ -1976,6 +1976,11 @@ class MainScene extends Phaser.Scene {
                 this.player.body.enable = false;
             }
             this.createExplosion(this.player.x, this.player.y);
+            
+            // Reset game after explosion
+            this.time.delayedCall(1000, () => {
+                this.scene.restart();
+            });
         }
     }
 
