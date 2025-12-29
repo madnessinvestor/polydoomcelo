@@ -76,17 +76,59 @@ class MainScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
-        this.add.rectangle(0, 0, width * 2, height * 2, 0x0a0a20).setOrigin(0);
+        // Enhanced background with depth
+        this.add.rectangle(0, 0, width, height, 0x0a0a20).setOrigin(0).setScrollFactor(0);
         
+        // Add starfield effect with twinkle
+        for (let i = 0; i < 150; i++) {
+            const x = Phaser.Math.Between(0, width);
+            const y = Phaser.Math.Between(0, height);
+            const star = this.add.circle(x, y, Phaser.Math.FloatBetween(0.5, 2), 0xffffff, Phaser.Math.FloatBetween(0.2, 0.8));
+            star.setScrollFactor(Phaser.Math.FloatBetween(0.05, 0.2));
+            
+            this.tweens.add({
+                targets: star,
+                alpha: 0.2,
+                duration: Phaser.Math.Between(1000, 3000),
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+        }
+
         const platforms = this.physics.add.staticGroup();
-        for (let i = 0; i < 50; i++) {
-            platforms.create(i * 32, height - 16, 'jungle_tiles', 0).refreshBody();
+        for (let i = 0; i < 100; i++) {
+            const platform = platforms.create(i * 32, height - 16, 'jungle_tiles', 0).refreshBody();
+            platform.setTint(0x1a472a);
         }
 
         this.player = this.physics.add.sprite(100, height - 100, 'arc_lvl_1');
         this.player.setCollideWorldBounds(true);
-        this.player.setTint(0x4ade80); // Green triangle
         this.player.setScale(1.5);
+        this.player.setDepth(10);
+        
+        // Character trail effect
+        this.time.addEvent({
+            delay: 50,
+            callback: () => {
+                if (this.player.active && this.player.body && this.player.body.velocity.length() > 100) {
+                    const trail = this.add.image(this.player.x, this.player.y, this.player.texture.key);
+                    trail.setScale(this.player.scaleX, this.player.scaleY);
+                    trail.setAlpha(0.3);
+                    trail.setTint(0x4ade80);
+                    trail.setDepth(5);
+                    trail.flipX = this.player.flipX;
+                    this.tweens.add({
+                        targets: trail,
+                        alpha: 0,
+                        duration: 300,
+                        onComplete: () => trail.destroy()
+                    });
+                }
+            },
+            loop: true
+        });
+
         this.physics.add.collider(this.player, platforms);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
@@ -628,6 +670,27 @@ class MainScene extends Phaser.Scene {
         health -= damage;
         enemy.setData('health', health);
 
+        // Visual feedback for hitting
+        enemy.setTint(0xffffff);
+        this.time.delayedCall(100, () => {
+            if (enemy.active) {
+                enemy.setTint(enemy.getData('isBoss') ? 0xff0000 : 0xffffff);
+                if (!enemy.getData('isBoss')) enemy.clearTint();
+            }
+        });
+        
+        // Hit particles
+        const hitParticle = this.add.circle(enemy.x, enemy.y, 4, 0xffffff);
+        this.tweens.add({
+            targets: hitParticle,
+            x: enemy.x + Phaser.Math.Between(-50, 50),
+            y: enemy.y + Phaser.Math.Between(-50, 50),
+            alpha: 0,
+            scale: 0.1,
+            duration: 400,
+            onComplete: () => hitParticle.destroy()
+        });
+
         if (health <= 0) {
             this.tweens.add({
                 targets: enemy,
@@ -648,7 +711,7 @@ class MainScene extends Phaser.Scene {
                             fontStyle: 'bold',
                             stroke: '#000',
                             strokeThickness: 6,
-                            fontFamily: '8-BIT WONDER'
+                            fontFamily: '"8-BIT WONDER"'
                         }).setOrigin(0.5).setScrollFactor(1);
                         
                         // Pulse animation from top to bottom
@@ -680,7 +743,7 @@ class MainScene extends Phaser.Scene {
                             stroke: '#000',
                             strokeThickness: 8,
                             align: 'center',
-                            fontFamily: '8-BIT WONDER'
+                            fontFamily: '"8-BIT WONDER"'
                         }).setOrigin(0.5).setScrollFactor(1);
                         
                         // Pulse animation from bottom to top
@@ -695,17 +758,11 @@ class MainScene extends Phaser.Scene {
                         });
                     }
 
+                    this.enemiesDefeated++;
+                    this.cameras.main.shake(100, 0.005);
+                    this.createExplosion(enemy.x, enemy.y);
                     enemy.destroy();
                     this.scoreText.setText(`Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
-                }
-            });
-        } else {
-            // Flash white when hit but not dead
-            enemy.setTint(0xffffff);
-            this.time.delayedCall(100, () => {
-                if (enemy.active) {
-                    enemy.setTint(enemy.getData('isBoss') ? 0xff0000 : 0xffffff);
-                    if (!enemy.getData('isBoss')) enemy.clearTint();
                 }
             });
         }
@@ -846,7 +903,8 @@ const config: Phaser.Types.Core.GameConfig = {
     render: {
         pixelArt: true,
         antialias: false,
-        powerPreference: 'high-performance'
+        powerPreference: 'high-performance',
+        roundPixels: true
     },
     fps: {
         target: 60,
