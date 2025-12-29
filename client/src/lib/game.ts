@@ -132,15 +132,6 @@ class MainScene extends Phaser.Scene {
         this.physics.add.overlap(this.player, this.enemies, this.handlePlayerEnemyCollision, undefined, this);
 
         this.startWave();
-
-        this.add.text(width / 2, 60, 'GOKUARC VS CRIPTOIDES', { 
-            fontSize: `${titleFontSize}px`, 
-            color: '#4ade80',
-            fontStyle: 'bold',
-            fontFamily: '"8-BIT WONDER"',
-            stroke: '#000',
-            strokeThickness: 6
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
     }
 
     private spawnBoss() {
