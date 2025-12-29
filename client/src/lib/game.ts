@@ -310,35 +310,37 @@ class MainScene extends Phaser.Scene {
         this.scoreText = this.add.text(16, 16, `Score: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"Courier New", Courier, monospace',
+            fontStyle: 'bold',
             stroke: '#000',
-            strokeThickness: 4
+            strokeThickness: 6
         }).setScrollFactor(0).setDepth(1000);
 
         this.enemyCounterText = this.add.text(width - 16, 16 + fontSize * 2 + 20, `0/${this.totalEnemiesInWave}`, {
             fontSize: `${fontSize}px`,
             color: '#ff4444',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"Courier New", Courier, monospace',
+            fontStyle: 'bold',
             stroke: '#000',
-            strokeThickness: 4
+            strokeThickness: 6
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
 
         this.waveText = this.add.text(width - 16, 16, 'WAVE: 1', { 
             fontSize: `${fontSize}px`, 
             color: '#fbbf24', 
             fontStyle: 'bold', 
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"Courier New", Courier, monospace',
             stroke: '#000',
-            strokeThickness: 4
+            strokeThickness: 6
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
 
         this.timerText = this.add.text(width - 16, 16 + fontSize + 10, '01:00', { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
             fontStyle: 'bold', 
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"Courier New", Courier, monospace',
             stroke: '#000',
-            strokeThickness: 4
+            strokeThickness: 6
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
         
         this.kiarcBar = this.add.graphics().setScrollFactor(0).setDepth(1000);
@@ -349,8 +351,8 @@ class MainScene extends Phaser.Scene {
         // Tooltip System
         this.tooltipContainer = this.add.container(0, 0).setScrollFactor(0).setDepth(2000).setVisible(false);
         this.tooltipBg = this.add.graphics();
-        this.tooltipTitle = this.add.text(10, 10, '', { fontSize: '18px', color: '#fbbf24', fontStyle: 'bold', fontFamily: 'Arial, sans-serif' });
-        this.tooltipText = this.add.text(10, 35, '', { fontSize: '14px', color: '#ffffff', fontFamily: 'Arial, sans-serif', wordWrap: { width: 200 } });
+        this.tooltipTitle = this.add.text(10, 10, '', { fontSize: '18px', color: '#fbbf24', fontStyle: 'bold', fontFamily: '"Courier New", Courier, monospace' });
+        this.tooltipText = this.add.text(10, 35, '', { fontSize: '14px', color: '#ffffff', fontFamily: '"Courier New", Courier, monospace', wordWrap: { width: 200 } });
         this.tooltipContainer.add([this.tooltipBg, this.tooltipTitle, this.tooltipText]);
 
         // Pickup Notification System
@@ -359,7 +361,7 @@ class MainScene extends Phaser.Scene {
             fontSize: '18px',
             color: '#ffffff',
             fontStyle: 'bold',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"Courier New", Courier, monospace',
             backgroundColor: '#000000',
             padding: { x: 12, y: 6 }
         }).setScrollFactor(0).setDepth(2002).setVisible(false);
@@ -1272,15 +1274,15 @@ class MainScene extends Phaser.Scene {
                         this.levelTitle = titles[this.level - 1];
                         this.cameras.main.flash(500, 0, 255, 0);
                         
-                        const levelUpText = this.add.text(this.player.x, this.player.y - 100, `Level Up\n${this.levelTitle}`, {
-                            fontSize: '48px',
-                            color: '#4ade80',
-                            fontStyle: 'bold',
-                            stroke: '#000',
-                            strokeThickness: 8,
-                            align: 'center',
-                            fontFamily: 'Arial, sans-serif'
-                        }).setOrigin(0.5).setScrollFactor(1);
+        const levelUpText = this.add.text(this.player.x, this.player.y - 100, `Level Up\n${this.levelTitle}`, {
+            fontSize: '48px',
+            color: '#4ade80',
+            fontStyle: 'bold',
+            stroke: '#000',
+            strokeThickness: 8,
+            align: 'center',
+            fontFamily: '"Courier New", Courier, monospace'
+        }).setOrigin(0.5).setScrollFactor(1);
 
                         // Update to follow player
                         const updateFollow = () => {
@@ -1792,7 +1794,8 @@ class MainScene extends Phaser.Scene {
             this.hpLabel = this.add.text(hbX + 10, hbY + 1, '', { 
                 fontSize: `${Math.floor(14 * hudScale)}px`, 
                 color: '#fff', 
-                fontFamily: 'Pixel' 
+                fontFamily: '"Courier New", Courier, monospace',
+                fontStyle: 'bold'
             }).setScrollFactor(0).setDepth(1001);
         }
         if (this.hpLabel && this.hpLabel.active && this.hpLabel.scene) {
@@ -1828,7 +1831,8 @@ class MainScene extends Phaser.Scene {
             this.kiLabel = this.add.text(kiX + 10, kiY + 0, '', { 
                 fontSize: `${Math.floor(12 * hudScale)}px`, 
                 color: '#fff', 
-                fontFamily: 'Pixel' 
+                fontFamily: '"Courier New", Courier, monospace',
+                fontStyle: 'bold'
             }).setScrollFactor(0).setDepth(1001);
         }
         if (this.kiLabel && this.kiLabel.active && this.kiLabel.scene) {
@@ -1959,13 +1963,13 @@ class MainScene extends Phaser.Scene {
     private pickupTimer!: Phaser.Time.TimerEvent;
 }
 
-const config: Phaser.Types.Core.GameConfig = {
+    const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     parent: 'game-container',
     width: 1600,
     height: 1200,
     resolution: window.devicePixelRatio || 1,
-    antialias: true,
+    antialias: false,
     physics: {
         default: 'arcade',
         arcade: {
@@ -1974,8 +1978,8 @@ const config: Phaser.Types.Core.GameConfig = {
         }
     },
     render: {
-        pixelArt: false,
-        antialias: true,
+        pixelArt: true,
+        antialias: false,
         powerPreference: 'high-performance',
         roundPixels: true
     },
