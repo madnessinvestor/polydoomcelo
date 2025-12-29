@@ -597,6 +597,44 @@ class MainScene extends Phaser.Scene {
     }
 
     update() {
+        if (this.isGameOver) return;
+        
+        // Handle Level 10 AOE Damage
+        if (this.level >= 10) {
+            const scaleFactor = 1 + (this.level - 1) * 0.08;
+            const size = 16 * scaleFactor;
+            const auraRadius = size + 30;
+            this.enemies.getChildren().forEach((enemy: any) => {
+                if (enemy.active) {
+                    const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+                    if (dist < auraRadius) {
+                        const currentHealth = enemy.getData('health');
+                        enemy.setData('health', (currentHealth || 0) - 10);
+                        
+                        // Visual feedback for aura damage
+                        if (this.time.now % 500 < 20) {
+                            enemy.setTint(0x00ffff);
+                            this.time.delayedCall(100, () => {
+                                if (enemy.active) enemy.clearTint();
+                            });
+                        }
+
+                        if (enemy.getData('health') <= 0) {
+                            if (enemy.getData('isBoss')) {
+                                const bossScore = 20 * Math.pow(5, this.currentWave - 1);
+                                this.score += bossScore;
+                            } else {
+                                this.score++;
+                            }
+                            this.enemiesDefeated++;
+                            this.createExplosion(enemy.x, enemy.y);
+                            enemy.destroy();
+                        }
+                    }
+                }
+            });
+        }
+
         if (this.cursors.left.isDown) {
             this.player.setVelocityX(-400);
             this.player.flipX = true;
