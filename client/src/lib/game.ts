@@ -647,7 +647,7 @@ class MainScene extends Phaser.Scene {
             9: 11.0,
             10: 15.0
         };
-        return multipliers[level] || (level > 10 ? 15.0 + (level - 10) * 2.0 : 1.0);
+        return multipliers[level] || (level > 10 ? 15.0 : 1.0);
     }
 
     private getPlayerSpeed(level: number): number {
