@@ -764,6 +764,7 @@ class MainScene extends Phaser.Scene {
     }
 
     shootArcamehameha() {
+        const damageMultiplier = this.getDamageMultiplier(this.level);
         this.kiarc -= 50;
         const beamLength = 800;
         const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
@@ -776,7 +777,7 @@ class MainScene extends Phaser.Scene {
 
         this.physics.add.overlap(beam, this.enemies, (b, e) => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
-            this.hitEnemy(enemy, 50); // damage is now 50
+            this.hitEnemy(enemy, 50 * damageMultiplier);
         }, undefined, this);
 
         this.tweens.add({
@@ -808,6 +809,7 @@ class MainScene extends Phaser.Scene {
     }
 
     attack() {
+        const damageMultiplier = this.getDamageMultiplier(this.level);
         const punchX = this.player.flipX ? this.player.x - 60 : this.player.x + 60;
         const targets = this.enemies.getChildren().filter(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
@@ -815,11 +817,12 @@ class MainScene extends Phaser.Scene {
         });
         
         targets.forEach(e => {
-            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 10); // damage is now 10
+            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 10 * damageMultiplier);
         });
     }
 
     shootMagic() {
+        const damageMultiplier = this.getDamageMultiplier(this.level);
         this.kiarc -= 20;
         const magic = this.add.circle(this.player.x, this.player.y, 15, 0x60a5fa);
         this.physics.add.existing(magic);
@@ -829,7 +832,7 @@ class MainScene extends Phaser.Scene {
         
         this.physics.add.overlap(magic, this.enemies, (m, e) => {
             m.destroy();
-            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 10); // damage is now 10
+            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, 10 * damageMultiplier);
         }, undefined, this);
     }
 
