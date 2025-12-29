@@ -596,12 +596,15 @@ class MainScene extends Phaser.Scene {
 
     startInterval() {
         this.isWaveInterval = true;
-        this.waveText.setText('WAVE COMPLETE');
+        this.waveText.setText('INTERVAL');
         this.waveText.setColor('#60a5fa');
+        this.waveStartTime = this.time.now;
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
-        this.time.delayedCall(3000, () => {
+        // 30-second interval
+        this.time.delayedCall(30000, () => {
+            if (this.isGameOver) return;
             this.currentWave++;
             this.startWave();
         });
@@ -635,8 +638,8 @@ class MainScene extends Phaser.Scene {
         const currentSpeed = this.getPlayerSpeed(this.level);
 
         // Update timer display
+        const elapsed = Math.floor((time - this.waveStartTime) / 1000);
         if (!this.isWaveInterval) {
-            const elapsed = Math.floor((time - this.waveStartTime) / 1000);
             const mins = Math.floor(elapsed / 60);
             const secs = elapsed % 60;
             this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
@@ -645,6 +648,12 @@ class MainScene extends Phaser.Scene {
             if (this.enemiesSpawnedInWave >= this.totalEnemiesInWave && this.enemies.countActive(true) === 0) {
                 this.startInterval();
             }
+        } else {
+            // Countdown for the interval
+            const timeLeft = Math.max(0, 30 - elapsed);
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
         }
 
         // Horizontal movement
