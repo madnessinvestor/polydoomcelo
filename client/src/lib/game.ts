@@ -543,6 +543,8 @@ class MainScene extends Phaser.Scene {
         this.waveStartTime = this.time.now;
         
         const config = this.getWaveConfig(this.currentWave);
+        // Set total enemies based on 1 minute at 2 enemies/sec (total 120) 
+        // OR keep the wave config total but ensure spawning doesn't exceed 2/sec
         this.totalEnemiesInWave = config.total;
 
         this.waveText.setText(`WAVE: ${this.currentWave}`);
@@ -594,14 +596,9 @@ class MainScene extends Phaser.Scene {
         const activeEnemies = this.enemies.countActive(true);
         if (activeEnemies >= this.maxSimultaneousEnemies) return;
 
-        const remainingToSpawn = this.totalEnemiesInWave - this.enemiesSpawnedInWave;
-        if (remainingToSpawn <= 0) return;
-
-        // Ensure we spawn everything within a reasonable time (e.g., 60 seconds)
-        // If we have many remaining, increase batch size
+        // Limited to 2 enemies per second
         const batchSize = Math.min(
-            Phaser.Math.Between(20, 40), 
-            remainingToSpawn, 
+            2, 
             this.maxSimultaneousEnemies - activeEnemies
         );
 
@@ -661,8 +658,9 @@ class MainScene extends Phaser.Scene {
             const secs = elapsed % 60;
             this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
 
-            // Check wave completion
-            if (this.enemiesSpawnedInWave >= this.totalEnemiesInWave && this.enemies.countActive(true) === 0) {
+            // Wave lasts 1 minute (60 seconds)
+            // After 1 minute, check if all enemies are defeated to finish
+            if (elapsed >= 60 && this.enemies.countActive(true) === 0) {
                 this.startInterval();
             }
         } else {
