@@ -986,8 +986,15 @@ class MainScene extends Phaser.Scene {
 
         // Handle ArcGenkiDama (B Key)
         if (this.keys.B.isDown && this.kiarc > 0) {
+            this.player.setVelocity(0, 0);
+            if (this.player.body) {
+                this.player.body.allowGravity = false;
+            }
             this.chargeGenkidama();
         } else if (Phaser.Input.Keyboard.JustUp(this.keys.B) && this.isChargingGenkidama) {
+            if (this.player.body) {
+                this.player.body.allowGravity = true;
+            }
             this.shootGenkidama();
         }
 
@@ -1197,7 +1204,7 @@ class MainScene extends Phaser.Scene {
             this.genkidamaChargeAmount += kiToConsume;
             
             if (!this.genkidama) {
-                this.genkidama = this.add.circle(this.player.x, this.player.y - 100, 10, 0x0000ff, 0.6);
+                this.genkidama = this.add.circle(this.player.x, this.player.y - 100, 10, 0xadd8e6, 0.6);
             }
             
             // Size is proportional to charge
@@ -1207,7 +1214,7 @@ class MainScene extends Phaser.Scene {
             
             // Charging visual effect
             if (this.time.now % 100 < 20) {
-                const particle = this.add.circle(this.player.x + Phaser.Math.Between(-50, 50), this.player.y + Phaser.Math.Between(-50, 50), 4, 0x0000ff, 0.8);
+                const particle = this.add.circle(this.player.x + Phaser.Math.Between(-50, 50), this.player.y + Phaser.Math.Between(-50, 50), 4, 0xadd8e6, 0.8);
                 this.tweens.add({
                     targets: particle,
                     x: this.genkidama.x,
@@ -1235,30 +1242,47 @@ class MainScene extends Phaser.Scene {
         body.setAllowGravity(false);
         
         const centerX = this.cameras.main.width / 2;
-        const centerY = this.cameras.main.height / 2;
+        const floorY = this.cameras.main.height - 32;
         
-        this.physics.moveTo(genki, centerX, centerY, 400);
+        this.physics.moveTo(genki, centerX, floorY, 400);
         
-        this.physics.add.overlap(genki, this.enemies, (g, e) => {
-            const enemy = e as Phaser.Physics.Arcade.Sprite;
-            this.hitEnemy(enemy, damage * this.levelStats[this.level-1].mult);
-            
-            // AOE explosion on impact
-            const explosion = this.add.circle(genki.x, genki.y, genki.radius * 2, 0x0000ff, 0.3);
-            this.tweens.add({
-                targets: explosion,
-                scale: 2,
-                alpha: 0,
-                duration: 500,
-                onComplete: () => explosion.destroy()
-            });
-            
-            genki.destroy();
-        }, undefined, this);
+        // Use a timer to check for floor impact since we want it to hit the center floor
+        const checkImpact = this.time.addEvent({
+            delay: 50,
+            callback: () => {
+                if (genki.active && genki.y >= floorY - 20) {
+                    // AOE explosion on impact
+                    const explosion = this.add.circle(genki.x, genki.y, genki.radius * 4, 0xadd8e6, 0.3);
+                    this.tweens.add({
+                        targets: explosion,
+                        scale: 3,
+                        alpha: 0,
+                        duration: 600,
+                        onComplete: () => explosion.destroy()
+                    });
 
-        // Auto destroy if it leaves screen or takes too long
+                    // Damage ALL enemies on screen
+                    this.enemies.getChildren().forEach((e) => {
+                        const enemy = e as Phaser.Physics.Arcade.Sprite;
+                        if (enemy.active) {
+                            this.hitEnemy(enemy, damage * this.levelStats[this.level - 1].mult);
+                        }
+                    });
+
+                    this.cameras.main.shake(500, 0.02);
+                    genki.destroy();
+                    checkImpact.remove();
+                }
+            },
+            loop: true
+        });
+
+        // Auto destroy if it takes too long
         this.time.delayedCall(5000, () => {
-            if (genki.active) genki.destroy();
+            if (genki.active) {
+                genki.destroy();
+                checkImpact.remove();
+            }
         });
     }
 
