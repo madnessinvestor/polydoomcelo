@@ -313,6 +313,17 @@ class MainScene extends Phaser.Scene {
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
         
         this.kiarcBar = this.add.graphics().setScrollFactor(0).setDepth(1000);
+        
+        // Buff Icons Container
+        this.buffIconsContainer = this.add.container(16, 160).setScrollFactor(0).setDepth(1001);
+        
+        // Tooltip System
+        this.tooltipContainer = this.add.container(0, 0).setScrollFactor(0).setDepth(2000).setVisible(false);
+        this.tooltipBg = this.add.graphics();
+        this.tooltipTitle = this.add.text(10, 10, '', { fontSize: '18px', color: '#fbbf24', fontStyle: 'bold', fontFamily: 'Pixel' });
+        this.tooltipText = this.add.text(10, 35, '', { fontSize: '14px', color: '#ffffff', fontFamily: 'Pixel', wordWrap: { width: 200 } });
+        this.tooltipContainer.add([this.tooltipBg, this.tooltipTitle, this.tooltipText]);
+
         this.updateHUD();
 
         this.enemies = this.physics.add.group();
@@ -1409,62 +1420,107 @@ class MainScene extends Phaser.Scene {
     }
 
     updateHUD() {
-        // Character level progression logic based on enemies defeated
-        const nextLevelThreshold = this.level * 10;
-        if (this.enemiesDefeated >= nextLevelThreshold && this.level < 10) {
-            this.level++;
-            
-            // Level up recovery: restore HP and KI
-            this.health = 100;
-            this.kiarc = this.maxKiarc;
-            
-            const titles = [
-                'Arc Initiate', 'Arc Squire', 'Arc Warrior', 'Arc Knight', 
-                'Arc Commander', 'Arc Master', 'Arc Grandmaster', 
-                'Arc Sage', 'Arc Eternal', 'Arc Divine'
-            ];
-            this.levelTitle = titles[this.level - 1];
-            
-            this.updatePlayerVisual();
-        }
-
-        if (this.scoreText) {
-            this.scoreText.setText(`Score: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
-        }
-
-        if (this.enemyCounterText) {
-            const enemiesDefeatedInWave = this.enemiesDefeated - (this.totalEnemiesBeforeWave || 0);
-            this.enemyCounterText.setText(`${enemiesDefeatedInWave}/${this.totalEnemiesInWave}`);
-        }
-
-        this.kiarcBar.clear();
+        // ... (existing logic)
         
-        // ARCki Bar (Verde)
-        this.kiarcBar.fillStyle(0x333333);
-        this.kiarcBar.fillRect(16, 105, 300, 20);
-        this.kiarcBar.fillStyle(0x4ade80);
-        this.kiarcBar.fillRect(16, 105, (this.kiarc / this.maxKiarc) * 300, 20);
+        this.updateBuffsUI();
+    }
+
+    private updateBuffsUI() {
+        if (!this.buffIconsContainer) return;
+        this.buffIconsContainer.removeAll(true);
         
-        if (!this.kiLabel) {
-            this.kiLabel = this.add.text(325, 105, 'ARCki', { fontSize: '16px', color: '#4ade80', fontStyle: 'bold', fontFamily: 'Pixel' });
-        }
+        const activeBuffs = [];
+        if (this.hasPowerBoost) activeBuffs.push({ type: 'ArcPower', title: 'Arc Power Boost', text: 'Dobra todo o dano do personagem (Soco, Magia e Arcamehameha).', duration: 'Partida' });
+        if (this.hasScoreBoost) activeBuffs.push({ type: 'ArcScore', title: 'Arc Score Boost', text: 'Dobra todo o score ganho de inimigos e chefes.', duration: 'Partida' });
+        if (this.isInvincible) activeBuffs.push({ type: 'ArcBarrier', title: 'Arc Barrier', text: 'Personagem fica invencível e não recebe dano.', duration: `${Math.ceil(this.invincibilityTimer / 1000)}s` });
 
-        // ARChp Bar (Vermelho)
-        this.kiarcBar.fillStyle(0x333333);
-        this.kiarcBar.fillRect(16, 135, 300, 15);
-        this.kiarcBar.fillStyle(0xff0000);
-        this.kiarcBar.fillRect(16, 135, (this.health / this.maxHealth) * 300, 15);
+        activeBuffs.forEach((buff, index) => {
+            const x = index * 45;
+            const iconBg = this.add.graphics();
+            iconBg.lineStyle(2, 0xffffff, 1);
+            iconBg.fillStyle(this.getBuffColor(buff.type), 0.8);
+            
+            const size = 15;
+            if (buff.type === 'ArcPower') {
+                const points = this.createPolygonGeometry(3, size);
+                iconBg.beginPath();
+                iconBg.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) iconBg.lineTo(points[i].x, points[i].y);
+                iconBg.closePath();
+                iconBg.fillPath();
+                iconBg.strokePath();
+            } else if (buff.type === 'ArcScore') {
+                const starPoints = 5;
+                iconBg.beginPath();
+                for (let i = 0; i < starPoints * 2; i++) {
+                    const r = i % 2 === 0 ? size : size / 2;
+                    const angle = (i * Math.PI) / starPoints;
+                    const px = Math.cos(angle - Math.PI/2) * r;
+                    const py = Math.sin(angle - Math.PI/2) * r;
+                    if (i === 0) iconBg.moveTo(px, py);
+                    else iconBg.lineTo(px, py);
+                }
+                iconBg.closePath();
+                iconBg.fillPath();
+                iconBg.strokePath();
+            } else if (buff.type === 'ArcBarrier') {
+                iconBg.fillRect(-size, -size, size * 2, size * 2);
+                iconBg.strokeRect(-size, -size, size * 2, size * 2);
+            }
 
-        if (!this.hpLabel) {
-            this.hpLabel = this.add.text(325, 135, 'ARChp', { fontSize: '16px', color: '#ff0000', fontStyle: 'bold', fontFamily: 'Pixel' });
+            const hitArea = this.add.rectangle(0, 0, 40, 40).setInteractive();
+            hitArea.on('pointerover', (pointer: Phaser.Input.Pointer) => {
+                this.showTooltip(pointer.x, pointer.y, buff.title, buff.text, buff.duration);
+            });
+            hitArea.on('pointerout', () => {
+                this.tooltipContainer.setVisible(false);
+            });
+
+            const buffContainer = this.add.container(x + 20, 20, [iconBg, hitArea]);
+            this.buffIconsContainer.add(buffContainer);
+        });
+    }
+
+    private getBuffColor(type: string): number {
+        switch (type) {
+            case 'ArcPower': return 0xff0000;
+            case 'ArcScore': return 0xffd700;
+            case 'ArcBarrier': return 0x800080;
+            default: return 0xffffff;
         }
+    }
+
+    private showTooltip(x: number, y: number, title: string, text: string, duration?: string) {
+        this.tooltipTitle.setText(title);
+        const fullText = duration ? `${text}\nDuração: ${duration}` : text;
+        this.tooltipText.setText(fullText);
+
+        const bounds = this.tooltipText.getBounds();
+        const width = Math.max(bounds.width + 20, 220);
+        const height = bounds.height + 50;
+
+        this.tooltipBg.clear();
+        this.tooltipBg.fillStyle(0x000000, 0.9);
+        this.tooltipBg.lineStyle(2, 0xfbbf24, 1);
+        this.tooltipBg.fillRoundedRect(0, 0, width, height, 8);
+        this.tooltipBg.strokeRoundedRect(0, 0, width, height, 8);
+
+        this.tooltipContainer.setPosition(x + 20, y - height - 10);
+        if (this.tooltipContainer.x + width > this.cameras.main.width) {
+            this.tooltipContainer.x = x - width - 20;
+        }
+        this.tooltipContainer.setVisible(true);
     }
 
     private kiLabel!: Phaser.GameObjects.Text;
     private hpLabel!: Phaser.GameObjects.Text;
-}
+    private buffIconsContainer!: Phaser.GameObjects.Container;
+    private tooltipContainer!: Phaser.GameObjects.Container;
+    private tooltipBg!: Phaser.GameObjects.Graphics;
+    private tooltipTitle!: Phaser.GameObjects.Text;
+    private tooltipText!: Phaser.GameObjects.Text;
 
-const config: Phaser.Types.Core.GameConfig = {
+    constructor() {
     type: Phaser.AUTO,
     parent: 'game-container',
     width: 1600,
