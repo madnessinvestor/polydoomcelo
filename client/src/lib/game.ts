@@ -562,8 +562,8 @@ class MainScene extends Phaser.Scene {
         const hudScale = Math.max(1, this.cameras.main.width / 800);
         const countdownFontSize = Math.floor(48 * hudScale);
 
-        // Countdown before boss spawn (e.g. 60 seconds after wave start)
-        const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'BOSS IN: 60', {
+        // Countdown before boss spawn (10 seconds after wave start)
+        const countdownText = this.add.text(this.cameras.main.width / 2, 200, 'BOSS IN: 10', {
             fontSize: `${countdownFontSize}px`,
             color: '#ff0000',
             fontStyle: 'bold',
@@ -572,10 +572,10 @@ class MainScene extends Phaser.Scene {
             fontFamily: 'Pixel'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
 
-        let timeLeft = 60;
+        let timeLeft = 10;
         this.time.addEvent({
             delay: 1000,
-            repeat: 59,
+            repeat: 9,
             callback: () => {
                 timeLeft--;
                 countdownText.setText(`BOSS IN: ${timeLeft}`);
