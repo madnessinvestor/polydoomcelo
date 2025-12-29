@@ -923,6 +923,30 @@ class MainScene extends Phaser.Scene {
             // If we want it to feel like flying, we might want to disable gravity or just let velocity work
         }
 
+        // Enemy Pursuit Logic
+        this.enemies.getChildren().forEach((e: any) => {
+            const enemy = e as Phaser.Physics.Arcade.Sprite;
+            if (enemy.active && this.player.active) {
+                const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+                const enemySpeed = enemy.getData('speed') || 100;
+                
+                const behavior = enemy.getData('behavior');
+                if (behavior === 'fly' || behavior === 'teleport' || behavior === 'elite') {
+                    enemy.setVelocity(
+                        Math.cos(angle) * enemySpeed,
+                        Math.sin(angle) * enemySpeed
+                    );
+                } else {
+                    // Standard ground pursuit
+                    if (enemy.x < this.player.x) {
+                        enemy.setVelocityX(enemySpeed);
+                    } else {
+                        enemy.setVelocityX(-enemySpeed);
+                    }
+                }
+            }
+        });
+
         // Ground Impact logic (keep existing functionality but adapt to new movement)
         if (this.player.body?.touching.down && this.player.getData('isFastFalling')) {
             this.kiarc -= 5;
