@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 
 class MainScene extends Phaser.Scene {
     private player!: Phaser.Physics.Arcade.Sprite;
+    private playerGraphics!: Phaser.GameObjects.Graphics;
+    private playerAuraGraphics!: Phaser.GameObjects.Graphics;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private kiarc: number = 0;
     private maxKiarc: number = 100;
@@ -63,17 +65,99 @@ class MainScene extends Phaser.Scene {
         graphics.strokePath();
     }
 
+    // Draw evolving yellow square player based on level
+    private drawPlayerSquare(level: number) {
+        const size = 16;
+        this.playerGraphics.clear();
+        this.playerAuraGraphics.clear();
+        
+        const yellowColor = 0xffdd00;
+        
+        if (level === 1) {
+            // Level 1: Simple yellow square
+            this.playerGraphics.fillStyle(yellowColor, 1);
+            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+        } else if (level === 2) {
+            // Level 2: Thicker border
+            this.playerGraphics.fillStyle(yellowColor, 1);
+            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            this.playerGraphics.lineStyle(4, yellowColor, 1);
+            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+        } else if (level === 3) {
+            // Level 3: Double border
+            this.playerGraphics.fillStyle(yellowColor, 1);
+            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            this.playerGraphics.lineStyle(2, yellowColor, 1);
+            this.playerGraphics.strokeRect(this.player.x - size - 4, this.player.y - size - 4, size * 2 + 8, size * 2 + 8);
+            this.playerGraphics.strokeRect(this.player.x - size + 2, this.player.y - size + 2, size * 2 - 4, size * 2 - 4);
+        } else if (level === 4) {
+            // Level 4: Inner lines
+            this.playerGraphics.fillStyle(yellowColor, 1);
+            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            this.playerGraphics.lineStyle(1, 0xffdd00, 0.7);
+            this.playerGraphics.lineBetween(this.player.x - size, this.player.y, this.player.x + size, this.player.y);
+            this.playerGraphics.lineBetween(this.player.x, this.player.y - size, this.player.x, this.player.y + size);
+        } else if (level === 5) {
+            // Level 5: Inner square layer
+            this.playerGraphics.fillStyle(yellowColor, 1);
+            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            this.playerGraphics.fillStyle(0x222222, 1);
+            this.playerGraphics.fillRect(this.player.x - (size - 4), this.player.y - (size - 4), (size - 4) * 2, (size - 4) * 2);
+        } else if (level === 6) {
+            // Level 6: Chamfered corners
+            this.playerGraphics.fillStyle(yellowColor, 1);
+            this.playerGraphics.beginPath();
+            this.playerGraphics.moveTo(this.player.x - size + 4, this.player.y - size);
+            this.playerGraphics.lineTo(this.player.x + size - 4, this.player.y - size);
+            this.playerGraphics.lineTo(this.player.x + size, this.player.y - size + 4);
+            this.playerGraphics.lineTo(this.player.x + size, this.player.y + size - 4);
+            this.playerGraphics.lineTo(this.player.x + size - 4, this.player.y + size);
+            this.playerGraphics.lineTo(this.player.x - size + 4, this.player.y + size);
+            this.playerGraphics.lineTo(this.player.x - size, this.player.y + size - 4);
+            this.playerGraphics.lineTo(this.player.x - size, this.player.y - size + 4);
+            this.playerGraphics.closePath();
+            this.playerGraphics.fillPath();
+        } else if (level === 7) {
+            // Level 7: Animated inner lines
+            this.playerGraphics.fillStyle(yellowColor, 1);
+            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            const offset = Math.sin(this.time.now / 500) * 2;
+            this.playerGraphics.lineStyle(1.5, 0xffdd00, 0.8);
+            this.playerGraphics.lineBetween(this.player.x - size + offset, this.player.y, this.player.x + size + offset, this.player.y);
+            this.playerGraphics.lineBetween(this.player.x, this.player.y - size + offset, this.player.x, this.player.y + size + offset);
+        } else if (level === 8) {
+            // Level 8: Multiple geometric layers
+            this.playerGraphics.fillStyle(yellowColor, 1);
+            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            this.playerGraphics.fillStyle(0xffdd00, 0.6);
+            this.playerGraphics.fillRect(this.player.x - (size - 3), this.player.y - (size - 3), (size - 3) * 2, (size - 3) * 2);
+            this.playerGraphics.fillStyle(0xffdd00, 0.3);
+            this.playerGraphics.fillRect(this.player.x - (size - 6), this.player.y - (size - 6), (size - 6) * 2, (size - 6) * 2);
+            this.playerGraphics.lineStyle(2, yellowColor, 1);
+            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+        } else if (level === 9) {
+            // Level 9: Pulsing glow with particles
+            this.playerGraphics.fillStyle(yellowColor, 1);
+            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            const pulse = Math.sin(this.time.now / 300) * 0.5 + 0.5;
+            this.playerAuraGraphics.lineStyle(2, yellowColor, pulse * 0.8);
+            this.playerAuraGraphics.strokeRect(this.player.x - size - 6, this.player.y - size - 6, size * 2 + 12, size * 2 + 12);
+        } else if (level === 10) {
+            // Level 10: Powerful energetic aura
+            const auraSize = size + 12;
+            this.playerAuraGraphics.fillStyle(yellowColor, 0.2);
+            this.playerAuraGraphics.fillRect(this.player.x - auraSize, this.player.y - auraSize, auraSize * 2, auraSize * 2);
+            this.playerAuraGraphics.lineStyle(3, yellowColor, 0.6);
+            this.playerAuraGraphics.strokeRect(this.player.x - auraSize, this.player.y - auraSize, auraSize * 2, auraSize * 2);
+            this.playerGraphics.fillStyle(yellowColor, 1);
+            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            const pulse = Math.sin(this.time.now / 200) * 0.5 + 0.5;
+            this.playerGraphics.lineStyle(3, yellowColor, pulse);
+            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+        }
+    }
+
     preload() {
-        this.load.image('arc_lvl_1', '/attached_assets/Arc_Lvl_1_1767022253715.png');
-        this.load.image('arc_lvl_2', '/attached_assets/Arc_Lvl_2_1767022253716.png');
-        this.load.image('arc_lvl_3', '/attached_assets/Arc_Lvl_3_1767022253717.png');
-        this.load.image('arc_lvl_4', '/attached_assets/Arc_Lvl_4_1767022253717.png');
-        this.load.image('arc_lvl_5', '/attached_assets/Arc_Lvl_5_1767022253717.png');
-        this.load.image('arc_lvl_6', '/attached_assets/Arc_Lvl_6_1767022253718.png');
-        this.load.image('arc_lvl_7', '/attached_assets/Arc_Lvl_7_1767022253718.png');
-        this.load.image('arc_lvl_8', '/attached_assets/Arc_Lvl_8_1767022253714.png');
-        this.load.image('arc_lvl_9', '/attached_assets/Arc_Lvl_9_1767022253715.png');
-        this.load.image('arc_lvl_10', '/attached_assets/Arc_Lvl_10_1767022253715.png');
         this.load.spritesheet('criptoide_basic', '/attached_assets/generated_images/pixel_art_criptoide_basic_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('jungle_tiles', '/attached_assets/generated_images/pixel_art_jungle_tileset.png', { frameWidth: 32, frameHeight: 32 });
     }
@@ -108,25 +192,27 @@ class MainScene extends Phaser.Scene {
             platform.setTint(0x1a472a);
         }
 
-        this.player = this.physics.add.sprite(100, height - 100, 'arc_lvl_1');
+        this.player = this.physics.add.sprite(100, height - 100, 'jungle_tiles', 0);
         this.player.setCollideWorldBounds(true);
-        this.player.setScale(1.5);
+        this.player.setAlpha(0);
         this.player.setDepth(10);
+        this.player.setDisplaySize(32, 32);
+        
+        // Create graphics for player visual
+        this.playerGraphics = this.add.graphics().setDepth(11);
+        this.playerAuraGraphics = this.add.graphics().setDepth(9);
         
         // Character trail effect
         this.time.addEvent({
             delay: 50,
             callback: () => {
                 if (this.player.active && this.player.body && this.player.body.velocity.length() > 100) {
-                    const trail = this.add.image(this.player.x, this.player.y, this.player.texture.key);
-                    trail.setScale(this.player.scaleX, this.player.scaleY);
-                    trail.setAlpha(0.3);
-                    trail.setTint(0x4ade80);
+                    const trail = this.add.circle(this.player.x, this.player.y, 16, 0x4ade80, 0.3);
                     trail.setDepth(5);
-                    trail.flipX = this.player.flipX;
                     this.tweens.add({
                         targets: trail,
                         alpha: 0,
+                        scale: 0.5,
                         duration: 300,
                         onComplete: () => trail.destroy()
                     });
@@ -549,6 +635,9 @@ class MainScene extends Phaser.Scene {
             this.shootArcamehameha();
         }
 
+        // Redraw player square every frame
+        this.drawPlayerSquare(this.level);
+        
         this.updateHUD();
     }
 
@@ -838,27 +927,22 @@ class MainScene extends Phaser.Scene {
         const damage = enemy.getData('damage') !== undefined ? enemy.getData('damage') : 0.01;
         this.health -= damage;
         
-        // Efeito de piscar em vermelho semi-transparente
-        this.player.setTint(0xff0000);
-        const originalAlpha = this.player.alpha;
-        this.player.setAlpha(0.6); // Semi-transparente
+        // Efeito de piscar em vermelho semi-transparente no gráfico
+        let flashColor = 0xff4444;
+        this.playerGraphics.fillStyle(flashColor, 0.8);
+        this.playerGraphics.fillRect(this.player.x - 16, this.player.y - 16, 32, 32);
         
-        this.tweens.add({
-            targets: this.player,
-            alpha: originalAlpha,
-            duration: 300,
-            ease: 'Quad.easeOut',
-            onComplete: () => {
-                if (!this.isGameOver && this.player.active) {
-                    this.player.setTint(0x4ade80);
-                }
+        this.time.delayedCall(150, () => {
+            if (!this.isGameOver && this.player.active) {
+                this.drawPlayerSquare(this.level);
             }
         });
 
         if (this.health <= 0) {
             this.isGameOver = true;
             this.health = 0;
-            this.player.setVisible(false);
+            this.playerGraphics.clear();
+            this.playerAuraGraphics.clear();
             this.player.setActive(false);
             if (this.player.body) {
                 this.player.body.enable = false;
@@ -870,30 +954,23 @@ class MainScene extends Phaser.Scene {
     updatePlayerVisual() {
         if (!this.player.active) return;
         
-        const visualLevel = Math.min(10, this.level);
-        const textureKey = `arc_lvl_${visualLevel}`;
+        this.cameras.main.flash(200, 255, 255, 255);
         
-        if (this.player.texture.key !== textureKey) {
-            this.player.setTexture(textureKey);
-            
-            this.cameras.main.flash(200, 255, 255, 255);
-            
-            const levelUpText = this.add.text(this.player.x, this.player.y - 50, 'LEVEL UP!', {
-                fontSize: '24px',
-                fontFamily: 'Pixel',
-                color: '#4ade80',
-                stroke: '#000',
-                strokeThickness: 4
-            }).setOrigin(0.5);
-            
-            this.tweens.add({
-                targets: levelUpText,
-                y: levelUpText.y - 100,
-                alpha: 0,
-                duration: 1500,
-                onComplete: () => levelUpText.destroy()
-            });
-        }
+        const levelUpText = this.add.text(this.player.x, this.player.y - 50, 'LEVEL UP!', {
+            fontSize: '24px',
+            fontFamily: 'Pixel',
+            color: '#4ade80',
+            stroke: '#000',
+            strokeThickness: 4
+        }).setOrigin(0.5);
+        
+        this.tweens.add({
+            targets: levelUpText,
+            y: levelUpText.y - 100,
+            alpha: 0,
+            duration: 1500,
+            onComplete: () => levelUpText.destroy()
+        });
     }
 
     updateHUD() {
