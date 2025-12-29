@@ -623,13 +623,13 @@ class MainScene extends Phaser.Scene {
         });
 
         // Visual name or shape representation
-        const waveToUse = Math.min(this.currentWave, 10);
+        const waveForShape = Math.min(this.currentWave, 10);
         const shapes = [
             'SQUARE', 'PENTAGON', 'HEXAGON', 'HEPTAGON', 
             'OCTAGON', 'NONAGON', 'DECAGON', 'DODECAGON', 
             'COMPLEX POLYGON', 'ARCANE FORM'
         ];
-        const shapeName = shapes[waveToUse - 1] || 'ARCANE FORM';
+        const shapeName = shapes[waveForShape - 1] || 'ARCANE FORM';
         
         const hudScale = Math.max(1, this.cameras.main.width / 800);
         const bossFontSize = Math.floor(36 * hudScale);
