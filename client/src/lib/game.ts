@@ -67,93 +67,103 @@ class MainScene extends Phaser.Scene {
 
     // Draw evolving yellow square player based on level
     private drawPlayerSquare(level: number) {
-        const size = 16;
+        // Base size grows progressiveley
+        const baseSize = 16;
+        const scaleFactor = 1 + (level - 1) * 0.08; // ~8% growth per level
+        const size = baseSize * scaleFactor;
+        
         this.playerGraphics.clear();
         this.playerAuraGraphics.clear();
         
         const yellowColor = 0xffdd00;
+        const greenColor = 0x4ade80;
         
+        // Rules: Hollow square, thickness/complexity grows with level
         if (level === 1) {
-            // Level 1: Simple yellow square
-            this.playerGraphics.fillStyle(yellowColor, 1);
-            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            // Lvl 1: Small, hollow, thin line, green, static
+            this.playerGraphics.lineStyle(1.5, greenColor, 1);
+            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
         } else if (level === 2) {
-            // Level 2: Thicker border
-            this.playerGraphics.fillStyle(yellowColor, 1);
-            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            // Lvl 2: Slightly larger, thicker contour
             this.playerGraphics.lineStyle(4, yellowColor, 1);
             this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
         } else if (level === 3) {
-            // Level 3: Double border
-            this.playerGraphics.fillStyle(yellowColor, 1);
-            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            // Lvl 3: Larger + double border, robust
             this.playerGraphics.lineStyle(2, yellowColor, 1);
+            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
             this.playerGraphics.strokeRect(this.player.x - size - 4, this.player.y - size - 4, size * 2 + 8, size * 2 + 8);
-            this.playerGraphics.strokeRect(this.player.x - size + 2, this.player.y - size + 2, size * 2 - 4, size * 2 - 4);
         } else if (level === 4) {
-            // Level 4: Inner lines
-            this.playerGraphics.fillStyle(yellowColor, 1);
-            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            this.playerGraphics.lineStyle(1, 0xffdd00, 0.7);
+            // Lvl 4: Larger + symmetric internal lines
+            this.playerGraphics.lineStyle(2, yellowColor, 1);
+            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            this.playerGraphics.lineStyle(1.5, yellowColor, 0.7);
             this.playerGraphics.lineBetween(this.player.x - size, this.player.y, this.player.x + size, this.player.y);
             this.playerGraphics.lineBetween(this.player.x, this.player.y - size, this.player.x, this.player.y + size);
         } else if (level === 5) {
-            // Level 5: Inner square layer
-            this.playerGraphics.fillStyle(yellowColor, 1);
-            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            this.playerGraphics.fillStyle(0x222222, 1);
-            this.playerGraphics.fillRect(this.player.x - (size - 4), this.player.y - (size - 4), (size - 4) * 2, (size - 4) * 2);
-        } else if (level === 6) {
-            // Level 6: Chamfered corners
-            this.playerGraphics.fillStyle(yellowColor, 1);
-            this.playerGraphics.beginPath();
-            this.playerGraphics.moveTo(this.player.x - size + 4, this.player.y - size);
-            this.playerGraphics.lineTo(this.player.x + size - 4, this.player.y - size);
-            this.playerGraphics.lineTo(this.player.x + size, this.player.y - size + 4);
-            this.playerGraphics.lineTo(this.player.x + size, this.player.y + size - 4);
-            this.playerGraphics.lineTo(this.player.x + size - 4, this.player.y + size);
-            this.playerGraphics.lineTo(this.player.x - size + 4, this.player.y + size);
-            this.playerGraphics.lineTo(this.player.x - size, this.player.y + size - 4);
-            this.playerGraphics.lineTo(this.player.x - size, this.player.y - size + 4);
-            this.playerGraphics.closePath();
-            this.playerGraphics.fillPath();
-        } else if (level === 7) {
-            // Level 7: Animated inner lines
-            this.playerGraphics.fillStyle(yellowColor, 1);
-            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            const offset = Math.sin(this.time.now / 500) * 2;
-            this.playerGraphics.lineStyle(1.5, 0xffdd00, 0.8);
-            this.playerGraphics.lineBetween(this.player.x - size + offset, this.player.y, this.player.x + size + offset, this.player.y);
-            this.playerGraphics.lineBetween(this.player.x, this.player.y - size + offset, this.player.x, this.player.y + size + offset);
-        } else if (level === 8) {
-            // Level 8: Multiple geometric layers
-            this.playerGraphics.fillStyle(yellowColor, 1);
-            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            this.playerGraphics.fillStyle(0xffdd00, 0.6);
-            this.playerGraphics.fillRect(this.player.x - (size - 3), this.player.y - (size - 3), (size - 3) * 2, (size - 3) * 2);
-            this.playerGraphics.fillStyle(0xffdd00, 0.3);
-            this.playerGraphics.fillRect(this.player.x - (size - 6), this.player.y - (size - 6), (size - 6) * 2, (size - 6) * 2);
+            // Lvl 5: Inner hollow square, multiple layers
             this.playerGraphics.lineStyle(2, yellowColor, 1);
             this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-        } else if (level === 9) {
-            // Level 9: Pulsing glow with particles
-            this.playerGraphics.fillStyle(yellowColor, 1);
-            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            const pulse = Math.sin(this.time.now / 300) * 0.5 + 0.5;
-            this.playerAuraGraphics.lineStyle(2, yellowColor, pulse * 0.8);
-            this.playerAuraGraphics.strokeRect(this.player.x - size - 6, this.player.y - size - 6, size * 2 + 12, size * 2 + 12);
-        } else if (level === 10) {
-            // Level 10: Powerful energetic aura
-            const auraSize = size + 12;
-            this.playerAuraGraphics.fillStyle(yellowColor, 0.2);
-            this.playerAuraGraphics.fillRect(this.player.x - auraSize, this.player.y - auraSize, auraSize * 2, auraSize * 2);
-            this.playerAuraGraphics.lineStyle(3, yellowColor, 0.6);
-            this.playerAuraGraphics.strokeRect(this.player.x - auraSize, this.player.y - auraSize, auraSize * 2, auraSize * 2);
-            this.playerGraphics.fillStyle(yellowColor, 1);
-            this.playerGraphics.fillRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            const pulse = Math.sin(this.time.now / 200) * 0.5 + 0.5;
-            this.playerGraphics.lineStyle(3, yellowColor, pulse);
+            this.playerGraphics.strokeRect(this.player.x - size/2, this.player.y - size/2, size, size);
+        } else if (level === 6) {
+            // Lvl 6: Chamfered corners (soft octagon)
+            this.playerGraphics.lineStyle(3, yellowColor, 1);
+            const chamfer = size * 0.25;
+            this.playerGraphics.beginPath();
+            this.playerGraphics.moveTo(this.player.x - size + chamfer, this.player.y - size);
+            this.playerGraphics.lineTo(this.player.x + size - chamfer, this.player.y - size);
+            this.playerGraphics.lineTo(this.player.x + size, this.player.y - size + chamfer);
+            this.playerGraphics.lineTo(this.player.x + size, this.player.y + size - chamfer);
+            this.playerGraphics.lineTo(this.player.x + size - chamfer, this.player.y + size);
+            this.playerGraphics.lineTo(this.player.x - size + chamfer, this.player.y + size);
+            this.playerGraphics.lineTo(this.player.x - size, this.player.y + size - chamfer);
+            this.playerGraphics.lineTo(this.player.x - size, this.player.y - size + chamfer);
+            this.playerGraphics.closePath();
+            this.playerGraphics.strokePath();
+        } else if (level === 7) {
+            // Lvl 7: Animated internal lines, flow feeling
+            this.playerGraphics.lineStyle(2, yellowColor, 1);
             this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            const flowOffset = (this.time.now / 10) % (size * 2);
+            this.playerGraphics.lineStyle(1, yellowColor, 0.5);
+            this.playerGraphics.lineBetween(this.player.x - size + flowOffset, this.player.y - size, this.player.x - size + flowOffset, this.player.y + size);
+            this.playerGraphics.lineBetween(this.player.x - size, this.player.y - size + flowOffset, this.player.x + size, this.player.y - size + flowOffset);
+        } else if (level === 8) {
+            // Lvl 8: Concentric squares, different opacities
+            for (let i = 0; i < 4; i++) {
+                const layerSize = size - (i * (size / 4));
+                this.playerGraphics.lineStyle(2, yellowColor, 1 - (i * 0.2));
+                this.playerGraphics.strokeRect(this.player.x - layerSize, this.player.y - layerSize, layerSize * 2, layerSize * 2);
+            }
+        } else if (level === 9) {
+            // Lvl 9: Pulsing aura, dominant square
+            this.playerGraphics.lineStyle(4, yellowColor, 1);
+            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            const pulse = Math.sin(this.time.now / 200) * 0.5 + 0.5;
+            this.playerAuraGraphics.lineStyle(4, yellowColor, pulse * 0.6);
+            this.playerAuraGraphics.strokeRect(this.player.x - size - 10, this.player.y - size - 10, size * 2 + 20, size * 2 + 20);
+        } else if (level === 10) {
+            // Lvl 10: Max power, multi-layer aura, particles, orbital mana
+            const auraPulse = Math.sin(this.time.now / 150) * 5;
+            this.playerGraphics.lineStyle(5, yellowColor, 1);
+            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
+            
+            // Multilayer aura
+            for (let i = 1; i <= 3; i++) {
+                const auraSize = size + (i * 8) + auraPulse;
+                this.playerAuraGraphics.lineStyle(2, yellowColor, 0.4 / i);
+                this.playerAuraGraphics.strokeRect(this.player.x - auraSize, this.player.y - auraSize, auraSize * 2, auraSize * 2);
+            }
+
+            // Orbital mana particles (visual only here, damage in update)
+            const particleCount = 6;
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (this.time.now / 500) + (i * (Math.PI * 2 / particleCount));
+                const orbitRadius = size + 25;
+                const px = this.player.x + Math.cos(angle) * orbitRadius;
+                const py = this.player.y + Math.sin(angle) * orbitRadius;
+                this.playerGraphics.fillStyle(0x00ffff, 0.8);
+                this.playerGraphics.fillCircle(px, py, 4);
+            }
         }
     }
 
