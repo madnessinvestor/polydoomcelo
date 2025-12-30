@@ -258,6 +258,24 @@ class MainScene extends Phaser.Scene {
         }
     }
 
+    init(data: any) {
+        if (data.doomMode) {
+            this.level = data.level || 1;
+            this.currentWave = 1;
+            this.score = 0;
+            this.enemiesDefeated = 0;
+            this.totalEnemiesBeforeWave = 0;
+            
+            // Resetar status baseados no level mantido
+            const stats = this.levelStats[this.level - 1] || this.levelStats[0];
+            this.health = stats.hp;
+            this.maxHealth = stats.hp;
+            this.kiarc = 0; // Começa sem Ki
+            this.maxKiarc = stats.ki;
+            this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
+        }
+    }
+
     preload() {
         this.load.spritesheet('criptoide_basic', '/attached_assets/generated_images/pixel_art_criptoide_basic_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('jungle_tiles', '/attached_assets/generated_images/pixel_art_jungle_tileset.png', { frameWidth: 32, frameHeight: 32 });
@@ -327,7 +345,7 @@ class MainScene extends Phaser.Scene {
         this.physics.add.collider(this.player, platforms);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
-        this.keys = this.input.keyboard!.addKeys('Z,X,C,V,B,D');
+        this.keys = this.input.keyboard!.addKeys('Z,X,C,V,B,F');
 
         // Enhanced HUD
         const hudScale = Math.max(1, width / 800);
@@ -1041,8 +1059,8 @@ class MainScene extends Phaser.Scene {
         // Check for double-click dash on arrow keys
         this.checkDoubleClickDash(time);
 
-        // KiArc Explosion (Key D)
-        if (Phaser.Input.Keyboard.JustDown(this.keys.D)) {
+        // KiArc Explosion (Key F)
+        if (Phaser.Input.Keyboard.JustDown(this.keys.F)) {
             if (this.kiarc >= 100) {
                 this.kiarc -= 100;
                 this.useKiArcExplosion();
@@ -2312,7 +2330,7 @@ class MainScene extends Phaser.Scene {
 
                     // Jogar para longe
                     const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
-                    const knockbackForce = 1500;
+                    const knockbackForce = 3000;
                     enemy.setVelocity(Math.cos(angle) * knockbackForce, Math.sin(angle) * knockbackForce);
                     
                     // Marcar como sendo repelido para não causar dano ao colidir com o player durante o trajeto
@@ -2962,21 +2980,9 @@ class DeathScene extends Phaser.Scene {
     }
 
     init(data: any) {
-        if (data.doomMode) {
-            this.level = data.level || 1;
-            this.currentWave = 1;
-            this.score = 0;
-            this.enemiesDefeated = 0;
-            this.totalEnemiesBeforeWave = 0;
-            
-            // Resetar status baseados no level mantido
-            const stats = this.levelStats[this.level - 1] || this.levelStats[0];
-            this.health = stats.hp;
-            this.maxHealth = stats.hp;
-            this.kiarc = 0; // Começa sem Ki
-            this.maxKiarc = stats.ki;
-            this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
-        }
+        this.finalScore = data.score || 0;
+        this.finalLevel = data.level || 1;
+        this.finalWave = data.wave || 1;
     }
 
     create() {

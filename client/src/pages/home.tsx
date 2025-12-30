@@ -60,6 +60,10 @@ export default function Home() {
           <span className="text-white">B:</span>
           <span className="text-slate-400">ArcGenkiDama</span>
         </div>
+        <div className="flex gap-2">
+          <span className="text-white">F:</span>
+          <span className="text-slate-400">Explosion KiArc</span>
+        </div>
       </div>
     </div>
   );
