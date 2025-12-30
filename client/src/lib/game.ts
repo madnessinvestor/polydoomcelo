@@ -324,7 +324,7 @@ class MainScene extends Phaser.Scene {
         this.load.audio('punch', '/attached_assets/Punch_1767106076988.mp3');
         this.load.audio('magic', '/attached_assets/Magic_1767118141807.mp3');
         this.load.audio('menu_button', '/attached_assets/Som_do_Botão_Start_Game_Leaderboard_e_History_1767106107861.ogg');
-        this.load.audio('close_button', '/attached_assets/Som_do_Botão_Close_1767106125480.ogg');
+        this.load.audio('close_button', '/attached_assets/Close_1767118231095.ogg');
     }
 
     create() {
