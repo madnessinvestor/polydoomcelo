@@ -2917,11 +2917,17 @@ class MainScene extends Phaser.Scene {
 }
 
 class StartScene extends Phaser.Scene {
+    private sfx: { [key: string]: Phaser.Sound.BaseSound } = {};
+
     constructor() {
         super('StartScene');
     }
 
     create() {
+        // Load sounds if not already available (usually preloaded in PreloadScene)
+        this.sfx['menu_button'] = this.sound.add('menu_button');
+        this.sfx['menu_close'] = this.sound.add('menu_close');
+
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
