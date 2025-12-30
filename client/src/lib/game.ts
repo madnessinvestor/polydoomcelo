@@ -1179,7 +1179,7 @@ class MainScene extends Phaser.Scene {
             if (this.kiarc > 0) {
                 this.player.setVelocity(0, 0);
                 if (this.player.body) {
-                    this.player.body.allowGravity = false;
+                    (this.player.body as Phaser.Physics.Arcade.Body).setAllowGravity(false);
                 }
                 this.chargeGenkidama();
             } else if (this.isChargingGenkidama) {
@@ -1189,7 +1189,7 @@ class MainScene extends Phaser.Scene {
             }
         } else if (Phaser.Input.Keyboard.JustUp(this.keys.B) && this.isChargingGenkidama) {
             if (this.player.body) {
-                this.player.body.allowGravity = true;
+                (this.player.body as Phaser.Physics.Arcade.Body).setAllowGravity(true);
             }
             if (this.genkidamaChargeAmount >= 200) {
                 this.shootGenkidama();
@@ -1759,9 +1759,9 @@ class MainScene extends Phaser.Scene {
         let finalDamage = this.hasPowerBoost ? damage * 2 : damage;
 
         // 9. Shield Sentinel - Reduz dano frontal
-        if (typeId === 'shield_sentinel') {
+        if (typeId === 'shield_sentinel' && enemy.body) {
             const angleToPlayer = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
-            const velocityAngle = Math.atan2(enemy.body.velocity.y, enemy.body.velocity.x);
+            const velocityAngle = Math.atan2((enemy.body as Phaser.Physics.Arcade.Body).velocity.y, (enemy.body as Phaser.Physics.Arcade.Body).velocity.x);
             // If player is roughly in front of where enemy is moving/facing
             if (Math.abs(Phaser.Math.Angle.Wrap(angleToPlayer - velocityAngle)) < Math.PI / 3) {
                 finalDamage *= 0.3; // 70% reduction
@@ -2336,7 +2336,8 @@ class MainScene extends Phaser.Scene {
             
             // Ir para tela de morte
             this.time.delayedCall(1000, () => {
-                this.scene.switch('DeathScene', { 
+                this.scene.switch('DeathScene');
+                this.scene.start('DeathScene', { 
                     level: this.level,
                     wave: this.currentWave,
                     score: this.score,
@@ -2781,12 +2782,16 @@ class StartScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
+        // Clickable overlay - click anywhere to close
+        const overlay = this.add.zone(width / 2, height / 2, width, height).setScrollFactor(0);
+        overlay.setInteractive();
+
         // Modal background
         const modalBg = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8, 0x000000, 0.9).setScrollFactor(0);
         
         // Border
         const border = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8);
-        border.setStrokeStyle(3, 0xfbbf24).setFillStyle(0x000000, 0);
+        border.setStrokeStyle(3, 0xfbbf24).setFillStyle(0x000000, 0).setScrollFactor(0);
 
         // Title
         this.add.text(width / 2, height * 0.15, 'GAME HISTORY', {
@@ -2795,39 +2800,62 @@ class StartScene extends Phaser.Scene {
             color: '#fbbf24',
             fontStyle: 'bold',
             align: 'center'
-        }).setOrigin(0.5, 0.5).setScrollFactor(0);
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(101);
 
-        // Video placeholder
-        const videoBg = this.add.rectangle(width / 2, height / 2, width * 0.7, height * 0.5, 0x1a1a2e).setScrollFactor(0);
-        videoBg.setStrokeStyle(2, 0x4ade80);
+        // Create HTML video element
+        const videoWidth = width * 0.7;
+        const videoHeight = height * 0.5;
+        const videoX = width / 2 - videoWidth / 2;
+        const videoY = height / 2 - videoHeight / 2;
 
-        this.add.text(width / 2, height / 2, 'VIDEO PLAYER\n(Attached video would play here)', {
-            fontSize: '20px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#4ade80',
-            align: 'center'
-        }).setOrigin(0.5, 0.5).setScrollFactor(0);
+        const videoElement = document.createElement('video');
+        videoElement.src = '/attached_assets/Video_de_Inicio_do_Game_1767065892191.mp4';
+        videoElement.width = Math.floor(videoWidth);
+        videoElement.height = Math.floor(videoHeight);
+        videoElement.controls = true;
+        videoElement.autoplay = true;
+        videoElement.style.position = 'absolute';
+        videoElement.style.left = Math.floor(videoX) + 'px';
+        videoElement.style.top = Math.floor(videoY) + 'px';
+        videoElement.style.zIndex = '101';
+        videoElement.style.backgroundColor = '#1a1a2e';
+        videoElement.style.border = '2px solid #4ade80';
+
+        document.body.appendChild(videoElement);
 
         // Close button
-        const closeBtn = this.add.rectangle(width / 2, height * 0.85, 150, 50, 0xff6b6b).setScrollFactor(0);
+        const closeBtn = this.add.rectangle(width / 2, height * 0.85, 150, 50, 0xff6b6b).setScrollFactor(0).setDepth(101);
         const closeText = this.add.text(width / 2, height * 0.85, 'CLOSE', {
             fontSize: '20px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
             fontStyle: 'bold',
             align: 'center'
-        }).setOrigin(0.5, 0.5).setScrollFactor(0);
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(102);
 
-        closeBtn.setInteractive().on('pointerdown', () => {
+        const closeModal = () => {
+            videoElement.pause();
+            videoElement.remove();
+            overlay.destroy();
             modalBg.destroy();
             border.destroy();
-            videoBg.destroy();
             closeBtn.destroy();
             closeText.destroy();
+        };
+
+        closeBtn.setInteractive().on('pointerdown', (event: any) => {
+            event.stopPropagation();
+            closeModal();
         }).on('pointerover', () => {
             closeBtn.setFillStyle(0xff5252);
         }).on('pointerout', () => {
             closeBtn.setFillStyle(0xff6b6b);
+        });
+
+        // Click anywhere on overlay to close
+        overlay.on('pointerdown', (event: any) => {
+            closeModal();
+            this.scene.start('StartScene');
         });
     }
 }
@@ -2947,7 +2975,6 @@ class DeathScene extends Phaser.Scene {
     parent: 'game-container',
     width: 1600,
     height: 1200,
-    resolution: window.devicePixelRatio || 1,
     antialias: false,
     physics: {
         default: 'arcade',
