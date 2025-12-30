@@ -2899,6 +2899,7 @@ class MainScene extends Phaser.Scene {
         }
         
         this.openingMusic = this.sound.add('opening_music', { loop: true });
+        (this.openingMusic as any).setVolume(0.7); // Set volume to 70%
         this.openingMusic.play();
     }
 
@@ -2930,6 +2931,7 @@ class MainScene extends Phaser.Scene {
         // Play current track
         const trackKey = `music_${this.currentMusicIndex}`;
         this.currentMusic = this.sound.add(trackKey);
+        (this.currentMusic as any).setVolume(0.7); // Set volume to 70%
         
         // When music ends, play next track
         this.currentMusic.once('complete', () => {
