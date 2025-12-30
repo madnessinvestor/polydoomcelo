@@ -286,6 +286,9 @@ class MainScene extends Phaser.Scene {
         }
     }
 
+    // Sound assets
+    private sfx: { [key: string]: Phaser.Sound.BaseSound } = {};
+
     preload() {
         this.load.spritesheet('criptoide_basic', '/attached_assets/generated_images/pixel_art_criptoide_basic_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('jungle_tiles', '/attached_assets/generated_images/pixel_art_jungle_tileset.png', { frameWidth: 32, frameHeight: 32 });
@@ -295,11 +298,35 @@ class MainScene extends Phaser.Scene {
         this.load.audio('music_1', this.musicTracks[1]);
         this.load.audio('music_2', this.musicTracks[2]);
         this.load.audio('music_3', this.musicTracks[3]);
+
+        // Load SFX
+        this.load.audio('genkidama_charge', '/attached_assets/ArcGenkiDama_(Carregando)_1767105766842.mp3');
+        this.load.audio('genkidama_launch', '/attached_assets/ArcGenkiDama_(Lançando)_1767105766844.mp3');
+        this.load.audio('kamehameha_charge', '/attached_assets/ArcKamehameha_(Carregando)_1767105836583.mp3');
+        this.load.audio('kamehameha_launch', '/attached_assets/ArcKamehameha_(Lançando)_1767105839121.mp3');
+        this.load.audio('charge_ki', '/attached_assets/Charge_KiArc_1767105879554.mp3');
+        this.load.audio('dash', '/attached_assets/Dash_1767105889490.mp3');
+        this.load.audio('explosion_ki', '/attached_assets/Explosion_KiArc_1767105910641.mp3');
+        this.load.audio('magic', '/attached_assets/Magic_1767105928624.mp3');
+        this.load.audio('item_pickup', '/attached_assets/Pegando_Item_1767106047757.mp3');
+        this.load.audio('punch', '/attached_assets/Punch_1767106076988.mp3');
+        this.load.audio('menu_button', '/attached_assets/Som_do_Botão_Start_Game_Leaderboard_e_History_1767106107861.ogg');
+        this.load.audio('close_button', '/attached_assets/Som_do_Botão_Close_1767106125480.ogg');
     }
 
     create() {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
+
+        // Initialize SFX
+        const sfxKeys = [
+            'genkidama_charge', 'genkidama_launch', 'kamehameha_charge', 'kamehameha_launch',
+            'charge_ki', 'dash', 'explosion_ki', 'magic', 'item_pickup', 'punch',
+            'menu_button', 'close_button'
+        ];
+        sfxKeys.forEach(key => {
+            this.sfx[key] = this.sound.add(key);
+        });
 
         // Enhanced background with depth
         this.add.rectangle(0, 0, width, height, 0x0a0a20).setOrigin(0).setScrollFactor(0);
@@ -1036,6 +1063,7 @@ class MainScene extends Phaser.Scene {
         this.isDashing = true;
         this.dashDirection = { x: dirX, y: dirY };
         this.dashEndTime = this.time.now + this.dashDuration;
+        this.sfx['dash']?.play();
         
         // Visual effect: flash the player
         const flash = this.add.circle(this.player.x, this.player.y, 18, 0xffdd00, 0.48);
@@ -1270,6 +1298,7 @@ class MainScene extends Phaser.Scene {
                 });
 
                 if (this.genkidama) {
+                    this.sfx['genkidama_charge']?.stop();
                     this.genkidama.destroy();
                     this.genkidama = null;
                 }
@@ -1390,6 +1419,9 @@ class MainScene extends Phaser.Scene {
 
     chargeKiarc() {
         if (this.kiarc < this.maxKiarc) {
+            if (this.time.now % 1000 < 20 && !this.sfx['charge_ki']?.isPlaying) {
+                this.sfx['charge_ki']?.play();
+            }
             this.kiarc = Math.min(this.maxKiarc, this.kiarc + 0.5);
             this.player.setTint(0xffffff); // Flash white when charging
 
@@ -1423,6 +1455,7 @@ class MainScene extends Phaser.Scene {
         this.isChargingKamehameha = true;
         this.kamehamehaChargeTime = 0;
         this.player.setVelocity(0, 0);
+        this.sfx['kamehameha_charge']?.play({ loop: true });
         
         this.kamehamehaText = this.add.text(this.player.x, this.player.y - 40, 'Arc.....', {
             fontSize: '18px',
@@ -1482,6 +1515,7 @@ class MainScene extends Phaser.Scene {
 
     private cancelKamehameha() {
         this.isChargingKamehameha = false;
+        this.sfx['kamehameha_charge']?.stop();
         if (this.kamehamehaText) this.kamehamehaText.destroy();
         if (this.kamehamehaChargeBar) this.kamehamehaChargeBar.clear();
         this.kamehamehaText = null;
@@ -1491,6 +1525,8 @@ class MainScene extends Phaser.Scene {
     private finishKamehameha() {
         if (!this.isChargingKamehameha) return;
         this.isChargingKamehameha = false;
+        this.sfx['kamehameha_charge']?.stop();
+        this.sfx['kamehameha_launch']?.play();
         
         if (this.kamehamehaText && this.kamehamehaText.active) {
             try {
@@ -1654,6 +1690,7 @@ class MainScene extends Phaser.Scene {
             this.genkidamaChargeAmount += kiToConsume;
             
             if (!this.genkidama) {
+                this.sfx['genkidama_charge']?.play({ loop: true });
                 this.genkidama = this.add.circle(this.player.x, this.player.y - 100, 10, 0xadd8e6, 0.6);
                 
                 this.genkidamaText = this.add.text(this.player.x, this.player.y - 30, 'All Arcs, share your power', {
@@ -1712,6 +1749,8 @@ class MainScene extends Phaser.Scene {
 
     shootGenkidama() {
         if (!this.genkidama) return;
+        this.sfx['genkidama_charge']?.stop();
+        this.sfx['genkidama_launch']?.play();
         
         // Clean up texts
         if (this.genkidamaText) {
@@ -1814,6 +1853,10 @@ class MainScene extends Phaser.Scene {
         let health = enemy.getData('health') || 1;
         const typeId = enemy.getData('typeId');
         let finalDamage = this.hasPowerBoost ? damage * 2 : damage;
+
+        if (finalDamage > 0 && Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y) < 60) {
+            this.sfx['punch']?.play();
+        }
 
         // 9. Shield Sentinel - Reduz dano frontal
         if (typeId === 'shield_sentinel' && enemy.body) {
@@ -2094,6 +2137,7 @@ class MainScene extends Phaser.Scene {
     private handlePlayerItemCollision(player: any, item: any) {
         const type = item.getData('type');
         const stats = this.levelStats[this.level - 1];
+        this.sfx['item_pickup']?.play();
 
         // Efeito de texto subindo na cabeça do personagem
         const pickupText = this.add.text(this.player.x, this.player.y - 30, type, {
@@ -2326,6 +2370,7 @@ class MainScene extends Phaser.Scene {
 
     private useKiArcExplosion() {
         const explosionRadius = 300;
+        this.sfx['explosion_ki']?.play();
         
         // Efeito visual da explosão
         const circle = this.add.circle(this.player.x, this.player.y, 10, 0x00ffff, 0.5);
@@ -2911,6 +2956,7 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         startBtn.setInteractive().on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
             this.scene.start('MainScene');
         }).on('pointerover', () => {
             startBtn.setFillStyle(0x22c55e);
@@ -2929,6 +2975,7 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         leaderboardBtn.setInteractive().on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
             this.openLeaderboardModal();
         }).on('pointerover', () => {
             leaderboardBtn.setFillStyle(0xfcd34d);
@@ -2947,6 +2994,7 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         historyBtn.setInteractive().on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
             this.openHistoryModal();
         }).on('pointerover', () => {
             historyBtn.setFillStyle(0x3b82f6);
