@@ -1840,41 +1840,28 @@ class MainScene extends Phaser.Scene {
                             onComplete: () => shockwave.destroy()
                         });
                         
-        const levelUpText = this.add.text(this.player.x, this.player.y - 100, `LEVEL UP!\n${this.levelTitle}`, {
-            fontSize: '56px',
-            color: '#ffdd00',
-            fontStyle: 'bold',
-            stroke: '#000',
-            strokeThickness: 10,
-            align: 'center',
-            fontFamily: '"Courier New", Courier, monospace',
-            shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 5, fill: true }
-        }).setOrigin(0.5).setScrollFactor(1).setScale(0.5);
+        // Show Level Up animation if stats improved
+        if (oldLevel !== this.level) {
+            this.updateHUD();
+            // Show level number
+            const levelText = this.add.text(this.player.x, this.player.y - 80, `LEVEL ${this.level}`, {
+                fontSize: '36px',
+                color: '#fbbf24',
+                fontStyle: 'bold',
+                stroke: '#000',
+                strokeThickness: 8,
+                fontFamily: '"Courier New", Courier, monospace'
+            }).setOrigin(0.5).setDepth(2000);
 
-                        // Update to follow player
-                        const updateFollow = () => {
-                            if (levelUpText.active && this.player.active) {
-                                levelUpText.x = this.player.x;
-                            } else {
-                                this.events.off('update', updateFollow);
-                            }
-                        };
-                        this.events.on('update', updateFollow);
-                        
-                        // Powerful pulse animation with scale in
-                        this.tweens.add({
-                            targets: levelUpText,
-                            scale: 1.3,
-                            scaleY: 1.5,
-                            alpha: 0,
-                            y: '-=100',
-                            duration: 2000,
-                            ease: 'Cubic.easeOut',
-                            onComplete: () => {
-                                levelUpText.destroy();
-                                this.events.off('update', updateFollow);
-                            }
-                        });
+            this.tweens.add({
+                targets: levelText,
+                y: levelText.y - 150,
+                alpha: 0,
+                duration: 2000,
+                ease: 'Power2',
+                onComplete: () => levelText.destroy()
+            });
+        }
                         
                         this.updatePlayerVisual();
                     }
@@ -2285,22 +2272,6 @@ class MainScene extends Phaser.Scene {
         if (!this.player.active) return;
         
         this.cameras.main.flash(200, 255, 255, 255);
-        
-        const levelUpText = this.add.text(this.player.x, this.player.y - 50, 'LEVEL UP!', {
-            fontSize: '24px',
-            fontFamily: 'Pixel',
-            color: '#4ade80',
-            stroke: '#000',
-            strokeThickness: 4
-        }).setOrigin(0.5);
-        
-        this.tweens.add({
-            targets: levelUpText,
-            y: levelUpText.y - 100,
-            alpha: 0,
-            duration: 1500,
-            onComplete: () => levelUpText.destroy()
-        });
     }
 
     private checkLevelUp() {
