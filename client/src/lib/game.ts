@@ -3010,6 +3010,25 @@ class StartScene extends Phaser.Scene {
         }).on('pointerout', () => {
             historyBtn.setFillStyle(0x60a5fa);
         });
+
+        // Settings Button
+        const settingsBtn = this.add.rectangle(width / 2, height / 2 + 300, 200, 60, 0x8b5cf6);
+        const settingsText = this.add.text(width / 2, height / 2 + 300, 'SETTINGS', {
+            fontSize: '24px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        settingsBtn.setInteractive().on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
+            this.openSettingsModal();
+        }).on('pointerover', () => {
+            settingsBtn.setFillStyle(0x7c3aed);
+        }).on('pointerout', () => {
+            settingsBtn.setFillStyle(0x8b5cf6);
+        });
     }
 
     private openLeaderboardModal() {
@@ -3116,6 +3135,133 @@ class StartScene extends Phaser.Scene {
         });
 
         // Click anywhere on overlay to close
+        overlay.on('pointerdown', (event: any) => {
+            closeModal();
+        });
+    }
+
+    private openSettingsModal() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+
+        // Load saved settings
+        const masterVolume = parseInt(localStorage.getItem('masterVolume') || '100');
+        const musicVolume = parseInt(localStorage.getItem('musicVolume') || '100');
+        const sfxVolume = parseInt(localStorage.getItem('sfxVolume') || '100');
+
+        // Clickable overlay
+        const overlay = this.add.zone(width / 2, height / 2, width, height).setScrollFactor(0);
+        overlay.setInteractive();
+
+        // Modal background
+        const modalBg = this.add.rectangle(width / 2, height / 2, width * 0.6, height * 0.7, 0x000000, 0.9).setScrollFactor(0);
+        
+        // Border
+        const border = this.add.rectangle(width / 2, height / 2, width * 0.6, height * 0.7);
+        border.setStrokeStyle(3, 0x8b5cf6).setFillStyle(0x000000, 0).setScrollFactor(0);
+
+        // Title
+        this.add.text(width / 2, height * 0.15, 'SETTINGS', {
+            fontSize: '32px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#8b5cf6',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(101);
+
+        // Create HTML settings container
+        const containerWidth = width * 0.5;
+        const containerHeight = height * 0.5;
+
+        const settingsContainer = document.createElement('div');
+        settingsContainer.style.position = 'absolute';
+        settingsContainer.style.left = '50%';
+        settingsContainer.style.top = '50%';
+        settingsContainer.style.transform = 'translate(-50%, -50%)';
+        settingsContainer.style.width = Math.floor(containerWidth) + 'px';
+        settingsContainer.style.height = Math.floor(containerHeight) + 'px';
+        settingsContainer.style.backgroundColor = '#1a1a2e';
+        settingsContainer.style.border = '2px solid #8b5cf6';
+        settingsContainer.style.overflow = 'auto';
+        settingsContainer.style.zIndex = '101';
+        settingsContainer.style.color = '#fff';
+        settingsContainer.style.fontFamily = 'Arial, sans-serif';
+        settingsContainer.style.padding = '20px';
+
+        settingsContainer.innerHTML = `
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Master Volume: <span id="master-value">${masterVolume}%</span></label>
+                <input type="range" id="master-slider" min="0" max="100" value="${masterVolume}" style="width: 100%; cursor: pointer;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Background Music: <span id="music-value">${musicVolume}%</span></label>
+                <input type="range" id="music-slider" min="0" max="100" value="${musicVolume}" style="width: 100%; cursor: pointer;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Effects Volume: <span id="sfx-value">${sfxVolume}%</span></label>
+                <input type="range" id="sfx-slider" min="0" max="100" value="${sfxVolume}" style="width: 100%; cursor: pointer;">
+            </div>
+        `;
+
+        document.body.appendChild(settingsContainer);
+
+        // Add event listeners
+        const masterSlider = document.getElementById('master-slider') as HTMLInputElement;
+        const musicSlider = document.getElementById('music-slider') as HTMLInputElement;
+        const sfxSlider = document.getElementById('sfx-slider') as HTMLInputElement;
+
+        if (masterSlider) {
+            masterSlider.addEventListener('input', (e: any) => {
+                const value = parseInt(e.target.value);
+                localStorage.setItem('masterVolume', value.toString());
+                document.getElementById('master-value')!.textContent = value + '%';
+                this.sound.volume = value / 100;
+            });
+        }
+
+        if (musicSlider) {
+            musicSlider.addEventListener('input', (e: any) => {
+                const value = parseInt(e.target.value);
+                localStorage.setItem('musicVolume', value.toString());
+                document.getElementById('music-value')!.textContent = value + '%';
+            });
+        }
+
+        if (sfxSlider) {
+            sfxSlider.addEventListener('input', (e: any) => {
+                const value = parseInt(e.target.value);
+                localStorage.setItem('sfxVolume', value.toString());
+                document.getElementById('sfx-value')!.textContent = value + '%';
+            });
+        }
+
+        // Close button
+        const closeBtn = this.add.rectangle(width / 2, height * 0.85, 150, 50, 0xff6b6b).setScrollFactor(0).setDepth(101);
+        const closeText = this.add.text(width / 2, height * 0.85, 'CLOSE', {
+            fontSize: '20px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(102);
+
+        const closeModal = () => {
+            settingsContainer.remove();
+            overlay.destroy();
+            modalBg.destroy();
+            border.destroy();
+            closeBtn.destroy();
+            closeText.destroy();
+        };
+
+        closeBtn.setInteractive().on('pointerdown', () => {
+            closeModal();
+        }).on('pointerover', () => {
+            closeBtn.setFillStyle(0xff5252);
+        }).on('pointerout', () => {
+            closeBtn.setFillStyle(0xff6b6b);
+        });
+
         overlay.on('pointerdown', (event: any) => {
             closeModal();
         });
