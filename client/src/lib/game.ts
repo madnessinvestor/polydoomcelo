@@ -1844,24 +1844,6 @@ class MainScene extends Phaser.Scene {
         // Show Level Up animation if stats improved
         if (oldLevel !== this.level) {
             this.updateHUD();
-            // Show level number
-            const levelText = this.add.text(this.player.x, this.player.y - 80, `LEVEL ${this.level}`, {
-                fontSize: '36px',
-                color: '#fbbf24',
-                fontStyle: 'bold',
-                stroke: '#000',
-                strokeThickness: 8,
-                fontFamily: '"Courier New", Courier, monospace'
-            }).setOrigin(0.5).setDepth(2000);
-
-            this.tweens.add({
-                targets: levelText,
-                y: levelText.y - 150,
-                alpha: 0,
-                duration: 2000,
-                ease: 'Power2',
-                onComplete: () => levelText.destroy()
-            });
         }
                         
                         this.updatePlayerVisual();
@@ -2273,6 +2255,25 @@ class MainScene extends Phaser.Scene {
         if (!this.player.active) return;
         
         this.cameras.main.flash(200, 255, 255, 255);
+
+        // Show single Level Up text above player
+        const levelUpText = this.add.text(this.player.x, this.player.y - 60, 'LEVEL UP!', {
+            fontSize: '28px',
+            color: '#fbbf24',
+            fontStyle: 'bold',
+            stroke: '#000',
+            strokeThickness: 6,
+            fontFamily: '"Courier New", Courier, monospace'
+        }).setOrigin(0.5).setDepth(2000);
+
+        this.tweens.add({
+            targets: levelUpText,
+            y: levelUpText.y - 100,
+            alpha: 0,
+            duration: 1500,
+            ease: 'Power2',
+            onComplete: () => levelUpText.destroy()
+        });
     }
 
     private checkLevelUp() {
