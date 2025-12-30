@@ -116,6 +116,16 @@ class MainScene extends Phaser.Scene {
     private dashDirection: { x: number, y: number } = { x: 0, y: 0 };
     private dashEndTime: number = 0;
 
+    // Music system
+    private musicTracks = [
+        '/attached_assets/0_1767069690246.mp3',
+        '/attached_assets/1_1767069690246.mp3',
+        '/attached_assets/2_1767069690245.mp3',
+        '/attached_assets/3_1767069690247.mp3'
+    ];
+    private currentMusicIndex: number = 0;
+    private currentMusic: Phaser.Sound.BaseSound | null = null;
+
     constructor() {
         super('MainScene');
     }
@@ -279,6 +289,12 @@ class MainScene extends Phaser.Scene {
     preload() {
         this.load.spritesheet('criptoide_basic', '/attached_assets/generated_images/pixel_art_criptoide_basic_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('jungle_tiles', '/attached_assets/generated_images/pixel_art_jungle_tileset.png', { frameWidth: 32, frameHeight: 32 });
+        
+        // Load music tracks
+        this.load.audio('music_0', this.musicTracks[0]);
+        this.load.audio('music_1', this.musicTracks[1]);
+        this.load.audio('music_2', this.musicTracks[2]);
+        this.load.audio('music_3', this.musicTracks[3]);
     }
 
     create() {
@@ -357,6 +373,9 @@ class MainScene extends Phaser.Scene {
 
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.keys = this.input.keyboard!.addKeys('Z,X,C,V,B,F');
+
+        // Start music loop
+        this.playNextMusic();
 
         // Enhanced HUD
         const hudScale = Math.max(1, width / 800);
@@ -2788,6 +2807,25 @@ class MainScene extends Phaser.Scene {
             const buffContainer = this.add.container(x + 20, 20, [iconBg, hitArea]);
             this.buffIconsContainer.add(buffContainer);
         });
+    }
+
+    private playNextMusic() {
+        // Stop current music if playing
+        if (this.currentMusic) {
+            this.currentMusic.stop();
+        }
+
+        // Play current track
+        const trackKey = `music_${this.currentMusicIndex}`;
+        this.currentMusic = this.sound.add(trackKey);
+        
+        // When music ends, play next track
+        this.currentMusic.once('complete', () => {
+            this.currentMusicIndex = (this.currentMusicIndex + 1) % this.musicTracks.length;
+            this.playNextMusic();
+        });
+
+        this.currentMusic.play();
     }
 
     private getBuffColor(type: string): number {
