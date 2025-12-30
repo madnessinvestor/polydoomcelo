@@ -3492,9 +3492,9 @@ class DeathScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5, 0.5);
 
-        // Doom Mode Button
-        const doomBtn = this.add.rectangle(width / 2 - 120, height / 2 + 50, 200, 60, 0xff9800);
-        const doomText = this.add.text(width / 2 - 120, height / 2 + 50, 'DOOM MODE', {
+        // Register Score Button
+        const registerBtn = this.add.rectangle(width / 2, height / 2 + 100, 220, 60, 0x4ade80);
+        const registerText = this.add.text(width / 2, height / 2 + 100, 'REGISTER SCORE', {
             fontSize: '20px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
@@ -3502,44 +3502,155 @@ class DeathScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5, 0.5);
 
-        doomBtn.setInteractive().on('pointerdown', () => {
-            this.scene.start('MainScene', { 
-                doomMode: true,
-                level: this.finalLevel,
-                wave: 1
-            });
+        registerBtn.setInteractive().on('pointerdown', () => {
+            this.openNameModal();
         }).on('pointerover', () => {
-            doomBtn.setFillStyle(0xffa500);
+            registerBtn.setFillStyle(0x22c55e);
         }).on('pointerout', () => {
-            doomBtn.setFillStyle(0xff9800);
-        });
-
-        // End Match Button
-        const endBtn = this.add.rectangle(width / 2 + 120, height / 2 + 50, 200, 60, 0x22c55e);
-        const endText = this.add.text(width / 2 + 120, height / 2 + 50, 'END MATCH', {
-            fontSize: '20px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#000000',
-            fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
-
-        endBtn.setInteractive().on('pointerdown', () => {
-            this.submitScore();
-        }).on('pointerover', () => {
-            endBtn.setFillStyle(0x16a34a);
-        }).on('pointerout', () => {
-            endBtn.setFillStyle(0x22c55e);
+            registerBtn.setFillStyle(0x4ade80);
         });
     }
 
-    private async submitScore() {
+    private openNameModal() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+
+        // Dark overlay
+        const overlay = this.add.rectangle(0, 0, width * 2, height * 2, 0x000000, 0.7).setOrigin(0).setScrollFactor(0).setDepth(100);
+
+        // Modal background
+        const modalBg = this.add.rectangle(width / 2, height / 2, 400, 250, 0x0f172a, 1).setScrollFactor(0).setDepth(101);
+        
+        // Border
+        const border = this.add.rectangle(width / 2, height / 2, 400, 250);
+        border.setStrokeStyle(3, 0x4ade80).setFillStyle(0x0f172a, 0).setScrollFactor(0).setDepth(102);
+
+        // Title
+        const title = this.add.text(width / 2, height / 2 - 80, 'REGISTER SCORE', {
+            fontSize: '24px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#4ade80',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(103);
+
+        // Create HTML input container
+        const inputContainer = document.createElement('div');
+        inputContainer.id = 'score-register-container';
+        inputContainer.style.position = 'absolute';
+        inputContainer.style.left = '50%';
+        inputContainer.style.top = '50%';
+        inputContainer.style.transform = 'translate(-50%, -50%)';
+        inputContainer.style.width = '320px';
+        inputContainer.style.zIndex = '104';
+        inputContainer.style.pointerEvents = 'auto';
+
+        // Add CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            #score-register-container input {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+                border: 2px solid #4ade80;
+                border-radius: 4px;
+                background: #1a1a2e;
+                color: #fff;
+                box-sizing: border-box;
+                margin-bottom: 15px;
+            }
+            
+            #score-register-container input:focus {
+                outline: none;
+                border-color: #22c55e;
+                box-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
+            }
+            
+            #score-register-container button {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            
+            #confirm-register-btn {
+                background: #4ade80;
+                color: #000;
+            }
+            
+            #confirm-register-btn:hover {
+                background: #22c55e;
+            }
+            
+            #cancel-register-btn {
+                background: #ff6b6b;
+                color: #000;
+            }
+            
+            #cancel-register-btn:hover {
+                background: #ff5252;
+            }
+        `;
+        document.head.appendChild(style);
+
+        inputContainer.innerHTML = `
+            <div style="text-align: center;">
+                <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="30" style="margin-top: 0;">
+                <button id="confirm-register-btn">CONFIRM</button>
+                <button id="cancel-register-btn">CANCEL</button>
+            </div>
+        `;
+
+        document.body.appendChild(inputContainer);
+
+        const nameInput = document.getElementById('player-name-input') as HTMLInputElement;
+        const confirmBtn = document.getElementById('confirm-register-btn') as HTMLButtonElement;
+        const cancelBtn = document.getElementById('cancel-register-btn') as HTMLButtonElement;
+
+        // Focus on input
+        setTimeout(() => nameInput?.focus(), 0);
+
+        const closeModal = () => {
+            if (inputContainer && inputContainer.parentElement) {
+                inputContainer.remove();
+            }
+            if (style && style.parentElement) {
+                style.remove();
+            }
+            overlay.destroy();
+            modalBg.destroy();
+            border.destroy();
+            title.destroy();
+        };
+
+        const submitWithName = async () => {
+            const playerName = nameInput.value.trim() || 'Anonymous';
+            closeModal();
+            await this.submitScore(playerName);
+        };
+
+        confirmBtn.addEventListener('click', submitWithName);
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitWithName();
+            }
+        });
+
+        cancelBtn.addEventListener('click', closeModal);
+    }
+
+    private async submitScore(playerName: string) {
         try {
             const response = await fetch('/api/scores', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    playerName: 'Player',
+                    playerName: playerName,
                     score: this.finalScore,
                     enemiesDefeated: 0
                 })
