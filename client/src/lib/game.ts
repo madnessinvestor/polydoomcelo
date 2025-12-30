@@ -3192,7 +3192,7 @@ class StartScene extends Phaser.Scene {
         border.setStrokeStyle(3, 0x8b5cf6).setFillStyle(0x0f172a, 0).setScrollFactor(0).setDepth(102);
 
         // Title
-        const settingsTitle = this.add.text(width / 2, height * 0.12, 'SETTINGS', {
+        const settingsTitle = this.add.text(width / 2, height * 0.18, 'SETTINGS', {
             fontSize: '32px',
             fontFamily: 'Arial, sans-serif',
             color: '#a78bfa',
