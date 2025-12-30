@@ -3046,7 +3046,7 @@ class StartScene extends Phaser.Scene {
         border.setStrokeStyle(3, 0xfbbf24).setFillStyle(0x000000, 0).setScrollFactor(0);
 
         // Title
-        this.add.text(width / 2, height * 0.15, 'LEADERBOARD', {
+        const leaderboardTitle = this.add.text(width / 2, height * 0.15, 'LEADERBOARD', {
             fontSize: '32px',
             fontFamily: 'Arial, sans-serif',
             color: '#fbbf24',
@@ -3118,6 +3118,7 @@ class StartScene extends Phaser.Scene {
 
         const closeModal = () => {
             leaderboardContainer.remove();
+            leaderboardTitle.destroy();
             overlay.destroy();
             modalBg.destroy();
             border.destroy();
@@ -3154,7 +3155,7 @@ class StartScene extends Phaser.Scene {
         border.setStrokeStyle(3, 0x8b5cf6).setFillStyle(0x0f172a, 0).setScrollFactor(0).setDepth(102);
 
         // Title
-        this.add.text(width / 2, height * 0.12, 'SETTINGS', {
+        const settingsTitle = this.add.text(width / 2, height * 0.12, 'SETTINGS', {
             fontSize: '32px',
             fontFamily: 'Arial, sans-serif',
             color: '#a78bfa',
@@ -3306,6 +3307,7 @@ class StartScene extends Phaser.Scene {
             if (style && style.parentElement) {
                 style.remove();
             }
+            settingsTitle.destroy();
             overlay.destroy();
             modalBg.destroy();
             border.destroy();
@@ -3337,7 +3339,7 @@ class StartScene extends Phaser.Scene {
         border.setStrokeStyle(3, 0xfbbf24).setFillStyle(0x000000, 0).setScrollFactor(0);
 
         // Title
-        this.add.text(width / 2, height * 0.15, 'GAME HISTORY', {
+        const historyTitle = this.add.text(width / 2, height * 0.15, 'GAME HISTORY', {
             fontSize: '32px',
             fontFamily: 'Arial, sans-serif',
             color: '#fbbf24',
