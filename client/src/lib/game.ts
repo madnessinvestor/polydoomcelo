@@ -3049,6 +3049,50 @@ class MainScene extends Phaser.Scene {
     private pickupNotification!: Phaser.GameObjects.Text;
     private pickupNotificationBg!: Phaser.GameObjects.Graphics;
     private pickupTimer!: Phaser.Time.TimerEvent;
+
+    private openPauseModal() {
+        this.isPaused = true;
+        this.pauseModalOpen = true;
+        this.pausedTime = this.time.now;
+        
+        // Notify React to show pause modal
+        if ((window as any).showPauseModal) {
+            (window as any).showPauseModal();
+        }
+    }
+
+    private closePauseModal() {
+        this.isPaused = false;
+        this.pauseModalOpen = false;
+        
+        // Notify React to hide pause modal
+        if ((window as any).hidePauseModal) {
+            (window as any).hidePauseModal();
+        }
+    }
+
+    public exitGameFromPause() {
+        this.isGameOver = true;
+        this.isPaused = false;
+        this.pauseModalOpen = false;
+        this.playerGraphics.clear();
+        this.playerAuraGraphics.clear();
+        this.player.setActive(false);
+        if (this.player.body) {
+            this.player.body.enable = false;
+        }
+        
+        // Go to death scene
+        this.scene.switch('DeathScene');
+        this.scene.start('DeathScene', { 
+            level: this.level,
+            wave: this.currentWave,
+            score: this.score,
+            enemiesDefeated: this.enemiesDefeated,
+            levelTitle: this.levelTitle,
+            fromPause: true
+        });
+    }
 }
 
 class StartScene extends Phaser.Scene {
@@ -3537,50 +3581,6 @@ class StartScene extends Phaser.Scene {
             closeBtn.setFillStyle(0xff5252);
         }).on('pointerout', () => {
             closeBtn.setFillStyle(0xff6b6b);
-        });
-    }
-
-    private openPauseModal() {
-        this.isPaused = true;
-        this.pauseModalOpen = true;
-        this.pausedTime = this.time.now;
-        
-        // Notify React to show pause modal
-        if ((window as any).showPauseModal) {
-            (window as any).showPauseModal();
-        }
-    }
-
-    private closePauseModal() {
-        this.isPaused = false;
-        this.pauseModalOpen = false;
-        
-        // Notify React to hide pause modal
-        if ((window as any).hidePauseModal) {
-            (window as any).hidePauseModal();
-        }
-    }
-
-    public exitGameFromPause() {
-        this.isGameOver = true;
-        this.isPaused = false;
-        this.pauseModalOpen = false;
-        this.playerGraphics.clear();
-        this.playerAuraGraphics.clear();
-        this.player.setActive(false);
-        if (this.player.body) {
-            this.player.body.enable = false;
-        }
-        
-        // Go to death scene
-        this.scene.switch('DeathScene');
-        this.scene.start('DeathScene', { 
-            level: this.level,
-            wave: this.currentWave,
-            score: this.score,
-            enemiesDefeated: this.enemiesDefeated,
-            levelTitle: this.levelTitle,
-            fromPause: true
         });
     }
 }

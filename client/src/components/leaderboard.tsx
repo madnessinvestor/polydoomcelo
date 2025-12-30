@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, Zap } from "lucide-react";
+import { Trophy } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Score } from "@shared/schema";
 
 export function Leaderboard() {
@@ -33,43 +34,49 @@ export function Leaderboard() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          {scores.length === 0 ? (
-            <div className="text-slate-400 text-center py-4">
-              Nenhum score registrado ainda
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {scores.map((score, index) => (
-                <div
-                  key={score.id}
-                  className="flex items-center justify-between p-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors"
-                  data-testid={`leaderboard-entry-${score.id}`}
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-700 font-bold">
-                      <span className="text-yellow-400">#{index + 1}</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-white font-semibold">
-                        {score.playerName}
-                      </div>
-                      <div className="text-slate-400 text-sm">
-                        {score.enemiesDefeated} inimigos derrotados
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-yellow-400" />
-                    <span className="text-yellow-400 font-bold text-lg">
-                      {score.score}
-                    </span>
-                  </div>
+        {scores.length === 0 ? (
+          <div className="text-slate-400 text-center py-8">
+            Nenhum score registrado ainda
+          </div>
+        ) : (
+          <ScrollArea className="h-[400px] w-full border border-slate-700 rounded-lg">
+            <div className="w-full">
+              {/* Header */}
+              <div className="flex items-center gap-4 px-4 py-3 bg-slate-800 sticky top-0 z-10 border-b border-slate-700">
+                <div className="flex-shrink-0 w-12 text-center font-bold text-yellow-400 text-sm">
+                  #
                 </div>
-              ))}
+                <div className="flex-1 font-bold text-white">
+                  ArcUser
+                </div>
+                <div className="w-24 text-right font-bold text-yellow-400">
+                  Score
+                </div>
+              </div>
+
+              {/* Rows */}
+              <div>
+                {scores.map((score, index) => (
+                  <div
+                    key={score.id}
+                    className="flex items-center gap-4 px-4 py-3 border-b border-slate-800 hover:bg-slate-800/50 transition-colors"
+                    data-testid={`leaderboard-entry-${score.id}`}
+                  >
+                    <div className="flex-shrink-0 w-12 text-center font-bold text-slate-400 text-sm">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 text-white">
+                      {score.playerName}
+                    </div>
+                    <div className="w-24 text-right font-bold text-yellow-400 text-lg">
+                      {score.score.toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
-        </div>
+          </ScrollArea>
+        )}
       </CardContent>
     </Card>
   );
