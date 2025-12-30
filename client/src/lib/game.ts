@@ -1034,7 +1034,7 @@ class MainScene extends Phaser.Scene {
             this.attack();
         }
         
-        if (this.keys.X.isDown && !this.keys.B.isDown) {
+        if (this.keys.X.isDown && !this.keys.B.isDown && !this.isChargingKamehameha) {
             this.chargeKiarc();
         }
 
