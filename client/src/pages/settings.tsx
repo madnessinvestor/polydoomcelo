@@ -100,7 +100,7 @@ export default function Settings() {
               <span className="text-amber-400 font-bold text-lg">{masterVolume}%</span>
             </div>
             <Slider
-              value={[masterVolume]}
+              defaultValue={[masterVolume]}
               onValueChange={(value) => updateVolume("master", value[0])}
               max={100}
               min={0}
@@ -117,7 +117,7 @@ export default function Settings() {
               <span className="text-amber-400 font-bold text-lg">{musicVolume}%</span>
             </div>
             <Slider
-              value={[musicVolume]}
+              defaultValue={[musicVolume]}
               onValueChange={(value) => updateVolume("music", value[0])}
               max={100}
               min={0}
@@ -134,7 +134,7 @@ export default function Settings() {
               <span className="text-amber-400 font-bold text-lg">{sfxVolume}%</span>
             </div>
             <Slider
-              value={[sfxVolume]}
+              defaultValue={[sfxVolume]}
               onValueChange={(value) => updateVolume("sfx", value[0])}
               max={100}
               min={0}
