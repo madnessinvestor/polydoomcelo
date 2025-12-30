@@ -3375,7 +3375,8 @@ class StartScene extends Phaser.Scene {
 
         document.body.appendChild(settingsContainer);
 
-        // Add event listeners with proper scoping
+        // Add event listeners with proper scoping - save reference to scene context
+        const scene = this;
         const masterSlider = document.getElementById('master-slider') as HTMLInputElement;
         const musicSlider = document.getElementById('music-slider') as HTMLInputElement;
         const sfxSlider = document.getElementById('sfx-slider') as HTMLInputElement;
@@ -3384,21 +3385,21 @@ class StartScene extends Phaser.Scene {
             const value = parseInt(masterSlider.value);
             localStorage.setItem('masterVolume', value.toString());
             document.getElementById('master-value')!.textContent = value + '%';
-            this.setMasterVolume(value);
+            scene.setMasterVolume(value);
         };
 
         const updateMusic = () => {
             const value = parseInt(musicSlider.value);
             localStorage.setItem('musicVolume', value.toString());
             document.getElementById('music-value')!.textContent = value + '%';
-            this.setMusicVolume(value);
+            scene.setMusicVolume(value);
         };
 
         const updateSfx = () => {
             const value = parseInt(sfxSlider.value);
             localStorage.setItem('sfxVolume', value.toString());
             document.getElementById('sfx-value')!.textContent = value + '%';
-            this.setSfxVolume(value);
+            scene.setSfxVolume(value);
         };
 
         if (masterSlider) {
