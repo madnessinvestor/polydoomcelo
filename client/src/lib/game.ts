@@ -2334,14 +2334,14 @@ class MainScene extends Phaser.Scene {
             }
             this.createExplosion(this.player.x, this.player.y);
             
-            // Re-iniciar partida na Wave 1 mantendo o Level
+            // Ir para tela de morte
             this.time.delayedCall(1000, () => {
-                const currentLevel = this.level;
-                const currentScore = this.levelStats[currentLevel - 1].score;
-                
-                this.scene.restart({ 
-                    initialLevel: currentLevel,
-                    initialScore: currentScore
+                this.scene.switch('DeathScene', { 
+                    level: this.level,
+                    wave: this.currentWave,
+                    score: this.score,
+                    enemiesDefeated: this.enemiesDefeated,
+                    levelTitle: this.levelTitle
                 });
             });
         }
@@ -2711,6 +2711,237 @@ class MainScene extends Phaser.Scene {
     private pickupTimer!: Phaser.Time.TimerEvent;
 }
 
+class StartScene extends Phaser.Scene {
+    constructor() {
+        super('StartScene');
+    }
+
+    create() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+
+        // Background
+        this.add.rectangle(0, 0, width, height, 0x0a0a20).setOrigin(0).setScrollFactor(0);
+        
+        // Starfield
+        for (let i = 0; i < 100; i++) {
+            const x = Math.random() * width;
+            const y = Math.random() * height;
+            const size = Math.random() * 2;
+            const star = this.add.circle(x, y, size, 0xffffff, 0.5);
+        }
+
+        // Title
+        const title = this.add.text(width / 2, height / 3, 'ARC GAME', {
+            fontSize: '72px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#fbbf24',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        // Start Button
+        const startBtn = this.add.rectangle(width / 2, height / 2, 200, 60, 0x4ade80);
+        const startText = this.add.text(width / 2, height / 2, 'START GAME', {
+            fontSize: '24px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        startBtn.setInteractive().on('pointerdown', () => {
+            this.scene.start('MainScene');
+        }).on('pointerover', () => {
+            startBtn.setFillStyle(0x22c55e);
+        }).on('pointerout', () => {
+            startBtn.setFillStyle(0x4ade80);
+        });
+
+        // History Button
+        const historyBtn = this.add.rectangle(width / 2, height / 2 + 100, 200, 60, 0x60a5fa);
+        const historyText = this.add.text(width / 2, height / 2 + 100, 'HISTORY', {
+            fontSize: '24px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        historyBtn.setInteractive().on('pointerdown', () => {
+            this.openHistoryModal();
+        }).on('pointerover', () => {
+            historyBtn.setFillStyle(0x3b82f6);
+        }).on('pointerout', () => {
+            historyBtn.setFillStyle(0x60a5fa);
+        });
+    }
+
+    private openHistoryModal() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+
+        // Modal background
+        const modalBg = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8, 0x000000, 0.9).setScrollFactor(0);
+        
+        // Border
+        const border = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8);
+        border.setStrokeStyle(3, 0xfbbf24).setFillStyle(0x000000, 0);
+
+        // Title
+        this.add.text(width / 2, height * 0.15, 'GAME HISTORY', {
+            fontSize: '32px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#fbbf24',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0);
+
+        // Video placeholder
+        const videoBg = this.add.rectangle(width / 2, height / 2, width * 0.7, height * 0.5, 0x1a1a2e).setScrollFactor(0);
+        videoBg.setStrokeStyle(2, 0x4ade80);
+
+        this.add.text(width / 2, height / 2, 'VIDEO PLAYER\n(Attached video would play here)', {
+            fontSize: '20px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#4ade80',
+            align: 'center'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0);
+
+        // Close button
+        const closeBtn = this.add.rectangle(width / 2, height * 0.85, 150, 50, 0xff6b6b).setScrollFactor(0);
+        const closeText = this.add.text(width / 2, height * 0.85, 'CLOSE', {
+            fontSize: '20px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0);
+
+        closeBtn.setInteractive().on('pointerdown', () => {
+            modalBg.destroy();
+            border.destroy();
+            videoBg.destroy();
+            closeBtn.destroy();
+            closeText.destroy();
+        }).on('pointerover', () => {
+            closeBtn.setFillStyle(0xff5252);
+        }).on('pointerout', () => {
+            closeBtn.setFillStyle(0xff6b6b);
+        });
+    }
+}
+
+class DeathScene extends Phaser.Scene {
+    private finalScore: number = 0;
+    private finalLevel: number = 1;
+    private finalWave: number = 1;
+
+    constructor() {
+        super('DeathScene');
+    }
+
+    init(data: any) {
+        this.finalScore = data.score || 0;
+        this.finalLevel = data.level || 1;
+        this.finalWave = data.wave || 1;
+    }
+
+    create() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+
+        // Background
+        this.add.rectangle(0, 0, width, height, 0x0a0a20).setOrigin(0).setScrollFactor(0);
+
+        // Game Over Title
+        this.add.text(width / 2, height / 4, 'GAME OVER', {
+            fontSize: '64px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#ff6b6b',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        // Stats
+        const statsY = height / 3;
+        this.add.text(width / 2, statsY, `Final Score: ${this.finalScore}`, {
+            fontSize: '28px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#fbbf24',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        this.add.text(width / 2, statsY + 50, `Level: ${this.finalLevel} | Wave: ${this.finalWave}`, {
+            fontSize: '24px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#60a5fa',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        // Doom Mode Button
+        const doomBtn = this.add.rectangle(width / 2 - 120, height / 2 + 50, 200, 60, 0xff9800);
+        const doomText = this.add.text(width / 2 - 120, height / 2 + 50, 'DOOM MODE', {
+            fontSize: '20px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        doomBtn.setInteractive().on('pointerdown', () => {
+            this.scene.start('MainScene', { 
+                doomMode: true,
+                level: this.finalLevel,
+                wave: 1
+            });
+        }).on('pointerover', () => {
+            doomBtn.setFillStyle(0xffa500);
+        }).on('pointerout', () => {
+            doomBtn.setFillStyle(0xff9800);
+        });
+
+        // End Match Button
+        const endBtn = this.add.rectangle(width / 2 + 120, height / 2 + 50, 200, 60, 0x22c55e);
+        const endText = this.add.text(width / 2 + 120, height / 2 + 50, 'END MATCH', {
+            fontSize: '20px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        endBtn.setInteractive().on('pointerdown', () => {
+            this.submitScore();
+        }).on('pointerover', () => {
+            endBtn.setFillStyle(0x16a34a);
+        }).on('pointerout', () => {
+            endBtn.setFillStyle(0x22c55e);
+        });
+    }
+
+    private async submitScore() {
+        try {
+            const response = await fetch('/api/scores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    playerName: 'Player',
+                    score: this.finalScore,
+                    enemiesDefeated: 0
+                })
+            });
+
+            if (response.ok) {
+                this.scene.start('StartScene');
+            }
+        } catch (error) {
+            console.error('Failed to submit score:', error);
+            this.scene.start('StartScene');
+        }
+    }
+}
+
     const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     parent: 'game-container',
@@ -2735,7 +2966,7 @@ class MainScene extends Phaser.Scene {
         target: 60,
         forceSetTimeOut: true
     },
-    scene: MainScene
+    scene: [StartScene, MainScene, DeathScene]
 };
 
 export function initGame() {

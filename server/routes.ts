@@ -35,5 +35,15 @@ export async function registerRoutes(
     }
   });
 
+  // Leaderboard endpoint
+  app.get('/api/leaderboard', async (req, res) => {
+    try {
+      const scores = await storage.getScores();
+      res.json(scores);
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to fetch leaderboard' });
+    }
+  });
+
   return httpServer;
 }
