@@ -2,21 +2,43 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Loader2 } from "lucide-react";
+import { PauseModal } from "@/components/pause-modal";
 
 declare global {
   interface Window {
     arc?: any;
     isArcConnected?: boolean;
     game?: Phaser.Game;
+    showPauseModal?: () => void;
+    hidePauseModal?: () => void;
   }
 }
 
 export default function Home() {
   const [isConnected, setIsConnected] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
+  const [isPauseModalOpen, setIsPauseModalOpen] = useState(false);
 
   const checkConnection = () => {
     setIsConnected(true);
+  };
+
+  const handleContinueGame = () => {
+    setIsPauseModalOpen(false);
+    // Resume game through window reference
+    if (window.game?.scene.isActive('MainScene')) {
+      const scene = window.game.scene.getScene('MainScene') as any;
+      scene?.closePauseModal?.();
+    }
+  };
+
+  const handleExitGame = () => {
+    setIsPauseModalOpen(false);
+    // Exit game through window reference
+    if (window.game?.scene.isActive('MainScene')) {
+      const scene = window.game.scene.getScene('MainScene') as any;
+      scene?.exitGameFromPause?.();
+    }
   };
 
   useEffect(() => {
@@ -25,10 +47,22 @@ export default function Home() {
         mod.initGame();
       });
     }
+
+    // Set up window functions for pause modal
+    (window as any).showPauseModal = () => setIsPauseModalOpen(true);
+    (window as any).hidePauseModal = () => setIsPauseModalOpen(false);
+
+    return () => {
+      delete (window as any).showPauseModal;
+      delete (window as any).hidePauseModal;
+    };
   }, [isConnected]);
 
   return (
     <div className="min-h-screen w-full bg-black flex items-center justify-center p-4 overflow-hidden">
+      {isPauseModalOpen && (
+        <PauseModal onContinue={handleContinueGame} onExit={handleExitGame} />
+      )}
       <div className="w-full max-w-2xl flex flex-col h-screen">
         {/* Game Container */}
         <div className="flex-1 flex flex-col items-center justify-center min-h-0">
