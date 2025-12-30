@@ -25,6 +25,9 @@ export function Leaderboard() {
     );
   }
 
+  // Sort by score descending to get rankings
+  const sortedScores = [...scores].sort((a, b) => b.score - a.score);
+
   return (
     <Card className="w-full bg-slate-900 border-slate-700">
       <CardHeader>
@@ -34,7 +37,7 @@ export function Leaderboard() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {scores.length === 0 ? (
+        {sortedScores.length === 0 ? (
           <div className="text-slate-400 text-center py-8">
             Nenhum score registrado ainda
           </div>
@@ -49,6 +52,9 @@ export function Leaderboard() {
                 <div className="flex-1 font-bold text-white">
                   ArcUser
                 </div>
+                <div className="w-20 text-center font-bold text-yellow-400">
+                  Wave
+                </div>
                 <div className="w-24 text-right font-bold text-yellow-400">
                   Score
                 </div>
@@ -56,7 +62,7 @@ export function Leaderboard() {
 
               {/* Rows */}
               <div>
-                {scores.map((score, index) => (
+                {sortedScores.map((score, index) => (
                   <div
                     key={score.id}
                     className="flex items-center gap-4 px-4 py-3 border-b border-slate-800 hover:bg-slate-800/50 transition-colors"
@@ -67,6 +73,9 @@ export function Leaderboard() {
                     </div>
                     <div className="flex-1 text-white">
                       {score.playerName}
+                    </div>
+                    <div className="w-20 text-center text-slate-300">
+                      {score.wave}
                     </div>
                     <div className="w-24 text-right font-bold text-yellow-400 text-lg">
                       {score.score.toLocaleString()}

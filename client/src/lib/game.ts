@@ -3792,6 +3792,7 @@ class DeathScene extends Phaser.Scene {
                 body: JSON.stringify({
                     playerName: playerName,
                     score: this.finalScore,
+                    wave: this.finalWave,
                     enemiesDefeated: 0
                 })
             });

@@ -6,6 +6,7 @@ export const scores = pgTable("scores", {
   id: serial("id").primaryKey(),
   playerName: text("player_name").notNull(),
   score: integer("score").notNull(),
+  wave: integer("wave").notNull().default(1),
   enemiesDefeated: integer("enemies_defeated").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
