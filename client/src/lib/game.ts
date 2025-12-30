@@ -2965,8 +2965,7 @@ class StartScene extends Phaser.Scene {
             closeText.destroy();
         };
 
-        closeBtn.setInteractive().on('pointerdown', (event: any) => {
-            event.stopPropagation();
+        closeBtn.setInteractive().on('pointerdown', () => {
             closeModal();
         }).on('pointerover', () => {
             closeBtn.setFillStyle(0xff5252);
