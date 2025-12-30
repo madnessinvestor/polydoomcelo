@@ -2177,11 +2177,13 @@ class MainScene extends Phaser.Scene {
     private checkLevelUp() {
         if (this.level >= 10) return;
         
+        // Find the highest possible level for the current score
         let targetLevel = 1;
         for (let i = 0; i < this.levelStats.length; i++) {
             if (this.score >= this.levelStats[i].score) {
                 targetLevel = this.levelStats[i].lvl;
             } else {
+                // Since levelStats is sorted by score, we can stop at the first score that's too high
                 break;
             }
         }
@@ -2205,6 +2207,24 @@ class MainScene extends Phaser.Scene {
                 'Arc Master', 'Arc Grandmaster', 'Arc Sage', 'Arc Archon', 'Arc Divine'
             ];
             this.levelTitle = levelTitles[this.level - 1] || 'Arc Divine';
+
+            // Floating text for level up
+            const levelUpText = this.add.text(this.player.x, this.player.y - 80, `LEVEL UP: ${this.levelTitle}`, {
+                fontSize: '28px',
+                color: '#fbbf24',
+                fontStyle: 'bold',
+                stroke: '#000',
+                strokeThickness: 6,
+                fontFamily: '"Courier New", Courier, monospace'
+            }).setOrigin(0.5);
+
+            this.tweens.add({
+                targets: levelUpText,
+                y: levelUpText.y - 60,
+                alpha: 0,
+                duration: 2000,
+                onComplete: () => levelUpText.destroy()
+            });
             
             this.updateHUD();
             this.updatePlayerVisual();
