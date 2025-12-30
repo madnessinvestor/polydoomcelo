@@ -3149,104 +3149,169 @@ class StartScene extends Phaser.Scene {
         const musicVolume = parseInt(localStorage.getItem('musicVolume') || '100');
         const sfxVolume = parseInt(localStorage.getItem('sfxVolume') || '100');
 
-        // Clickable overlay
-        const overlay = this.add.zone(width / 2, height / 2, width, height).setScrollFactor(0);
-        overlay.setInteractive();
+        // Dark overlay background
+        const overlay = this.add.rectangle(0, 0, width * 2, height * 2, 0x000000, 0.7).setOrigin(0).setScrollFactor(0).setDepth(100);
 
         // Modal background
-        const modalBg = this.add.rectangle(width / 2, height / 2, width * 0.6, height * 0.7, 0x000000, 0.9).setScrollFactor(0);
+        const modalBg = this.add.rectangle(width / 2, height / 2, width * 0.6, height * 0.75, 0x0f172a, 1).setScrollFactor(0).setDepth(101);
         
         // Border
-        const border = this.add.rectangle(width / 2, height / 2, width * 0.6, height * 0.7);
-        border.setStrokeStyle(3, 0x8b5cf6).setFillStyle(0x000000, 0).setScrollFactor(0);
+        const border = this.add.rectangle(width / 2, height / 2, width * 0.6, height * 0.75);
+        border.setStrokeStyle(3, 0x8b5cf6).setFillStyle(0x0f172a, 0).setScrollFactor(0).setDepth(102);
 
         // Title
-        this.add.text(width / 2, height * 0.15, 'SETTINGS', {
+        this.add.text(width / 2, height * 0.12, 'SETTINGS', {
             fontSize: '32px',
             fontFamily: 'Arial, sans-serif',
-            color: '#8b5cf6',
+            color: '#a78bfa',
             fontStyle: 'bold',
             align: 'center'
-        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(101);
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(103);
 
-        // Create HTML settings container
+        // Create HTML settings container with better styling
         const containerWidth = width * 0.5;
-        const containerHeight = height * 0.5;
+        const containerHeight = height * 0.55;
 
         const settingsContainer = document.createElement('div');
+        settingsContainer.id = 'settings-container';
         settingsContainer.style.position = 'absolute';
         settingsContainer.style.left = '50%';
         settingsContainer.style.top = '50%';
         settingsContainer.style.transform = 'translate(-50%, -50%)';
         settingsContainer.style.width = Math.floor(containerWidth) + 'px';
         settingsContainer.style.height = Math.floor(containerHeight) + 'px';
-        settingsContainer.style.backgroundColor = '#1a1a2e';
-        settingsContainer.style.border = '2px solid #8b5cf6';
-        settingsContainer.style.overflow = 'auto';
-        settingsContainer.style.zIndex = '101';
-        settingsContainer.style.color = '#fff';
-        settingsContainer.style.fontFamily = 'Arial, sans-serif';
-        settingsContainer.style.padding = '20px';
+        settingsContainer.style.backgroundColor = 'transparent';
+        settingsContainer.style.overflow = 'visible';
+        settingsContainer.style.zIndex = '104';
+        settingsContainer.style.pointerEvents = 'auto';
+
+        // Add CSS for range inputs
+        const style = document.createElement('style');
+        style.textContent = `
+            #settings-container input[type="range"] {
+                width: 100%;
+                height: 8px;
+                -webkit-appearance: none;
+                appearance: none;
+                background: #334155;
+                border-radius: 5px;
+                outline: none;
+                cursor: pointer;
+            }
+            
+            #settings-container input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #a78bfa;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            
+            #settings-container input[type="range"]::-webkit-slider-thumb:hover {
+                background: #c4b5fd;
+            }
+            
+            #settings-container input[type="range"]::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #a78bfa;
+                cursor: pointer;
+                border: none;
+                transition: background 0.2s;
+            }
+            
+            #settings-container input[type="range"]::-moz-range-thumb:hover {
+                background: #c4b5fd;
+            }
+        `;
+        document.head.appendChild(style);
 
         settingsContainer.innerHTML = `
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Master Volume: <span id="master-value">${masterVolume}%</span></label>
-                <input type="range" id="master-slider" min="0" max="100" value="${masterVolume}" style="width: 100%; cursor: pointer;">
+            <div style="margin-bottom: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <label style="color: #e2e8f0; font-weight: bold; font-size: 14px;">Master Volume</label>
+                    <span id="master-value" style="color: #a78bfa; font-weight: bold; font-size: 16px;">${masterVolume}%</span>
+                </div>
+                <input type="range" id="master-slider" min="0" max="100" value="${masterVolume}" style="pointer-events: auto;">
             </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Background Music: <span id="music-value">${musicVolume}%</span></label>
-                <input type="range" id="music-slider" min="0" max="100" value="${musicVolume}" style="width: 100%; cursor: pointer;">
+            <div style="margin-bottom: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <label style="color: #e2e8f0; font-weight: bold; font-size: 14px;">Background Music</label>
+                    <span id="music-value" style="color: #a78bfa; font-weight: bold; font-size: 16px;">${musicVolume}%</span>
+                </div>
+                <input type="range" id="music-slider" min="0" max="100" value="${musicVolume}" style="pointer-events: auto;">
             </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Effects Volume: <span id="sfx-value">${sfxVolume}%</span></label>
-                <input type="range" id="sfx-slider" min="0" max="100" value="${sfxVolume}" style="width: 100%; cursor: pointer;">
+            <div style="margin-bottom: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <label style="color: #e2e8f0; font-weight: bold; font-size: 14px;">Effects Volume</label>
+                    <span id="sfx-value" style="color: #a78bfa; font-weight: bold; font-size: 16px;">${sfxVolume}%</span>
+                </div>
+                <input type="range" id="sfx-slider" min="0" max="100" value="${sfxVolume}" style="pointer-events: auto;">
             </div>
         `;
 
         document.body.appendChild(settingsContainer);
 
-        // Add event listeners
+        // Add event listeners with proper scoping
         const masterSlider = document.getElementById('master-slider') as HTMLInputElement;
         const musicSlider = document.getElementById('music-slider') as HTMLInputElement;
         const sfxSlider = document.getElementById('sfx-slider') as HTMLInputElement;
 
+        const updateMaster = () => {
+            const value = parseInt(masterSlider.value);
+            localStorage.setItem('masterVolume', value.toString());
+            document.getElementById('master-value')!.textContent = value + '%';
+            this.sound.volume = value / 100;
+        };
+
+        const updateMusic = () => {
+            const value = parseInt(musicSlider.value);
+            localStorage.setItem('musicVolume', value.toString());
+            document.getElementById('music-value')!.textContent = value + '%';
+        };
+
+        const updateSfx = () => {
+            const value = parseInt(sfxSlider.value);
+            localStorage.setItem('sfxVolume', value.toString());
+            document.getElementById('sfx-value')!.textContent = value + '%';
+        };
+
         if (masterSlider) {
-            masterSlider.addEventListener('input', (e: any) => {
-                const value = parseInt(e.target.value);
-                localStorage.setItem('masterVolume', value.toString());
-                document.getElementById('master-value')!.textContent = value + '%';
-                this.sound.volume = value / 100;
-            });
+            masterSlider.addEventListener('input', updateMaster);
+            masterSlider.addEventListener('change', updateMaster);
         }
 
         if (musicSlider) {
-            musicSlider.addEventListener('input', (e: any) => {
-                const value = parseInt(e.target.value);
-                localStorage.setItem('musicVolume', value.toString());
-                document.getElementById('music-value')!.textContent = value + '%';
-            });
+            musicSlider.addEventListener('input', updateMusic);
+            musicSlider.addEventListener('change', updateMusic);
         }
 
         if (sfxSlider) {
-            sfxSlider.addEventListener('input', (e: any) => {
-                const value = parseInt(e.target.value);
-                localStorage.setItem('sfxVolume', value.toString());
-                document.getElementById('sfx-value')!.textContent = value + '%';
-            });
+            sfxSlider.addEventListener('input', updateSfx);
+            sfxSlider.addEventListener('change', updateSfx);
         }
 
         // Close button
-        const closeBtn = this.add.rectangle(width / 2, height * 0.85, 150, 50, 0xff6b6b).setScrollFactor(0).setDepth(101);
-        const closeText = this.add.text(width / 2, height * 0.85, 'CLOSE', {
+        const closeBtn = this.add.rectangle(width / 2, height * 0.82, 150, 50, 0xff6b6b).setScrollFactor(0).setDepth(103);
+        const closeText = this.add.text(width / 2, height * 0.82, 'CLOSE', {
             fontSize: '20px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
             fontStyle: 'bold',
             align: 'center'
-        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(102);
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(104);
 
         const closeModal = () => {
-            settingsContainer.remove();
+            if (settingsContainer && settingsContainer.parentElement) {
+                settingsContainer.remove();
+            }
+            if (style && style.parentElement) {
+                style.remove();
+            }
             overlay.destroy();
             modalBg.destroy();
             border.destroy();
@@ -3262,7 +3327,8 @@ class StartScene extends Phaser.Scene {
             closeBtn.setFillStyle(0xff6b6b);
         });
 
-        overlay.on('pointerdown', (event: any) => {
+        // Click on overlay to close
+        overlay.setInteractive().on('pointerdown', () => {
             closeModal();
         });
     }
