@@ -1759,6 +1759,7 @@ class MainScene extends Phaser.Scene {
                 yoyo: true,
                 repeat: 2,
                 onComplete: () => {
+                    const oldLevel = this.level;
                     if (enemy.getData('isBoss')) {
                         let bossScore = 20 * Math.pow(5, this.currentWave - 1);
                         if (this.hasScoreBoost) bossScore *= 2;
@@ -1841,12 +1842,11 @@ class MainScene extends Phaser.Scene {
                             onComplete: () => shockwave.destroy()
                         });
                         
-        // Show Level Up animation if stats improved
-        if (oldLevel !== this.level) {
-            this.updateHUD();
-        }
-                        
-                        this.updatePlayerVisual();
+                        // Show Level Up animation if stats improved
+                        if (oldLevel !== this.level) {
+                            this.updateHUD();
+                            this.updatePlayerVisual();
+                        }
                     }
 
                     this.enemiesDefeated++;
