@@ -3011,7 +3011,7 @@ class StartScene extends Phaser.Scene {
 
         startBtn.setInteractive().on('pointerdown', () => {
             this.sfx['menu_button']?.play();
-            this.scene.start('MainScene');
+            this.scene.switch('MainScene');
         }).on('pointerover', () => {
             startBtn.setFillStyle(0x22c55e);
         }).on('pointerout', () => {
@@ -3659,13 +3659,13 @@ class DeathScene extends Phaser.Scene {
             if (response.ok) {
                 // Stop all sounds before transitioning
                 this.sound.stopAll();
-                this.scene.start('StartScene');
+                this.scene.switch('StartScene');
             }
         } catch (error) {
             console.error('Failed to submit score:', error);
             // Stop all sounds before transitioning
             this.sound.stopAll();
-            this.scene.start('StartScene');
+            this.scene.switch('StartScene');
         }
     }
 }
