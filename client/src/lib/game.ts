@@ -100,6 +100,11 @@ class MainScene extends Phaser.Scene {
         { lvl: 10, hp: 8000, ki: 3000, mult: 6.0, punch: 200, magic: 200, kame: 400, res: 0.40, score: 1000000000 }
     ];
 
+    private levelTitles = [
+        'Arc Initiate', 'Arc Novice', 'Arc Apprentice', 'Arc Adept', 'Arc Mage',
+        'Arc Master', 'Arc Grandmaster', 'Arc Sage', 'Arc Archon', 'Arc Divine'
+    ];
+
     constructor() {
         super('MainScene');
     }
@@ -316,7 +321,7 @@ class MainScene extends Phaser.Scene {
         const fontSize = Math.floor(24 * hudScale);
         const titleFontSize = Math.floor(32 * hudScale);
         
-        this.scoreText = this.add.text(16, 16, `Score: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`, { 
+        this.scoreText = this.add.text(16, 16, `Score: ${this.score.toLocaleString()} | LEVEL: ${this.level} (${this.levelTitle})`, { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
             fontFamily: '"Courier New", Courier, monospace',
@@ -2187,7 +2192,7 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        // Sincronizar o nível se houver divergência (para cima ou para baixo)
+        // Sincronizar o nível se houver divergência
         if (targetLevel !== this.level) {
             this.level = targetLevel;
             const stats = this.levelStats[this.level - 1];
@@ -2202,14 +2207,10 @@ class MainScene extends Phaser.Scene {
             this.cameras.main.flash(500, 255, 255, 0);
             this.drawPlayerSquare(this.level);
             
-            const levelTitles = [
-                'Arc Initiate', 'Arc Novice', 'Arc Apprentice', 'Arc Adept', 'Arc Mage',
-                'Arc Master', 'Arc Grandmaster', 'Arc Sage', 'Arc Archon', 'Arc Divine'
-            ];
-            this.levelTitle = levelTitles[this.level - 1] || 'Arc Divine';
+            this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
 
-            // Floating text for level up/sync
-            const syncText = this.add.text(this.player.x, this.player.y - 80, `NÍVEL: ${this.levelTitle}`, {
+            // Floating text for level sync
+            const syncText = this.add.text(this.player.x, this.player.y - 80, `LEVEL: ${this.levelTitle}`, {
                 fontSize: '28px',
                 color: '#fbbf24',
                 fontStyle: 'bold',
@@ -2237,7 +2238,7 @@ class MainScene extends Phaser.Scene {
         const fontSize = Math.floor(24 * hudScale);
         
         // Update labels
-        this.scoreText.setText(`Score: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
+        this.scoreText.setText(`Score: ${this.score.toLocaleString()} | LEVEL: ${this.level} (${this.levelTitle})`);
         this.enemyCounterText.setText(`${this.enemiesDefeated - this.totalEnemiesBeforeWave}`);
 
         // Health and Ki arc rendering
