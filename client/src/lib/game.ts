@@ -3035,9 +3035,8 @@ class StartScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
-        // Clickable overlay - click anywhere to close
+        // Overlay background
         const overlay = this.add.zone(width / 2, height / 2, width, height).setScrollFactor(0);
-        overlay.setInteractive();
 
         // Modal background
         const modalBg = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8, 0x000000, 0.9).setScrollFactor(0);
@@ -3132,11 +3131,6 @@ class StartScene extends Phaser.Scene {
             closeBtn.setFillStyle(0xff5252);
         }).on('pointerout', () => {
             closeBtn.setFillStyle(0xff6b6b);
-        });
-
-        // Click anywhere on overlay to close
-        overlay.on('pointerdown', (event: any) => {
-            closeModal();
         });
     }
 
@@ -3326,20 +3320,14 @@ class StartScene extends Phaser.Scene {
         }).on('pointerout', () => {
             closeBtn.setFillStyle(0xff6b6b);
         });
-
-        // Click on overlay to close
-        overlay.setInteractive().on('pointerdown', () => {
-            closeModal();
-        });
     }
 
     private openHistoryModal() {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
-        // Clickable overlay - click anywhere to close
+        // Overlay background
         const overlay = this.add.zone(width / 2, height / 2, width, height).setScrollFactor(0);
-        overlay.setInteractive();
 
         // Modal background
         const modalBg = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8, 0x000000, 0.9).setScrollFactor(0);
@@ -3405,12 +3393,6 @@ class StartScene extends Phaser.Scene {
             closeBtn.setFillStyle(0xff5252);
         }).on('pointerout', () => {
             closeBtn.setFillStyle(0xff6b6b);
-        });
-
-        // Click anywhere on overlay to close
-        overlay.on('pointerdown', (event: any) => {
-            closeModal();
-            this.scene.start('StartScene');
         });
     }
 }
