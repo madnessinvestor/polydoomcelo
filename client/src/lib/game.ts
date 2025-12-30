@@ -3247,6 +3247,42 @@ class StartScene extends Phaser.Scene {
         });
     }
 
+    public setMasterVolume(value: number) {
+        this.masterVolume = Math.max(0, Math.min(1, value / 100));
+        // Apply to all sounds
+        Object.values(this.sfx).forEach(sound => {
+            if (sound && (sound as any).setVolume) {
+                (sound as any).setVolume(this.masterVolume * this.sfxVolume);
+            }
+        });
+        if (this.currentMusic && (this.currentMusic as any).setVolume) {
+            (this.currentMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+        }
+        if (this.openingMusic && (this.openingMusic as any).setVolume) {
+            (this.openingMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+        }
+    }
+
+    public setMusicVolume(value: number) {
+        this.musicVolume = Math.max(0, Math.min(1, value / 100));
+        if (this.currentMusic && (this.currentMusic as any).setVolume) {
+            (this.currentMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+        }
+        if (this.openingMusic && (this.openingMusic as any).setVolume) {
+            (this.openingMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+        }
+    }
+
+    public setSfxVolume(value: number) {
+        this.sfxVolume = Math.max(0, Math.min(1, value / 100));
+        // Apply to all SFX sounds
+        Object.values(this.sfx).forEach(sound => {
+            if (sound && (sound as any).setVolume) {
+                (sound as any).setVolume(this.masterVolume * this.sfxVolume);
+            }
+        });
+    }
+
     private openLeaderboardModal() {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
