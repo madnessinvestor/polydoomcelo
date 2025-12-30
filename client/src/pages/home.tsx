@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Loader2 } from "lucide-react";
-import { Leaderboard } from "@/components/leaderboard";
 
 declare global {
   interface Window {
@@ -68,11 +67,6 @@ export default function Home() {
               <span className="text-slate-400">Explosion KiArc</span>
             </div>
           </div>
-        </div>
-
-        {/* Leaderboard Container */}
-        <div className="mt-4 max-h-64 overflow-y-auto">
-          <Leaderboard />
         </div>
       </div>
     </div>

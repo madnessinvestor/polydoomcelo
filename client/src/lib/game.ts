@@ -2918,9 +2918,27 @@ class StartScene extends Phaser.Scene {
             startBtn.setFillStyle(0x4ade80);
         });
 
+        // Leaderboard Button
+        const leaderboardBtn = this.add.rectangle(width / 2, height / 2 + 100, 200, 60, 0xfbbf24);
+        const leaderboardText = this.add.text(width / 2, height / 2 + 100, 'LEADERBOARD', {
+            fontSize: '20px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        leaderboardBtn.setInteractive().on('pointerdown', () => {
+            this.openLeaderboardModal();
+        }).on('pointerover', () => {
+            leaderboardBtn.setFillStyle(0xfcd34d);
+        }).on('pointerout', () => {
+            leaderboardBtn.setFillStyle(0xfbbf24);
+        });
+
         // History Button
-        const historyBtn = this.add.rectangle(width / 2, height / 2 + 100, 200, 60, 0x60a5fa);
-        const historyText = this.add.text(width / 2, height / 2 + 100, 'HISTORY', {
+        const historyBtn = this.add.rectangle(width / 2, height / 2 + 200, 200, 60, 0x60a5fa);
+        const historyText = this.add.text(width / 2, height / 2 + 200, 'HISTORY', {
             fontSize: '24px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
@@ -2934,6 +2952,115 @@ class StartScene extends Phaser.Scene {
             historyBtn.setFillStyle(0x3b82f6);
         }).on('pointerout', () => {
             historyBtn.setFillStyle(0x60a5fa);
+        });
+    }
+
+    private openLeaderboardModal() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+
+        // Clickable overlay - click anywhere to close
+        const overlay = this.add.zone(width / 2, height / 2, width, height).setScrollFactor(0);
+        overlay.setInteractive();
+
+        // Modal background
+        const modalBg = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8, 0x000000, 0.9).setScrollFactor(0);
+        
+        // Border
+        const border = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8);
+        border.setStrokeStyle(3, 0xfbbf24).setFillStyle(0x000000, 0).setScrollFactor(0);
+
+        // Title
+        this.add.text(width / 2, height * 0.15, 'LEADERBOARD', {
+            fontSize: '32px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#fbbf24',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(101);
+
+        // Create HTML div for leaderboard content
+        const containerWidth = width * 0.7;
+        const containerHeight = height * 0.5;
+        const containerX = width / 2 - containerWidth / 2;
+        const containerY = height / 2 - containerHeight / 2;
+
+        const leaderboardContainer = document.createElement('div');
+        leaderboardContainer.style.position = 'absolute';
+        leaderboardContainer.style.left = '50%';
+        leaderboardContainer.style.top = '50%';
+        leaderboardContainer.style.transform = 'translate(-50%, -50%)';
+        leaderboardContainer.style.width = Math.floor(containerWidth) + 'px';
+        leaderboardContainer.style.height = Math.floor(containerHeight) + 'px';
+        leaderboardContainer.style.backgroundColor = '#1a1a2e';
+        leaderboardContainer.style.border = '2px solid #fbbf24';
+        leaderboardContainer.style.overflow = 'auto';
+        leaderboardContainer.style.zIndex = '101';
+        leaderboardContainer.style.color = '#fff';
+        leaderboardContainer.style.fontFamily = 'Arial, sans-serif';
+        leaderboardContainer.style.padding = '20px';
+
+        // Fetch and display leaderboard data
+        fetch('/api/leaderboard')
+            .then(res => res.json())
+            .then((scores: any[]) => {
+                let content = '<div style="text-align: center;">';
+                if (scores.length === 0) {
+                    content += '<p>Nenhum score registrado ainda</p>';
+                } else {
+                    scores.forEach((score, index) => {
+                        content += `
+                            <div style="border-bottom: 1px solid #4ade80; padding: 10px 0; text-align: left;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <strong>#${index + 1} ${score.playerName}</strong>
+                                        <div style="font-size: 12px; color: #aaa;">${score.enemiesDefeated} inimigos derrotados</div>
+                                    </div>
+                                    <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${score.score}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                content += '</div>';
+                leaderboardContainer.innerHTML = content;
+            })
+            .catch(err => {
+                leaderboardContainer.innerHTML = '<p>Erro ao carregar leaderboard</p>';
+            });
+
+        document.body.appendChild(leaderboardContainer);
+
+        // Close button
+        const closeBtn = this.add.rectangle(width / 2, height * 0.85, 150, 50, 0xff6b6b).setScrollFactor(0).setDepth(101);
+        const closeText = this.add.text(width / 2, height * 0.85, 'CLOSE', {
+            fontSize: '20px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(102);
+
+        const closeModal = () => {
+            leaderboardContainer.remove();
+            overlay.destroy();
+            modalBg.destroy();
+            border.destroy();
+            closeBtn.destroy();
+            closeText.destroy();
+        };
+
+        closeBtn.setInteractive().on('pointerdown', () => {
+            closeModal();
+        }).on('pointerover', () => {
+            closeBtn.setFillStyle(0xff5252);
+        }).on('pointerout', () => {
+            closeBtn.setFillStyle(0xff6b6b);
+        });
+
+        // Click anywhere on overlay to close
+        overlay.on('pointerdown', (event: any) => {
+            closeModal();
         });
     }
 
