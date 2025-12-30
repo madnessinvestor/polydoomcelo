@@ -1693,10 +1693,18 @@ class MainScene extends Phaser.Scene {
                         this.score += gainedScore;
                     }
 
-                    // Level progression logic based on standard threshold
-                    const nextLevelThreshold = this.level * 10;
-                    if (this.enemiesDefeated + 1 >= nextLevelThreshold && this.level < 10) {
-                        this.level++;
+                    // Level progression logic based on score threshold
+                    let targetLevel = 1;
+                    for (let i = 0; i < this.levelStats.length; i++) {
+                        if (this.score >= this.levelStats[i].score) {
+                            targetLevel = this.levelStats[i].lvl;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (targetLevel !== this.level && targetLevel < 10) {
+                        this.level = targetLevel;
                         
                         // Update max stats for new level and restore to 100%
                         const newLevelStats = this.levelStats[this.level - 1];
@@ -1705,12 +1713,7 @@ class MainScene extends Phaser.Scene {
                         this.health = this.maxHealth;
                         this.kiarc = this.maxKiarc;
                         
-                        const titles = [
-                            'Arc Initiate', 'Arc Squire', 'Arc Warrior', 'Arc Knight', 
-                            'Arc Commander', 'Arc Master', 'Arc Grandmaster', 
-                            'Arc Sage', 'Arc Eternal', 'Arc Divine'
-                        ];
-                        this.levelTitle = titles[this.level - 1];
+                        this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
                         this.cameras.main.flash(500, 0, 255, 0);
                         
         const levelUpText = this.add.text(this.player.x, this.player.y - 100, `Level Up\n${this.levelTitle}`, {
