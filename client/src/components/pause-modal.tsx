@@ -27,7 +27,6 @@ export function PauseModal({ onContinue, onExit }: PauseModalProps) {
         <div className="flex gap-4 flex-col">
           <Button
             onClick={onContinue}
-            variant="default"
             className="w-full bg-green-500 hover:bg-green-600 text-black font-bold"
             data-testid="button-continue"
           >
@@ -35,8 +34,7 @@ export function PauseModal({ onContinue, onExit }: PauseModalProps) {
           </Button>
           <Button
             onClick={onExit}
-            variant="destructive"
-            className="w-full"
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold"
             data-testid="button-exit-game"
           >
             Exit Game
