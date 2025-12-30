@@ -2954,7 +2954,6 @@ class MainScene extends Phaser.Scene {
 
 class StartScene extends Phaser.Scene {
     private sfx: { [key: string]: Phaser.Sound.BaseSound } = {};
-    private historyTitle: Phaser.GameObjects.Text | null = null;
 
     constructor() {
         super('StartScene');
@@ -3376,17 +3375,14 @@ class StartScene extends Phaser.Scene {
         const border = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8);
         border.setStrokeStyle(3, 0xfbbf24).setFillStyle(0x000000, 0).setScrollFactor(0);
 
-        // Title - Create only once and reuse
-        if (!this.historyTitle) {
-            this.historyTitle = this.add.text(width / 2, height * 0.15, 'GAME HISTORY', {
-                fontSize: '32px',
-                fontFamily: 'Arial, sans-serif',
-                color: '#fbbf24',
-                fontStyle: 'bold',
-                align: 'center'
-            }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(101);
-        }
-        this.historyTitle.setVisible(true);
+        // Title
+        const historyTitle = this.add.text(width / 2, height * 0.15, 'GAME HISTORY', {
+            fontSize: '32px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#fbbf24',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(101);
 
         // Create HTML video element
         const videoWidth = width * 0.7;
@@ -3428,7 +3424,7 @@ class StartScene extends Phaser.Scene {
             border.destroy();
             closeBtn.destroy();
             closeText.destroy();
-            // Note: historyTitle is NOT destroyed so it persists on screen
+            historyTitle.destroy();
         };
 
         closeBtn.setInteractive().on('pointerdown', () => {
