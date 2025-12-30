@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Loader2 } from "lucide-react";
+import aberturaSound from "@assets/Abertura_1767113066246.mp3";
 
 declare global {
   interface Window {
@@ -18,6 +19,15 @@ export default function Home() {
   const checkConnection = () => {
     setIsConnected(true);
   };
+
+  useEffect(() => {
+    // Play opening sound on mount
+    const audio = new Audio(aberturaSound);
+    audio.volume = 0.7;
+    audio.play().catch(() => {
+      // Silently handle if autoplay is blocked
+    });
+  }, []);
 
   useEffect(() => {
     if (isConnected) {
