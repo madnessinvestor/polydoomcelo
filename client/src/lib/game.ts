@@ -1686,13 +1686,11 @@ class MainScene extends Phaser.Scene {
                         let bossScore = 20 * Math.pow(5, this.currentWave - 1);
                         if (this.hasScoreBoost) bossScore *= 2;
                         this.score += bossScore;
-                        this.checkLevelUp();
                     } else {
                         // Standard score increase by 1 per enemy
                         let gainedScore = 1;
                         if (this.hasScoreBoost) gainedScore *= 2;
                         this.score += gainedScore;
-                        this.checkLevelUp();
                     }
 
                     // Level progression logic based on standard threshold
