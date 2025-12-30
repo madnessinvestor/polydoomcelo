@@ -1714,17 +1714,66 @@ class MainScene extends Phaser.Scene {
                         this.kiarc = this.maxKiarc;
                         
                         this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
-                        this.cameras.main.flash(500, 0, 255, 0);
                         
-        const levelUpText = this.add.text(this.player.x, this.player.y - 100, `Level Up\n${this.levelTitle}`, {
-            fontSize: '48px',
-            color: '#4ade80',
+                        // Powerful camera effects
+                        this.cameras.main.flash(800, 0, 255, 100);
+                        this.cameras.main.shake(600, 0.1);
+                        
+                        // Knockback all nearby enemies
+                        const knockbackRadius = 400;
+                        const knockbackForce = 1500;
+                        this.enemies.getChildren().forEach((e) => {
+                            const enemy = e as Phaser.Physics.Arcade.Sprite;
+                            if (enemy.active && enemy.body) {
+                                const dx = enemy.x - this.player.x;
+                                const dy = enemy.y - this.player.y;
+                                const distance = Math.sqrt(dx * dx + dy * dy);
+                                
+                                if (distance < knockbackRadius) {
+                                    const angle = Math.atan2(dy, dx);
+                                    const force = knockbackForce * (1 - (distance / knockbackRadius)); // Force decreases with distance
+                                    enemy.setVelocity(
+                                        Math.cos(angle) * force,
+                                        Math.sin(angle) * force - 500 // Extra upward force
+                                    );
+                                    
+                                    // Visual hit effect on enemy
+                                    enemy.setTint(0xffff00);
+                                    this.time.delayedCall(150, () => {
+                                        if (enemy.active) {
+                                            if (enemy.getData('isBoss')) {
+                                                enemy.setTint(0xff0000);
+                                            } else {
+                                                enemy.clearTint();
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                        
+                        // Create expanding shockwave effect
+                        const shockwave = this.add.circle(this.player.x, this.player.y, 20, 0x4ade80, 0.6);
+                        shockwave.setDepth(5);
+                        this.tweens.add({
+                            targets: shockwave,
+                            radius: knockbackRadius,
+                            alpha: 0,
+                            duration: 500,
+                            ease: 'Quad.easeOut',
+                            onComplete: () => shockwave.destroy()
+                        });
+                        
+        const levelUpText = this.add.text(this.player.x, this.player.y - 100, `LEVEL UP!\n${this.levelTitle}`, {
+            fontSize: '56px',
+            color: '#ffdd00',
             fontStyle: 'bold',
             stroke: '#000',
-            strokeThickness: 8,
+            strokeThickness: 10,
             align: 'center',
-            fontFamily: '"Courier New", Courier, monospace'
-        }).setOrigin(0.5).setScrollFactor(1);
+            fontFamily: '"Courier New", Courier, monospace',
+            shadow: { offsetX: 3, offsetY: 3, color: '#000000', blur: 5, fill: true }
+        }).setOrigin(0.5).setScrollFactor(1).setScale(0.5);
 
                         // Update to follow player
                         const updateFollow = () => {
@@ -1736,14 +1785,15 @@ class MainScene extends Phaser.Scene {
                         };
                         this.events.on('update', updateFollow);
                         
-                        // Pulse animation relative to current position
+                        // Powerful pulse animation with scale in
                         this.tweens.add({
                             targets: levelUpText,
+                            scale: 1.3,
                             scaleY: 1.5,
                             alpha: 0,
-                            y: '-=80',
-                            duration: 1500,
-                            ease: 'Quad.easeOut',
+                            y: '-=100',
+                            duration: 2000,
+                            ease: 'Cubic.easeOut',
                             onComplete: () => {
                                 levelUpText.destroy();
                                 this.events.off('update', updateFollow);
