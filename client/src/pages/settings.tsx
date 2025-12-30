@@ -62,10 +62,11 @@ export default function Settings() {
   const applyMusicVolume = (volume: number) => {
     if (window.game && (window.game.sound as any).sounds) {
       const sounds = (window.game.sound as any).sounds || [];
-      const musicKey = sounds.find((sound: any) => sound.key?.includes("music"));
-      if (musicKey) {
-        musicKey.volume = volume / 100;
-      }
+      sounds.forEach((sound: any) => {
+        if (sound.key?.includes("music")) {
+          sound.volume = volume / 100;
+        }
+      });
     }
   };
 
