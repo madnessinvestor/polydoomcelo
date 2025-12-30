@@ -344,6 +344,17 @@ class MainScene extends Phaser.Scene {
 
         this.physics.add.collider(this.player, platforms);
 
+        // Inicializar level se foi passado via data (Doom Mode)
+        const data = this.scene.settings.data as any;
+        if (data?.doomMode) {
+            this.level = data.level || 1;
+            const stats = (this as any).levelStats[this.level - 1] || (this as any).levelStats[0];
+            this.health = stats.hp;
+            this.maxHealth = stats.hp;
+            this.maxKiarc = stats.ki;
+            this.levelTitle = (this as any).levelTitles[this.level - 1] || 'Arc Divine';
+        }
+
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.keys = this.input.keyboard!.addKeys('Z,X,C,V,B,F');
 
