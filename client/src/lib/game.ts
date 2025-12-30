@@ -1766,8 +1766,8 @@ class MainScene extends Phaser.Scene {
                             }
                         });
                         
-                        // Create expanding shockwave effect
-                        const shockwave = this.add.circle(this.player.x, this.player.y, 20, 0x4ade80, 0.6);
+                        // Create expanding shockwave effect (Yellow)
+                        const shockwave = this.add.circle(this.player.x, this.player.y, 20, 0xffdd00, 0.6);
                         shockwave.setDepth(5);
                         this.tweens.add({
                             targets: shockwave,
@@ -1845,7 +1845,7 @@ class MainScene extends Phaser.Scene {
 
     // Mega Man style explosion effect
     private createExplosion(x: number, y: number) {
-        const colors = [0xffffff, 0x4ade80, 0x60a5fa];
+        const colors = [0xffffff, 0xffdd00, 0x60a5fa];
         const particles = 12;
 
         for (let i = 0; i < particles; i++) {
@@ -1935,7 +1935,7 @@ class MainScene extends Phaser.Scene {
         const bounds = this.pickupNotification.getBounds();
         this.pickupNotificationBg.clear();
         this.pickupNotificationBg.fillStyle(0x000000, 0.8);
-        this.pickupNotificationBg.lineStyle(1, 0x4ade80, 1);
+        this.pickupNotificationBg.lineStyle(1, 0xffdd00, 1);
         this.pickupNotificationBg.fillRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
         this.pickupNotificationBg.strokeRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
         this.pickupNotificationBg.setVisible(true);
@@ -2376,7 +2376,7 @@ class MainScene extends Phaser.Scene {
                 const bounds = this.pickupNotification.getBounds();
                 this.pickupNotificationBg.clear();
                 this.pickupNotificationBg.fillStyle(0x000000, 0.8);
-                this.pickupNotificationBg.lineStyle(2, 0x4ade80, 1);
+                this.pickupNotificationBg.lineStyle(2, 0xffdd00, 1);
                 this.pickupNotificationBg.fillRoundedRect(bounds.x - 8, bounds.y - 4, bounds.width + 16, bounds.height + 8, 6);
                 this.pickupNotificationBg.strokeRoundedRect(bounds.x - 8, bounds.y - 4, bounds.width + 16, bounds.height + 8, 6);
             }
