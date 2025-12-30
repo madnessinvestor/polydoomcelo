@@ -327,7 +327,7 @@ class MainScene extends Phaser.Scene {
         this.physics.add.collider(this.player, platforms);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
-        this.keys = this.input.keyboard!.addKeys('Z,X,C,V,B');
+        this.keys = this.input.keyboard!.addKeys('Z,X,C,V,B,D');
 
         // Enhanced HUD
         const hudScale = Math.max(1, width / 800);
@@ -1040,6 +1040,15 @@ class MainScene extends Phaser.Scene {
 
         // Check for double-click dash on arrow keys
         this.checkDoubleClickDash(time);
+
+        // KiArc Explosion (Key D)
+        if (Phaser.Input.Keyboard.JustDown(this.keys.D)) {
+            if (this.kiarc >= 100) {
+                this.kiarc -= 100;
+                this.useKiArcExplosion();
+                this.updateHUD();
+            }
+        }
 
         // Horizontal movement
         if (!this.isDashing) {
@@ -2267,11 +2276,94 @@ class MainScene extends Phaser.Scene {
         });
     }
 
+    private useKiArcExplosion() {
+        const explosionRadius = 300;
+        
+        // Efeito visual da explosão
+        const circle = this.add.circle(this.player.x, this.player.y, 10, 0x00ffff, 0.5);
+        this.tweens.add({
+            targets: circle,
+            radius: explosionRadius,
+            alpha: 0,
+            duration: 500,
+            onComplete: () => circle.destroy()
+        });
+
+        // Flash de luz
+        const flash = this.add.graphics();
+        flash.fillStyle(0xffffff, 0.8);
+        flash.fillCircle(this.player.x, this.player.y, explosionRadius);
+        this.tweens.add({
+            targets: flash,
+            alpha: 0,
+            duration: 200,
+            onComplete: () => flash.destroy()
+        });
+
+        // Aplicar dano e knockback em todos os inimigos próximos
+        this.enemies.getChildren().forEach((e: any) => {
+            const enemy = e as Phaser.Physics.Arcade.Sprite;
+            if (enemy.active) {
+                const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+                if (dist <= explosionRadius) {
+                    // Dano de 10
+                    let enemyHealth = enemy.getData('health') || 0;
+                    enemy.setData('health', enemyHealth - 10);
+
+                    // Jogar para longe
+                    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+                    const knockbackForce = 1500;
+                    enemy.setVelocity(Math.cos(angle) * knockbackForce, Math.sin(angle) * knockbackForce);
+                    
+                    // Marcar como sendo repelido para não causar dano ao colidir com o player durante o trajeto
+                    enemy.setData('isBeingKnockedBack', true);
+                    this.time.delayedCall(800, () => {
+                        if (enemy.active) {
+                            enemy.setData('isBeingKnockedBack', false);
+                        }
+                    });
+
+                    if (enemy.getData('health') <= 0) {
+                        this.killEnemy(enemy);
+                    }
+                }
+            }
+        });
+    }
+
+    private killEnemy(enemy: Phaser.Physics.Arcade.Sprite) {
+        if (!enemy.active) return;
+        
+        const behavior = enemy.getData('behavior');
+        const points = enemy.getData('scorePoints') || 10;
+        
+        this.score += Math.floor(points * (this.hasScoreBoost ? 2 : 1));
+        this.enemiesDefeated++;
+        this.updateHUD();
+
+        // Efeito de explosão
+        this.createExplosion(enemy.x, enemy.y);
+        
+        // Remover da memória
+        if (behavior === 'shield' || behavior === 'knockback' || behavior === 'elite_hybrid') {
+            const graphics = this.bossGraphicsMap.get(enemy);
+            if (graphics) {
+                graphics.destroy();
+                this.bossGraphicsMap.delete(enemy);
+            }
+        }
+        
+        enemy.destroy();
+    }
+
     private handlePlayerEnemyCollision(obj1: any, obj2: any) {
         if (this.isGameOver || this.isWaveInterval || this.isInvincible) return;
         const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
         if (!enemy || !enemy.active) return;
         
+        // Se o inimigo estiver sendo repelido (knockback), não dá dano no player
+        if (enemy.getData('isBeingKnockedBack')) return;
+
         const behavior = enemy.getData('behavior');
         
         // Shield Sentinel: 90% resistance to punch, vulnerable to magic
