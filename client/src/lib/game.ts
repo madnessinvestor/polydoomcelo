@@ -271,21 +271,25 @@ class MainScene extends Phaser.Scene {
     }
 
     init(data: any) {
-        if (data.doomMode) {
-            this.level = data.level || 1;
-            this.currentWave = 1;
-            this.score = 0;
-            this.enemiesDefeated = 0;
-            this.totalEnemiesBeforeWave = 0;
-            
-            // Resetar status baseados no level mantido
-            const stats = this.levelStats[this.level - 1] || this.levelStats[0];
-            this.health = stats.hp;
-            this.maxHealth = stats.hp;
-            this.kiarc = 0; // Começa sem Ki
-            this.maxKiarc = stats.ki;
-            this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
-        }
+        // Reset to Level 1 for normal game start
+        this.level = data.level || 1;
+        this.currentWave = 1;
+        this.score = 0;
+        this.enemiesDefeated = 0;
+        this.totalEnemiesBeforeWave = 0;
+        this.isGameOver = false;
+        
+        // Reset status based on level
+        const stats = this.levelStats[this.level - 1] || this.levelStats[0];
+        this.health = stats.hp;
+        this.maxHealth = stats.hp;
+        this.kiarc = 0; // Start with 0 Ki
+        this.maxKiarc = stats.ki;
+        this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
+        this.hasPowerBoost = false;
+        this.hasScoreBoost = false;
+        this.isInvincible = false;
+        this.activeBuffs.clear();
     }
 
     // Sound assets
@@ -3011,7 +3015,7 @@ class StartScene extends Phaser.Scene {
 
         startBtn.setInteractive().on('pointerdown', () => {
             this.sfx['menu_button']?.play();
-            this.scene.switch('MainScene');
+            this.scene.start('MainScene');
         }).on('pointerover', () => {
             startBtn.setFillStyle(0x22c55e);
         }).on('pointerout', () => {
