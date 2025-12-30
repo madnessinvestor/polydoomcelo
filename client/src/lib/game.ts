@@ -2194,9 +2194,9 @@ class MainScene extends Phaser.Scene {
             
             const levelTitles = [
                 'Arc Initiate', 'Arc Novice', 'Arc Apprentice', 'Arc Adept', 'Arc Mage',
-                'Arc Master', 'Arc Grandmaster', 'Arc Sage', 'Arc Archon', 'Arc Legend'
+                'Arc Master', 'Arc Grandmaster', 'Arc Sage', 'Arc Archon', 'Arc Divine'
             ];
-            this.levelTitle = levelTitles[this.level - 1] || 'Arc Legend';
+            this.levelTitle = levelTitles[this.level - 1] || 'Arc Divine';
             
             this.updateHUD();
             this.updatePlayerVisual();
