@@ -125,6 +125,8 @@ class MainScene extends Phaser.Scene {
     ];
     private currentMusicIndex: number = 0;
     private currentMusic: Phaser.Sound.BaseSound | null = null;
+    private openingMusic: Phaser.Sound.BaseSound | null = null;
+    private isInGamemode: boolean = false;
 
     constructor() {
         super('MainScene');
@@ -299,6 +301,9 @@ class MainScene extends Phaser.Scene {
         this.load.audio('music_2', this.musicTracks[2]);
         this.load.audio('music_3', this.musicTracks[3]);
 
+        // Load Opening Music
+        this.load.audio('opening_music', '/attached_assets/Abertura_1767113066246.mp3');
+
         // Load SFX
         this.load.audio('genkidama_charge', '/attached_assets/ArcGenkiDama_(Carregando)_1767105766842.mp3');
         this.load.audio('genkidama_launch', '/attached_assets/ArcGenkiDama_(Lançando)_1767105766844.mp3');
@@ -389,19 +394,23 @@ class MainScene extends Phaser.Scene {
         // Inicializar level se foi passado via data (Doom Mode)
         const data = this.scene.settings.data as any;
         if (data?.doomMode) {
+            this.isInGamemode = true;
+            this.stopOpeningMusic();
             this.level = data.level || 1;
             const stats = (this as any).levelStats[this.level - 1] || (this as any).levelStats[0];
             this.health = stats.hp;
             this.maxHealth = stats.hp;
             this.maxKiarc = stats.ki;
             this.levelTitle = (this as any).levelTitles[this.level - 1] || 'Arc Divine';
+            // Start game music when in doom mode
+            this.playNextMusic();
+        } else {
+            // Play opening music when in menu mode
+            this.playOpeningMusic();
         }
 
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.keys = this.input.keyboard!.addKeys('Z,X,C,V,B,F');
-
-        // Start music loop
-        this.playNextMusic();
 
         // Enhanced HUD
         const hudScale = Math.max(1, width / 800);
@@ -2851,6 +2860,34 @@ class MainScene extends Phaser.Scene {
             const buffContainer = this.add.container(x + 20, 20, [iconBg, hitArea]);
             this.buffIconsContainer.add(buffContainer);
         });
+    }
+
+    private playOpeningMusic() {
+        if (this.openingMusic && this.openingMusic.isPlaying) {
+            return;
+        }
+        
+        this.openingMusic = this.sound.add('opening_music', { loop: true });
+        this.openingMusic.play();
+    }
+
+    private stopOpeningMusic() {
+        if (this.openingMusic) {
+            this.openingMusic.stop();
+            this.openingMusic = null;
+        }
+    }
+
+    public pauseOpeningMusic() {
+        if (this.openingMusic && this.openingMusic.isPlaying) {
+            this.openingMusic.pause();
+        }
+    }
+
+    public resumeOpeningMusic() {
+        if (this.openingMusic && this.openingMusic.isPaused) {
+            this.openingMusic.resume();
+        }
     }
 
     private playNextMusic() {
