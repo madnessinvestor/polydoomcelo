@@ -290,6 +290,10 @@ class MainScene extends Phaser.Scene {
         this.hasScoreBoost = false;
         this.isInvincible = false;
         this.activeBuffs.clear();
+        
+        // Reset UI labels for fresh game
+        this.hpLabel = null as any;
+        this.kiLabel = null as any;
     }
 
     // Sound assets
@@ -485,6 +489,18 @@ class MainScene extends Phaser.Scene {
             backgroundColor: '#000000',
             padding: { x: 12, y: 6 }
         }).setScrollFactor(0).setDepth(2002).setVisible(false);
+
+        // Event listener for scene shutdown - clean up labels
+        this.events.once('shutdown', () => {
+            if (this.hpLabel && this.hpLabel.active) {
+                this.hpLabel.destroy();
+            }
+            if (this.kiLabel && this.kiLabel.active) {
+                this.kiLabel.destroy();
+            }
+            this.hpLabel = null as any;
+            this.kiLabel = null as any;
+        });
 
         this.updateHUD();
 
