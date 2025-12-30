@@ -20,6 +20,10 @@ class MainScene extends Phaser.Scene {
     private genkidamaChargeAmount: number = 0;
     private genkidamaText: Phaser.GameObjects.Text | null = null;
     private genkidamaPercentText: Phaser.GameObjects.Text | null = null;
+    private isChargingKamehameha: boolean = false;
+    private kamehamehaChargeTime: number = 0;
+    private kamehamehaText: Phaser.GameObjects.Text | null = null;
+    private kamehamehaChargeBar: Phaser.GameObjects.Graphics | null = null;
 
     // Wave system variables
     private currentWave: number = 1;
@@ -1038,8 +1042,12 @@ class MainScene extends Phaser.Scene {
             this.shootMagic();
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.keys.V) && this.kiarc >= (this.maxKiarc * 0.5) && !this.keys.B.isDown) {
-            this.shootArcamehameha();
+        if (this.keys.V.isDown && this.kiarc >= (this.maxKiarc * 0.5) && !this.keys.B.isDown && !this.isChargingKamehameha) {
+            this.startKamehamehaCharge();
+        }
+
+        if (this.isChargingKamehameha) {
+            this.updateKamehamehaCharge();
         }
 
         // Handle ArcGenkiDama (B Key)
@@ -1231,6 +1239,100 @@ class MainScene extends Phaser.Scene {
         } else {
             this.player.setTint(0x4ade80);
         }
+    }
+
+    private startKamehamehaCharge() {
+        this.isChargingKamehameha = true;
+        this.kamehamehaChargeTime = 0;
+        this.player.setVelocity(0, 0);
+        
+        this.kamehamehaText = this.add.text(this.player.x, this.player.y - 40, 'Arc.....', {
+            fontSize: '18px',
+            color: '#add8e6',
+            fontStyle: 'bold',
+            stroke: '#000',
+            strokeThickness: 4,
+            fontFamily: '"Courier New", Courier, monospace'
+        }).setOrigin(0.5);
+
+        this.kamehamehaChargeBar = this.add.graphics();
+    }
+
+    private updateKamehamehaCharge() {
+        if (!this.keys.V.isDown) {
+            this.cancelKamehameha();
+            return;
+        }
+
+        this.kamehamehaChargeTime += this.game.loop.delta;
+        this.player.setVelocity(0, 0);
+        
+        const progress = Math.min(this.kamehamehaChargeTime / 2000, 1);
+        
+        if (this.kamehamehaText) {
+            this.kamehamehaText.setPosition(this.player.x, this.player.y - 40);
+        }
+
+        if (this.kamehamehaChargeBar) {
+            this.kamehamehaChargeBar.clear();
+            const barWidth = 60;
+            const barHeight = 6;
+            this.kamehamehaChargeBar.fillStyle(0x000000, 0.5);
+            this.kamehamehaChargeBar.fillRect(this.player.x - barWidth/2, this.player.y - 60, barWidth, barHeight);
+            this.kamehamehaChargeBar.fillStyle(0x00ffff, 1);
+            this.kamehamehaChargeBar.fillRect(this.player.x - barWidth/2, this.player.y - 60, barWidth * progress, barHeight);
+        }
+
+        // Visual charging effect
+        if (this.time.now % 100 < 20) {
+            const particle = this.add.circle(this.player.x + Phaser.Math.Between(-30, 30), this.player.y + Phaser.Math.Between(-30, 30), 3, 0x00ffff, 0.8);
+            this.tweens.add({
+                targets: particle,
+                x: this.player.x,
+                y: this.player.y,
+                scale: 0.1,
+                alpha: 0,
+                duration: 300,
+                onComplete: () => particle.destroy()
+            });
+        }
+
+        if (progress >= 1) {
+            this.finishKamehameha();
+        }
+    }
+
+    private cancelKamehameha() {
+        this.isChargingKamehameha = false;
+        if (this.kamehamehaText) this.kamehamehaText.destroy();
+        if (this.kamehamehaChargeBar) this.kamehamehaChargeBar.clear();
+        this.kamehamehaText = null;
+        this.kamehamehaChargeBar = null;
+    }
+
+    private finishKamehameha() {
+        this.isChargingKamehameha = false;
+        if (this.kamehamehaText) {
+            this.kamehamehaText.setText('Arc...... Kamehamehaaaaa!!!!');
+            this.kamehamehaText.setColor('#ffffff');
+            this.kamehamehaText.setFontSize(24);
+            
+            this.tweens.add({
+                targets: this.kamehamehaText,
+                y: this.kamehamehaText.y - 50,
+                alpha: 0,
+                duration: 1000,
+                onComplete: () => {
+                    if (this.kamehamehaText) this.kamehamehaText.destroy();
+                }
+            });
+        }
+        if (this.kamehamehaChargeBar) {
+            this.kamehamehaChargeBar.clear();
+            this.kamehamehaChargeBar = null;
+        }
+        
+        this.shootArcamehameha();
     }
 
     shootArcamehameha() {
