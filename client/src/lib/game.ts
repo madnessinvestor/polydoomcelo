@@ -322,6 +322,7 @@ class MainScene extends Phaser.Scene {
         this.load.audio('explosion_ki', '/attached_assets/Explosion_KiArc_1767105910641.mp3');
         this.load.audio('item_pickup', '/attached_assets/Pegando_Item_1767106047757.mp3');
         this.load.audio('punch', '/attached_assets/Punch_1767106076988.mp3');
+        this.load.audio('magic', '/attached_assets/Magic_1767118141807.mp3');
         this.load.audio('menu_button', '/attached_assets/Som_do_Botão_Start_Game_Leaderboard_e_History_1767106107861.ogg');
         this.load.audio('close_button', '/attached_assets/Som_do_Botão_Close_1767106125480.ogg');
     }
@@ -333,7 +334,7 @@ class MainScene extends Phaser.Scene {
         // Initialize SFX
         const sfxKeys = [
             'genkidama_charge', 'genkidama_launch', 'kamehameha_charge', 'kamehameha_launch',
-            'charge_ki', 'dash', 'explosion_ki', 'item_pickup', 'punch',
+            'charge_ki', 'dash', 'explosion_ki', 'item_pickup', 'punch', 'magic',
             'menu_button', 'close_button'
         ];
         sfxKeys.forEach(key => {
@@ -1704,6 +1705,10 @@ class MainScene extends Phaser.Scene {
         const magicDamage = stats.magic;
         
         this.kiarc -= 20;
+        
+        // Play magic sound effect
+        this.sfx['magic']?.play();
+        
         const magic = this.add.circle(this.player.x, this.player.y, 15, 0xffdd00);
         this.physics.add.existing(magic);
         const body = magic.body as Phaser.Physics.Arcade.Body;
