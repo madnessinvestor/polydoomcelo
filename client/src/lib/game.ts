@@ -48,10 +48,10 @@ class MainScene extends Phaser.Scene {
         { id: 'hover_mage', name: 'Hover Mage', sides: 6, color: 0x4ade80, behavior: 'fly', scale: 1.1 },
         { id: 'pouncer', name: 'Pouncer', sides: 3, color: 0x4ade80, behavior: 'jump', scale: 0.8, inverted: true },
         { id: 'knockback_brute', name: 'Knockback Brute', sides: 4, color: 0x4ade80, behavior: 'knockback', scale: 1.5, ratio: 1.5 },
-        { id: 'blink_stalker', name: 'Blink Stalker', sides: 8, color: 0x4ade80, behavior: 'teleport', scale: 0.8 },
-        { id: 'split_core', name: 'Split Core', sides: 8, color: 0x4ade80, behavior: 'split', scale: 1.2 },
+        { id: 'blink_stalker', name: 'Blink Stalker', sides: 8, color: 0x4ade80, behavior: 'teleport_bomb', scale: 0.8 },
+        { id: 'split_core', name: 'Split Core', sides: 8, color: 0x4ade80, behavior: 'split_hybrid', scale: 1.2 },
         { id: 'shield_sentinel', name: 'Shield Sentinel', sides: 4, color: 0x4ade80, behavior: 'shield', scale: 1.3, doubleBorder: true },
-        { id: 'arc_phantom', name: 'Arc Phantom', sides: 10, color: 0x4ade80, behavior: 'elite', scale: 1.8 }
+        { id: 'arc_phantom', name: 'Arc Phantom', sides: 10, color: 0x4ade80, behavior: 'elite_hybrid', scale: 1.8 }
     ];
 
     private waveConfigs = [
@@ -1073,22 +1073,72 @@ class MainScene extends Phaser.Scene {
         this.enemies.getChildren().forEach((e: any) => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
             if (enemy.active && this.player.active) {
-                const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
-                const enemySpeed = enemy.getData('speed') || 100;
-                
                 const behavior = enemy.getData('behavior');
-                if (behavior === 'fly' || behavior === 'teleport' || behavior === 'elite') {
-                    enemy.setVelocity(
-                        Math.cos(angle) * enemySpeed,
-                        Math.sin(angle) * enemySpeed
-                    );
-                } else {
-                    // Standard ground pursuit
-                    if (enemy.x < this.player.x) {
-                        enemy.setVelocityX(enemySpeed);
-                    } else {
-                        enemy.setVelocityX(-enemySpeed);
-                    }
+                const enemySpeed = enemy.getData('speed') || 100;
+                const dist = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+                const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+
+                // Common Melee logic: All enemies attack melee if close
+                if (dist < 40) {
+                    this.enemyMeleeAttack(enemy);
+                }
+
+                switch (behavior) {
+                    case 'charge':
+                        if (!enemy.getData('isDashing') && dist < 300) {
+                            this.enemyDashAttack(enemy);
+                        } else if (!enemy.getData('isDashing')) {
+                            enemy.setVelocity(Math.cos(angle) * enemySpeed, Math.sin(angle) * enemySpeed);
+                        }
+                        break;
+                    case 'ranged':
+                        if (dist > 250) {
+                            enemy.setVelocity(Math.cos(angle) * enemySpeed, Math.sin(angle) * enemySpeed);
+                        } else {
+                            enemy.setVelocity(0, 0);
+                            this.enemyShootMagic(enemy);
+                        }
+                        break;
+                    case 'fly':
+                        // Hover Mage: Shoots continuous beam and dodges
+                        this.enemyContinuousBeam(enemy);
+                        this.enemyDodgeBehavior(enemy);
+                        enemy.setVelocity(Math.cos(angle) * enemySpeed, Math.sin(angle) * enemySpeed);
+                        break;
+                    case 'jump':
+                        if (!enemy.getData('isJumping') && dist < 200) {
+                            this.enemyJumpAttack(enemy);
+                        } else if (!enemy.getData('isJumping')) {
+                            enemy.setVelocity(Math.cos(angle) * enemySpeed, Math.sin(angle) * enemySpeed);
+                        }
+                        break;
+                    case 'teleport_bomb':
+                        if (dist < 50) {
+                            this.enemyExplode(enemy);
+                        } else {
+                            enemy.setVelocity(Math.cos(angle) * enemySpeed, Math.sin(angle) * enemySpeed);
+                        }
+                        break;
+                    case 'split_hybrid':
+                        if (dist < 200) {
+                            this.enemyShootArrow(enemy);
+                        }
+                        enemy.setVelocity(Math.cos(angle) * enemySpeed, Math.sin(angle) * enemySpeed);
+                        break;
+                    case 'elite_hybrid':
+                        this.enemyEliteBehavior(enemy);
+                        enemy.setVelocity(Math.cos(angle) * enemySpeed, Math.sin(angle) * enemySpeed);
+                        break;
+                    default:
+                        if (behavior === 'fly' || behavior === 'teleport' || behavior === 'elite') {
+                            enemy.setVelocity(Math.cos(angle) * enemySpeed, Math.sin(angle) * enemySpeed);
+                        } else {
+                            if (enemy.x < this.player.x) {
+                                enemy.setVelocityX(enemySpeed);
+                            } else {
+                                enemy.setVelocityX(-enemySpeed);
+                            }
+                        }
                 }
             }
         });
@@ -2218,12 +2268,36 @@ class MainScene extends Phaser.Scene {
     private handlePlayerEnemyCollision(obj1: any, obj2: any) {
         if (this.isGameOver || this.isWaveInterval || this.isInvincible) return;
         const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
+        const behavior = enemy.getData('behavior');
         
+        // Shield Sentinel: 90% resistance to punch, vulnerable to magic
+        let incomingDamageMult = 1;
+        if (behavior === 'shield' && !this.isUsingMagic()) {
+            incomingDamageMult = 0.1;
+        }
+
+        // Arc Phantom (Elite): 80% magic resistance
+        if (behavior === 'elite_hybrid' && this.isUsingMagic()) {
+            incomingDamageMult = 0.2;
+        }
+
         // Get resistance from current level stats
         const stats = this.levelStats[this.level - 1];
         const resMultiplier = 1 - (stats.res || 0);
         
-        const baseDamage = enemy.getData('damage') !== undefined ? enemy.getData('damage') : 0.01;
+        let baseDamage = enemy.getData('damage') !== undefined ? enemy.getData('damage') : 0.01;
+        
+        // Charger Ram: Dash damage = 10% of player damage
+        if (behavior === 'charge' && enemy.getData('isDashing')) {
+            baseDamage = (stats.punch || 10) * 0.1;
+        }
+
+        // Knockback Brute: Punch x4 if it hits
+        if (behavior === 'knockback') {
+            baseDamage *= 4;
+            this.applyKnockbackToPlayer(enemy);
+        }
+
         const finalDamage = baseDamage * resMultiplier;
         
         this.health -= finalDamage;
@@ -2255,6 +2329,100 @@ class MainScene extends Phaser.Scene {
                 this.scene.restart();
             });
         }
+    }
+
+    private applyKnockbackToPlayer(enemy: Phaser.Physics.Arcade.Sprite) {
+        const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        const force = 500;
+        this.player.setVelocity(Math.cos(angle) * force, Math.sin(angle) * force);
+    }
+
+    private isUsingMagic(): boolean {
+        return this.keys.C.isDown || this.keys.V.isDown || this.keys.B.isDown;
+    }
+
+    private enemyMeleeAttack(enemy: Phaser.Physics.Arcade.Sprite) {
+        if (this.time.now < (enemy.getData('lastMeleeTime') || 0) + 1000) return;
+        enemy.setData('lastMeleeTime', this.time.now);
+        // Visual feedback for melee attack
+        this.tweens.add({
+            targets: enemy,
+            scale: 1.2,
+            duration: 100,
+            yoyo: true
+        });
+    }
+
+    private enemyDashAttack(enemy: Phaser.Physics.Arcade.Sprite) {
+        enemy.setData('isDashing', true);
+        const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        enemy.setVelocity(Math.cos(angle) * 600, Math.sin(angle) * 600);
+        this.time.delayedCall(500, () => {
+            if (enemy.active) {
+                enemy.setData('isDashing', false);
+                enemy.setVelocity(0, 0);
+            }
+        });
+    }
+
+    private enemyShootMagic(enemy: Phaser.Physics.Arcade.Sprite) {
+        if (this.time.now < (enemy.getData('lastShotTime') || 0) + 2000) return;
+        enemy.setData('lastShotTime', this.time.now);
+        const projectile = this.add.circle(enemy.x, enemy.y, 8, 0x4ade80);
+        this.physics.add.existing(projectile);
+        const body = projectile.body as Phaser.Physics.Arcade.Body;
+        body.setAllowGravity(false);
+        const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        body.setVelocity(Math.cos(angle) * 200, Math.sin(angle) * 200);
+        this.physics.add.overlap(this.player, projectile, () => {
+            if (!this.isInvincible) this.health -= enemy.getData('damage');
+            projectile.destroy();
+        });
+        this.time.delayedCall(3000, () => projectile.destroy());
+    }
+
+    private enemyContinuousBeam(enemy: Phaser.Physics.Arcade.Sprite) {
+        const graphics = this.add.graphics();
+        graphics.lineStyle(2, 0x4ade80, 0.5);
+        graphics.lineBetween(enemy.x, enemy.y, this.player.x, this.player.y);
+        this.time.delayedCall(100, () => graphics.destroy());
+    }
+
+    private enemyDodgeBehavior(enemy: Phaser.Physics.Arcade.Sprite) {
+        if (Math.random() < 0.05) {
+            enemy.setVelocity(Phaser.Math.Between(-200, 200), Phaser.Math.Between(-200, 200));
+        }
+    }
+
+    private enemyJumpAttack(enemy: Phaser.Physics.Arcade.Sprite) {
+        enemy.setData('isJumping', true);
+        enemy.setVelocityY(-400);
+        const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        enemy.setVelocityX(Math.cos(angle) * 300);
+        this.time.delayedCall(1000, () => enemy.setData('isJumping', false));
+    }
+
+    private enemyExplode(enemy: Phaser.Physics.Arcade.Sprite) {
+        this.createExplosion(enemy.x, enemy.y);
+        const dist = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        if (dist < 100 && !this.isInvincible) {
+            this.health -= enemy.getData('damage') * 5;
+            // Teleport player
+            this.player.setPosition(Phaser.Math.Between(100, 700), Phaser.Math.Between(100, 500));
+        }
+        enemy.destroy();
+    }
+
+    private enemyShootArrow(enemy: Phaser.Physics.Arcade.Sprite) {
+        if (this.time.now < (enemy.getData('lastArrowTime') || 0) + 3000) return;
+        enemy.setData('lastArrowTime', this.time.now);
+        // Simple arrow projectile
+    }
+
+    private enemyEliteBehavior(enemy: Phaser.Physics.Arcade.Sprite) {
+        // Combination of attacks
+        if (Math.random() < 0.01) this.enemyShootMagic(enemy);
+        if (Math.random() < 0.01) this.enemyContinuousBeam(enemy);
     }
 
     updatePlayerVisual() {
