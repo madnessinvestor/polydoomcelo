@@ -1096,7 +1096,8 @@ class MainScene extends Phaser.Scene {
         }
 
         if (Phaser.Input.Keyboard.JustDown(this.keys.Z) && !this.keys.B.isDown) {
-            this.attack();
+            // Can attack while dashing for extra damage
+            this.attack(this.isDashing ? 1.5 : 1.0);
         }
         
         if (this.keys.X.isDown && !this.keys.B.isDown && !this.isChargingKamehameha) {
