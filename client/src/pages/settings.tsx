@@ -28,6 +28,10 @@ export default function Settings() {
     if (savedSfx) setSfxVolume(parseInt(savedSfx));
   }, []);
 
+  const handleVolumeChange = (e: React.PointerEvent) => {
+    e.stopPropagation();
+  };
+
   const updateVolume = (type: "master" | "music" | "sfx", value: number) => {
     if (type === "master") {
       setMasterVolume(value);
@@ -94,7 +98,7 @@ export default function Settings() {
         </CardHeader>
         <CardContent className="pt-8 space-y-8">
           {/* Master Volume */}
-          <div className="space-y-3">
+          <div className="space-y-3" onPointerDown={handleVolumeChange}>
             <div className="flex justify-between items-center">
               <label className="text-white font-semibold">Master Volume</label>
               <span className="text-amber-400 font-bold text-lg">{masterVolume}%</span>
@@ -105,13 +109,13 @@ export default function Settings() {
               max={100}
               min={0}
               step={1}
-              className="w-full"
+              className="w-full pointer-events-auto"
               data-testid="slider-master-volume"
             />
           </div>
 
           {/* Music Volume */}
-          <div className="space-y-3">
+          <div className="space-y-3" onPointerDown={handleVolumeChange}>
             <div className="flex justify-between items-center">
               <label className="text-white font-semibold">Background Music Volume</label>
               <span className="text-amber-400 font-bold text-lg">{musicVolume}%</span>
@@ -122,13 +126,13 @@ export default function Settings() {
               max={100}
               min={0}
               step={1}
-              className="w-full"
+              className="w-full pointer-events-auto"
               data-testid="slider-music-volume"
             />
           </div>
 
           {/* SFX Volume */}
-          <div className="space-y-3">
+          <div className="space-y-3" onPointerDown={handleVolumeChange}>
             <div className="flex justify-between items-center">
               <label className="text-white font-semibold">Effects Volume</label>
               <span className="text-amber-400 font-bold text-lg">{sfxVolume}%</span>
@@ -139,7 +143,7 @@ export default function Settings() {
               max={100}
               min={0}
               step={1}
-              className="w-full"
+              className="w-full pointer-events-auto"
               data-testid="slider-sfx-volume"
             />
           </div>
