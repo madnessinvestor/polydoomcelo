@@ -1313,22 +1313,36 @@ class MainScene extends Phaser.Scene {
     }
 
     private finishKamehameha() {
+        if (!this.isChargingKamehameha) return;
         this.isChargingKamehameha = false;
-        if (this.kamehamehaText) {
-            this.kamehamehaText.setText('Arc...... Kamehamehaaaaa!!!!');
-            this.kamehamehaText.setColor('#ffffff');
-            this.kamehamehaText.setFontSize(24);
-            
-            this.tweens.add({
-                targets: this.kamehamehaText,
-                y: this.kamehamehaText.y - 50,
-                alpha: 0,
-                duration: 1000,
-                onComplete: () => {
-                    if (this.kamehamehaText) this.kamehamehaText.destroy();
+        
+        if (this.kamehamehaText && this.kamehamehaText.active) {
+            try {
+                this.kamehamehaText.setText('Arc...... Kamehamehaaaaa!!!!');
+                this.kamehamehaText.setColor('#ffffff');
+                this.kamehamehaText.setFontSize(24);
+                
+                this.tweens.add({
+                    targets: this.kamehamehaText,
+                    y: this.kamehamehaText.y - 50,
+                    alpha: 0,
+                    duration: 1000,
+                    onComplete: () => {
+                        if (this.kamehamehaText && this.kamehamehaText.active) {
+                            this.kamehamehaText.destroy();
+                            this.kamehamehaText = null;
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error updating kamehameha text:', e);
+                if (this.kamehamehaText) {
+                    this.kamehamehaText.destroy();
+                    this.kamehamehaText = null;
                 }
-            });
+            }
         }
+        
         if (this.kamehamehaChargeBar) {
             this.kamehamehaChargeBar.clear();
             this.kamehamehaChargeBar = null;
