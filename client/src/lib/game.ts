@@ -3657,10 +3657,14 @@ class DeathScene extends Phaser.Scene {
             });
 
             if (response.ok) {
+                // Stop all sounds before transitioning
+                this.sound.stopAll();
                 this.scene.start('StartScene');
             }
         } catch (error) {
             console.error('Failed to submit score:', error);
+            // Stop all sounds before transitioning
+            this.sound.stopAll();
             this.scene.start('StartScene');
         }
     }
