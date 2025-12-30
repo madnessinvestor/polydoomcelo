@@ -1067,7 +1067,7 @@ class MainScene extends Phaser.Scene {
         if (this.spawnEvent) this.spawnEvent.destroy();
         
         // 30-second interval
-        this.time.delayedCall(30000, () => {
+        this.waveTimerEvent = this.time.delayedCall(30000, () => {
             if (this.isGameOver) return;
             this.currentWave++;
             this.startWave();
