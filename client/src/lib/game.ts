@@ -3071,6 +3071,9 @@ class MainScene extends Phaser.Scene {
         if (this.spawnEvent) {
             this.spawnEvent.paused = true;
         }
+        if (this.intervalTimerEvent) {
+            this.intervalTimerEvent.paused = true;
+        }
         
         // Notify React to show pause modal
         if ((window as any).showPauseModal) {
@@ -3097,6 +3100,9 @@ class MainScene extends Phaser.Scene {
         }
         if (this.spawnEvent) {
             this.spawnEvent.paused = false;
+        }
+        if (this.intervalTimerEvent) {
+            this.intervalTimerEvent.paused = false;
         }
         
         // Notify React to hide pause modal
