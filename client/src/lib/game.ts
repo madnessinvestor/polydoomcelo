@@ -854,9 +854,11 @@ class MainScene extends Phaser.Scene {
         enemy.setData('behavior', typeInfo.behavior);
         
         const waveMultiplier = 1 + (this.currentWave - 1) * 0.2;
-        const isElite = typeInfo.behavior === 'elite';
+        const isElite = typeInfo.behavior === 'elite_hybrid';
         
-        enemy.setData('health', (isElite ? 200 : 20) * waveMultiplier * extraHpMult);
+        const health = (isElite ? 200 : 20) * waveMultiplier * extraHpMult;
+        enemy.setData('health', health);
+        enemy.setData('maxHealth', health);
         enemy.setData('damage', (isElite ? 0.2 : 0.05) * waveMultiplier * extraDamageMult);
         enemy.setData('sides', typeInfo.sides);
         enemy.setData('color', typeInfo.color);
@@ -877,6 +879,16 @@ class MainScene extends Phaser.Scene {
                 graphics.x = enemy.x;
                 graphics.y = enemy.y;
                 this.drawEnemyShape(graphics, typeInfo, size);
+                
+                // Low health pulse for enemies
+                const hp = enemy.getData('health');
+                const maxHp = enemy.getData('maxHealth');
+                if (hp < maxHp * 0.1) {
+                    const pulse = Math.sin(this.time.now / 100) * 0.5 + 0.5;
+                    graphics.setAlpha(pulse);
+                } else {
+                    graphics.setAlpha(1);
+                }
             } else {
                 graphics.destroy();
                 this.events.off('update', updateGraphics);
@@ -1043,6 +1055,14 @@ class MainScene extends Phaser.Scene {
 
         // Horizontal movement
         if (!this.isDashing) {
+            // Low health pulse effect
+            if (this.health < this.maxHealth * 0.1) {
+                const pulse = Math.sin(this.time.now / 100) * 0.5 + 0.5;
+                this.player.setAlpha(pulse);
+            } else {
+                this.player.setAlpha(1);
+            }
+
             if (this.cursors.left.isDown && !this.keys.B.isDown) {
                 this.player.setVelocityX(-currentSpeed);
                 this.player.flipX = true;
