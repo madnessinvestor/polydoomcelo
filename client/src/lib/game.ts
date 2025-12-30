@@ -89,15 +89,15 @@ class MainScene extends Phaser.Scene {
     // Level stats configuration
     private levelStats = [
         { lvl: 1, hp: 300, ki: 100, mult: 1.0, punch: 10, magic: 10, kame: 30, res: 0.00, score: 0 },
-        { lvl: 2, hp: 420, ki: 140, mult: 1.4, punch: 20, magic: 15, kame: 50, res: 0.03, score: 50 },
-        { lvl: 3, hp: 600, ki: 200, mult: 1.8, punch: 30, magic: 20, kame: 60, res: 0.06, score: 200 },
-        { lvl: 4, hp: 850, ki: 280, mult: 2.2, punch: 40, magic: 25, kame: 80, res: 0.10, score: 500 },
-        { lvl: 5, hp: 1200, ki: 380, mult: 3.0, punch: 50, magic: 30, kame: 100, res: 0.15, score: 1000 },
-        { lvl: 6, hp: 1700, ki: 520, mult: 3.4, punch: 60, magic: 40, kame: 120, res: 0.20, score: 2000 },
-        { lvl: 7, hp: 2300, ki: 700, mult: 4.0, punch: 70, magic: 45, kame: 140, res: 0.25, score: 4000 },
-        { lvl: 8, hp: 3100, ki: 950, mult: 4.5, punch: 80, magic: 50, kame: 160, res: 0.30, score: 8000 },
-        { lvl: 9, hp: 4000, ki: 1300, mult: 5.0, punch: 100, magic: 100, kame: 200, res: 0.35, score: 20000 },
-        { lvl: 10, hp: 8000, ki: 3000, mult: 6.0, punch: 200, magic: 200, kame: 400, res: 0.40, score: 1000000000 }
+        { lvl: 2, hp: 420, ki: 140, mult: 1.4, punch: 20, magic: 15, kame: 50, res: 0.03, score: 1 },
+        { lvl: 3, hp: 600, ki: 200, mult: 1.8, punch: 30, magic: 20, kame: 60, res: 0.06, score: 2 },
+        { lvl: 4, hp: 850, ki: 280, mult: 2.2, punch: 40, magic: 25, kame: 80, res: 0.10, score: 3 },
+        { lvl: 5, hp: 1200, ki: 380, mult: 3.0, punch: 50, magic: 30, kame: 100, res: 0.15, score: 4 },
+        { lvl: 6, hp: 1700, ki: 520, mult: 3.4, punch: 60, magic: 40, kame: 120, res: 0.20, score: 5 },
+        { lvl: 7, hp: 2300, ki: 700, mult: 4.0, punch: 70, magic: 45, kame: 140, res: 0.25, score: 6 },
+        { lvl: 8, hp: 3100, ki: 950, mult: 4.5, punch: 80, magic: 50, kame: 160, res: 0.30, score: 7 },
+        { lvl: 9, hp: 4000, ki: 1300, mult: 5.0, punch: 100, magic: 100, kame: 200, res: 0.35, score: 8 },
+        { lvl: 10, hp: 8000, ki: 3000, mult: 6.0, punch: 200, magic: 200, kame: 400, res: 0.40, score: 9 }
     ];
 
     private levelTitles = [
@@ -2059,14 +2059,20 @@ class MainScene extends Phaser.Scene {
 
         switch (type) {
             case 'ArcHP':
+                // Aumenta o HP máximo e cura
+                this.maxHealth += 50;
                 this.health = Math.min(this.maxHealth, this.health + this.maxHealth * 0.3);
                 this.cameras.main.flash(200, 0, 255, 0, true);
-                this.showPickupNotification('ArcHP', 'Recupera 30% de Vida.');
+                this.showPickupNotification('ArcHP', 'Aumenta HP Máximo e recupera 30%.');
+                this.checkLevelUp();
                 break;
             case 'ArcKI':
+                // Aumenta o KI máximo e recupera
+                this.maxKiarc += 20;
                 this.kiarc = Math.min(this.maxKiarc, this.kiarc + this.maxKiarc * 0.4);
                 this.cameras.main.flash(200, 0, 0, 255, true);
-                this.showPickupNotification('ArcKI', 'Recupera 40% de Energia (KI).');
+                this.showPickupNotification('ArcKI', 'Aumenta KI Máximo e recupera 40%.');
+                this.checkLevelUp();
                 break;
             case 'ArcPower':
                 this.hasPowerBoost = true;
@@ -2455,26 +2461,20 @@ class MainScene extends Phaser.Scene {
     private checkLevelUp() {
         if (this.level >= 10) return;
         
-        // Determinar o level correto baseado estritamente no score atual
+        // O level é determinado pelo HP máximo e KI máximo atuais
+        // Procuramos na tabela qual o maior level cujos requisitos de HP e KI o jogador atende
         let targetLevel = 1;
         for (let i = 0; i < this.levelStats.length; i++) {
-            if (this.score >= this.levelStats[i].score) {
+            if (this.maxHealth >= this.levelStats[i].hp && this.maxKiarc >= this.levelStats[i].ki) {
                 targetLevel = this.levelStats[i].lvl;
             } else {
                 break;
             }
         }
 
-        // Sincronizar o level se houver divergência
         if (targetLevel !== this.level) {
             this.level = targetLevel;
             const stats = this.levelStats[this.level - 1];
-            
-            // Update stats
-            this.maxHealth = stats.hp;
-            this.health = this.maxHealth;
-            this.maxKiarc = stats.ki;
-            this.kiarc = this.maxKiarc;
             
             // Visual feedback
             this.cameras.main.flash(500, 255, 255, 0);
@@ -2482,7 +2482,6 @@ class MainScene extends Phaser.Scene {
             
             this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
 
-            // Floating text for level sync
             this.updateHUD();
             this.updatePlayerVisual();
         }
