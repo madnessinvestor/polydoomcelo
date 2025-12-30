@@ -405,8 +405,10 @@ class MainScene extends Phaser.Scene {
             // Start game music when in doom mode
             this.playNextMusic();
         } else {
-            // Play opening music when in menu mode
-            this.playOpeningMusic();
+            // Play game music (tracks 0-3) when starting normal game
+            this.isInGamemode = true;
+            this.stopOpeningMusic();
+            this.playNextMusic();
         }
 
         this.cursors = this.input.keyboard!.createCursorKeys();
@@ -2871,7 +2873,7 @@ class MainScene extends Phaser.Scene {
         this.openingMusic.play();
     }
 
-    private stopOpeningMusic() {
+    public stopOpeningMusic() {
         if (this.openingMusic) {
             this.openingMusic.stop();
             this.openingMusic = null;
@@ -3003,6 +3005,11 @@ class StartScene extends Phaser.Scene {
 
         startBtn.setInteractive().on('pointerdown', () => {
             this.sfx['menu_button']?.play();
+            // Stop opening music before starting game
+            const mainScene = this.scene.get('MainScene') as MainScene;
+            if (mainScene) {
+                mainScene.stopOpeningMusic();
+            }
             this.scene.start('MainScene');
         }).on('pointerover', () => {
             startBtn.setFillStyle(0x22c55e);
