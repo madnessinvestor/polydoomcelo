@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Loader2 } from "lucide-react";
-import { useAudio } from "@/lib/audioContext";
 
 declare global {
   interface Window {
@@ -15,22 +14,10 @@ declare global {
 export default function Home() {
   const [isConnected, setIsConnected] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
-  const { playOpening, pauseOpening, resumeOpening } = useAudio();
 
   const checkConnection = () => {
     setIsConnected(true);
   };
-
-  useEffect(() => {
-    // Play opening sound on mount
-    playOpening();
-  }, [playOpening]);
-
-  useEffect(() => {
-    // Pass audio functions to window for game access
-    (window as any).pauseOpening = pauseOpening;
-    (window as any).resumeOpening = resumeOpening;
-  }, [pauseOpening, resumeOpening]);
 
   useEffect(() => {
     if (isConnected) {

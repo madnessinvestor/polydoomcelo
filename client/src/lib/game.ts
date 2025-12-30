@@ -2975,10 +2975,6 @@ class StartScene extends Phaser.Scene {
             this.sfx['menu_close'] = this.sound.add('menu_close');
         }
 
-        // Resume opening music from global audio context
-        if ((window as any).resumeOpening) {
-            (window as any).resumeOpening();
-        }
 
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
@@ -3015,14 +3011,6 @@ class StartScene extends Phaser.Scene {
 
         startBtn.setInteractive().on('pointerdown', () => {
             this.sfx['menu_button']?.play();
-            // Stop opening music before starting game
-            if (this.openingMusic) {
-                this.openingMusic.stop();
-                this.openingMusic = null;
-            }
-            if ((window as any).pauseOpening) {
-                (window as any).pauseOpening();
-            }
             this.scene.start('MainScene');
         }).on('pointerover', () => {
             startBtn.setFillStyle(0x22c55e);
@@ -3181,9 +3169,6 @@ class StartScene extends Phaser.Scene {
             border.destroy();
             closeBtn.destroy();
             closeText.destroy();
-            if ((window as any).resumeOpening) {
-                (window as any).resumeOpening();
-            }
         };
 
         closeBtn.setInteractive().on('pointerdown', () => {
@@ -3439,20 +3424,6 @@ class StartScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(102);
 
-        // Pause opening music when video starts
-        videoElement.addEventListener('play', () => {
-            if ((window as any).pauseOpening) {
-                (window as any).pauseOpening();
-            }
-        });
-
-        // Resume opening music when video pauses
-        videoElement.addEventListener('pause', () => {
-            if ((window as any).resumeOpening) {
-                (window as any).resumeOpening();
-            }
-        });
-
         const closeModal = () => {
             videoElement.pause();
             videoElement.remove();
@@ -3462,9 +3433,6 @@ class StartScene extends Phaser.Scene {
             closeBtn.destroy();
             closeText.destroy();
             historyTitle.destroy();
-            if ((window as any).resumeOpening) {
-                (window as any).resumeOpening();
-            }
         };
 
         closeBtn.setInteractive().on('pointerdown', () => {
@@ -3535,9 +3503,6 @@ class DeathScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         doomBtn.setInteractive().on('pointerdown', () => {
-            if ((window as any).pauseOpening) {
-                (window as any).pauseOpening();
-            }
             this.scene.start('MainScene', { 
                 doomMode: true,
                 level: this.finalLevel,
@@ -3581,16 +3546,10 @@ class DeathScene extends Phaser.Scene {
             });
 
             if (response.ok) {
-                if ((window as any).resumeOpening) {
-                    (window as any).resumeOpening();
-                }
                 this.scene.start('StartScene');
             }
         } catch (error) {
             console.error('Failed to submit score:', error);
-            if ((window as any).resumeOpening) {
-                (window as any).resumeOpening();
-            }
             this.scene.start('StartScene');
         }
     }
