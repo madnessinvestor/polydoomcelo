@@ -2956,6 +2956,7 @@ class MainScene extends Phaser.Scene {
 
 class StartScene extends Phaser.Scene {
     private sfx: { [key: string]: Phaser.Sound.BaseSound } = {};
+    private openingMusic: Phaser.Sound.BaseSound | null = null;
 
     constructor() {
         super('StartScene');
@@ -2968,6 +2969,14 @@ class StartScene extends Phaser.Scene {
         }
         if (this.cache.audio.exists('menu_close')) {
             this.sfx['menu_close'] = this.sound.add('menu_close');
+        }
+
+        // Play opening music on this screen
+        if (this.cache.audio.exists('opening_music')) {
+            if (!this.openingMusic || !this.openingMusic.isPlaying) {
+                this.openingMusic = this.sound.add('opening_music', { loop: true });
+                this.openingMusic.play();
+            }
         }
 
         const width = this.cameras.main.width;
@@ -3006,9 +3015,9 @@ class StartScene extends Phaser.Scene {
         startBtn.setInteractive().on('pointerdown', () => {
             this.sfx['menu_button']?.play();
             // Stop opening music before starting game
-            const mainScene = this.scene.get('MainScene') as MainScene;
-            if (mainScene) {
-                mainScene.stopOpeningMusic();
+            if (this.openingMusic) {
+                this.openingMusic.stop();
+                this.openingMusic = null;
             }
             this.scene.start('MainScene');
         }).on('pointerover', () => {
