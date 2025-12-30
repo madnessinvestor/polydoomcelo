@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Loader2 } from "lucide-react";
-import aberturaSound from "@assets/Abertura_1767113066246.mp3";
+import { useAudio } from "@/lib/audioContext";
 
 declare global {
   interface Window {
@@ -15,6 +15,7 @@ declare global {
 export default function Home() {
   const [isConnected, setIsConnected] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
+  const { playOpening, pauseOpening, resumeOpening } = useAudio();
 
   const checkConnection = () => {
     setIsConnected(true);
@@ -22,12 +23,14 @@ export default function Home() {
 
   useEffect(() => {
     // Play opening sound on mount
-    const audio = new Audio(aberturaSound);
-    audio.volume = 0.7;
-    audio.play().catch(() => {
-      // Silently handle if autoplay is blocked
-    });
-  }, []);
+    playOpening();
+  }, [playOpening]);
+
+  useEffect(() => {
+    // Pass audio functions to window for game access
+    (window as any).pauseOpening = pauseOpening;
+    (window as any).resumeOpening = resumeOpening;
+  }, [pauseOpening, resumeOpening]);
 
   useEffect(() => {
     if (isConnected) {

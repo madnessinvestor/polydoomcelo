@@ -408,6 +408,10 @@ class MainScene extends Phaser.Scene {
             // Play game music (tracks 0-3) when starting normal game
             this.isInGamemode = true;
             this.stopOpeningMusic();
+            // Pause opening music from React context
+            if ((window as any).pauseOpening) {
+                (window as any).pauseOpening();
+            }
             this.playNextMusic();
         }
 
@@ -3019,6 +3023,9 @@ class StartScene extends Phaser.Scene {
                 this.openingMusic.stop();
                 this.openingMusic = null;
             }
+            if ((window as any).pauseOpening) {
+                (window as any).pauseOpening();
+            }
             this.scene.start('MainScene');
         }).on('pointerover', () => {
             startBtn.setFillStyle(0x22c55e);
@@ -3177,6 +3184,9 @@ class StartScene extends Phaser.Scene {
             border.destroy();
             closeBtn.destroy();
             closeText.destroy();
+            if ((window as any).resumeOpening) {
+                (window as any).resumeOpening();
+            }
         };
 
         closeBtn.setInteractive().on('pointerdown', () => {
@@ -3432,6 +3442,20 @@ class StartScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(102);
 
+        // Pause opening music when video starts
+        videoElement.addEventListener('play', () => {
+            if ((window as any).pauseOpening) {
+                (window as any).pauseOpening();
+            }
+        });
+
+        // Resume opening music when video pauses
+        videoElement.addEventListener('pause', () => {
+            if ((window as any).resumeOpening) {
+                (window as any).resumeOpening();
+            }
+        });
+
         const closeModal = () => {
             videoElement.pause();
             videoElement.remove();
@@ -3441,6 +3465,9 @@ class StartScene extends Phaser.Scene {
             closeBtn.destroy();
             closeText.destroy();
             historyTitle.destroy();
+            if ((window as any).resumeOpening) {
+                (window as any).resumeOpening();
+            }
         };
 
         closeBtn.setInteractive().on('pointerdown', () => {

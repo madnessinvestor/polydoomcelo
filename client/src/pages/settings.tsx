@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { ArrowLeft } from "lucide-react";
+import { useAudio } from "@/lib/audioContext";
 
 declare global {
   interface Window {
@@ -16,6 +17,7 @@ export default function Settings() {
   const [masterVolume, setMasterVolume] = useState(100);
   const [musicVolume, setMusicVolume] = useState(100);
   const [sfxVolume, setSfxVolume] = useState(100);
+  const { setOpeningVolume } = useAudio();
 
   useEffect(() => {
     // Load saved settings from localStorage
@@ -46,6 +48,7 @@ export default function Settings() {
       setMusicVolume(value);
       localStorage.setItem("musicVolume", value.toString());
       applyMusicVolume(value);
+      setOpeningVolume(value);
     } else {
       setSfxVolume(value);
       localStorage.setItem("sfxVolume", value.toString());
