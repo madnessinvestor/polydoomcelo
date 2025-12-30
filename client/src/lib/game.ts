@@ -2270,6 +2270,8 @@ class MainScene extends Phaser.Scene {
     private handlePlayerEnemyCollision(obj1: any, obj2: any) {
         if (this.isGameOver || this.isWaveInterval || this.isInvincible) return;
         const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
+        if (!enemy || !enemy.active) return;
+        
         const behavior = enemy.getData('behavior');
         
         // Shield Sentinel: 90% resistance to punch, vulnerable to magic
@@ -2284,10 +2286,14 @@ class MainScene extends Phaser.Scene {
         }
 
         // Get resistance from current level stats
-        const stats = this.levelStats[this.level - 1];
+        const levelIndex = Math.max(0, Math.min(this.level - 1, this.levelStats.length - 1));
+        const stats = this.levelStats[levelIndex];
         const resMultiplier = 1 - (stats.res || 0);
         
-        let baseDamage = enemy.getData('damage') !== undefined ? enemy.getData('damage') : 0.01;
+        let baseDamage = enemy.getData('damage');
+        if (baseDamage === undefined || isNaN(baseDamage)) {
+            baseDamage = 0.01;
+        }
         
         // Charger Ram: Dash damage = 10% of player damage
         if (behavior === 'charge' && enemy.getData('isDashing')) {
@@ -2300,9 +2306,11 @@ class MainScene extends Phaser.Scene {
             this.applyKnockbackToPlayer(enemy);
         }
 
-        const finalDamage = baseDamage * resMultiplier;
+        const finalDamage = baseDamage * resMultiplier * incomingDamageMult;
         
-        this.health = Math.max(0, this.health - finalDamage);
+        if (!isNaN(finalDamage)) {
+            this.health = Math.max(0, this.health - finalDamage);
+        }
         
         // Efeito de piscar em vermelho semi-transparente no gráfico
         let flashColor = 0xff4444;
@@ -2373,12 +2381,15 @@ class MainScene extends Phaser.Scene {
         const projectile = this.add.circle(enemy.x, enemy.y, 8, 0x4ade80);
         this.physics.add.existing(projectile);
         const body = projectile.body as Phaser.Physics.Arcade.Body;
-        body.setAllowGravity(false);
+        if (body) body.setAllowGravity(false);
         const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
         body.setVelocity(Math.cos(angle) * 200, Math.sin(angle) * 200);
         this.physics.add.overlap(this.player, projectile, () => {
             if (!this.isInvincible) {
-                this.health = Math.max(0, this.health - enemy.getData('damage'));
+                const damage = enemy.getData('damage');
+                if (!isNaN(damage)) {
+                    this.health = Math.max(0, this.health - damage);
+                }
             }
             projectile.destroy();
         });
@@ -2410,7 +2421,10 @@ class MainScene extends Phaser.Scene {
         this.createExplosion(enemy.x, enemy.y);
         const dist = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y);
         if (dist < 100 && !this.isInvincible) {
-            this.health = Math.max(0, this.health - enemy.getData('damage') * 5);
+            const damage = enemy.getData('damage');
+            if (!isNaN(damage)) {
+                this.health = Math.max(0, this.health - damage * 5);
+            }
             // Teleport player
             this.player.setPosition(Phaser.Math.Between(100, 700), Phaser.Math.Between(100, 500));
         }
