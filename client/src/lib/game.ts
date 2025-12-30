@@ -2975,12 +2975,9 @@ class StartScene extends Phaser.Scene {
             this.sfx['menu_close'] = this.sound.add('menu_close');
         }
 
-        // Play opening music on this screen
-        if (this.cache.audio.exists('opening_music')) {
-            if (!this.openingMusic || !this.openingMusic.isPlaying) {
-                this.openingMusic = this.sound.add('opening_music', { loop: true });
-                this.openingMusic.play();
-            }
+        // Resume opening music from global audio context
+        if ((window as any).resumeOpening) {
+            (window as any).resumeOpening();
         }
 
         const width = this.cameras.main.width;
@@ -3538,6 +3535,9 @@ class DeathScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         doomBtn.setInteractive().on('pointerdown', () => {
+            if ((window as any).pauseOpening) {
+                (window as any).pauseOpening();
+            }
             this.scene.start('MainScene', { 
                 doomMode: true,
                 level: this.finalLevel,
@@ -3581,10 +3581,16 @@ class DeathScene extends Phaser.Scene {
             });
 
             if (response.ok) {
+                if ((window as any).resumeOpening) {
+                    (window as any).resumeOpening();
+                }
                 this.scene.start('StartScene');
             }
         } catch (error) {
             console.error('Failed to submit score:', error);
+            if ((window as any).resumeOpening) {
+                (window as any).resumeOpening();
+            }
             this.scene.start('StartScene');
         }
     }
