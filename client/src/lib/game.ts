@@ -2177,9 +2177,17 @@ class MainScene extends Phaser.Scene {
     private checkLevelUp() {
         if (this.level >= 10) return;
         
-        const nextLevelData = this.levelStats[this.level]; 
-        if (this.score >= nextLevelData.score) {
-            this.level++;
+        let targetLevel = 1;
+        for (let i = 0; i < this.levelStats.length; i++) {
+            if (this.score >= this.levelStats[i].score) {
+                targetLevel = this.levelStats[i].lvl;
+            } else {
+                break;
+            }
+        }
+
+        if (targetLevel > this.level) {
+            this.level = targetLevel;
             const stats = this.levelStats[this.level - 1];
             
             // Update stats
