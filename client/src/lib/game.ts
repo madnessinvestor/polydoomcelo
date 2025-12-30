@@ -2854,7 +2854,7 @@ class StartScene extends Phaser.Scene {
         }
 
         // Title
-        const title = this.add.text(width / 2, height / 3, 'ARC GAME', {
+        const title = this.add.text(width / 2, height / 3, 'POLYDOOM ARC', {
             fontSize: '72px',
             fontFamily: 'Arial, sans-serif',
             color: '#fbbf24',
