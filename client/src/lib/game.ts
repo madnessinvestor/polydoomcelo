@@ -3055,6 +3055,15 @@ class MainScene extends Phaser.Scene {
         this.pauseModalOpen = true;
         this.pausedTime = this.time.now;
         
+        // Pause physics engine
+        this.physics.pause();
+        
+        // Pause all tweens
+        this.tweens.pauseAll();
+        
+        // Pause all sounds
+        this.sound.pauseAll();
+        
         // Notify React to show pause modal
         if ((window as any).showPauseModal) {
             (window as any).showPauseModal();
@@ -3064,6 +3073,15 @@ class MainScene extends Phaser.Scene {
     private closePauseModal() {
         this.isPaused = false;
         this.pauseModalOpen = false;
+        
+        // Resume physics engine
+        this.physics.resume();
+        
+        // Resume all tweens
+        this.tweens.resumeAll();
+        
+        // Resume all sounds
+        this.sound.resumeAll();
         
         // Notify React to hide pause modal
         if ((window as any).hidePauseModal) {
