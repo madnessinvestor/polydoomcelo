@@ -37,6 +37,10 @@ export default function Home() {
           <span className="text-slate-400">Move / Jump</span>
         </div>
         <div className="flex gap-2">
+          <span className="text-white">Double-Click Arrow:</span>
+          <span className="text-slate-400">Dash</span>
+        </div>
+        <div className="flex gap-2">
           <span className="text-white">Z:</span>
           <span className="text-slate-400">Punch</span>
         </div>

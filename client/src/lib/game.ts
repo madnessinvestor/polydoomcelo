@@ -105,6 +105,15 @@ class MainScene extends Phaser.Scene {
         'Arc Master', 'Arc Grandmaster', 'Arc Sage', 'Arc Archon', 'Arc Divine'
     ];
 
+    // Double-click dash system
+    private lastKeyPressTime: { left: number, right: number, up: number, down: number } = { left: 0, right: 0, up: 0, down: 0 };
+    private doubleClickWindow: number = 300; // milliseconds
+    private dashSpeed: number = 1200;
+    private dashDuration: number = 200;
+    private isDashing: boolean = false;
+    private dashDirection: { x: number, y: number } = { x: 0, y: 0 };
+    private dashEndTime: number = 0;
+
     constructor() {
         super('MainScene');
     }
@@ -949,6 +958,44 @@ class MainScene extends Phaser.Scene {
         return baseSpeed * (1 + (level - 1) * 0.2);
     }
 
+    private checkDoubleClickDash(time: number) {
+        const checkKey = (key: Phaser.Input.Keyboard.Key, direction: string, x: number, y: number) => {
+            if (Phaser.Input.Keyboard.JustDown(key) && !this.keys.B.isDown) {
+                const timeSinceLastPress = time - this.lastKeyPressTime[direction as keyof typeof this.lastKeyPressTime];
+                
+                if (timeSinceLastPress < this.doubleClickWindow) {
+                    // Double-click detected!
+                    this.startDash(x, y);
+                }
+                
+                this.lastKeyPressTime[direction as keyof typeof this.lastKeyPressTime] = time;
+            }
+        };
+
+        checkKey(this.cursors.left, 'left', -this.dashSpeed, 0);
+        checkKey(this.cursors.right, 'right', this.dashSpeed, 0);
+        checkKey(this.cursors.up, 'up', 0, -this.dashSpeed);
+        checkKey(this.cursors.down, 'down', 0, this.dashSpeed);
+    }
+
+    private startDash(dirX: number, dirY: number) {
+        if (this.isDashing) return; // Can't dash while already dashing
+        
+        this.isDashing = true;
+        this.dashDirection = { x: dirX, y: dirY };
+        this.dashEndTime = this.time.now + this.dashDuration;
+        
+        // Visual effect: flash the player
+        const flash = this.add.circle(this.player.x, this.player.y, 30, 0xffdd00, 0.6);
+        this.tweens.add({
+            targets: flash,
+            scale: 2,
+            alpha: 0,
+            duration: this.dashDuration,
+            onComplete: () => flash.destroy()
+        });
+    }
+
     update(time: number, delta: number) {
         if (this.isGameOver) return;
 
@@ -982,27 +1029,40 @@ class MainScene extends Phaser.Scene {
             this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
         }
 
-        // Horizontal movement
-        if (this.cursors.left.isDown && !this.keys.B.isDown) {
-            this.player.setVelocityX(-currentSpeed);
-            this.player.flipX = true;
-        } else if (this.cursors.right.isDown && !this.keys.B.isDown) {
-            this.player.setVelocityX(currentSpeed);
-            this.player.flipX = false;
-        } else {
-            this.player.setVelocityX(0);
+        // Handle dash
+        if (this.isDashing && time > this.dashEndTime) {
+            this.isDashing = false;
         }
 
-        // Vertical movement (Flying/Jumping)
-        if (this.cursors.up.isDown && !this.keys.B.isDown) {
-            this.player.setVelocityY(-currentSpeed);
-        } else if (this.cursors.down.isDown && !this.keys.B.isDown) {
-            this.player.setVelocityY(currentSpeed);
-            this.player.setData('isFastFalling', true);
-        } else if (!this.player.body?.touching.down && !this.keys.B.isDown) {
-            // Optional: Slight gravity or hover effect if needed, 
-            // but the prompt implies direct control "voando para cima ou para baixo"
-            // If we want it to feel like flying, we might want to disable gravity or just let velocity work
+        // Check for double-click dash on arrow keys
+        this.checkDoubleClickDash(time);
+
+        // Horizontal movement
+        if (!this.isDashing) {
+            if (this.cursors.left.isDown && !this.keys.B.isDown) {
+                this.player.setVelocityX(-currentSpeed);
+                this.player.flipX = true;
+            } else if (this.cursors.right.isDown && !this.keys.B.isDown) {
+                this.player.setVelocityX(currentSpeed);
+                this.player.flipX = false;
+            } else {
+                this.player.setVelocityX(0);
+            }
+
+            // Vertical movement (Flying/Jumping)
+            if (this.cursors.up.isDown && !this.keys.B.isDown) {
+                this.player.setVelocityY(-currentSpeed);
+            } else if (this.cursors.down.isDown && !this.keys.B.isDown) {
+                this.player.setVelocityY(currentSpeed);
+                this.player.setData('isFastFalling', true);
+            } else if (!this.player.body?.touching.down && !this.keys.B.isDown) {
+                // Optional: Slight gravity or hover effect if needed, 
+                // but the prompt implies direct control "voando para cima ou para baixo"
+                // If we want it to feel like flying, we might want to disable gravity or just let velocity work
+            }
+        } else {
+            // Apply dash velocity
+            this.player.setVelocity(this.dashDirection.x, this.dashDirection.y);
         }
 
         // Enemy Pursuit Logic
