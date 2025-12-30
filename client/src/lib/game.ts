@@ -108,8 +108,8 @@ class MainScene extends Phaser.Scene {
     // Double-click dash system
     private lastKeyPressTime: { left: number, right: number, up: number, down: number } = { left: 0, right: 0, up: 0, down: 0 };
     private doubleClickWindow: number = 300; // milliseconds
-    private dashSpeed: number = 1200;
-    private dashDuration: number = 200;
+    private dashSpeed: number = 800;
+    private dashDuration: number = 150;
     private isDashing: boolean = false;
     private dashDirection: { x: number, y: number } = { x: 0, y: 0 };
     private dashEndTime: number = 0;
@@ -305,14 +305,15 @@ class MainScene extends Phaser.Scene {
         this.time.addEvent({
             delay: 50,
             callback: () => {
-                if (this.player.active && this.player.body && this.player.body.velocity.length() > 100) {
-                    const trail = this.add.circle(this.player.x, this.player.y, 16, 0xffd700, 0.3);
+                if (this.player.active && this.player.body && (this.player.body.velocity.length() > 100 || this.isDashing)) {
+                    const trailAlpha = this.isDashing ? 0.15 : 0.2;
+                    const trail = this.add.circle(this.player.x, this.player.y, 16, 0xffd700, trailAlpha);
                     trail.setDepth(5);
                     this.tweens.add({
                         targets: trail,
                         alpha: 0,
                         scale: 0.5,
-                        duration: 300,
+                        duration: this.isDashing ? 200 : 300,
                         onComplete: () => trail.destroy()
                     });
                 }
