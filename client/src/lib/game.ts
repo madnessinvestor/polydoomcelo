@@ -2334,9 +2334,15 @@ class MainScene extends Phaser.Scene {
             }
             this.createExplosion(this.player.x, this.player.y);
             
-            // Reset game after explosion
+            // Re-iniciar partida na Wave 1 mantendo o Level
             this.time.delayedCall(1000, () => {
-                this.scene.restart();
+                const currentLevel = this.level;
+                const currentScore = this.levelStats[currentLevel - 1].score;
+                
+                this.scene.restart({ 
+                    initialLevel: currentLevel,
+                    initialScore: currentScore
+                });
             });
         }
     }
