@@ -2962,9 +2962,21 @@ class DeathScene extends Phaser.Scene {
     }
 
     init(data: any) {
-        this.finalScore = data.score || 0;
-        this.finalLevel = data.level || 1;
-        this.finalWave = data.wave || 1;
+        if (data.doomMode) {
+            this.level = data.level || 1;
+            this.currentWave = 1;
+            this.score = 0;
+            this.enemiesDefeated = 0;
+            this.totalEnemiesBeforeWave = 0;
+            
+            // Resetar status baseados no level mantido
+            const stats = this.levelStats[this.level - 1] || this.levelStats[0];
+            this.health = stats.hp;
+            this.maxHealth = stats.hp;
+            this.kiarc = 0; // Começa sem Ki
+            this.maxKiarc = stats.ki;
+            this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
+        }
     }
 
     create() {
