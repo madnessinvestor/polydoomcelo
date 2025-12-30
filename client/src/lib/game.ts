@@ -1241,6 +1241,17 @@ class MainScene extends Phaser.Scene {
         this.kiarc -= 50;
         const beamLength = 2400;
         const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
+        
+        // Efeito visual de "carregamento" instantâneo (brilho rápido)
+        const chargeFlash = this.add.circle(this.player.x, this.player.y, 40, 0xffffff, 0.8);
+        this.tweens.add({
+            targets: chargeFlash,
+            scale: 0.1,
+            alpha: 0,
+            duration: 150,
+            onComplete: () => chargeFlash.destroy()
+        });
+
         const beam = this.add.rectangle(beamX, this.player.y, beamLength, 25, 0xffdd00, 0.7);
         this.physics.add.existing(beam);
         const body = beam.body as Phaser.Physics.Arcade.Body;
