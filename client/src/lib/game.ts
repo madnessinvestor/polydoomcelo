@@ -3318,6 +3318,10 @@ class DeathScene extends Phaser.Scene {
     parent: 'game-container',
     width: 1600,
     height: 1200,
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
     antialias: false,
     physics: {
         default: 'arcade',
