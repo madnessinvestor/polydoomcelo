@@ -1239,7 +1239,7 @@ class MainScene extends Phaser.Scene {
                     const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
                     if (dist < auraRadius) {
                         const currentHealth = enemy.getData('health');
-                        enemy.setData('health', (currentHealth || 0) - 10);
+                        enemy.setData('health', Math.max(0, (currentHealth || 0) - 10));
                         
                         // Visual feedback for aura damage
                         if (this.time.now % 500 < 20) {
@@ -1333,7 +1333,7 @@ class MainScene extends Phaser.Scene {
 
     chargeKiarc() {
         if (this.kiarc < this.maxKiarc) {
-            this.kiarc += 0.5;
+            this.kiarc = Math.min(this.maxKiarc, this.kiarc + 0.5);
             this.player.setTint(0xffffff); // Flash white when charging
 
             // Yellow energy particles effect
@@ -2300,7 +2300,7 @@ class MainScene extends Phaser.Scene {
 
         const finalDamage = baseDamage * resMultiplier;
         
-        this.health -= finalDamage;
+        this.health = Math.max(0, this.health - finalDamage);
         
         // Efeito de piscar em vermelho semi-transparente no gráfico
         let flashColor = 0xff4444;
@@ -2375,7 +2375,9 @@ class MainScene extends Phaser.Scene {
         const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
         body.setVelocity(Math.cos(angle) * 200, Math.sin(angle) * 200);
         this.physics.add.overlap(this.player, projectile, () => {
-            if (!this.isInvincible) this.health -= enemy.getData('damage');
+            if (!this.isInvincible) {
+                this.health = Math.max(0, this.health - enemy.getData('damage'));
+            }
             projectile.destroy();
         });
         this.time.delayedCall(3000, () => projectile.destroy());
@@ -2406,7 +2408,7 @@ class MainScene extends Phaser.Scene {
         this.createExplosion(enemy.x, enemy.y);
         const dist = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y);
         if (dist < 100 && !this.isInvincible) {
-            this.health -= enemy.getData('damage') * 5;
+            this.health = Math.max(0, this.health - enemy.getData('damage') * 5);
             // Teleport player
             this.player.setPosition(Phaser.Math.Between(100, 700), Phaser.Math.Between(100, 500));
         }
