@@ -306,8 +306,9 @@ class MainScene extends Phaser.Scene {
             delay: 50,
             callback: () => {
                 if (this.player.active && this.player.body && (this.player.body.velocity.length() > 100 || this.isDashing)) {
-                    const trailAlpha = this.isDashing ? 0.15 : 0.2;
-                    const trail = this.add.circle(this.player.x, this.player.y, 16, 0xffd700, trailAlpha);
+                    const trailAlpha = this.isDashing ? 0.12 : 0.16;
+                    const trailRadius = this.isDashing ? 9.6 : 16;
+                    const trail = this.add.circle(this.player.x, this.player.y, trailRadius, 0xffd700, trailAlpha);
                     trail.setDepth(5);
                     this.tweens.add({
                         targets: trail,
@@ -987,10 +988,10 @@ class MainScene extends Phaser.Scene {
         this.dashEndTime = this.time.now + this.dashDuration;
         
         // Visual effect: flash the player
-        const flash = this.add.circle(this.player.x, this.player.y, 30, 0xffdd00, 0.6);
+        const flash = this.add.circle(this.player.x, this.player.y, 18, 0xffdd00, 0.48);
         this.tweens.add({
             targets: flash,
-            scale: 2,
+            scale: 1.2,
             alpha: 0,
             duration: this.dashDuration,
             onComplete: () => flash.destroy()
