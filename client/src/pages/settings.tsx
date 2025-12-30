@@ -55,29 +55,28 @@ export default function Settings() {
 
   const applyMasterVolume = (volume: number) => {
     if (window.game) {
-      window.game.sound.volume = volume / 100;
+      const scene = window.game.scene.getScene('MainScene') as any;
+      if (scene?.setMasterVolume) {
+        scene.setMasterVolume(volume);
+      }
     }
   };
 
   const applyMusicVolume = (volume: number) => {
-    if (window.game && (window.game.sound as any).sounds) {
-      const sounds = (window.game.sound as any).sounds || [];
-      sounds.forEach((sound: any) => {
-        if (sound.key?.includes("music")) {
-          sound.volume = volume / 100;
-        }
-      });
+    if (window.game) {
+      const scene = window.game.scene.getScene('MainScene') as any;
+      if (scene?.setMusicVolume) {
+        scene.setMusicVolume(volume);
+      }
     }
   };
 
   const applySfxVolume = (volume: number) => {
-    if (window.game && (window.game.sound as any).sounds) {
-      const sounds = (window.game.sound as any).sounds || [];
-      sounds.forEach((sound: any) => {
-        if (!sound.key?.includes("music")) {
-          sound.volume = volume / 100;
-        }
-      });
+    if (window.game) {
+      const scene = window.game.scene.getScene('MainScene') as any;
+      if (scene?.setSfxVolume) {
+        scene.setSfxVolume(volume);
+      }
     }
   };
 

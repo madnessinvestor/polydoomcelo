@@ -127,6 +127,11 @@ class MainScene extends Phaser.Scene {
     private currentMusic: Phaser.Sound.BaseSound | null = null;
     private openingMusic: Phaser.Sound.BaseSound | null = null;
     private isInGamemode: boolean = false;
+    
+    // Volume control
+    private masterVolume: number = 1.0;
+    private musicVolume: number = 1.0;
+    private sfxVolume: number = 1.0;
 
     constructor() {
         super('MainScene');
@@ -294,6 +299,11 @@ class MainScene extends Phaser.Scene {
         // Reset UI labels for fresh game
         this.hpLabel = null as any;
         this.kiLabel = null as any;
+        
+        // Load volume settings from localStorage
+        this.masterVolume = (parseInt(localStorage.getItem('masterVolume') || '100')) / 100;
+        this.musicVolume = (parseInt(localStorage.getItem('musicVolume') || '100')) / 100;
+        this.sfxVolume = (parseInt(localStorage.getItem('sfxVolume') || '100')) / 100;
     }
 
     // Sound assets
@@ -1706,8 +1716,12 @@ class MainScene extends Phaser.Scene {
         
         this.kiarc -= 20;
         
-        // Play magic sound effect
-        this.sfx['magic']?.play();
+        // Play magic sound effect with proper volume
+        const sound = this.sfx['magic'];
+        if (sound) {
+            (sound as any).setVolume(this.masterVolume * this.sfxVolume);
+            sound.play();
+        }
         
         const magic = this.add.circle(this.player.x, this.player.y, 15, 0xffdd00);
         this.physics.add.existing(magic);
@@ -2899,7 +2913,7 @@ class MainScene extends Phaser.Scene {
         }
         
         this.openingMusic = this.sound.add('opening_music', { loop: true });
-        (this.openingMusic as any).setVolume(0.7); // Set volume to 70%
+        (this.openingMusic as any).setVolume(0.7 * this.musicVolume);
         this.openingMusic.play();
     }
 
@@ -2931,7 +2945,8 @@ class MainScene extends Phaser.Scene {
         // Play current track
         const trackKey = `music_${this.currentMusicIndex}`;
         this.currentMusic = this.sound.add(trackKey);
-        (this.currentMusic as any).setVolume(0.7); // Set volume to 70%
+        // Apply base volume (0.7) multiplied by music volume setting
+        (this.currentMusic as any).setVolume(0.7 * this.musicVolume);
         
         // When music ends, play next track
         this.currentMusic.once('complete', () => {
@@ -2971,6 +2986,43 @@ class MainScene extends Phaser.Scene {
             this.tooltipContainer.x = x - width - 20;
         }
         this.tooltipContainer.setVisible(true);
+    }
+
+    // Public volume control methods
+    public setMasterVolume(value: number) {
+        this.masterVolume = Math.max(0, Math.min(1, value / 100));
+        // Apply to all sounds
+        Object.values(this.sfx).forEach(sound => {
+            if (sound && (sound as any).setVolume) {
+                (sound as any).setVolume(this.masterVolume * this.sfxVolume);
+            }
+        });
+        if (this.currentMusic && (this.currentMusic as any).setVolume) {
+            (this.currentMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+        }
+        if (this.openingMusic && (this.openingMusic as any).setVolume) {
+            (this.openingMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+        }
+    }
+
+    public setMusicVolume(value: number) {
+        this.musicVolume = Math.max(0, Math.min(1, value / 100));
+        if (this.currentMusic && (this.currentMusic as any).setVolume) {
+            (this.currentMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+        }
+        if (this.openingMusic && (this.openingMusic as any).setVolume) {
+            (this.openingMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+        }
+    }
+
+    public setSfxVolume(value: number) {
+        this.sfxVolume = Math.max(0, Math.min(1, value / 100));
+        // Apply to all SFX sounds
+        Object.values(this.sfx).forEach(sound => {
+            if (sound && (sound as any).setVolume) {
+                (sound as any).setVolume(this.masterVolume * this.sfxVolume);
+            }
+        });
     }
 
     private kiLabel!: Phaser.GameObjects.Text;
@@ -3332,19 +3384,21 @@ class StartScene extends Phaser.Scene {
             const value = parseInt(masterSlider.value);
             localStorage.setItem('masterVolume', value.toString());
             document.getElementById('master-value')!.textContent = value + '%';
-            this.sound.volume = value / 100;
+            this.setMasterVolume(value);
         };
 
         const updateMusic = () => {
             const value = parseInt(musicSlider.value);
             localStorage.setItem('musicVolume', value.toString());
             document.getElementById('music-value')!.textContent = value + '%';
+            this.setMusicVolume(value);
         };
 
         const updateSfx = () => {
             const value = parseInt(sfxSlider.value);
             localStorage.setItem('sfxVolume', value.toString());
             document.getElementById('sfx-value')!.textContent = value + '%';
+            this.setSfxVolume(value);
         };
 
         if (masterSlider) {
