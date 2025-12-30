@@ -107,6 +107,8 @@ class MainScene extends Phaser.Scene {
 
     // Double-click dash system
     private lastKeyPressTime: { left: number, right: number, up: number, down: number } = { left: 0, right: 0, up: 0, down: 0 };
+    private punchTimer: number = 0;
+    private punchInterval: number = 200; // ms between punches when held
     private doubleClickWindow: number = 300; // milliseconds
     private dashSpeed: number = 800;
     private dashDuration: number = 150;
@@ -1097,9 +1099,13 @@ class MainScene extends Phaser.Scene {
             this.player.setData('isFastFalling', false);
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.keys.Z) && !this.keys.B.isDown) {
-            // Can attack while dashing for extra damage
-            this.attack(this.isDashing ? 1.5 : 1.0);
+        // Handle punching
+        if (this.keys.Z.isDown && !this.keys.B.isDown) {
+            if (time > this.punchTimer) {
+                // Can attack while dashing for extra damage
+                this.attack(this.isDashing ? 1.5 : 1.0);
+                this.punchTimer = time + this.punchInterval;
+            }
         }
         
         if (this.keys.X.isDown && !this.keys.B.isDown && !this.isChargingKamehameha) {
@@ -1453,9 +1459,9 @@ class MainScene extends Phaser.Scene {
         });
     }
 
-    attack() {
+    attack(damageMultiplier: number = 1.0) {
         const stats = this.levelStats[this.level - 1];
-        const damageMultiplier = stats.mult;
+        const baseMultiplier = stats.mult;
         const punchDamage = stats.punch;
         
         const punchX = this.player.flipX ? this.player.x - 20 : this.player.x + 20;
@@ -1466,7 +1472,7 @@ class MainScene extends Phaser.Scene {
         
         targets.forEach(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
-            this.hitEnemy(enemy, punchDamage * damageMultiplier);
+            this.hitEnemy(enemy, punchDamage * baseMultiplier * damageMultiplier);
             
             // Efeito visual de soco tipo RPG (pequeno, amarelo, impacto com brilho)
             const flash = this.add.circle(enemy.x, enemy.y, 10, 0xffdd00, 0.4);
