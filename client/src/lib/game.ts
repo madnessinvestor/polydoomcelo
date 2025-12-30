@@ -307,7 +307,6 @@ class MainScene extends Phaser.Scene {
         this.load.audio('charge_ki', '/attached_assets/Charge_KiArc_1767105879554.mp3');
         this.load.audio('dash', '/attached_assets/Dash_1767105889490.mp3');
         this.load.audio('explosion_ki', '/attached_assets/Explosion_KiArc_1767105910641.mp3');
-        this.load.audio('magic', '/attached_assets/Magic_1767105928624.mp3');
         this.load.audio('item_pickup', '/attached_assets/Pegando_Item_1767106047757.mp3');
         this.load.audio('punch', '/attached_assets/Punch_1767106076988.mp3');
         this.load.audio('menu_button', '/attached_assets/Som_do_Botão_Start_Game_Leaderboard_e_History_1767106107861.ogg');
@@ -321,7 +320,7 @@ class MainScene extends Phaser.Scene {
         // Initialize SFX
         const sfxKeys = [
             'genkidama_charge', 'genkidama_launch', 'kamehameha_charge', 'kamehameha_launch',
-            'charge_ki', 'dash', 'explosion_ki', 'magic', 'item_pickup', 'punch',
+            'charge_ki', 'dash', 'explosion_ki', 'item_pickup', 'punch',
             'menu_button', 'close_button'
         ];
         sfxKeys.forEach(key => {
@@ -2925,8 +2924,12 @@ class StartScene extends Phaser.Scene {
 
     create() {
         // Load sounds if not already available (usually preloaded in PreloadScene)
-        this.sfx['menu_button'] = this.sound.add('menu_button');
-        this.sfx['menu_close'] = this.sound.add('menu_close');
+        if (this.cache.audio.exists('menu_button')) {
+            this.sfx['menu_button'] = this.sound.add('menu_button');
+        }
+        if (this.cache.audio.exists('menu_close')) {
+            this.sfx['menu_close'] = this.sound.add('menu_close');
+        }
 
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
