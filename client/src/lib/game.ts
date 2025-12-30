@@ -2272,23 +2272,6 @@ class MainScene extends Phaser.Scene {
             this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
 
             // Floating text for level sync
-            const syncText = this.add.text(this.player.x, this.player.y - 80, `LEVEL: ${this.levelTitle}`, {
-                fontSize: '28px',
-                color: '#fbbf24',
-                fontStyle: 'bold',
-                stroke: '#000',
-                strokeThickness: 6,
-                fontFamily: '"Courier New", Courier, monospace'
-            }).setOrigin(0.5);
-
-            this.tweens.add({
-                targets: syncText,
-                y: syncText.y - 60,
-                alpha: 0,
-                duration: 2000,
-                onComplete: () => syncText.destroy()
-            });
-            
             this.updateHUD();
             this.updatePlayerVisual();
         }
