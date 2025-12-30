@@ -1120,9 +1120,6 @@ class MainScene extends Phaser.Scene {
                     const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
                     if (dist < auraRadius) {
                         const currentHealth = enemy.getData('health');
-                        // Aura damage also scales? The prompt didn't specify, keeping it 10 or scaling with multi?
-                        // User said "Poder ao redor do personagem que dá dano nos inimigos 10 de dano" in previous prompt.
-                        // I'll keep it at 10 as specified or scale it if it feels right. User didn't ask to scale aura damage here.
                         enemy.setData('health', (currentHealth || 0) - 10);
                         
                         // Visual feedback for aura damage
@@ -1156,7 +1153,7 @@ class MainScene extends Phaser.Scene {
     }
 
     handleGroundImpact() {
-        // Multiplicador de nível baseado na solicitação do usuário
+        // Multiplicador de level baseado na solicitação do usuário
         const levelMultipliers: { [key: number]: number } = {
             1: 0.05,
             2: 0.08,
@@ -1172,10 +1169,10 @@ class MainScene extends Phaser.Scene {
         
         const multiplier = levelMultipliers[this.level] || (this.level > 10 ? 1.0 : 0.05);
 
-        // Efeito visual de tremor na câmera proporcional ao nível
+        // Efeito visual de tremor na câmera proporcional ao level
         this.cameras.main.shake(400, 0.04 * multiplier);
         
-        // Círculo de impacto visual proporcional ao nível
+        // Círculo de impacto visual proporcional ao level
         const baseRadius = 400;
         const currentRadius = baseRadius * multiplier;
         const impactCircle = this.add.circle(this.player.x, this.player.y + 16, 20, 0xffdd00, 0.24);
@@ -1187,7 +1184,7 @@ class MainScene extends Phaser.Scene {
             onComplete: () => impactCircle.destroy()
         });
 
-        // Afastar inimigos próximos com força proporcional ao nível
+        // Afastar inimigos próximos com força proporcional ao level
         const impactRadius = currentRadius;
         this.enemies.getChildren().forEach(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
@@ -1199,7 +1196,7 @@ class MainScene extends Phaser.Scene {
                 // Calcular direção da força
                 const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
                 
-                // Multiplicador de força proporcional ao nível
+                // Multiplicador de força proporcional ao level
                 const baseForceMultiplier = 15;
                 const force = (impactRadius - distance) * baseForceMultiplier;
                 
@@ -2182,7 +2179,7 @@ class MainScene extends Phaser.Scene {
     private checkLevelUp() {
         if (this.level >= 10) return;
         
-        // Determinar o nível correto baseado estritamente no score atual
+        // Determinar o level correto baseado estritamente no score atual
         let targetLevel = 1;
         for (let i = 0; i < this.levelStats.length; i++) {
             if (this.score >= this.levelStats[i].score) {
@@ -2192,7 +2189,7 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        // Sincronizar o nível se houver divergência
+        // Sincronizar o level se houver divergência
         if (targetLevel !== this.level) {
             this.level = targetLevel;
             const stats = this.levelStats[this.level - 1];
