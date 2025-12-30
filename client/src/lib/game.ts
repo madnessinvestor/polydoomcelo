@@ -2930,14 +2930,15 @@ class StartScene extends Phaser.Scene {
         const videoY = height / 2 - videoHeight / 2;
 
         const videoElement = document.createElement('video');
-        videoElement.src = '/attached_assets/Video_de_Inicio_do_Game_1767065892191.mp4';
+        videoElement.src = '/attached_assets/gamehistory_1767067604123.mp4';
         videoElement.width = Math.floor(videoWidth);
         videoElement.height = Math.floor(videoHeight);
         videoElement.controls = true;
         videoElement.autoplay = true;
         videoElement.style.position = 'absolute';
-        videoElement.style.left = Math.floor(videoX) + 'px';
-        videoElement.style.top = Math.floor(videoY) + 'px';
+        videoElement.style.left = '50%';
+        videoElement.style.top = '50%';
+        videoElement.style.transform = 'translate(-50%, -50%)';
         videoElement.style.zIndex = '101';
         videoElement.style.backgroundColor = '#1a1a2e';
         videoElement.style.border = '2px solid #4ade80';
