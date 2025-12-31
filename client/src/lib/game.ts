@@ -3596,18 +3596,17 @@ class StartScene extends Phaser.Scene {
             leaderboardContainer.innerHTML = content;
         };
 
+        leaderboardContainer.innerHTML = '<p style="text-align: center; color: #fbbf24;">Carregando dados on-chain...</p>';
+        
         fetchOnChainLeaderboard().then(onChainScores => {
-            if (onChainScores && onChainScores.length > 0) {
+            if (onChainScores) {
                 renderLeaderboard(onChainScores);
             } else {
-                // Fallback to local API
-                fetch('/api/leaderboard')
-                    .then(res => res.json())
-                    .then(renderLeaderboard)
-                    .catch(err => {
-                        leaderboardContainer.innerHTML = '<p>Erro ao carregar leaderboard</p>';
-                    });
+                leaderboardContainer.innerHTML = '<p style="text-align: center; color: #ff6b6b;">Erro ao carregar leaderboard on-chain. Verifique sua conexão de carteira.</p>';
             }
+        }).catch(err => {
+            console.error('Erro crítico ao buscar leaderboard on-chain:', err);
+            leaderboardContainer.innerHTML = '<p style="text-align: center; color: #ff6b6b;">Erro ao buscar dados on-chain: ' + err.message + '</p>';
         });
 
         document.body.appendChild(leaderboardContainer);
