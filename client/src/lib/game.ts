@@ -3575,39 +3575,21 @@ class StartScene extends Phaser.Scene {
             try {
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
                 const abi = [
-                    "function submitScore(string name, uint256 score) public",
-                    "function getScores() public view returns (tuple(address player, string name, uint256 score)[])",
-                    "function getTopScores(uint256 limit) public view returns (tuple(address player, string name, uint256 score)[])",
                     "function getAllScores() public view returns (tuple(string name, uint256 score)[])"
                 ];
                 const contract = new ethers.Contract(contractAddress, abi, provider);
                 
-                let onChainScores: any[] = [];
-                
-                try {
-                    // Try getTopScores first with limit of 50
-                    onChainScores = await contract.getTopScores(50);
-                } catch (e) {
-                    try {
-                        // Fallback to getScores
-                        onChainScores = await contract.getScores();
-                    } catch (e2) {
-                        try {
-                            // Last fallback to getAllScores
-                            onChainScores = await contract.getAllScores();
-                        } catch (e3) {
-                            throw new Error('Nenhuma função de leitura de scores disponível no contrato');
-                        }
-                    }
-                }
+                console.log('🔍 Buscando scores on-chain no contrato:', contractAddress);
+                const onChainScores = await contract.getAllScores();
+                console.log('✅ Scores recebidos:', onChainScores.length);
                 
                 return onChainScores.map((s: any) => ({
-                    playerName: typeof s.name === 'string' ? s.name : s.name || 'Anonymous',
+                    playerName: s.name || 'Anonymous',
                     score: Number(s.score) || 0,
-                    enemiesDefeated: 0 // On-chain contract might not store this
+                    enemiesDefeated: 0
                 })).sort((a: any, b: any) => b.score - a.score);
             } catch (e) {
-                console.error('Error fetching on-chain leaderboard:', e);
+                console.error('Erro detalhado ao buscar leaderboard on-chain:', e);
                 return null;
             }
         };
