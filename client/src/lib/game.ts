@@ -3249,6 +3249,11 @@ class StartScene extends Phaser.Scene {
             } finally {
                 this.isWalletConnecting = false;
             }
+        } catch (error: any) {
+            console.error('Outer connection error:', error);
+            this.isWalletConnecting = false;
+            this.updateWalletButtonText('CONNECT WALLET');
+        }
     }
 
     private updateWalletButtonText(text: string) {
