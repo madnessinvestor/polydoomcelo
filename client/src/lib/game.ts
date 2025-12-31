@@ -4204,6 +4204,8 @@ class DeathScene extends Phaser.Scene {
             
             // Se o usuário estiver conectado na carteira, registrar no contrato
             const walletAddr = (window as any).walletAddress;
+            let onChainRegistrationSuccess = false;
+            
             if (walletAddr && (window as any).ethereum) {
                 try {
                     console.log('=== INICIANDO REGISTRO ON-CHAIN ===');
@@ -4212,9 +4214,20 @@ class DeathScene extends Phaser.Scene {
                     const provider = new ethers.BrowserProvider((window as any).ethereum);
                     const signer = await provider.getSigner();
                     
+                    // ABI simplificado - apenas addScore
                     const abi = [
-                        "function addScore(string name, uint256 score) public"
+                        {
+                            "type": "function",
+                            "name": "addScore",
+                            "inputs": [
+                                { "name": "name", "type": "string" },
+                                { "name": "score", "type": "uint256" }
+                            ],
+                            "outputs": [],
+                            "stateMutability": "nonpayable"
+                        }
                     ];
+                    
                     const contractAddress = "0x6E8abC44BDa423b06fFd9c5aE83CE2c5B514CF20";
                     const contract = new ethers.Contract(contractAddress, abi, signer);
                     
@@ -4224,9 +4237,9 @@ class DeathScene extends Phaser.Scene {
                     console.log('  - Score FINAL:', this.finalScore);
                     console.log('  - Tipo de score:', typeof this.finalScore);
                     
-                    // Enviar transação SEM call ou estimateGas - apenas submit normal
+                    // Enviar transação
                     console.log('📤 Enviando transação ao contrato...');
-                    const tx = await contract.addScore(playerName, this.finalScore);
+                    const tx = await contract.addScore(playerName, BigInt(this.finalScore));
                     console.log('✓ Transação enviada com hash:', tx.hash);
                     
                     // Armazenar para histórico
@@ -4237,16 +4250,24 @@ class DeathScene extends Phaser.Scene {
                     // Aguardar confirmação
                     console.log('⏳ Aguardando confirmação da transação...');
                     const receipt = await tx.wait();
-                    console.log('✓ Transação confirmada!', receipt?.transactionHash);
-                    console.log('✓ Score registrado com sucesso on-chain!');
+                    
+                    if (receipt && receipt.status === 1) {
+                        console.log('✓ Transação confirmada!', receipt.transactionHash);
+                        console.log('✓ Score registrado com sucesso on-chain!');
+                        onChainRegistrationSuccess = true;
+                    } else {
+                        console.error('⚠️ Transação falhou ou foi revertida:', receipt);
+                    }
                 } catch (contractError: any) {
                     console.error('❌ ERRO ao registrar no contrato:', {
                         message: contractError.message,
                         code: contractError.code,
-                        fullError: contractError
+                        details: contractError.reason || contractError.data || 'Sem detalhes'
                     });
-                    alert('Erro ao registrar score on-chain: ' + (contractError.message || 'Erro desconhecido'));
-                    return; // Parar aqui se falhar no contrato
+                    
+                    // Não parar aqui - continuar para registro local
+                    console.log('⚠️ Score não será registrado on-chain, tentando apenas localmente...');
+                    // Não mostramos alerta para não bloquear o fluxo
                 }
             } else {
                 console.warn('⚠️ Wallet não conectada. Score será registrado apenas localmente.');
