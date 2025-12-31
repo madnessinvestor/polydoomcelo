@@ -3161,7 +3161,8 @@ class StartScene extends Phaser.Scene {
                 return;
             }
 
-            const provider = new (window as any).ethers.BrowserProvider((window as any).ethereum);
+            // Using ethers directly from the import
+            const provider = new ethers.BrowserProvider((window as any).ethereum);
             const accounts = await provider.send("eth_requestAccounts", []);
             this.walletAddress = accounts[0];
 
@@ -3178,13 +3179,16 @@ class StartScene extends Phaser.Scene {
                 blockExplorerUrls: ['https://testnet.arcscan.app']
             };
 
+            console.log('Switching to Arc Testnet...');
             try {
                 await (window as any).ethereum.request({
                     method: 'wallet_switchEthereumChain',
                     params: [{ chainId: arcTestnet.chainId }],
                 });
             } catch (switchError: any) {
+                // This error code indicates that the chain has not been added to MetaMask.
                 if (switchError.code === 4902) {
+                    console.log('Adding Arc Testnet to wallet...');
                     await (window as any).ethereum.request({
                         method: 'wallet_addEthereumChain',
                         params: [arcTestnet],
