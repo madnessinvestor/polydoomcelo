@@ -3239,6 +3239,11 @@ class StartScene extends Phaser.Scene {
                 this.updateNetworkDisplay('Arc Testnet');
                 (window as any).networkName = 'Arc Testnet';
                 
+                // Update START GAME button state
+                if ((window as any).updateStartButtonState) {
+                    (window as any).updateStartButtonState();
+                }
+                
                 if (this.scene.isActive('MainScene')) {
                     const mainScene = this.scene.get('MainScene') as any;
                     mainScene.updateWalletHUD?.();
@@ -3304,11 +3309,15 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         // Start Button
-        const startBtn = this.add.rectangle(width / 2, height / 2 + 50, 200, 60, 0x4ade80);
+        const isWalletConnected = !!(window as any).walletAddress;
+        const startBtnColor = isWalletConnected ? 0x4ade80 : 0x6b7280;
+        const startTextColor = isWalletConnected ? '#000000' : '#9ca3af';
+        
+        const startBtn = this.add.rectangle(width / 2, height / 2 + 50, 200, 60, startBtnColor);
         const startText = this.add.text(width / 2, height / 2 + 50, 'START GAME', {
             fontSize: '24px',
             fontFamily: 'Arial, sans-serif',
-            color: '#000000',
+            color: startTextColor,
             fontStyle: 'bold',
             align: 'center'
         }).setOrigin(0.5, 0.5);
@@ -3321,10 +3330,23 @@ class StartScene extends Phaser.Scene {
             this.sfx['menu_button']?.play();
             this.scene.start('MainScene');
         }).on('pointerover', () => {
-            startBtn.setFillStyle(0x22c55e);
+            if ((window as any).walletAddress) {
+                startBtn.setFillStyle(0x22c55e);
+            }
         }).on('pointerout', () => {
-            startBtn.setFillStyle(0x4ade80);
+            if ((window as any).walletAddress) {
+                startBtn.setFillStyle(0x4ade80);
+            } else {
+                startBtn.setFillStyle(0x6b7280);
+            }
         });
+        
+        // Store reference to update button state when wallet connects
+        (window as any).updateStartButtonState = () => {
+            const walletConnected = !!(window as any).walletAddress;
+            startBtn.setFillStyle(walletConnected ? 0x4ade80 : 0x6b7280);
+            startText.setColor(walletConnected ? '#000000' : '#9ca3af');
+        };
 
         // Wallet Button
         this.walletBtn = this.add.rectangle(width / 2, height / 2 - 30, 300, 60, 0x3b82f6);
@@ -3372,6 +3394,10 @@ class StartScene extends Phaser.Scene {
                     this.walletAddress = accounts[0];
                     this.updateWalletButtonText(`CONNECTED: ${accounts[0].substring(0, 6)}...`);
                 }
+                // Update START GAME button state
+                if ((window as any).updateStartButtonState) {
+                    (window as any).updateStartButtonState();
+                }
             });
 
             (window as any).ethereum.on('chainChanged', (chainId: string) => {
@@ -3389,6 +3415,10 @@ class StartScene extends Phaser.Scene {
                 this.walletAddress = null;
                 this.updateWalletButtonText('CONNECT WALLET');
                 this.updateNetworkDisplay('');
+                // Update START GAME button state
+                if ((window as any).updateStartButtonState) {
+                    (window as any).updateStartButtonState();
+                }
             });
         }
 
