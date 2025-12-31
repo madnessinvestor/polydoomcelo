@@ -3495,33 +3495,63 @@ class StartScene extends Phaser.Scene {
         leaderboardContainer.style.padding = '20px';
 
         // Fetch and display leaderboard data
-        fetch('/api/leaderboard')
-            .then(res => res.json())
-            .then((scores: any[]) => {
-                let content = '<div style="text-align: center;">';
-                if (scores.length === 0) {
-                    content += '<p>Nenhum score registrado ainda</p>';
-                } else {
-                    scores.forEach((score, index) => {
-                        content += `
-                            <div style="border-bottom: 1px solid #4ade80; padding: 10px 0; text-align: left;">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <strong>#${index + 1} ${score.playerName}</strong>
-                                        <div style="font-size: 12px; color: #aaa;">${score.enemiesDefeated} inimigos derrotados</div>
-                                    </div>
-                                    <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${score.score}</div>
+        const contractAddress = "0x6E8abC44BDa423b06fFd9c5aE83CE2c5B514CF20";
+        const fetchOnChainLeaderboard = async () => {
+            if (!(window as any).ethereum) return null;
+            try {
+                const provider = new ethers.BrowserProvider((window as any).ethereum);
+                const abi = [
+                    "function getLeaderboard() public view returns (tuple(string name, uint256 score)[])"
+                ];
+                const contract = new ethers.Contract(contractAddress, abi, provider);
+                const onChainScores = await contract.getLeaderboard();
+                return onChainScores.map((s: any) => ({
+                    playerName: s.name,
+                    score: Number(s.score),
+                    enemiesDefeated: 0 // On-chain contract might not store this
+                })).sort((a: any, b: any) => b.score - a.score);
+            } catch (e) {
+                console.error('Error fetching on-chain leaderboard:', e);
+                return null;
+            }
+        };
+
+        const renderLeaderboard = (scores: any[]) => {
+            let content = '<div style="text-align: center;">';
+            if (scores.length === 0) {
+                content += '<p>Nenhum score registrado ainda</p>';
+            } else {
+                scores.forEach((score, index) => {
+                    content += `
+                        <div style="border-bottom: 1px solid #4ade80; padding: 10px 0; text-align: left;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>#${index + 1} ${score.playerName}</strong>
+                                    ${score.enemiesDefeated > 0 ? `<div style="font-size: 12px; color: #aaa;">${score.enemiesDefeated} inimigos derrotados</div>` : ''}
                                 </div>
+                                <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${score.score}</div>
                             </div>
-                        `;
+                        </div>
+                    `;
+                });
+            }
+            content += '</div>';
+            leaderboardContainer.innerHTML = content;
+        };
+
+        fetchOnChainLeaderboard().then(onChainScores => {
+            if (onChainScores && onChainScores.length > 0) {
+                renderLeaderboard(onChainScores);
+            } else {
+                // Fallback to local API
+                fetch('/api/leaderboard')
+                    .then(res => res.json())
+                    .then(renderLeaderboard)
+                    .catch(err => {
+                        leaderboardContainer.innerHTML = '<p>Erro ao carregar leaderboard</p>';
                     });
-                }
-                content += '</div>';
-                leaderboardContainer.innerHTML = content;
-            })
-            .catch(err => {
-                leaderboardContainer.innerHTML = '<p>Erro ao carregar leaderboard</p>';
-            });
+            }
+        });
 
         document.body.appendChild(leaderboardContainer);
 
