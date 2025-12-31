@@ -3569,7 +3569,7 @@ class StartScene extends Phaser.Scene {
         leaderboardContainer.style.padding = '20px';
 
         // Fetch and display leaderboard data
-        const contractAddress = "0x6E8abC44BDa423b06fFd9c5aE83CE2c5B514CF20";
+        const contractAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
         const fetchOnChainLeaderboard = async () => {
             if (!(window as any).ethereum) return null;
             try {
@@ -4264,7 +4264,7 @@ class DeathScene extends Phaser.Scene {
                         }
                     ];
                     
-                    const contractAddress = "0x6E8abC44BDa423b06fFd9c5aE83CE2c5B514CF20";
+                    const contractAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
                     const contract = new ethers.Contract(contractAddress, abi, signer);
                     
                     console.log('📝 Parâmetros da transação:');
