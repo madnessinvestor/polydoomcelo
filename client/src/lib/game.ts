@@ -3188,7 +3188,7 @@ class StartScene extends Phaser.Scene {
 
             // Arc Testnet Config
             const arcTestnet = {
-                chainId: '0x4ce946', // 5042002 in hex
+                chainId: '0x4ce946', // 5042002 decimal
                 chainName: 'Arc Testnet',
                 nativeCurrency: {
                     name: 'USDC',
@@ -3201,65 +3201,54 @@ class StartScene extends Phaser.Scene {
 
             const provider = new ethers.BrowserProvider((window as any).ethereum);
             
-            // Try switching first, if it fails because chain is missing, add it
             try {
-                console.log('Switching to Arc Testnet...');
-                await (window as any).ethereum.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: arcTestnet.chainId }],
-                });
-            } catch (switchError: any) {
-                // Error code 4902 means the chain has not been added to MetaMask.
-                // Some wallets might return a different error for "chain not found"
-                if (switchError.code === 4902 || (switchError.data && (switchError.data.originalError?.code === 4902 || switchError.data.code === -32603))) {
-                    console.log('Adding Arc Testnet to wallet...');
+                console.log('Solicitando conexão de conta...');
+                const accounts = await provider.send("eth_requestAccounts", []);
+                this.walletAddress = accounts[0];
+                (window as any).walletAddress = this.walletAddress;
+
+                console.log('Tentando trocar para a rede Arc Testnet (0x4ce946)...');
+                try {
                     await (window as any).ethereum.request({
-                        method: 'wallet_addEthereumChain',
-                        params: [arcTestnet],
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x4ce946' }],
                     });
-                } else {
-                    // Se não for o erro 4902, tenta adicionar de qualquer forma para garantir
-                    console.log('Switch failed with code:', switchError.code, 'Attempting to add Arc Testnet directly...');
-                    try {
+                } catch (switchError: any) {
+                    console.log('Troca de rede falhou, erro:', switchError.code || switchError.message);
+                    
+                    // Verificação robusta de erro de chain não encontrada
+                    const isMissing = switchError.code === 4902 || 
+                                    (switchError.data && switchError.data.originalError && switchError.data.originalError.code === 4902) ||
+                                    switchError.message?.toLowerCase().includes('unrecognized') ||
+                                    switchError.message?.toLowerCase().includes('not been added');
+
+                    if (isMissing) {
+                        console.log('Adicionando a rede Arc Testnet na carteira...');
                         await (window as any).ethereum.request({
                             method: 'wallet_addEthereumChain',
                             params: [arcTestnet],
                         });
-                    } catch (addError) {
-                        console.error('Failed to add chain:', addError);
+                    } else {
                         throw switchError;
                     }
                 }
-            }
 
-            const accounts = await provider.send("eth_requestAccounts", []);
-            this.walletAddress = accounts[0];
-            
-            // Confirma que estamos na rede correta após trocar/adicionar
-            const network = await provider.getNetwork();
-            if (network.chainId !== 5042002n) {
-                console.warn('Network mismatch after connection. Current chainId:', network.chainId);
+                this.updateWalletButtonText(`CONECTADO: ${this.walletAddress?.substring(0, 6)}...`);
+                this.updateNetworkDisplay('Arc Testnet');
+                (window as any).networkName = 'Arc Testnet';
+                
+                if (this.scene.isActive('MainScene')) {
+                    const mainScene = this.scene.get('MainScene') as any;
+                    mainScene.updateWalletHUD?.();
+                }
+            } catch (error: any) {
+                console.error('Erro detalhado na conexão:', error);
+                alert(`Erro ao conectar: ${error.message || 'Erro desconhecido'}`);
+                this.updateWalletButtonText('CONNECT WALLET');
+                this.updateNetworkDisplay('');
+            } finally {
+                this.isWalletConnecting = false;
             }
-
-            if (this.walletText) {
-                this.updateWalletButtonText(`CONNECTED: ${this.walletAddress?.substring(0, 6)}...`);
-            }
-            this.updateNetworkDisplay('Arc Testnet');
-            (window as any).walletAddress = this.walletAddress;
-            (window as any).networkName = 'Arc Testnet';
-            
-            // Re-render HUD if in MainScene
-            if (this.scene.isActive('MainScene')) {
-                const mainScene = this.scene.get('MainScene') as any;
-                mainScene.updateWalletHUD?.();
-            }
-        } catch (error) {
-            console.error('Wallet connection error:', error);
-            this.updateWalletButtonText('CONNECT WALLET');
-            this.updateNetworkDisplay('');
-        } finally {
-            this.isWalletConnecting = false;
-        }
     }
 
     private updateWalletButtonText(text: string) {
