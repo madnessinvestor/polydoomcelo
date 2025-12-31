@@ -4237,10 +4237,30 @@ class DeathScene extends Phaser.Scene {
                     console.log('  - Score FINAL:', this.finalScore);
                     console.log('  - Tipo de score:', typeof this.finalScore);
                     
-                    // Enviar transação
-                    console.log('📤 Enviando transação ao contrato...');
-                    const tx = await contract.addScore(playerName, BigInt(this.finalScore));
-                    console.log('✓ Transação enviada com hash:', tx.hash);
+                    // Enviar transação com gas estimado
+                    console.log('📤 Estimando gas necessário...');
+                    let tx;
+                    try {
+                        // Estimar gas necessário para a transação
+                        const estimatedGas = await contract.addScore.estimateGas(playerName, BigInt(this.finalScore));
+                        console.log('  - Gas estimado:', estimatedGas.toString());
+                        
+                        // Adicionar margem de segurança (20%)
+                        const gasLimit = (estimatedGas * BigInt(120)) / BigInt(100);
+                        console.log('  - Gas limit com margem:', gasLimit.toString());
+                        
+                        // Enviar com gas limit definido
+                        console.log('📤 Enviando transação ao contrato com gas limit...');
+                        tx = await contract.addScore(playerName, BigInt(this.finalScore), { gasLimit });
+                        console.log('✓ Transação enviada com hash:', tx.hash);
+                    } catch (gasError: any) {
+                        console.warn('⚠️ Falha ao estimar gas, usando fallback...');
+                        // Fallback: usar um gas limit seguro fixo (500,000)
+                        const fallbackGasLimit = BigInt(500000);
+                        console.log('  - Usando gas limit fallback:', fallbackGasLimit.toString());
+                        tx = await contract.addScore(playerName, BigInt(this.finalScore), { gasLimit: fallbackGasLimit });
+                        console.log('✓ Transação enviada com hash:', tx.hash);
+                    }
                     
                     // Armazenar para histórico
                     (window as any).lastScoreTxHash = tx.hash;
