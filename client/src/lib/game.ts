@@ -3570,63 +3570,7 @@ class StartScene extends Phaser.Scene {
 
         // Fetch and display leaderboard data
         const contractAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
-        const fetchOnChainLeaderboard = async () => {
-            try {
-                // Usar um RPC público da Arc Testnet para busca pública
-                const publicRpcUrl = "https://rpc.testnet.arc.network";
-                const provider = new ethers.JsonRpcProvider(publicRpcUrl);
-                
-                // ABI com variações de assinaturas para compatibilidade total
-                const abi = [
-                    "function getAllScores() public view returns (tuple(string name, uint256 score)[])",
-                    "function getScores() public view returns (tuple(string name, uint256 score)[])",
-                    "function getTopScores(uint256 limit) public view returns (tuple(string name, uint256 score)[])",
-                    "function getScores() public view returns (tuple(address player, string name, uint256 score)[])"
-                ];
-                const contract = new ethers.Contract(contractAddress, abi, provider);
-                
-                console.log('🔍 Buscando scores on-chain no contrato (via RPC público):', contractAddress);
-                
-                let onChainScores: any[] = [];
-                
-                // Tentar obter os scores com diferentes métodos e ABIs
-                const tryMethods = [
-                    { name: 'getAllScores', args: [] },
-                    { name: 'getScores', args: [] },
-                    { name: 'getTopScores', args: [100] }
-                ];
-
-                for (const method of tryMethods) {
-                    try {
-                        console.log(`📡 Tentando método: ${method.name}...`);
-                        const result = await (contract as any)[method.name](...method.args);
-                        if (result && Array.isArray(result) && result.length > 0) {
-                            onChainScores = result;
-                            console.log(`✅ Scores recebidos via ${method.name}:`, onChainScores.length);
-                            break;
-                        } else if (result && Array.isArray(result)) {
-                            console.log(`ℹ️ ${method.name} retornou array vazio.`);
-                        }
-                    } catch (err: any) {
-                        console.warn(`⚠️ ${method.name} falhou:`, err.message || err);
-                    }
-                }
-                
-                if (!onChainScores || !Array.isArray(onChainScores)) {
-                    onChainScores = [];
-                }
-
-                return onChainScores.map((s: any) => ({
-                    playerName: (s.name && s.name.trim() !== "") ? s.name : "Anonymous",
-                    score: s.score ? Number(s.score) : 0,
-                    enemiesDefeated: 0
-                })).filter(s => s.score > 0).sort((a: any, b: any) => b.score - a.score);
-            } catch (e) {
-                console.error('Erro detalhado ao buscar leaderboard on-chain:', e);
-                return null;
-            }
-        };
-
+        
         const renderLeaderboard = (scores: any[]) => {
             let content = '<div style="text-align: center;">';
             if (scores.length === 0) {
@@ -3652,15 +3596,17 @@ class StartScene extends Phaser.Scene {
 
         leaderboardContainer.innerHTML = '<p style="text-align: center; color: #fbbf24;">Carregando dados on-chain...</p>';
         
-        fetchOnChainLeaderboard().then(onChainScores => {
-            if (onChainScores) {
-                renderLeaderboard(onChainScores);
-            } else {
-                leaderboardContainer.innerHTML = '<p style="text-align: center; color: #ff6b6b;">Erro ao carregar leaderboard on-chain. Verifique sua conexão de carteira.</p>';
-            }
-        }).catch(err => {
-            console.error('Erro crítico ao buscar leaderboard on-chain:', err);
-            leaderboardContainer.innerHTML = '<p style="text-align: center; color: #ff6b6b;">Erro ao buscar dados on-chain: ' + err.message + '</p>';
+        import('./leaderboard').then(({ fetchOnChainLeaderboard }) => {
+            fetchOnChainLeaderboard().then(onChainScores => {
+                if (onChainScores) {
+                    renderLeaderboard(onChainScores);
+                } else {
+                    leaderboardContainer.innerHTML = '<p style="text-align: center; color: #ff6b6b;">Erro ao carregar leaderboard on-chain. Verifique sua conexão de carteira.</p>';
+                }
+            }).catch(err => {
+                console.error('Erro crítico ao buscar leaderboard on-chain:', err);
+                leaderboardContainer.innerHTML = '<p style="text-align: center; color: #ff6b6b;">Erro ao buscar dados on-chain: ' + err.message + '</p>';
+            });
         });
 
         document.body.appendChild(leaderboardContainer);
