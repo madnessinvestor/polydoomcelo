@@ -4271,12 +4271,24 @@ class DeathScene extends Phaser.Scene {
                     console.log('⏳ Aguardando confirmação da transação...');
                     const receipt = await tx.wait();
                     
+                    console.log('📋 Detalhes do Receipt:');
+                    console.log('  - Status:', receipt?.status);
+                    console.log('  - Hash:', receipt?.hash);
+                    console.log('  - Block:', receipt?.blockNumber);
+                    console.log('  - Gas utilizado:', receipt?.gasUsed?.toString());
+                    console.log('  - Logs:', receipt?.logs?.length || 0);
+                    
                     if (receipt && receipt.status === 1) {
                         console.log('✓ Transação confirmada!', receipt.transactionHash);
                         console.log('✓ Score registrado com sucesso on-chain!');
                         onChainRegistrationSuccess = true;
                     } else {
-                        console.error('⚠️ Transação falhou ou foi revertida:', receipt);
+                        console.error('❌ Transação REVERTIDA pelo contrato');
+                        console.error('📊 Detalhes da falha:');
+                        console.error('  - Status:', receipt?.status, '(0 = falha)');
+                        console.error('  - Hash:', receipt?.hash);
+                        console.error('  - Possível causa: Validação do contrato ou estado inválido');
+                        throw new Error(`Transaction reverted: ${receipt?.hash}`);
                     }
                 } catch (contractError: any) {
                     console.error('❌ ERRO ao registrar no contrato:', {
