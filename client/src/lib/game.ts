@@ -3188,7 +3188,7 @@ class StartScene extends Phaser.Scene {
 
             // Arc Testnet Config
             const arcTestnet = {
-                chainId: '0x4ce946', // 5042002 decimal
+                chainId: '0x4cef52', // 5042002 decimal em hexadecimal
                 chainName: 'Arc Testnet',
                 nativeCurrency: {
                     name: 'USDC',
@@ -3207,11 +3207,11 @@ class StartScene extends Phaser.Scene {
                 this.walletAddress = accounts[0];
                 (window as any).walletAddress = this.walletAddress;
 
-                console.log('Tentando trocar para a rede Arc Testnet (0x4ce946)...');
+                console.log('Tentando trocar para a rede Arc Testnet (0x4cef52)...');
                 try {
                     await (window as any).ethereum.request({
                         method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: '0x4ce946' }],
+                        params: [{ chainId: '0x4cef52' }],
                     });
                 } catch (switchError: any) {
                     console.log('Troca de rede falhou, erro:', switchError.code || switchError.message);
@@ -3219,8 +3219,7 @@ class StartScene extends Phaser.Scene {
                     // Verificação robusta de erro de chain não encontrada
                     const isMissing = switchError.code === 4902 || 
                                     (switchError.data && switchError.data.originalError && switchError.data.originalError.code === 4902) ||
-                                    switchError.message?.toLowerCase().includes('unrecognized') ||
-                                    switchError.message?.toLowerCase().includes('not been added');
+                                    (switchError.message && (switchError.message.toLowerCase().includes('unrecognized') || switchError.message.toLowerCase().includes('not been added')));
 
                     if (isMissing) {
                         console.log('Adicionando a rede Arc Testnet na carteira...');
