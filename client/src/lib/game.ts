@@ -3186,42 +3186,40 @@ class StartScene extends Phaser.Scene {
                 return;
             }
 
-            // Using ethers directly from the import
             const provider = new ethers.BrowserProvider((window as any).ethereum);
-            const accounts = await provider.send("eth_requestAccounts", []);
-            this.walletAddress = accounts[0];
-
-            // Arc Testnet Config
-            const arcTestnet = {
-                chainId: '0x4ce946', // 5042002 in hex
-                chainName: 'Arc Testnet',
-                nativeCurrency: {
-                    name: 'USDC',
-                    symbol: 'USDC',
-                    decimals: 18
-                },
-                rpcUrls: ['https://rpc.testnet.arc.network'],
-                blockExplorerUrls: ['https://testnet.arcscan.app']
-            };
-
-            console.log('Switching to Arc Testnet...');
+            
+            // Try switching first, if it fails because chain is missing, add it
             try {
+                console.log('Switching to Arc Testnet...');
                 await (window as any).ethereum.request({
                     method: 'wallet_switchEthereumChain',
                     params: [{ chainId: arcTestnet.chainId }],
                 });
             } catch (switchError: any) {
-                // This error code indicates that the chain has not been added to MetaMask.
-                if (switchError.code === 4902) {
+                // Error code 4902 means the chain has not been added to MetaMask.
+                // Some wallets might return a different error for "chain not found"
+                if (switchError.code === 4902 || (switchError.data && switchError.data.originalError && switchError.data.originalError.code === 4902)) {
                     console.log('Adding Arc Testnet to wallet...');
                     await (window as any).ethereum.request({
                         method: 'wallet_addEthereumChain',
                         params: [arcTestnet],
                     });
                 } else {
-                    throw switchError;
+                    // If it's not a "missing chain" error, let's try to add it anyway as a fallback
+                    console.log('Switch failed, attempting to add Arc Testnet as fallback...');
+                    try {
+                        await (window as any).ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [arcTestnet],
+                        });
+                    } catch (addError) {
+                        throw switchError;
+                    }
                 }
             }
+
+            const accounts = await provider.send("eth_requestAccounts", []);
+            this.walletAddress = accounts[0];
 
             this.updateWalletButtonText(`CONNECTED: ${this.walletAddress?.substring(0, 6)}...`);
             this.updateNetworkDisplay('Arc Testnet');
