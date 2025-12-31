@@ -4274,10 +4274,31 @@ class DeathScene extends Phaser.Scene {
                     console.log('  - Tipo de score:', typeof this.finalScore);
                     
                     // Enviar transação com gas estimado
-                    console.log('📤 Estimando gas necessário...');
+                    console.log('📤 Preparando transação...');
                     let tx;
+                    
+                    // DEBUG: Verificar se a função existe no contrato
+                    console.log('🔍 Verificando contrato...');
+                    console.log('  - Interface:', contract.interface);
+                    console.log('  - Função addScore existe?', !!contract.addScore);
+                    
                     try {
+                        // DEBUG: Tentar gerar calldata para ver o que está acontecendo
+                        console.log('🔧 Gerando calldata...');
+                        const populatedTx = await contract.addScore.populateTransaction(playerName, BigInt(this.finalScore));
+                        console.log('📊 Transação populada:');
+                        console.log('  - To:', populatedTx.to);
+                        console.log('  - Data:', populatedTx.data);
+                        console.log('  - Value:', populatedTx.value);
+                        
+                        if (!populatedTx.data || populatedTx.data === '0x') {
+                            throw new Error('❌ ERRO CRÍTICO: Calldata vazio! A função não está sendo codificada.');
+                        }
+                        
+                        console.log('✅ Calldata gerado com sucesso');
+                        
                         // Estimar gas necessário para a transação
+                        console.log('📤 Estimando gas necessário...');
                         const estimatedGas = await contract.addScore.estimateGas(playerName, BigInt(this.finalScore));
                         console.log('  - Gas estimado:', estimatedGas.toString());
                         
@@ -4290,7 +4311,8 @@ class DeathScene extends Phaser.Scene {
                         tx = await contract.addScore(playerName, BigInt(this.finalScore), { gasLimit });
                         console.log('✓ Transação enviada com hash:', tx.hash);
                     } catch (gasError: any) {
-                        console.warn('⚠️ Falha ao estimar gas, usando fallback...');
+                        console.warn('⚠️ Falha ao estimar/enviar transação, usando fallback...');
+                        console.error('Erro detalhado:', gasError.message);
                         // Fallback: usar um gas limit seguro fixo (500,000)
                         const fallbackGasLimit = BigInt(500000);
                         console.log('  - Usando gas limit fallback:', fallbackGasLimit.toString());
