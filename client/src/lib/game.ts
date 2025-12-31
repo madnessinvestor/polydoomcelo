@@ -3199,13 +3199,16 @@ class StartScene extends Phaser.Scene {
                 blockExplorerUrls: ['https://testnet.arcscan.app']
             };
 
-            const provider = new ethers.BrowserProvider((window as any).ethereum);
-            
             try {
                 console.log('Solicitando conexão de conta...');
-                const accounts = await provider.send("eth_requestAccounts", []);
+                const accounts = await (window as any).ethereum.request({
+                    method: 'eth_requestAccounts',
+                    params: [],
+                });
                 this.walletAddress = accounts[0];
                 (window as any).walletAddress = this.walletAddress;
+                
+                const provider = new ethers.BrowserProvider((window as any).ethereum);
 
                 console.log('Tentando trocar para a rede Arc Testnet (0x4cef52)...');
                 try {
@@ -3354,6 +3357,39 @@ class StartScene extends Phaser.Scene {
         if ((window as any).walletAddress) {
             this.updateWalletButtonText(`CONNECTED: ${(window as any).walletAddress.substring(0, 6)}...`);
             this.updateNetworkDisplay('Arc Testnet');
+        }
+
+        // Set up wallet event listeners
+        if ((window as any).ethereum) {
+            (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
+                console.log('Accounts changed:', accounts);
+                if (accounts.length === 0) {
+                    (window as any).walletAddress = null;
+                    this.updateWalletButtonText('CONNECT WALLET');
+                    this.updateNetworkDisplay('');
+                } else {
+                    (window as any).walletAddress = accounts[0];
+                    this.walletAddress = accounts[0];
+                    this.updateWalletButtonText(`CONNECTED: ${accounts[0].substring(0, 6)}...`);
+                }
+            });
+
+            (window as any).ethereum.on('chainChanged', (chainId: string) => {
+                console.log('Chain changed:', chainId);
+                if (chainId === '0x4cef52') {
+                    this.updateNetworkDisplay('Arc Testnet');
+                } else {
+                    this.updateNetworkDisplay('Other Network');
+                }
+            });
+
+            (window as any).ethereum.on('disconnect', () => {
+                console.log('Wallet disconnected');
+                (window as any).walletAddress = null;
+                this.walletAddress = null;
+                this.updateWalletButtonText('CONNECT WALLET');
+                this.updateNetworkDisplay('');
+            });
         }
 
         // Leaderboard Button
