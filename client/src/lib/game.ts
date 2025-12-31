@@ -3537,13 +3537,34 @@ class StartScene extends Phaser.Scene {
             try {
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
                 const abi = [
+                    "function getScores() public view returns (tuple(address player, string name, uint256 score)[])",
+                    "function getTopScores(uint256 limit) public view returns (tuple(address player, string name, uint256 score)[])",
                     "function getAllScores() public view returns (tuple(string name, uint256 score)[])"
                 ];
                 const contract = new ethers.Contract(contractAddress, abi, provider);
-                const onChainScores = await contract.getAllScores();
+                
+                let onChainScores: any[] = [];
+                
+                try {
+                    // Try getTopScores first with limit of 50
+                    onChainScores = await contract.getTopScores(50);
+                } catch (e) {
+                    try {
+                        // Fallback to getScores
+                        onChainScores = await contract.getScores();
+                    } catch (e2) {
+                        try {
+                            // Last fallback to getAllScores
+                            onChainScores = await contract.getAllScores();
+                        } catch (e3) {
+                            throw new Error('Nenhuma função de leitura de scores disponível no contrato');
+                        }
+                    }
+                }
+                
                 return onChainScores.map((s: any) => ({
-                    playerName: s.name,
-                    score: Number(s.score),
+                    playerName: typeof s.name === 'string' ? s.name : s.name || 'Anonymous',
+                    score: Number(s.score) || 0,
                     enemiesDefeated: 0 // On-chain contract might not store this
                 })).sort((a: any, b: any) => b.score - a.score);
             } catch (e) {
@@ -4115,22 +4136,32 @@ class DeathScene extends Phaser.Scene {
                     const provider = new ethers.BrowserProvider((window as any).ethereum);
                     const signer = await provider.getSigner();
                     
-                    // ABI mínima para a função de registro de score
-                    // Assumindo uma função como: function addScore(string name, uint256 score)
+                    // ABI expandida com funções de leitura e escrita
                     const abi = [
-                        "function addScore(string name, uint256 score) public"
+                        "function addScore(string name, uint256 score) public",
+                        "function getScores() public view returns (tuple(address player, string name, uint256 score)[])",
+                        "function getTopScores(uint256 limit) public view returns (tuple(address player, string name, uint256 score)[])",
+                        "function getPlayerScores(address player) public view returns (tuple(string name, uint256 score)[])"
                     ];
                     const contractAddress = "0x6E8abC44BDa423b06fFd9c5aE83CE2c5B514CF20";
                     const contract = new ethers.Contract(contractAddress, abi, signer);
                     
                     console.log('Registrando score on-chain no contrato:', contractAddress);
+                    console.log('Jogador:', playerName, 'Score:', this.finalScore);
                     const tx = await contract.addScore(playerName, this.finalScore);
                     console.log('Transação enviada:', tx.hash);
                     
-                    // Opcional: esperar a confirmação
-                    // await tx.wait();
-                } catch (contractError) {
+                    // Armazenar transação hash para histórico
+                    (window as any).lastScoreTxHash = tx.hash;
+                    (window as any).lastScoreName = playerName;
+                    (window as any).lastScoreValue = this.finalScore;
+                    
+                    // Aguardar confirmação da transação
+                    const receipt = await tx.wait();
+                    console.log('Transação confirmada:', receipt?.transactionHash);
+                } catch (contractError: any) {
                     console.error('Erro ao registrar no contrato:', contractError);
+                    alert('Erro ao registrar score on-chain: ' + (contractError.message || 'Erro desconhecido'));
                     // Continuamos para o registro na API local mesmo se o contrato falhar
                 }
             }
