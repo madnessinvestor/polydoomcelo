@@ -466,6 +466,20 @@ class MainScene extends Phaser.Scene {
             strokeThickness: 6
         }).setScrollFactor(0).setDepth(1000);
 
+        // Wallet HUD
+        const walletAddr = (window as any).walletAddress;
+        const walletDisplay = walletAddr ? `${walletAddr.substring(0, 6)}...${walletAddr.substring(walletAddr.length - 4)}` : 'Not Connected';
+        const networkDisplay = (window as any).networkName || 'Unknown';
+        
+        this.walletHUDText = this.add.text(16, 16 + fontSize + 10, `Wallet: ${walletDisplay} | Network: ${networkDisplay}`, {
+            fontSize: `${Math.floor(fontSize * 0.7)}px`,
+            color: '#4ade80',
+            fontFamily: '"Courier New", Courier, monospace',
+            fontStyle: 'bold',
+            stroke: '#000',
+            strokeThickness: 4
+        }).setScrollFactor(0).setDepth(1000);
+
         this.enemyCounterText = this.add.text(width - 16, 16 + fontSize * 2 + 20, `0/${this.totalEnemiesInWave}`, {
             fontSize: `${fontSize}px`,
             color: '#ff4444',
@@ -3050,6 +3064,16 @@ class MainScene extends Phaser.Scene {
     private pickupNotification!: Phaser.GameObjects.Text;
     private pickupNotificationBg!: Phaser.GameObjects.Graphics;
     private pickupTimer!: Phaser.Time.TimerEvent;
+    private walletHUDText!: Phaser.GameObjects.Text;
+
+    public updateWalletHUD() {
+        if (this.walletHUDText) {
+            const walletAddr = (window as any).walletAddress;
+            const walletDisplay = walletAddr ? `${walletAddr.substring(0, 6)}...${walletAddr.substring(walletAddr.length - 4)}` : 'Not Connected';
+            const networkDisplay = (window as any).networkName || 'Unknown';
+            this.walletHUDText.setText(`Wallet: ${walletDisplay} | Network: ${networkDisplay}`);
+        }
+    }
 
     private openPauseModal() {
         this.isPaused = true;
@@ -3143,6 +3167,7 @@ class StartScene extends Phaser.Scene {
     private isWalletConnecting: boolean = false;
     private walletBtn: Phaser.GameObjects.Rectangle | null = null;
     private walletText: Phaser.GameObjects.Text | null = null;
+    private networkInfoText: Phaser.GameObjects.Text | null = null;
 
     constructor() {
         super('StartScene');
@@ -3199,10 +3224,19 @@ class StartScene extends Phaser.Scene {
             }
 
             this.updateWalletButtonText(`CONNECTED: ${this.walletAddress?.substring(0, 6)}...`);
+            this.updateNetworkDisplay('Arc Testnet');
             (window as any).walletAddress = this.walletAddress;
+            (window as any).networkName = 'Arc Testnet';
+            
+            // Re-render HUD if in MainScene
+            if (this.scene.isActive('MainScene')) {
+                const mainScene = this.scene.get('MainScene') as any;
+                mainScene.updateWalletHUD?.();
+            }
         } catch (error) {
             console.error('Wallet connection error:', error);
             this.updateWalletButtonText('CONNECT WALLET');
+            this.updateNetworkDisplay('');
         } finally {
             this.isWalletConnecting = false;
         }
@@ -3211,6 +3245,12 @@ class StartScene extends Phaser.Scene {
     private updateWalletButtonText(text: string) {
         if (this.walletText) {
             this.walletText.setText(text);
+        }
+    }
+
+    private updateNetworkDisplay(network: string) {
+        if (this.networkInfoText) {
+            this.networkInfoText.setText(network ? `Network: ${network}` : '');
         }
     }
 
@@ -3288,6 +3328,20 @@ class StartScene extends Phaser.Scene {
         }).on('pointerout', () => {
             this.walletBtn?.setFillStyle(0x3b82f6);
         });
+
+        // Network Info Display
+        this.networkInfoText = this.add.text(width / 2, height / 2 - 70, '', {
+            fontSize: '16px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#4ade80',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        if ((window as any).walletAddress) {
+            this.updateWalletButtonText(`CONNECTED: ${(window as any).walletAddress.substring(0, 6)}...`);
+            this.updateNetworkDisplay('Arc Testnet');
+        }
 
         // Leaderboard Button
         const leaderboardBtn = this.add.rectangle(width / 2, height / 2 + 130, 200, 60, 0xfbbf24);
