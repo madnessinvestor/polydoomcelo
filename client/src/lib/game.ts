@@ -3870,8 +3870,8 @@ class DeathScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         // Register Score Button
-        const registerBtn = this.add.rectangle(width / 2, height / 2 + 100, 220, 60, 0x4ade80);
-        const registerText = this.add.text(width / 2, height / 2 + 100, 'REGISTER SCORE', {
+        const registerBtn = this.add.rectangle(width / 2, height / 2 + 50, 220, 60, 0x4ade80);
+        const registerText = this.add.text(width / 2, height / 2 + 50, 'REGISTER SCORE', {
             fontSize: '20px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
@@ -3885,6 +3885,25 @@ class DeathScene extends Phaser.Scene {
             registerBtn.setFillStyle(0x22c55e);
         }).on('pointerout', () => {
             registerBtn.setFillStyle(0x4ade80);
+        });
+
+        // No Register Score Button
+        const noRegisterBtn = this.add.rectangle(width / 2, height / 2 + 130, 220, 60, 0xff6b6b);
+        const noRegisterText = this.add.text(width / 2, height / 2 + 130, 'NO REGISTER SCORE', {
+            fontSize: '18px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        noRegisterBtn.setInteractive().on('pointerdown', () => {
+            this.sound.stopAll();
+            this.scene.start('StartScene');
+        }).on('pointerover', () => {
+            noRegisterBtn.setFillStyle(0xff5252);
+        }).on('pointerout', () => {
+            noRegisterBtn.setFillStyle(0xff6b6b);
         });
     }
 
