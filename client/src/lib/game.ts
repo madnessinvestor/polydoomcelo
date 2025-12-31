@@ -4297,6 +4297,20 @@ class DeathScene extends Phaser.Scene {
                         
                         console.log('✅ Calldata gerado com sucesso');
                         
+                        // DEBUG: Usar staticCall para simular a execução e pegar o erro real
+                        console.log('🔬 Simulando chamada da função (staticCall)...');
+                        try {
+                            const result = await contract.addScore.staticCall(playerName, BigInt(this.finalScore));
+                            console.log('✅ StaticCall bem-sucedido:', result);
+                        } catch (staticError: any) {
+                            console.error('❌ ERRO NA SIMULAÇÃO (staticCall):');
+                            console.error('  - Mensagem:', staticError.message);
+                            console.error('  - Reason:', staticError.reason);
+                            console.error('  - Code:', staticError.code);
+                            console.error('  - Data:', staticError.data);
+                            throw staticError;
+                        }
+                        
                         // Estimar gas necessário para a transação
                         console.log('📤 Estimando gas necessário...');
                         const estimatedGas = await contract.addScore.estimateGas(playerName, BigInt(this.finalScore));
