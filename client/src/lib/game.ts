@@ -3575,6 +3575,7 @@ class StartScene extends Phaser.Scene {
             try {
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
                 const abi = [
+                    "function submitScore(string name, uint256 score) public",
                     "function getScores() public view returns (tuple(address player, string name, uint256 score)[])",
                     "function getTopScores(uint256 limit) public view returns (tuple(address player, string name, uint256 score)[])",
                     "function getAllScores() public view returns (tuple(string name, uint256 score)[])"
@@ -4254,7 +4255,7 @@ class DeathScene extends Phaser.Scene {
                     const abi = [
                         {
                             "type": "function",
-                            "name": "addScore",
+                            "name": "submitScore",
                             "inputs": [
                                 { "name": "name", "type": "string" },
                                 { "name": "score", "type": "uint256" }
@@ -4279,13 +4280,14 @@ class DeathScene extends Phaser.Scene {
                     
                     // DEBUG: Verificar se a função existe no contrato
                     console.log('🔍 Verificando contrato...');
-                    console.log('  - Interface:', contract.interface);
-                    console.log('  - Função addScore existe?', !!contract.addScore);
+                    console.log('  - Contrato:', contractAddress);
+                    console.log('  - Função: submitScore');
+                    console.log('  - Parâmetros: name=' + playerName + ', score=' + this.finalScore);
                     
                     try {
                         // DEBUG: Tentar gerar calldata para ver o que está acontecendo
                         console.log('🔧 Gerando calldata...');
-                        const populatedTx = await contract.addScore.populateTransaction(playerName, BigInt(this.finalScore));
+                        const populatedTx = await contract.submitScore.populateTransaction(playerName, BigInt(this.finalScore));
                         console.log('📊 Transação populada:');
                         console.log('  - To:', populatedTx.to);
                         console.log('  - Data:', populatedTx.data);
@@ -4297,41 +4299,13 @@ class DeathScene extends Phaser.Scene {
                         
                         console.log('✅ Calldata gerado com sucesso');
                         
-                        // DEBUG: Usar staticCall para simular a execução e pegar o erro real
-                        console.log('🔬 Simulando chamada da função (staticCall)...');
-                        try {
-                            const result = await contract.addScore.staticCall(playerName, BigInt(this.finalScore));
-                            console.log('✅ StaticCall bem-sucedido:', result);
-                        } catch (staticError: any) {
-                            console.error('❌ ERRO NA SIMULAÇÃO (staticCall):');
-                            console.error('  - Mensagem:', staticError.message);
-                            console.error('  - Reason:', staticError.reason);
-                            console.error('  - Code:', staticError.code);
-                            console.error('  - Data:', staticError.data);
-                            throw staticError;
-                        }
-                        
-                        // Estimar gas necessário para a transação
-                        console.log('📤 Estimando gas necessário...');
-                        const estimatedGas = await contract.addScore.estimateGas(playerName, BigInt(this.finalScore));
-                        console.log('  - Gas estimado:', estimatedGas.toString());
-                        
-                        // Adicionar margem de segurança (20%)
-                        const gasLimit = (estimatedGas * BigInt(120)) / BigInt(100);
-                        console.log('  - Gas limit com margem:', gasLimit.toString());
-                        
-                        // Enviar com gas limit definido
-                        console.log('📤 Enviando transação ao contrato com gas limit...');
-                        tx = await contract.addScore(playerName, BigInt(this.finalScore), { gasLimit });
+                        // Enviar transação diretamente (Write/sendTransaction)
+                        console.log('📤 Enviando transação ao contrato (submitScore)...');
+                        tx = await contract.submitScore(playerName, BigInt(this.finalScore));
                         console.log('✓ Transação enviada com hash:', tx.hash);
-                    } catch (gasError: any) {
-                        console.warn('⚠️ Falha ao estimar/enviar transação, usando fallback...');
-                        console.error('Erro detalhado:', gasError.message);
-                        // Fallback: usar um gas limit seguro fixo (500,000)
-                        const fallbackGasLimit = BigInt(500000);
-                        console.log('  - Usando gas limit fallback:', fallbackGasLimit.toString());
-                        tx = await contract.addScore(playerName, BigInt(this.finalScore), { gasLimit: fallbackGasLimit });
-                        console.log('✓ Transação enviada com hash:', tx.hash);
+                    } catch (submitError: any) {
+                        console.error('❌ ERRO AO ENVIAR TRANSAÇÃO:', submitError.message);
+                        throw submitError;
                     }
                     
                     // Armazenar para histórico
