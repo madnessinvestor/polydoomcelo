@@ -4049,6 +4049,20 @@ class DeathScene extends Phaser.Scene {
     }
 
     private openNameModal() {
+        // 🔴 VALIDAÇÃO CRÍTICA: Bloquear se score for inválido
+        console.log('🔓 ABRINDO MODAL DE REGISTRO');
+        console.log('  - Score Final:', this.finalScore);
+        console.log('  - Tipo:', typeof this.finalScore);
+        console.log('  - É válido (> 0)?', this.finalScore > 0);
+        
+        if (!this.finalScore || this.finalScore <= 0) {
+            console.error('🚫 BLOQUEADO: Score inválido! Não abrindo wallet.');
+            alert(`❌ Erro: Score inválido (${this.finalScore}). Não é possível registrar.\nReque reiniciar o jogo.`);
+            return; // 🛑 PARAR AQUI - Não abrir wallet se score = 0
+        }
+        
+        console.log('✅ Score VÁLIDO, abrindo modal de registro...');
+        
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
@@ -4167,6 +4181,20 @@ class DeathScene extends Phaser.Scene {
 
         const submitWithName = async () => {
             const playerName = nameInput.value.trim() || 'Anonymous';
+            
+            // ✅ VALIDAÇÃO FINAL antes de fechar modal
+            console.log('✅ Confirmando registro:');
+            console.log('  - Nome:', playerName);
+            console.log('  - Score Final:', this.finalScore);
+            console.log('  - Score válido?', this.finalScore > 0);
+            
+            if (!this.finalScore || this.finalScore <= 0) {
+                console.error('🚫 ERRO: Score inválido antes de submeter!', this.finalScore);
+                alert('❌ Erro crítico: Score inválido. Operação cancelada.');
+                closeModal();
+                return;
+            }
+            
             closeModal();
             await this.submitScore(playerName);
         };
@@ -4183,24 +4211,32 @@ class DeathScene extends Phaser.Scene {
 
     private async submitScore(playerName: string) {
         try {
-            // ===== VALIDAÇÕES INICIAIS =====
-            console.log('=== VALIDANDO SCORE ANTES DE SUBMETER ===');
-            console.log('Score Final (this.finalScore):', this.finalScore);
-            console.log('Tipo:', typeof this.finalScore);
-            console.log('É válido (> 0)?:', this.finalScore && this.finalScore > 0);
+            // ===== VALIDAÇÕES CRÍTICAS =====
+            console.log('');
+            console.log('═══════════════════════════════════════════════════════');
+            console.log('📋 INICIANDO SUBMISSÃO DE SCORE');
+            console.log('═══════════════════════════════════════════════════════');
+            console.log('🎮 Jogador:', playerName);
+            console.log('📊 Score Final (this.finalScore):', this.finalScore);
+            console.log('📝 Tipo de Score:', typeof this.finalScore);
+            console.log('✔️ É válido (> 0)?:', this.finalScore && this.finalScore > 0);
             
-            // CRÍTICO: Validar se score é válido antes de qualquer ação
-            if (!this.finalScore || this.finalScore <= 0) {
-                console.error('ERRO: Score inválido ou zero. Não é possível registrar.', {
-                    finalScore: this.finalScore,
-                    type: typeof this.finalScore,
-                    isValid: this.finalScore && this.finalScore > 0
-                });
-                alert('Erro: Score inválido (zero ou nulo). Não é possível registrar no contrato.');
-                return; // Parar aqui, não enviar transação
+            // 🛑 CRÍTICO: Validação OBRIGATÓRIA - Bloquear se score for 0
+            if (!this.finalScore || this.finalScore <= 0 || isNaN(this.finalScore)) {
+                console.error('');
+                console.error('❌ ❌ ❌ BLOQUEADO: SCORE INVÁLIDO ❌ ❌ ❌');
+                console.error('Detalhes do erro:');
+                console.error('  - Score:', this.finalScore);
+                console.error('  - Tipo:', typeof this.finalScore);
+                console.error('  - É um número?', typeof this.finalScore === 'number');
+                console.error('  - É maior que 0?', this.finalScore > 0);
+                console.error('═══════════════════════════════════════════════════════');
+                alert('❌ ERRO CRÍTICO: Score inválido (zero, nulo ou NaN).\nNão é possível registrar na blockchain.\nReque reiniciar o jogo.');
+                return; // 🛑 PARAR AQUI - Não enviar transação
             }
             
-            console.log('✓ Score validado com sucesso:', this.finalScore);
+            console.log('✅ ✅ Score VALIDADO COM SUCESSO! Valor:', this.finalScore);
+            console.log('🔓 Prosseguindo com registro...');
             
             // Se o usuário estiver conectado na carteira, registrar no contrato
             const walletAddr = (window as any).walletAddress;
