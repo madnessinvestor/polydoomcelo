@@ -3501,10 +3501,10 @@ class StartScene extends Phaser.Scene {
             try {
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
                 const abi = [
-                    "function getLeaderboard() public view returns (tuple(string name, uint256 score)[])"
+                    "function getAllScores() public view returns (tuple(string name, uint256 score)[])"
                 ];
                 const contract = new ethers.Contract(contractAddress, abi, provider);
-                const onChainScores = await contract.getLeaderboard();
+                const onChainScores = await contract.getAllScores();
                 return onChainScores.map((s: any) => ({
                     playerName: s.name,
                     score: Number(s.score),
@@ -4080,15 +4080,15 @@ class DeathScene extends Phaser.Scene {
                     const signer = await provider.getSigner();
                     
                     // ABI mínima para a função de registro de score
-                    // Assumindo uma função como: function registerScore(string name, uint256 score)
+                    // Assumindo uma função como: function addScore(string name, uint256 score)
                     const abi = [
-                        "function registerScore(string name, uint256 score) public"
+                        "function addScore(string name, uint256 score) public"
                     ];
                     const contractAddress = "0x6E8abC44BDa423b06fFd9c5aE83CE2c5B514CF20";
                     const contract = new ethers.Contract(contractAddress, abi, signer);
                     
                     console.log('Registrando score on-chain no contrato:', contractAddress);
-                    const tx = await contract.registerScore(playerName, this.finalScore);
+                    const tx = await contract.addScore(playerName, this.finalScore);
                     console.log('Transação enviada:', tx.hash);
                     
                     // Opcional: esperar a confirmação
