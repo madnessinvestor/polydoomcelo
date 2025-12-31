@@ -3576,12 +3576,12 @@ class StartScene extends Phaser.Scene {
                 const publicRpcUrl = "https://rpc.testnet.arc.network";
                 const provider = new ethers.JsonRpcProvider(publicRpcUrl);
                 
-                // ABI com as assinaturas exatas do contrato (verificadas via bytecode)
-                // getTopScores: 0x5c12cd4b
-                // getAllScores: 0xefa1c482
+                // ABI com variações de assinaturas para compatibilidade total
                 const abi = [
                     "function getAllScores() public view returns (tuple(string name, uint256 score)[])",
-                    "function getTopScores(uint256 limit) public view returns (tuple(string name, uint256 score)[])"
+                    "function getScores() public view returns (tuple(string name, uint256 score)[])",
+                    "function getTopScores(uint256 limit) public view returns (tuple(string name, uint256 score)[])",
+                    "function getScores() public view returns (tuple(address player, string name, uint256 score)[])"
                 ];
                 const contract = new ethers.Contract(contractAddress, abi, provider);
                 
@@ -3589,19 +3589,26 @@ class StartScene extends Phaser.Scene {
                 
                 let onChainScores: any[] = [];
                 
-                // Tentar obter os scores
-                try {
-                    // O bytecode mostra que getAllScores (0xefa1c482) existe
-                    onChainScores = await contract.getAllScores();
-                    console.log('✅ Scores recebidos via getAllScores:', onChainScores.length);
-                } catch (e1) {
-                    console.warn('⚠️ getAllScores falhou, tentando getTopScores...');
+                // Tentar obter os scores com diferentes métodos e ABIs
+                const tryMethods = [
+                    { name: 'getAllScores', args: [] },
+                    { name: 'getScores', args: [] },
+                    { name: 'getTopScores', args: [100] }
+                ];
+
+                for (const method of tryMethods) {
                     try {
-                        onChainScores = await contract.getTopScores(50);
-                        console.log('✅ Scores recebidos via getTopScores:', onChainScores.length);
-                    } catch (e2) {
-                        console.error('❌ Todas as funções de lista falharam');
-                        onChainScores = [];
+                        console.log(`📡 Tentando método: ${method.name}...`);
+                        const result = await (contract as any)[method.name](...method.args);
+                        if (result && Array.isArray(result) && result.length > 0) {
+                            onChainScores = result;
+                            console.log(`✅ Scores recebidos via ${method.name}:`, onChainScores.length);
+                            break;
+                        } else if (result && Array.isArray(result)) {
+                            console.log(`ℹ️ ${method.name} retornou array vazio.`);
+                        }
+                    } catch (err: any) {
+                        console.warn(`⚠️ ${method.name} falhou:`, err.message || err);
                     }
                 }
                 
