@@ -3575,12 +3575,12 @@ class StartScene extends Phaser.Scene {
             try {
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
                 const abi = [
-                    "function getAllScores() public view returns (tuple(string name, uint256 score)[])"
+                    "function getScores() public view returns (tuple(string name, uint256 score)[])"
                 ];
                 const contract = new ethers.Contract(contractAddress, abi, provider);
                 
                 console.log('🔍 Buscando scores on-chain no contrato:', contractAddress);
-                const onChainScores = await contract.getAllScores();
+                const onChainScores = await contract.getScores();
                 console.log('✅ Scores recebidos:', onChainScores.length);
                 
                 return onChainScores.map((s: any) => ({
