@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { ethers } from 'ethers';
 
 class MainScene extends Phaser.Scene {
     private player!: Phaser.Physics.Arcade.Sprite;
@@ -3138,9 +3139,75 @@ class MainScene extends Phaser.Scene {
 class StartScene extends Phaser.Scene {
     private sfx: { [key: string]: Phaser.Sound.BaseSound } = {};
     private openingMusic: Phaser.Sound.BaseSound | null = null;
+    private walletAddress: string | null = null;
+    private isWalletConnecting: boolean = false;
+    private walletBtn: Phaser.GameObjects.Rectangle | null = null;
+    private walletText: Phaser.GameObjects.Text | null = null;
 
     constructor() {
         super('StartScene');
+    }
+
+    private async connectWallet() {
+        if (this.isWalletConnecting) return;
+        this.isWalletConnecting = true;
+        this.updateWalletButtonText('CONNECTING...');
+
+        try {
+            if (!(window as any).ethereum) {
+                alert('Please install MetaMask or Rabby wallet!');
+                this.isWalletConnecting = false;
+                this.updateWalletButtonText('CONNECT WALLET');
+                return;
+            }
+
+            const provider = new (window as any).ethers.BrowserProvider((window as any).ethereum);
+            const accounts = await provider.send("eth_requestAccounts", []);
+            this.walletAddress = accounts[0];
+
+            // Arc Testnet Config
+            const arcTestnet = {
+                chainId: '0x4ce946', // 5042002 in hex
+                chainName: 'Arc Testnet',
+                nativeCurrency: {
+                    name: 'USDC',
+                    symbol: 'USDC',
+                    decimals: 18
+                },
+                rpcUrls: ['https://rpc.testnet.arc.network'],
+                blockExplorerUrls: ['https://testnet.arcscan.app']
+            };
+
+            try {
+                await (window as any).ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: arcTestnet.chainId }],
+                });
+            } catch (switchError: any) {
+                if (switchError.code === 4902) {
+                    await (window as any).ethereum.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [arcTestnet],
+                    });
+                } else {
+                    throw switchError;
+                }
+            }
+
+            this.updateWalletButtonText(`CONNECTED: ${this.walletAddress?.substring(0, 6)}...`);
+            (window as any).walletAddress = this.walletAddress;
+        } catch (error) {
+            console.error('Wallet connection error:', error);
+            this.updateWalletButtonText('CONNECT WALLET');
+        } finally {
+            this.isWalletConnecting = false;
+        }
+    }
+
+    private updateWalletButtonText(text: string) {
+        if (this.walletText) {
+            this.walletText.setText(text);
+        }
     }
 
     create() {
@@ -3177,8 +3244,8 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         // Start Button
-        const startBtn = this.add.rectangle(width / 2, height / 2, 200, 60, 0x4ade80);
-        const startText = this.add.text(width / 2, height / 2, 'START GAME', {
+        const startBtn = this.add.rectangle(width / 2, height / 2 + 50, 200, 60, 0x4ade80);
+        const startText = this.add.text(width / 2, height / 2 + 50, 'START GAME', {
             fontSize: '24px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
@@ -3187,6 +3254,10 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         startBtn.setInteractive().on('pointerdown', () => {
+            if (!(window as any).walletAddress) {
+                alert('Wallet connection is required to register your Score On Chain!');
+                return;
+            }
             this.sfx['menu_button']?.play();
             this.scene.start('MainScene');
         }).on('pointerover', () => {
@@ -3195,9 +3266,28 @@ class StartScene extends Phaser.Scene {
             startBtn.setFillStyle(0x4ade80);
         });
 
+        // Wallet Button
+        this.walletBtn = this.add.rectangle(width / 2, height / 2 - 30, 300, 60, 0x3b82f6);
+        this.walletText = this.add.text(width / 2, height / 2 - 30, 'CONNECT WALLET', {
+            fontSize: '20px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#ffffff',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        this.walletBtn.setInteractive().on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
+            this.connectWallet();
+        }).on('pointerover', () => {
+            this.walletBtn?.setFillStyle(0x2563eb);
+        }).on('pointerout', () => {
+            this.walletBtn?.setFillStyle(0x3b82f6);
+        });
+
         // Leaderboard Button
-        const leaderboardBtn = this.add.rectangle(width / 2, height / 2 + 100, 200, 60, 0xfbbf24);
-        const leaderboardText = this.add.text(width / 2, height / 2 + 100, 'LEADERBOARD', {
+        const leaderboardBtn = this.add.rectangle(width / 2, height / 2 + 130, 200, 60, 0xfbbf24);
+        const leaderboardText = this.add.text(width / 2, height / 2 + 130, 'LEADERBOARD', {
             fontSize: '20px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
@@ -3215,8 +3305,8 @@ class StartScene extends Phaser.Scene {
         });
 
         // History Button
-        const historyBtn = this.add.rectangle(width / 2, height / 2 + 200, 200, 60, 0x60a5fa);
-        const historyText = this.add.text(width / 2, height / 2 + 200, 'HISTORY', {
+        const historyBtn = this.add.rectangle(width / 2, height / 2 + 210, 200, 60, 0x60a5fa);
+        const historyText = this.add.text(width / 2, height / 2 + 210, 'HISTORY', {
             fontSize: '24px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
@@ -3234,8 +3324,8 @@ class StartScene extends Phaser.Scene {
         });
 
         // Settings Button
-        const settingsBtn = this.add.rectangle(width / 2, height / 2 + 300, 200, 60, 0x8b5cf6);
-        const settingsText = this.add.text(width / 2, height / 2 + 300, 'SETTINGS', {
+        const settingsBtn = this.add.rectangle(width / 2, height / 2 + 290, 200, 60, 0x8b5cf6);
+        const settingsText = this.add.text(width / 2, height / 2 + 290, 'SETTINGS', {
             fontSize: '24px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
