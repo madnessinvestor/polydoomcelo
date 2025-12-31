@@ -3186,6 +3186,19 @@ class StartScene extends Phaser.Scene {
                 return;
             }
 
+            // Arc Testnet Config
+            const arcTestnet = {
+                chainId: '0x4ce946', // 5042002 in hex
+                chainName: 'Arc Testnet',
+                nativeCurrency: {
+                    name: 'USDC',
+                    symbol: 'USDC',
+                    decimals: 18
+                },
+                rpcUrls: ['https://rpc.testnet.arc.network', 'https://rpc.blockdaemon.testnet.arc.network', 'https://rpc.drpc.testnet.arc.network', 'https://rpc.quicknode.testnet.arc.network'],
+                blockExplorerUrls: ['https://testnet.arcscan.app']
+            };
+
             const provider = new ethers.BrowserProvider((window as any).ethereum);
             
             // Try switching first, if it fails because chain is missing, add it
@@ -3198,21 +3211,22 @@ class StartScene extends Phaser.Scene {
             } catch (switchError: any) {
                 // Error code 4902 means the chain has not been added to MetaMask.
                 // Some wallets might return a different error for "chain not found"
-                if (switchError.code === 4902 || (switchError.data && switchError.data.originalError && switchError.data.originalError.code === 4902)) {
+                if (switchError.code === 4902 || (switchError.data && (switchError.data.originalError?.code === 4902 || switchError.data.code === -32603))) {
                     console.log('Adding Arc Testnet to wallet...');
                     await (window as any).ethereum.request({
                         method: 'wallet_addEthereumChain',
                         params: [arcTestnet],
                     });
                 } else {
-                    // If it's not a "missing chain" error, let's try to add it anyway as a fallback
-                    console.log('Switch failed, attempting to add Arc Testnet as fallback...');
+                    // Se não for o erro 4902, tenta adicionar de qualquer forma para garantir
+                    console.log('Switch failed with code:', switchError.code, 'Attempting to add Arc Testnet directly...');
                     try {
                         await (window as any).ethereum.request({
                             method: 'wallet_addEthereumChain',
                             params: [arcTestnet],
                         });
                     } catch (addError) {
+                        console.error('Failed to add chain:', addError);
                         throw switchError;
                     }
                 }
@@ -3220,8 +3234,16 @@ class StartScene extends Phaser.Scene {
 
             const accounts = await provider.send("eth_requestAccounts", []);
             this.walletAddress = accounts[0];
+            
+            // Confirma que estamos na rede correta após trocar/adicionar
+            const network = await provider.getNetwork();
+            if (network.chainId !== 5042002n) {
+                console.warn('Network mismatch after connection. Current chainId:', network.chainId);
+            }
 
-            this.updateWalletButtonText(`CONNECTED: ${this.walletAddress?.substring(0, 6)}...`);
+            if (this.walletText) {
+                this.updateWalletButtonText(`CONNECTED: ${this.walletAddress?.substring(0, 6)}...`);
+            }
             this.updateNetworkDisplay('Arc Testnet');
             (window as any).walletAddress = this.walletAddress;
             (window as any).networkName = 'Arc Testnet';
