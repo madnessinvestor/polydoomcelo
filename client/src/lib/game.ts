@@ -3100,6 +3100,10 @@ class MainScene extends Phaser.Scene {
             this.intervalTimerEvent.paused = true;
         }
         
+        // Store the elapsed time to adjust wave start time when resuming
+        const elapsedBeforePause = this.time.now - this.waveStartTime;
+        (window as any).elapsedBeforePause = elapsedBeforePause;
+        
         // Notify React to show pause modal
         if ((window as any).showPauseModal) {
             (window as any).showPauseModal();
@@ -3109,6 +3113,10 @@ class MainScene extends Phaser.Scene {
     private closePauseModal() {
         this.isPaused = false;
         this.pauseModalOpen = false;
+        
+        // Adjust wave start time to account for pause duration
+        const pauseDuration = this.time.now - this.pausedTime;
+        this.waveStartTime += pauseDuration;
         
         // Resume physics engine
         this.physics.resume();
