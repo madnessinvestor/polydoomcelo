@@ -3571,23 +3571,49 @@ class StartScene extends Phaser.Scene {
         // Fetch and display leaderboard data
         const contractAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
         const fetchOnChainLeaderboard = async () => {
-            if (!(window as any).ethereum) return null;
             try {
-                const provider = new ethers.BrowserProvider((window as any).ethereum);
+                // Usar um RPC público da Arc Testnet para busca pública
+                const publicRpcUrl = "https://rpc.testnet.arc.network";
+                const provider = new ethers.JsonRpcProvider(publicRpcUrl);
+                
+                // ABI com as assinaturas exatas do contrato (verificadas via bytecode)
+                // getTopScores: 0x5c12cd4b
+                // getAllScores: 0xefa1c482
                 const abi = [
-                    "function getScores() public view returns (tuple(string name, uint256 score)[])"
+                    "function getAllScores() public view returns (tuple(string name, uint256 score)[])",
+                    "function getTopScores(uint256 limit) public view returns (tuple(string name, uint256 score)[])"
                 ];
                 const contract = new ethers.Contract(contractAddress, abi, provider);
                 
-                console.log('🔍 Buscando scores on-chain no contrato:', contractAddress);
-                const onChainScores = await contract.getScores();
-                console.log('✅ Scores recebidos:', onChainScores.length);
+                console.log('🔍 Buscando scores on-chain no contrato (via RPC público):', contractAddress);
                 
+                let onChainScores: any[] = [];
+                
+                // Tentar obter os scores
+                try {
+                    // O bytecode mostra que getAllScores (0xefa1c482) existe
+                    onChainScores = await contract.getAllScores();
+                    console.log('✅ Scores recebidos via getAllScores:', onChainScores.length);
+                } catch (e1) {
+                    console.warn('⚠️ getAllScores falhou, tentando getTopScores...');
+                    try {
+                        onChainScores = await contract.getTopScores(50);
+                        console.log('✅ Scores recebidos via getTopScores:', onChainScores.length);
+                    } catch (e2) {
+                        console.error('❌ Todas as funções de lista falharam');
+                        onChainScores = [];
+                    }
+                }
+                
+                if (!onChainScores || !Array.isArray(onChainScores)) {
+                    onChainScores = [];
+                }
+
                 return onChainScores.map((s: any) => ({
-                    playerName: s.name || 'Anonymous',
-                    score: Number(s.score) || 0,
+                    playerName: (s.name && s.name.trim() !== "") ? s.name : "Anonymous",
+                    score: s.score ? Number(s.score) : 0,
                     enemiesDefeated: 0
-                })).sort((a: any, b: any) => b.score - a.score);
+                })).filter(s => s.score > 0).sort((a: any, b: any) => b.score - a.score);
             } catch (e) {
                 console.error('Erro detalhado ao buscar leaderboard on-chain:', e);
                 return null;
