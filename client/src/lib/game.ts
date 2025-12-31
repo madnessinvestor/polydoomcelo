@@ -4042,6 +4042,33 @@ class DeathScene extends Phaser.Scene {
 
     private async submitScore(playerName: string) {
         try {
+            // Se o usuário estiver conectado na carteira, tentamos registrar no contrato
+            const walletAddr = (window as any).walletAddress;
+            if (walletAddr && (window as any).ethereum) {
+                try {
+                    const provider = new ethers.BrowserProvider((window as any).ethereum);
+                    const signer = await provider.getSigner();
+                    
+                    // ABI mínima para a função de registro de score
+                    // Assumindo uma função como: function registerScore(string name, uint256 score)
+                    const abi = [
+                        "function registerScore(string name, uint256 score) public"
+                    ];
+                    const contractAddress = "0x6E8abC44BDa423b06fFd9c5aE83CE2c5B514CF20";
+                    const contract = new ethers.Contract(contractAddress, abi, signer);
+                    
+                    console.log('Registrando score on-chain no contrato:', contractAddress);
+                    const tx = await contract.registerScore(playerName, this.finalScore);
+                    console.log('Transação enviada:', tx.hash);
+                    
+                    // Opcional: esperar a confirmação
+                    // await tx.wait();
+                } catch (contractError) {
+                    console.error('Erro ao registrar no contrato:', contractError);
+                    // Continuamos para o registro na API local mesmo se o contrato falhar
+                }
+            }
+
             const response = await fetch('/api/scores', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -4056,13 +4083,13 @@ class DeathScene extends Phaser.Scene {
             if (response.ok) {
                 // Stop all sounds before transitioning
                 this.sound.stopAll();
-                this.scene.switch('StartScene');
+                this.scene.start('StartScene');
             }
         } catch (error) {
             console.error('Failed to submit score:', error);
             // Stop all sounds before transitioning
             this.sound.stopAll();
-            this.scene.switch('StartScene');
+            this.scene.start('StartScene');
         }
     }
 }
