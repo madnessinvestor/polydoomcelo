@@ -4003,13 +4003,30 @@ class DeathScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5, 0.5);
 
-        registerBtn.setInteractive().on('pointerdown', () => {
-            this.openNameModal();
-        }).on('pointerover', () => {
-            registerBtn.setFillStyle(0x22c55e);
-        }).on('pointerout', () => {
-            registerBtn.setFillStyle(0x4ade80);
-        });
+        // Validar se o score é válido antes de permitir registro
+        const isScoreValid = this.finalScore && this.finalScore > 0;
+        const registerBtnColor = isScoreValid ? 0x4ade80 : 0x6b7280;
+        const registerTextColor = isScoreValid ? '#000000' : '#9ca3af';
+        
+        registerBtn.setFillStyle(registerBtnColor);
+        registerText.setColor(registerTextColor);
+        
+        if (isScoreValid) {
+            registerBtn.setInteractive().on('pointerdown', () => {
+                console.log('=== INICIANDO REGISTRO DE SCORE ===');
+                console.log('Score Final a ser registrado:', this.finalScore);
+                console.log('Tipo de Score:', typeof this.finalScore);
+                console.log('Score > 0?', this.finalScore > 0);
+                this.openNameModal();
+            }).on('pointerover', () => {
+                registerBtn.setFillStyle(0x22c55e);
+            }).on('pointerout', () => {
+                registerBtn.setFillStyle(0x4ade80);
+            });
+        } else {
+            // Mostrar score inválido
+            registerText.setText(`REGISTER SCORE\n(Score: ${this.finalScore || 0})`);
+        }
 
         // No Register Score Button
         const noRegisterBtn = this.add.rectangle(width / 2, height / 2 + 130, 220, 60, 0xff6b6b);
@@ -4166,43 +4183,77 @@ class DeathScene extends Phaser.Scene {
 
     private async submitScore(playerName: string) {
         try {
-            // Se o usuário estiver conectado na carteira, tentamos registrar no contrato
+            // ===== VALIDAÇÕES INICIAIS =====
+            console.log('=== VALIDANDO SCORE ANTES DE SUBMETER ===');
+            console.log('Score Final (this.finalScore):', this.finalScore);
+            console.log('Tipo:', typeof this.finalScore);
+            console.log('É válido (> 0)?:', this.finalScore && this.finalScore > 0);
+            
+            // CRÍTICO: Validar se score é válido antes de qualquer ação
+            if (!this.finalScore || this.finalScore <= 0) {
+                console.error('ERRO: Score inválido ou zero. Não é possível registrar.', {
+                    finalScore: this.finalScore,
+                    type: typeof this.finalScore,
+                    isValid: this.finalScore && this.finalScore > 0
+                });
+                alert('Erro: Score inválido (zero ou nulo). Não é possível registrar no contrato.');
+                return; // Parar aqui, não enviar transação
+            }
+            
+            console.log('✓ Score validado com sucesso:', this.finalScore);
+            
+            // Se o usuário estiver conectado na carteira, registrar no contrato
             const walletAddr = (window as any).walletAddress;
             if (walletAddr && (window as any).ethereum) {
                 try {
+                    console.log('=== INICIANDO REGISTRO ON-CHAIN ===');
+                    console.log('Wallet conectada:', walletAddr);
+                    
                     const provider = new ethers.BrowserProvider((window as any).ethereum);
                     const signer = await provider.getSigner();
                     
-                    // ABI expandida com funções de leitura e escrita
                     const abi = [
-                        "function addScore(string name, uint256 score) public",
-                        "function getScores() public view returns (tuple(address player, string name, uint256 score)[])",
-                        "function getTopScores(uint256 limit) public view returns (tuple(address player, string name, uint256 score)[])",
-                        "function getPlayerScores(address player) public view returns (tuple(string name, uint256 score)[])"
+                        "function addScore(string name, uint256 score) public"
                     ];
                     const contractAddress = "0x6E8abC44BDa423b06fFd9c5aE83CE2c5B514CF20";
                     const contract = new ethers.Contract(contractAddress, abi, signer);
                     
-                    console.log('Registrando score on-chain no contrato:', contractAddress);
-                    console.log('Jogador:', playerName, 'Score:', this.finalScore);
-                    const tx = await contract.addScore(playerName, this.finalScore);
-                    console.log('Transação enviada:', tx.hash);
+                    console.log('📝 Parâmetros da transação:');
+                    console.log('  - Contrato:', contractAddress);
+                    console.log('  - Nome do jogador:', playerName);
+                    console.log('  - Score FINAL:', this.finalScore);
+                    console.log('  - Tipo de score:', typeof this.finalScore);
                     
-                    // Armazenar transação hash para histórico
+                    // Enviar transação SEM call ou estimateGas - apenas submit normal
+                    console.log('📤 Enviando transação ao contrato...');
+                    const tx = await contract.addScore(playerName, this.finalScore);
+                    console.log('✓ Transação enviada com hash:', tx.hash);
+                    
+                    // Armazenar para histórico
                     (window as any).lastScoreTxHash = tx.hash;
                     (window as any).lastScoreName = playerName;
                     (window as any).lastScoreValue = this.finalScore;
                     
-                    // Aguardar confirmação da transação
+                    // Aguardar confirmação
+                    console.log('⏳ Aguardando confirmação da transação...');
                     const receipt = await tx.wait();
-                    console.log('Transação confirmada:', receipt?.transactionHash);
+                    console.log('✓ Transação confirmada!', receipt?.transactionHash);
+                    console.log('✓ Score registrado com sucesso on-chain!');
                 } catch (contractError: any) {
-                    console.error('Erro ao registrar no contrato:', contractError);
+                    console.error('❌ ERRO ao registrar no contrato:', {
+                        message: contractError.message,
+                        code: contractError.code,
+                        fullError: contractError
+                    });
                     alert('Erro ao registrar score on-chain: ' + (contractError.message || 'Erro desconhecido'));
-                    // Continuamos para o registro na API local mesmo se o contrato falhar
+                    return; // Parar aqui se falhar no contrato
                 }
+            } else {
+                console.warn('⚠️ Wallet não conectada. Score será registrado apenas localmente.');
             }
 
+            // Registrar na API local como backup
+            console.log('📤 Registrando score na API local...');
             const response = await fetch('/api/scores', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -4215,13 +4266,16 @@ class DeathScene extends Phaser.Scene {
             });
 
             if (response.ok) {
-                // Stop all sounds before transitioning
+                console.log('✓ Score registrado na API local com sucesso!');
                 this.sound.stopAll();
                 this.scene.start('StartScene');
+            } else {
+                console.error('Erro ao registrar na API local');
             }
         } catch (error) {
-            console.error('Failed to submit score:', error);
-            // Stop all sounds before transitioning
+            console.error('❌ ERRO CRÍTICO ao submeter score:', error);
+            alert('Erro ao submeter score: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
+            // Retornar ao menu mesmo com erro
             this.sound.stopAll();
             this.scene.start('StartScene');
         }
