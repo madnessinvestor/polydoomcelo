@@ -3112,6 +3112,16 @@ class MainScene extends Phaser.Scene {
         }
     }
 
+    private openUpgradesModal() {
+        this.sfx.menu_button.play({ volume: this.sfxVolume * this.masterVolume });
+        // Aqui você pode adicionar lógica para abrir um modal de upgrades no React
+        // similar ao pause modal, ou apenas um log por enquanto
+        console.log("Upgrades Modal Triggered");
+        if ((window as any).showUpgradesModal) {
+            (window as any).showUpgradesModal();
+        }
+    }
+
     private closePauseModal() {
         this.isPaused = false;
         this.pauseModalOpen = false;
@@ -3433,9 +3443,9 @@ class StartScene extends Phaser.Scene {
         }
 
         // Leaderboard Button
-        const leaderboardBtn = this.add.rectangle(width / 2, height / 2 + 130, 200, 60, 0xfbbf24);
+        const leaderboardBtn = this.add.rectangle(width / 2, height / 2 + 130, 200, 40, 0xfbbf24);
         const leaderboardText = this.add.text(width / 2, height / 2 + 130, 'LEADERBOARD', {
-            fontSize: '20px',
+            fontSize: '18px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
             fontStyle: 'bold',
@@ -3452,9 +3462,9 @@ class StartScene extends Phaser.Scene {
         });
 
         // History Button
-        const historyBtn = this.add.rectangle(width / 2, height / 2 + 210, 200, 60, 0x60a5fa);
-        const historyText = this.add.text(width / 2, height / 2 + 210, 'HISTORY', {
-            fontSize: '24px',
+        const historyBtn = this.add.rectangle(width / 2, height / 2 + 190, 200, 40, 0x60a5fa);
+        const historyText = this.add.text(width / 2, height / 2 + 190, 'HISTORY', {
+            fontSize: '18px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
             fontStyle: 'bold',
@@ -3470,10 +3480,29 @@ class StartScene extends Phaser.Scene {
             historyBtn.setFillStyle(0x60a5fa);
         });
 
+        // Upgrades Button
+        const upgradesBtn = this.add.rectangle(width / 2, height / 2 + 250, 200, 40, 0x10b981);
+        const upgradesText = this.add.text(width / 2, height / 2 + 250, 'UPGRADES', {
+            fontSize: '18px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        upgradesBtn.setInteractive().on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
+            this.openUpgradesModal();
+        }).on('pointerover', () => {
+            upgradesBtn.setFillStyle(0x34d399);
+        }).on('pointerout', () => {
+            upgradesBtn.setFillStyle(0x10b981);
+        });
+
         // Settings Button
-        const settingsBtn = this.add.rectangle(width / 2, height / 2 + 290, 200, 60, 0x8b5cf6);
-        const settingsText = this.add.text(width / 2, height / 2 + 290, 'SETTINGS', {
-            fontSize: '24px',
+        const settingsBtn = this.add.rectangle(width / 2, height / 2 + 310, 200, 40, 0x8b5cf6);
+        const settingsText = this.add.text(width / 2, height / 2 + 310, 'SETTINGS', {
+            fontSize: '18px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
             fontStyle: 'bold',
