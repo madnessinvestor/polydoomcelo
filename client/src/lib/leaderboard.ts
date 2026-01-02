@@ -58,25 +58,27 @@ export const fetchOnChainLeaderboard = async () => {
         // Normalização baseada no ArcScan (onde aparece address, name, score)
         const normalized = rawScores.map(s => {
             let name = "Anonymous";
-            let score = 0;
+            let scoreValue = 0;
 
             if (Array.isArray(s)) {
                 if (s.length >= 3) {
                     // [address, name, score]
                     name = s[1] ? s[1].toString() : "Anonymous";
-                    score = Number(s[2]);
+                    scoreValue = Number(s[2]);
                 } else {
                     // [name, score]
                     name = s[0] ? s[0].toString() : "Anonymous";
-                    score = Number(s[1]);
+                    scoreValue = Number(s[1]);
                 }
             } else if (s && typeof s === 'object') {
                 name = (s.name || s[0] || "Anonymous").toString();
-                score = Number(s.score || s[1] || 0);
+                scoreValue = Number(s.score || s[1] || 0);
             }
 
-            return { playerName: name.trim() || "Anonymous", score };
+            return { playerName: name.trim() || "Anonymous", score: scoreValue };
         }).filter(s => s.score > 0);
+
+        console.log("📊 Dados normalizados para o leaderboard:", normalized);
 
         // Remover duplicados e ordenar
         const unique = normalized.reduce((acc: any[], curr) => {
