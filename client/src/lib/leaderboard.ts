@@ -1,17 +1,11 @@
 import { ethers } from "ethers";
 
-// ABI com variações de assinaturas e mapeamento individual
+// ABI Minimal para as funções de busca
 const abi = [
+    "function getScores() public view returns (tuple(address player, string name, uint256 score)[])",
     "function getAllScores() public view returns (tuple(string name, uint256 score)[])",
-    "function getScores() public view returns (tuple(string name, uint256 score)[])",
-    "function getTopScores(uint256 limit) public view returns (tuple(string name, uint256 score)[])",
     "function scoreCount() public view returns (uint256)",
-    "function totalScores() public view returns (uint256)",
-    "function scores(uint256 index) public view returns (string name, uint256 score)",
-    "function leaderboard(uint256 index) public view returns (string name, uint256 score)",
-    "function getPlayerScore(address player) public view returns (string name, uint256 score)",
-    "function userScores(address user) public view returns (uint256)",
-    "function getScores() public view returns (tuple(address player, string name, uint256 score)[])"
+    "function scores(uint256 index) public view returns (string name, uint256 score)"
 ];
 
 const contractAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
@@ -22,108 +16,80 @@ export const fetchOnChainLeaderboard = async () => {
         const provider = new ethers.JsonRpcProvider(publicRpcUrl);
         const contract = new ethers.Contract(contractAddress, abi, provider);
         
-        console.log('🔍 Leaderboard: Buscando no contrato:', contractAddress);
+        console.log('🔍 Leaderboard: Buscando dados no contrato:', contractAddress);
         
-        let onChainScores: any[] = [];
+        let rawScores: any[] = [];
         
-        // 1. Tentar métodos de lista exaustivamente
-        const listMethods = [
-            { name: 'getAllScores', args: [] },
-            { name: 'getScores', args: [] },
-            { name: 'getTopScores', args: [100] }
-        ];
-
-        for (const m of listMethods) {
-            try {
-                const res = await (contract as any)[m.name](...m.args);
-                if (res && Array.isArray(res) && res.length > 0) {
-                    onChainScores = res;
-                    console.log(`✅ Leaderboard: Sucesso via ${m.name}, total: ${res.length}`);
-                    break;
-                }
-            } catch (e) {
-                // Tentar sem argumentos se for erro de assinatura
+        // 1. Tentar getScores() que parece retornar [address, name, score] conforme ArcScan
+        try {
+            console.log("📡 Tentando getScores()...");
+            const res = await contract.getScores();
+            if (res && Array.isArray(res)) {
+                rawScores = res;
+                console.log("✅ getScores() retornou:", res.length, "itens");
             }
-        }
-
-        // 2. Se lista falhou, tentar ler os primeiros 10 do mapping como "brute force"
-        if (onChainScores.length === 0) {
-            console.log('📡 Leaderboard: Tentando mapping individual...');
-            for (let i = 0; i < 10; i++) {
+        } catch (e) {
+            console.warn("⚠️ getScores() falhou");
+            
+            // 2. Fallback para getAllScores()
+            try {
+                console.log("📡 Tentando getAllScores()...");
+                const res = await contract.getAllScores();
+                if (res && Array.isArray(res)) {
+                    rawScores = res;
+                    console.log("✅ getAllScores() retornou:", res.length, "itens");
+                }
+            } catch (e2) {
+                console.warn("⚠️ getAllScores() falhou");
+                
+                // 3. Fallback para mapping manual
                 try {
-                    let data;
-                    try {
-                        data = await contract.scores(i);
-                    } catch (e) {
-                        data = await contract.leaderboard(i);
+                    console.log("📡 Tentando mapping manual...");
+                    const count = await contract.scoreCount();
+                    const total = Math.min(Number(count), 50);
+                    for (let i = 0; i < total; i++) {
+                        const s = await contract.scores(i);
+                        if (s && s[0]) rawScores.push(s);
                     }
-
-                    if (data && (data[0] !== "" || Number(data[1]) > 0)) {
-                        onChainScores.push({ name: data[0], score: data[1] });
-                    }
-                } catch (e) {
-                    break;
-                }
+                } catch (e3) {}
             }
         }
 
-        // 3. Score pessoal via MetaMask
-        if (typeof window !== 'undefined' && (window as any).ethereum) {
-            try {
-                const browserProvider = new ethers.BrowserProvider((window as any).ethereum);
-                const accounts = await browserProvider.listAccounts();
-                if (accounts.length > 0) {
-                    const addr = accounts[0].address;
-                    try {
-                        const s = await contract.getPlayerScore(addr);
-                        if (s && Number(s[1]) > 0) {
-                            onChainScores.push({ name: s[0] || "You", score: s[1] });
-                        }
-                    } catch (e) {
-                        try {
-                            const val = await contract.userScores(addr);
-                            if (Number(val) > 0) onChainScores.push({ name: "Your Highscore", score: val });
-                        } catch (e2) {}
-                    }
-                }
-            } catch (e) {}
-        }
-
-        // 4. Normalização Robusta
-        const normalized = onChainScores.map(s => {
+        // Normalização baseada no ArcScan (onde aparece address, name, score)
+        const normalized = rawScores.map(s => {
             let name = "Anonymous";
             let score = 0;
 
             if (Array.isArray(s)) {
                 if (s.length >= 3) {
+                    // [address, name, score]
                     name = s[1] ? s[1].toString() : "Anonymous";
                     score = Number(s[2]);
                 } else {
+                    // [name, score]
                     name = s[0] ? s[0].toString() : "Anonymous";
                     score = Number(s[1]);
                 }
-            } else if (typeof s === 'object' && s !== null) {
-                name = (s.name || s.playerName || s[0] || "Anonymous").toString();
-                score = Number(s.score || s.highScore || s[1] || 0);
+            } else if (s && typeof s === 'object') {
+                name = (s.name || s[0] || "Anonymous").toString();
+                score = Number(s.score || s[1] || 0);
             }
 
-            return { name: name.trim() || "Anonymous", score };
+            return { playerName: name.trim() || "Anonymous", score };
         }).filter(s => s.score > 0);
 
-        // Remover duplicados
+        // Remover duplicados e ordenar
         const unique = normalized.reduce((acc: any[], curr) => {
-            if (!acc.find(x => x.name === curr.name && x.score === curr.score)) {
-                acc.push(curr);
-            }
+            const exists = acc.find(x => x.playerName === curr.playerName && x.score === curr.score);
+            if (!exists) acc.push(curr);
             return acc;
         }, []);
 
-        console.log(`📊 Leaderboard: ${unique.length} scores encontrados.`);
         return unique.sort((a, b) => b.score - a.score).map(s => ({
-            playerName: s.name,
-            score: s.score,
+            ...s,
             enemiesDefeated: 0
         }));
+
     } catch (e) {
         console.error('❌ Erro no Leaderboard:', e);
         return [];

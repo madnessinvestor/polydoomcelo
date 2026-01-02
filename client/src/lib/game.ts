@@ -468,17 +468,18 @@ class MainScene extends Phaser.Scene {
 
         // Wallet HUD
         const walletAddr = (window as any).walletAddress;
-        const walletDisplay = walletAddr ? `${walletAddr.substring(0, 6)}...${walletAddr.substring(walletAddr.length - 4)}` : 'Not Connected';
-        const networkDisplay = (window as any).networkName || 'Unknown';
-        
-        this.walletHUDText = this.add.text(16, 16 + fontSize + 10, `Wallet: ${walletDisplay} | Network: ${networkDisplay}`, {
-            fontSize: `${Math.floor(fontSize * 0.7)}px`,
-            color: '#4ade80',
-            fontFamily: '"Courier New", Courier, monospace',
-            fontStyle: 'bold',
-            stroke: '#000',
-            strokeThickness: 4
-        }).setScrollFactor(0).setDepth(1000);
+        if (walletAddr) {
+            const shortAddr = `${walletAddr.substring(0, 6)}...${walletAddr.substring(walletAddr.length - 4)}`;
+            const networkName = (window as any).networkName || 'Arc Testnet';
+            this.add.text(16, 16 + fontSize + 10, `Player: ${shortAddr} | Network: ${networkName}`, {
+                fontSize: `${Math.floor(fontSize * 0.7)}px`,
+                color: '#4ade80',
+                fontFamily: '"Courier New", Courier, monospace',
+                fontStyle: 'bold',
+                stroke: '#000',
+                strokeThickness: 4
+            }).setScrollFactor(0).setDepth(1000);
+        }
 
         this.enemyCounterText = this.add.text(width - 16, 16 + fontSize * 2 + 20, `0/${this.totalEnemiesInWave}`, {
             fontSize: `${fontSize}px`,
