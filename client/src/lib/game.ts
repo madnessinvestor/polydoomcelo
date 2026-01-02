@@ -3188,6 +3188,10 @@ class StartScene extends Phaser.Scene {
     private walletBtn: Phaser.GameObjects.Rectangle | null = null;
     private walletText: Phaser.GameObjects.Text | null = null;
     private networkInfoText: Phaser.GameObjects.Text | null = null;
+    private startBtn: Phaser.GameObjects.Rectangle | null = null;
+    private startText: Phaser.GameObjects.Text | null = null;
+    private upgradesBtn: Phaser.GameObjects.Rectangle | null = null;
+    private upgradesText: Phaser.GameObjects.Text | null = null;
 
     constructor() {
         super('StartScene');
