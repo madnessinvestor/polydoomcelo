@@ -190,6 +190,19 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                               Lv {currentLevel}/10
                             </Badge>
                           </div>
+                          
+                          {/* Evolution bar */}
+                          <div className="flex gap-1 mb-3">
+                            {Array.from({ length: 10 }).map((_, i) => (
+                              <div 
+                                key={i}
+                                className={`h-1.5 flex-1 rounded-full transition-colors ${
+                                  i < currentLevel ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-slate-700"
+                                }`}
+                              />
+                            ))}
+                          </div>
+
                           <p className="text-sm text-slate-400 mb-4 line-clamp-1">{upgrade.description}</p>
                           
                           {currentLevel < 10 ? (
