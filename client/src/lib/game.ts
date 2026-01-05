@@ -2560,6 +2560,83 @@ class MainScene extends Phaser.Scene {
         enemy.destroy();
     }
 
+    private loadPermanentUpgrades() {
+        try {
+            const saved = localStorage.getItem('purchasedUpgrades');
+            if (saved) {
+                this.purchasedUpgrades = JSON.parse(saved);
+                this.updateUpgradeIcons();
+            }
+        } catch (e) {
+            console.error("Failed to load upgrades", e);
+        }
+    }
+
+    public applyUpgrade(id: string, level: number) {
+        this.purchasedUpgrades[id] = level;
+        localStorage.setItem('purchasedUpgrades', JSON.stringify(this.purchasedUpgrades));
+        this.updateUpgradeIcons();
+        
+        // Apply stats immediately
+        const stats = this.levelStats[this.level - 1] || this.levelStats[0];
+        if (id === 'arc_hp') {
+            const bonus = 1 + (level * 0.1); // Simple 10% per level for display logic
+            this.maxHealth = stats.hp * bonus;
+            this.updateHUD();
+        } else if (id === 'arc_ki') {
+            const bonus = 1 + (level * 0.1);
+            this.maxKiarc = stats.ki * bonus;
+            this.updateHUD();
+        }
+    }
+
+    private updateUpgradeIcons() {
+        this.upgradeIconsContainer.removeAll(true);
+        
+        const upgradeTypes: Record<string, { icon: string, color: number }> = {
+            'arc_hp': { icon: '❤', color: 0xff4444 },
+            'arc_ki': { icon: '⚡', color: 0x44ccff },
+            'arc_damage': { icon: '⚔', color: 0xffcc44 },
+            'arc_defence': { icon: '🛡', color: 0x44ff44 },
+            'arc_regen': { icon: '✚', color: 0x44ffaa },
+            'arc_vamp': { icon: '💧', color: 0xaa44ff }
+        };
+
+        let xOffset = 0;
+        const iconSize = 32;
+        const spacing = 10;
+
+        Object.entries(this.purchasedUpgrades).forEach(([id, level]) => {
+            if (level <= 0) return;
+
+            const type = upgradeTypes[id];
+            if (!type) return;
+
+            const bg = this.add.graphics();
+            bg.fillStyle(0x000000, 0.6);
+            bg.lineStyle(2, type.color, 1);
+            bg.strokeRect(xOffset, 0, iconSize, iconSize);
+            bg.fillRect(xOffset, 0, iconSize, iconSize);
+
+            const iconText = this.add.text(xOffset + iconSize/2, iconSize/2, type.icon, {
+                fontSize: '20px',
+                color: Phaser.Display.Color.IntegerToColor(type.color).rgba,
+                fontStyle: 'bold'
+            }).setOrigin(0.5);
+
+            const levelText = this.add.text(xOffset + iconSize - 2, iconSize - 2, level.toString(), {
+                fontSize: '12px',
+                color: '#ffffff',
+                fontStyle: 'bold',
+                stroke: '#000000',
+                strokeThickness: 2
+            }).setOrigin(1, 1);
+
+            this.upgradeIconsContainer.add([bg, iconText, levelText]);
+            xOffset += iconSize + spacing;
+        });
+    }
+
     private handlePlayerEnemyCollision(obj1: any, obj2: any) {
         if (this.isGameOver || this.isWaveInterval || this.isInvincible) return;
         const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
