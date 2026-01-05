@@ -3131,9 +3131,6 @@ class MainScene extends Phaser.Scene {
 
     private openUpgradesModal() {
         this.sfx.menu_button.play({ volume: this.sfxVolume * this.masterVolume });
-        // Aqui você pode adicionar lógica para abrir um modal de upgrades no React
-        // similar ao pause modal, ou apenas um log por enquanto
-        console.log("Upgrades Modal Triggered");
         if ((window as any).showUpgradesModal) {
             (window as any).showUpgradesModal();
         }

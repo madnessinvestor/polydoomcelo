@@ -30,7 +30,9 @@ export default function Home() {
     // Resume game through window reference
     if (window.game?.scene.isActive('MainScene')) {
       const scene = window.game.scene.getScene('MainScene') as any;
-      scene?.closePauseModal?.();
+      if (scene.isPaused) {
+        scene.closePauseModal?.();
+      }
     }
   };
 
@@ -53,10 +55,15 @@ export default function Home() {
     // Set up window functions for pause modal
     (window as any).showPauseModal = () => setIsPauseModalOpen(true);
     (window as any).hidePauseModal = () => setIsPauseModalOpen(false);
+    (window as any).showUpgradesModal = () => {
+      setIsPauseModalOpen(false);
+      setIsUpgradesOpen(true);
+    };
 
     return () => {
       delete (window as any).showPauseModal;
       delete (window as any).hidePauseModal;
+      delete (window as any).showUpgradesModal;
     };
   }, [isConnected]);
 
