@@ -29,14 +29,14 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     tiers: [
       { level: 1, bonus: "5", price: 5 },
       { level: 2, bonus: "10", price: 10 },
-      { level: 3, bonus: "15", price: 20 },
-      { level: 4, bonus: "20", price: 30 },
-      { level: 5, bonus: "25", price: 40 },
-      { level: 6, bonus: "30", price: 50 },
-      { level: 7, bonus: "35", price: 60 },
-      { level: 8, bonus: "40", price: 70 },
-      { level: 9, bonus: "45", price: 80 },
-      { level: 10, bonus: "55", price: 100 },
+      { level: 3, bonus: "20", price: 20 },
+      { level: 4, bonus: "30", price: 30 },
+      { level: 5, bonus: "40", price: 40 },
+      { level: 6, bonus: "55", price: 50 },
+      { level: 7, bonus: "70", price: 60 },
+      { level: 8, bonus: "85", price: 70 },
+      { level: 9, bonus: "100", price: 80 },
+      { level: 10, bonus: "200", price: 100 },
     ]
   },
   {
@@ -47,14 +47,14 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     tiers: [
       { level: 1, bonus: "5", price: 5 },
       { level: 2, bonus: "10", price: 10 },
-      { level: 3, bonus: "15", price: 20 },
-      { level: 4, bonus: "20", price: 30 },
-      { level: 5, bonus: "25", price: 40 },
-      { level: 6, bonus: "30", price: 50 },
-      { level: 7, bonus: "35", price: 60 },
-      { level: 8, bonus: "40", price: 70 },
-      { level: 9, bonus: "45", price: 80 },
-      { level: 10, bonus: "55", price: 100 },
+      { level: 3, bonus: "20", price: 20 },
+      { level: 4, bonus: "30", price: 30 },
+      { level: 5, bonus: "40", price: 40 },
+      { level: 6, bonus: "55", price: 50 },
+      { level: 7, bonus: "70", price: 60 },
+      { level: 8, bonus: "85", price: 70 },
+      { level: 9, bonus: "100", price: 80 },
+      { level: 10, bonus: "200", price: 100 },
     ]
   },
   {
@@ -63,16 +63,16 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     description: "Increases all damage dealt",
     icon: Sword,
     tiers: [
-      { level: 1, bonus: "10%", price: 10 },
-      { level: 2, bonus: "20%", price: 20 },
-      { level: 3, bonus: "30%", price: 40 },
-      { level: 4, bonus: "45%", price: 60 },
-      { level: 5, bonus: "60%", price: 80 },
-      { level: 6, bonus: "75%", price: 100 },
-      { level: 7, bonus: "90%", price: 120 },
-      { level: 8, bonus: "105%", price: 140 },
-      { level: 9, bonus: "120%", price: 160 },
-      { level: 10, bonus: "300%", price: 200 },
+      { level: 1, bonus: "10", price: 10 },
+      { level: 2, bonus: "20", price: 20 },
+      { level: 3, bonus: "30", price: 40 },
+      { level: 4, bonus: "45", price: 60 },
+      { level: 5, bonus: "60", price: 80 },
+      { level: 6, bonus: "75", price: 100 },
+      { level: 7, bonus: "90", price: 120 },
+      { level: 8, bonus: "105", price: 140 },
+      { level: 9, bonus: "120", price: 160 },
+      { level: 10, bonus: "300", price: 200 },
     ]
   },
   {
@@ -81,16 +81,16 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     description: "Reduces damage taken from enemies",
     icon: Shield,
     tiers: [
-      { level: 1, bonus: "3%", price: 10 },
-      { level: 2, bonus: "6%", price: 20 },
-      { level: 3, bonus: "9%", price: 40 },
-      { level: 4, bonus: "12%", price: 60 },
-      { level: 5, bonus: "15%", price: 80 },
-      { level: 6, bonus: "18%", price: 100 },
-      { level: 7, bonus: "21%", price: 120 },
-      { level: 8, bonus: "24%", price: 140 },
-      { level: 9, bonus: "27%", price: 160 },
-      { level: 10, bonus: "30%", price: 200 },
+      { level: 1, bonus: "3", price: 10 },
+      { level: 2, bonus: "6", price: 20 },
+      { level: 3, bonus: "9", price: 40 },
+      { level: 4, bonus: "12", price: 60 },
+      { level: 5, bonus: "15", price: 80 },
+      { level: 6, bonus: "18", price: 100 },
+      { level: 7, bonus: "21", price: 120 },
+      { level: 8, bonus: "24", price: 140 },
+      { level: 9, bonus: "27", price: 160 },
+      { level: 10, bonus: "30", price: 200 },
     ]
   },
   {
@@ -99,16 +99,16 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     description: "Regenerates HP every 10 seconds",
     icon: Activity,
     tiers: [
-      { level: 1, bonus: "0.1%", price: 20 },
-      { level: 2, bonus: "0.2%", price: 50 },
-      { level: 3, bonus: "0.3%", price: 80 },
-      { level: 4, bonus: "0.4%", price: 110 },
-      { level: 5, bonus: "0.5%", price: 140 },
-      { level: 6, bonus: "0.6%", price: 170 },
-      { level: 7, bonus: "0.7%", price: 200 },
-      { level: 8, bonus: "0.8%", price: 230 },
-      { level: 9, bonus: "0.9%", price: 260 },
-      { level: 10, bonus: "1%", price: 300 },
+      { level: 1, bonus: "0.1", price: 20 },
+      { level: 2, bonus: "0.2", price: 50 },
+      { level: 3, bonus: "0.3", price: 80 },
+      { level: 4, bonus: "0.4", price: 110 },
+      { level: 5, bonus: "0.5", price: 140 },
+      { level: 6, bonus: "0.6", price: 170 },
+      { level: 7, bonus: "0.7", price: 200 },
+      { level: 8, bonus: "0.8", price: 230 },
+      { level: 9, bonus: "0.9", price: 260 },
+      { level: 10, bonus: "1", price: 300 },
     ]
   },
   {
@@ -117,16 +117,16 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     description: "Regenerates HP based on damage dealt",
     icon: Droplets,
     tiers: [
-      { level: 1, bonus: "0.0001%", price: 20 },
-      { level: 2, bonus: "0.0002%", price: 40 },
-      { level: 3, bonus: "0.0003%", price: 60 },
-      { level: 4, bonus: "0.0004%", price: 80 },
-      { level: 5, bonus: "0.0005%", price: 100 },
-      { level: 6, bonus: "0.0006%", price: 120 },
-      { level: 7, bonus: "0.0007%", price: 140 },
-      { level: 8, bonus: "0.0008%", price: 160 },
-      { level: 9, bonus: "0.0009%", price: 180 },
-      { level: 10, bonus: "0.001%", price: 200 },
+      { level: 1, bonus: "0.0001", price: 20 },
+      { level: 2, bonus: "0.0002", price: 40 },
+      { level: 3, bonus: "0.0003", price: 60 },
+      { level: 4, bonus: "0.0004", price: 80 },
+      { level: 5, bonus: "0.0005", price: 100 },
+      { level: 6, bonus: "0.0006", price: 120 },
+      { level: 7, bonus: "0.0007", price: 140 },
+      { level: 8, bonus: "0.0008", price: 160 },
+      { level: 9, bonus: "0.0009", price: 180 },
+      { level: 10, bonus: "0.001", price: 200 },
     ]
   }
 ];
@@ -194,7 +194,6 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
       
-      // USDC Contract on Arc Testnet
       const usdcAddress = "0x3600000000000000000000000000000000000000"; 
       const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
       
@@ -218,7 +217,6 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, signer);
       const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
       
-      // 1. Handle Allowance
       const amount = ethers.parseUnits(nextTier.price.toString(), 6);
       const currentAllowance = await usdcContract.allowance(userAddress, upgradeContractAddress);
       
@@ -229,7 +227,6 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
         console.log("USDC Approved");
       }
       
-      // 2. Map ID to function name
       const functionMap: Record<string, string> = {
         arc_hp: "upgradeHP",
         arc_ki: "upgradeKI",
@@ -249,7 +246,6 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       await tx.wait();
       console.log("Upgrade confirmed!");
 
-      // Fetch updated levels from contract after tx.wait()
       const updatedData = await upgradeContract.upgrades(userAddress);
       const newLevels: Record<string, number> = {
         arc_hp: Number(updatedData.hp),
@@ -261,18 +257,12 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       };
       setPurchasedLevels(newLevels);
       
-      // CRITICAL: Synchronize the game state with the actual on-chain data
       if (window.game) {
-        // Update the global game object storage
         (window.game as any).playerUpgrades = newLevels;
         
-        // Notify all active scenes to re-apply their stats based on the new on-chain data
         window.game.scene.getScenes(true).forEach(scene => {
-          if ((scene as any).applyUpgrades) {
-            (scene as any).applyUpgrades();
-          }
-          if ((scene as any).updateHUD) {
-            (scene as any).updateHUD();
+          if ((scene as any).applyUpgradesFromGlobal) {
+            (scene as any).applyUpgradesFromGlobal();
           }
         });
       }
@@ -310,7 +300,8 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {UPGRADE_DATA.map((upgrade) => {
                 const currentLevel = purchasedLevels[upgrade.id];
-                const currentBonus = currentLevel > 0 ? upgrade.tiers[currentLevel - 1].bonus + "%" : "0%";
+                const currentBonusValue = currentLevel > 0 ? upgrade.tiers[currentLevel - 1].bonus : "0";
+                const currentBonus = currentBonusValue + "%";
                 const nextTier = upgrade.tiers[currentLevel];
                 const Icon = upgrade.icon;
                 const isLoading = isUpgrading === upgrade.id;
@@ -337,7 +328,6 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                             </div>
                           </div>
                           
-                          {/* Evolution bar */}
                           <div className="flex gap-1 mb-3">
                             {Array.from({ length: 10 }).map((_, i) => (
                               <div 

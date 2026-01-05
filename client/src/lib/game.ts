@@ -115,50 +115,6 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    private applyUpgrades() {
-        if (!this.playerUpgrades) return;
-
-        // Reset to base stats before applying bonuses to avoid compounding
-        const stats = this.levelStats[this.level - 1] || this.levelStats[0];
-        this.maxHealth = stats.hp;
-        this.maxKiarc = stats.ki;
-
-        // Apply HP upgrade (5% per level, lvl 10 is special bonus)
-        if (this.playerUpgrades.arc_hp > 0) {
-            let hpBonusPercent = this.playerUpgrades.arc_hp * 5;
-            if (this.playerUpgrades.arc_hp >= 10) hpBonusPercent = 55; // Match UPGRADE_DATA
-            
-            this.maxHealth = Math.floor(stats.hp * (1 + hpBonusPercent / 100));
-            this.health = this.maxHealth;
-        }
-
-        // Apply KI upgrade (5% per level, lvl 10 is special bonus)
-        if (this.playerUpgrades.arc_ki > 0) {
-            let kiBonusPercent = this.playerUpgrades.arc_ki * 5;
-            if (this.playerUpgrades.arc_ki >= 10) kiBonusPercent = 55; // Match UPGRADE_DATA
-            
-            this.maxKiarc = Math.floor(stats.ki * (1 + kiBonusPercent / 100));
-        }
-
-        // Damage upgrade (affects mult)
-        if (this.playerUpgrades.arc_damage > 0) {
-            const damageBonus = 1 + (this.playerUpgrades.arc_damage * 0.10);
-            this.levelStats.forEach(stat => {
-                stat.mult *= damageBonus;
-                stat.punch = Math.floor(stat.punch * damageBonus);
-                stat.magic = Math.floor(stat.magic * damageBonus);
-                stat.kame = Math.floor(stat.kame * damageBonus);
-            });
-        }
-
-        // Defence upgrade (affects res)
-        if (this.playerUpgrades.arc_defence > 0) {
-            const resBonus = this.playerUpgrades.arc_defence * 0.03;
-            this.levelStats.forEach(stat => {
-                stat.res = Math.min(0.9, stat.res + resBonus);
-            });
-        }
-    }
 
     // Double-click dash system
     private lastKeyPressTime: { left: number, right: number, up: number, down: number } = { left: 0, right: 0, up: 0, down: 0 };
@@ -1248,10 +1204,6 @@ class MainScene extends Phaser.Scene {
         });
     }
 
-    update(time: number, delta: number) {
-        if (this.isGameOver || this.isPaused) return;
-
-        // Handle power-up timers
         if (this.isInvincible) {
             this.invincibilityTimer -= delta;
             if (this.invincibilityTimer <= 0) {
