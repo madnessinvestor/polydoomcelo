@@ -63,7 +63,14 @@ export default function Home() {
   return (
     <div className="min-h-screen w-full bg-black flex items-center justify-center p-4 overflow-hidden">
       {isPauseModalOpen && (
-        <PauseModal onContinue={handleContinueGame} onExit={handleExitGame} />
+        <PauseModal 
+          onContinue={handleContinueGame} 
+          onExit={handleExitGame}
+          onUpgrades={() => {
+            setIsPauseModalOpen(false);
+            setIsUpgradesOpen(true);
+          }}
+        />
       )}
       {isUpgradesOpen && (
         <UpgradesModal onClose={() => setIsUpgradesOpen(false)} />

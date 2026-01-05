@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 interface PauseModalProps {
   onContinue: () => void;
   onExit: () => void;
+  onUpgrades: () => void;
 }
 
-export function PauseModal({ onContinue, onExit }: PauseModalProps) {
+export function PauseModal({ onContinue, onExit, onUpgrades }: PauseModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
@@ -20,7 +21,7 @@ export function PauseModal({ onContinue, onExit }: PauseModalProps) {
         
         {/* Message */}
         <p className="text-center text-slate-300 mb-8">
-          Do you want to continue or exit the game?
+          Do you want to continue, upgrade or exit the game?
         </p>
         
         {/* Buttons */}
@@ -31,6 +32,13 @@ export function PauseModal({ onContinue, onExit }: PauseModalProps) {
             data-testid="button-continue"
           >
             Continue
+          </Button>
+          <Button
+            onClick={onUpgrades}
+            className="w-full bg-yellow-600 hover:bg-yellow-500 text-black font-bold"
+            data-testid="button-upgrades"
+          >
+            Upgrades
           </Button>
           <Button
             onClick={onExit}
