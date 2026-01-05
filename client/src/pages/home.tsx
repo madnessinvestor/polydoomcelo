@@ -53,16 +53,26 @@ export default function Home() {
     }
 
     // Set up window functions for pause modal
-    (window as any).showPauseModal = () => setIsPauseModalOpen(true);
-    (window as any).hidePauseModal = () => setIsPauseModalOpen(false);
-    (window as any).showUpgradesModal = () => {
+    (window as any).showPauseModal = () => {
+      console.log("React: showPauseModal called");
+      setIsPauseModalOpen(true);
+    };
+    (window as any).hidePauseModal = () => {
+      console.log("React: hidePauseModal called");
+      setIsPauseModalOpen(false);
+    };
+    const triggerUpgrades = () => {
+      console.log("React: triggerUpgrades called");
       setIsPauseModalOpen(false);
       setIsUpgradesOpen(true);
     };
+    (window as any).openUpgradesModal = triggerUpgrades;
+    (window as any).showUpgradesModal = triggerUpgrades;
 
     return () => {
       delete (window as any).showPauseModal;
       delete (window as any).hidePauseModal;
+      delete (window as any).openUpgradesModal;
       delete (window as any).showUpgradesModal;
     };
   }, [isConnected]);

@@ -3130,9 +3130,16 @@ class MainScene extends Phaser.Scene {
     }
 
     private openUpgradesModal() {
-        this.sfx['menu_button']?.play();
-        if ((window as any).showUpgradesModal) {
-            (window as any).showUpgradesModal();
+        if (this.sfx && this.sfx['menu_button']) {
+            this.sfx['menu_button'].play();
+        }
+        const win = window as any;
+        // Tente as duas possíveis nomenclaturas para garantir compatibilidade
+        const upgradeFunc = win.openUpgradesModal || win.showUpgradesModal;
+        if (typeof upgradeFunc === 'function') {
+            upgradeFunc();
+        } else {
+            console.error("Upgrade function not found on window object");
         }
     }
 
@@ -3509,8 +3516,17 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         upgradesBtn.setInteractive().on('pointerdown', () => {
-            this.sfx['menu_button']?.play();
-            this.openUpgradesModal();
+            if (this.sfx && this.sfx['menu_button']) {
+                this.sfx['menu_button'].play();
+            }
+            // Use window reference directly to avoid 'this' context issues in the callback
+            const win = window as any;
+            const upgradeFunc = win.openUpgradesModal || win.showUpgradesModal;
+            if (typeof upgradeFunc === 'function') {
+                upgradeFunc();
+            } else {
+                console.error("Upgrade function not found on window object");
+            }
         }).on('pointerover', () => {
             upgradesBtn.setFillStyle(0x34d399);
         }).on('pointerout', () => {
