@@ -3911,13 +3911,13 @@ class StartScene extends Phaser.Scene {
         
         // Border
         const border = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8);
-        border.setStrokeStyle(3, 0xfbbf24).setFillStyle(0x000000, 0).setScrollFactor(0);
+        border.setStrokeStyle(3, 0x60a5fa).setFillStyle(0x000000, 0).setScrollFactor(0);
 
         // Title
         const historyTitle = this.add.text(width / 2, height * 0.15, 'GAME HISTORY', {
             fontSize: '32px',
             fontFamily: 'Arial, sans-serif',
-            color: '#fbbf24',
+            color: '#60a5fa',
             fontStyle: 'bold',
             align: 'center'
         }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(101);
@@ -3940,7 +3940,7 @@ class StartScene extends Phaser.Scene {
         videoElement.style.transform = 'translate(-50%, -50%)';
         videoElement.style.zIndex = '101';
         videoElement.style.backgroundColor = '#1a1a2e';
-        videoElement.style.border = '2px solid #4ade80';
+        videoElement.style.border = '2px solid #60a5fa';
 
         document.body.appendChild(videoElement);
 
