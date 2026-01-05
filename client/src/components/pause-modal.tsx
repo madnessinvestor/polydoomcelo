@@ -3,54 +3,46 @@ import { Button } from "@/components/ui/button";
 interface PauseModalProps {
   onContinue: () => void;
   onExit: () => void;
-  onUpgrades: () => void;
 }
 
-export function PauseModal({ onContinue, onExit, onUpgrades }: PauseModalProps) {
+export function PauseModal({ onContinue, onExit }: PauseModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60" />
       
       {/* Modal */}
-      <div className="relative bg-slate-950 border-4 border-slate-700 rounded-lg p-8 max-w-sm mx-4 shadow-2xl">
+      <div className="relative bg-[#0a0a20] border-2 border-slate-700 rounded-lg p-8 w-full max-w-[400px] mx-4 shadow-2xl">
         {/* Title */}
-        <h2 className="text-center text-2xl font-bold text-white mb-6">
+        <h2 className="text-center text-3xl font-bold text-white mb-8 tracking-wider uppercase">
           Game Paused
         </h2>
         
         {/* Message */}
-        <p className="text-center text-slate-300 mb-8">
-          Do you want to continue, upgrade or exit the game?
+        <p className="text-center text-slate-300 mb-10 text-lg">
+          Do you want to continue or exit the game?
         </p>
         
         {/* Buttons */}
-        <div className="flex gap-4 flex-col">
+        <div className="flex gap-6 flex-col">
           <Button
             onClick={onContinue}
-            className="w-full bg-green-500 hover:bg-green-600 text-black font-bold"
+            className="w-full bg-[#10b981] hover:bg-[#059669] text-black font-bold text-xl py-8 rounded-none uppercase tracking-widest"
             data-testid="button-continue"
           >
-            Continue
-          </Button>
-          <Button
-            onClick={onUpgrades}
-            className="w-full bg-yellow-600 hover:bg-yellow-500 text-black font-bold"
-            data-testid="button-upgrades"
-          >
-            Upgrades
+            CONTINUE
           </Button>
           <Button
             onClick={onExit}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold"
+            className="w-full bg-[#ef4444] hover:bg-[#dc2626] text-white font-bold text-xl py-8 rounded-none uppercase tracking-widest"
             data-testid="button-exit-game"
           >
-            Exit Game
+            EXIT GAME
           </Button>
         </div>
         
         {/* Help text */}
-        <p className="text-center text-slate-500 text-xs mt-6">
+        <p className="text-center text-slate-500 text-sm mt-8">
           Press ESC to resume • Exit Game to return to menu
         </p>
       </div>
