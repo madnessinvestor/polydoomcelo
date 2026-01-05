@@ -151,14 +151,20 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <Card className="w-full max-w-4xl bg-slate-900 border-slate-700 text-white max-h-[90vh] flex flex-col overflow-hidden">
-        <CardHeader className="border-b border-slate-800">
+        <CardHeader className="border-b border-slate-800 relative">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="text-2xl font-bold text-yellow-500">Arc Upgrades</CardTitle>
               <CardDescription className="text-slate-400">Enhance your character using USDC</CardDescription>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose} className="text-slate-400 hover:text-white">
-              ✕
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onClose} 
+              className="text-slate-400 hover:text-white hover:bg-slate-800"
+              data-testid="button-close-upgrades"
+            >
+              <span className="text-xl">✕</span>
             </Button>
           </div>
         </CardHeader>
@@ -171,16 +177,16 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                 const Icon = upgrade.icon;
 
                 return (
-                  <Card key={upgrade.id} className="bg-slate-800/50 border-slate-700 hover:border-yellow-500/50 transition-colors">
+                  <Card key={upgrade.id} className="bg-slate-800/50 border-slate-700 hover:border-green-500/50 transition-colors">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-4">
-                        <div className="p-3 bg-slate-900 rounded-lg text-yellow-500">
+                        <div className="p-3 bg-slate-900 rounded-lg text-green-500">
                           <Icon size={24} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
                             <h3 className="font-bold text-lg truncate">{upgrade.name}</h3>
-                            <Badge variant="secondary" className="bg-slate-700 text-yellow-500">
+                            <Badge variant="secondary" className="bg-slate-700 text-green-500">
                               Lv {currentLevel}/10
                             </Badge>
                           </div>
@@ -194,14 +200,15 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                               </div>
                               <Button 
                                 onClick={() => handleUpgrade(upgrade.id)}
-                                className="w-full bg-yellow-600 hover:bg-yellow-500 text-black font-bold h-10"
+                                className="w-full bg-green-600 hover:bg-green-500 text-white font-bold h-10"
+                                data-testid={`button-upgrade-${upgrade.id}`}
                               >
                                 Upgrade - {nextTier.price} USDC
                               </Button>
                             </div>
                           ) : (
                             <div className="h-10 flex items-center justify-center bg-slate-900/50 rounded-md border border-slate-700">
-                              <span className="text-yellow-500 font-bold uppercase tracking-wider text-xs">Max Level Reached</span>
+                              <span className="text-green-500 font-bold uppercase tracking-wider text-xs">Max Level Reached</span>
                             </div>
                           )}
                         </div>
