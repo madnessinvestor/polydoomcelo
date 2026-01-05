@@ -353,7 +353,7 @@ class MainScene extends Phaser.Scene {
         this.maxKiarc = stats.ki;
         this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
 
-        // Apply on-chain upgrade bonuses
+        // CRITICAL: Re-apply on-chain upgrade bonuses to the current level's base stats
         this.applyUpgrades();
 
         // Doom Mode specific adjustments
@@ -2935,6 +2935,9 @@ class MainScene extends Phaser.Scene {
             // Update current max stats from table
             this.maxHealth = stats.hp;
             this.maxKiarc = stats.ki;
+            
+            // CRITICAL: Re-apply upgrades to new level base stats
+            this.applyUpgrades();
             
             // Visual feedback
             this.cameras.main.flash(500, 255, 255, 0);
