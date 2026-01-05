@@ -138,6 +138,14 @@ class MainScene extends Phaser.Scene {
     private isPaused: boolean = false;
     private pausedTime: number = 0;
     private pauseModalOpen: boolean = false;
+    private playerUpgrades: Record<string, number> = {
+        arc_hp: 0,
+        arc_ki: 0,
+        arc_damage: 0,
+        arc_defence: 0,
+        arc_regen: 0,
+        arc_vamp: 0
+    };
 
     constructor() {
         super('MainScene');
@@ -282,6 +290,22 @@ class MainScene extends Phaser.Scene {
     }
 
     init(data: any) {
+        // Apply permanent upgrades if provided
+        if (data?.upgrades) {
+            this.playerUpgrades = data.upgrades;
+            // Apply HP upgrade to max health
+            if (this.playerUpgrades.arc_hp > 0) {
+                const hpBonus = 1 + (this.playerUpgrades.arc_hp * 0.05); // 5% per level
+                this.maxHealth = Math.floor(300 * hpBonus);
+                this.health = this.maxHealth;
+            }
+            // Apply KI upgrade to max ki
+            if (this.playerUpgrades.arc_ki > 0) {
+                const kiBonus = 1 + (this.playerUpgrades.arc_ki * 0.05); // 5% per level
+                this.maxKiarc = Math.floor(100 * kiBonus);
+            }
+        }
+
         // Reset to Level 1 for normal game start
         this.level = data.level || 1;
         this.currentWave = 1;
@@ -4674,30 +4698,45 @@ class DeathScene extends Phaser.Scene {
     }
 }
 
+export function initGame(upgrades?: Record<string, number>) {
     const config: Phaser.Types.Core.GameConfig = {
-    type: Phaser.AUTO,
-    parent: 'game-container',
-    width: 1600,
-    height: 1200,
-    scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    },
-    antialias: false,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { x: 0, y: 1000 },
-            debug: false
-        }
-    },
-    render: {
-        pixelArt: true,
+        type: Phaser.AUTO,
+        parent: 'game-container',
+        width: 1600,
+        height: 1200,
+        scale: {
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH
+        },
         antialias: false,
-        powerPreference: 'high-performance',
-        roundPixels: true
-    },
-    fps: {
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { x: 0, y: 1000 },
+                debug: false
+            }
+        },
+        render: {
+            pixelArt: true,
+            antialias: false,
+            powerPreference: 'high-performance',
+            roundPixels: true
+        },
+        fps: {
+            target: 60,
+            forceSetTimeOut: true
+        },
+        scene: [MainScene]
+    };
+
+    const game = new Phaser.Game(config);
+    window.game = game;
+
+    // Start MainScene with initial data including upgrades
+    game.scene.start('MainScene', { upgrades });
+
+    return game;
+}
         target: 60,
         forceSetTimeOut: true
     },

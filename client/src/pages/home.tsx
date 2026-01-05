@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, Loader2, ArrowUpCircle } from "lucide-react";
 import { PauseModal } from "@/components/pause-modal";
 import { UpgradesModal } from "@/components/upgrades-modal";
+import { ethers } from "ethers";
 
 declare global {
   interface Window {
@@ -12,6 +13,7 @@ declare global {
     game?: Phaser.Game;
     showPauseModal?: () => void;
     hidePauseModal?: () => void;
+    pauseOpening?: () => void;
   }
 }
 
@@ -21,34 +23,38 @@ export default function Home() {
   const [isPauseModalOpen, setIsPauseModalOpen] = useState(false);
   const [isUpgradesOpen, setIsUpgradesOpen] = useState(false);
 
-  const checkConnection = () => {
-    setIsConnected(true);
-  };
-
-  const handleContinueGame = () => {
-    setIsPauseModalOpen(false);
-    // Resume game through window reference
-    if (window.game?.scene.isActive('MainScene')) {
-      const scene = window.game.scene.getScene('MainScene') as any;
-      if (scene.isPaused) {
-        scene.closePauseModal?.();
-      }
-    }
-  };
-
-  const handleExitGame = () => {
-    setIsPauseModalOpen(false);
-    // Exit game through window reference
-    if (window.game?.scene.isActive('MainScene')) {
-      const scene = window.game.scene.getScene('MainScene') as any;
-      scene?.exitGameFromPause?.();
+  const fetchUpgrades = async () => {
+    if (!(window as any).ethereum) return null;
+    try {
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+      const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
+      const upgradeAbi = [
+        "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
+      ];
+      const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
+      const data = await upgradeContract.upgrades(userAddress);
+      return {
+        arc_hp: Number(data.hp),
+        arc_ki: Number(data.ki),
+        arc_damage: Number(data.damage),
+        arc_defence: Number(data.defence),
+        arc_regen: Number(data.regen),
+        arc_vamp: Number(data.vamp)
+      };
+    } catch (e) {
+      console.error("Error fetching upgrades for game start:", e);
+      return null;
     }
   };
 
   useEffect(() => {
     if (isConnected) {
-      import("@/lib/game").then((mod) => {
-        mod.initGame();
+      fetchUpgrades().then(upgrades => {
+        import("@/lib/game").then((mod) => {
+          mod.initGame(upgrades || undefined);
+        });
       });
     }
 
@@ -61,6 +67,14 @@ export default function Home() {
       console.log("React: hidePauseModal called");
       setIsPauseModalOpen(false);
     };
+
+    const handleOpeningMusic = () => {
+      if ((window as any).pauseOpening) {
+        (window as any).pauseOpening();
+      }
+    };
+    (window as any).pauseOpening = handleOpeningMusic;
+
     const triggerUpgrades = () => {
       console.log("React: triggerUpgrades called");
       setIsPauseModalOpen(false);
