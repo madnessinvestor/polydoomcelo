@@ -159,26 +159,60 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
 
       const provider = new ethers.BrowserProvider((window as any).ethereum);
       const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
       
       // USDC Contract on Arc Testnet
       const usdcAddress = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; 
-      const receiverAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08"; // Upgrades Contract
+      const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
       
       const usdcAbi = [
-        "function transfer(address to, uint256 amount) public returns (bool)"
+        "function transfer(address to, uint256 amount) public returns (bool)",
+        "function approve(address spender, uint256 amount) public returns (bool)",
+        "function allowance(address owner, address spender) public view returns (uint256)"
+      ];
+
+      const upgradeAbi = [
+        "function upgradeHP() public",
+        "function upgradeKI() public",
+        "function upgradeDamage() public",
+        "function upgradeDefense() public",
+        "function upgradeRegen() public",
+        "function upgradeVamp() public"
       ];
       
       const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, signer);
+      const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
       
-      console.log(`Initiating payment of ${nextTier.price} USDC for ${id} upgrade...`);
-      
-      // Send USDC Transaction (6 decimals)
+      // 1. Handle Allowance
       const amount = ethers.parseUnits(nextTier.price.toString(), 6);
-      const tx = await usdcContract.transfer(receiverAddress, amount);
+      const currentAllowance = await usdcContract.allowance(userAddress, upgradeContractAddress);
+      
+      if (currentAllowance < amount) {
+        console.log("Approving USDC...");
+        const approveTx = await usdcContract.approve(upgradeContractAddress, ethers.MaxUint256);
+        await approveTx.wait();
+        console.log("USDC Approved");
+      }
+      
+      // 2. Map ID to function name
+      const functionMap: Record<string, string> = {
+        arc_hp: "upgradeHP",
+        arc_ki: "upgradeKI",
+        arc_damage: "upgradeDamage",
+        arc_defence: "upgradeDefense",
+        arc_regen: "upgradeRegen",
+        arc_vamp: "upgradeVamp"
+      };
+
+      const functionName = functionMap[id];
+      if (!functionName) throw new Error("Unknown upgrade function");
+
+      console.log(`Calling ${functionName} on upgrade contract...`);
+      const tx = await upgradeContract[functionName]();
       
       console.log("Transaction sent:", tx.hash);
       await tx.wait();
-      console.log("Transaction confirmed!");
+      console.log("Upgrade confirmed!");
 
       const nextLevel = currentLevel + 1;
       setPurchasedLevels(prev => ({ ...prev, [id]: nextLevel }));
