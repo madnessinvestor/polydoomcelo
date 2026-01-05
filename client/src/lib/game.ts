@@ -3040,23 +3040,29 @@ class MainScene extends Phaser.Scene {
 
     // Public volume control methods
     public setMasterVolume(value: number) {
-        this.masterVolume = Math.max(0, Math.min(1, value / 100));
+        const val = Number(value);
+        if (isNaN(val)) return;
+        this.masterVolume = Math.max(0, Math.min(1, val / 100));
         // Apply to all sounds
         Object.values(this.sfx).forEach(sound => {
             if (sound && (sound as any).setVolume) {
-                (sound as any).setVolume(this.masterVolume * this.sfxVolume);
+                const sfxVol = Number(this.sfxVolume) || 0;
+                (sound as any).setVolume(this.masterVolume * sfxVol);
             }
         });
+        const musicVol = Number(this.musicVolume) || 0;
         if (this.currentMusic && (this.currentMusic as any).setVolume) {
-            (this.currentMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+            (this.currentMusic as any).setVolume(0.7 * this.masterVolume * musicVol);
         }
         if (this.openingMusic && (this.openingMusic as any).setVolume) {
-            (this.openingMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+            (this.openingMusic as any).setVolume(0.7 * this.masterVolume * musicVol);
         }
     }
 
     public setMusicVolume(value: number) {
-        this.musicVolume = Math.max(0, Math.min(1, value / 100));
+        const val = Number(value);
+        if (isNaN(val)) return;
+        this.musicVolume = Math.max(0, Math.min(1, val / 100));
         if (this.currentMusic && (this.currentMusic as any).setVolume) {
             (this.currentMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
         }
@@ -3066,11 +3072,14 @@ class MainScene extends Phaser.Scene {
     }
 
     public setSfxVolume(value: number) {
-        this.sfxVolume = Math.max(0, Math.min(1, value / 100));
+        const val = Number(value);
+        if (isNaN(val)) return;
+        this.sfxVolume = Math.max(0, Math.min(1, val / 100));
         // Apply to all SFX sounds
         Object.values(this.sfx).forEach(sound => {
             if (sound && (sound as any).setVolume) {
-                (sound as any).setVolume(this.masterVolume * this.sfxVolume);
+                const masterVol = Number(this.masterVolume) || 0;
+                (sound as any).setVolume(masterVol * this.sfxVolume);
             }
         });
     }
@@ -3556,23 +3565,29 @@ class StartScene extends Phaser.Scene {
     }
 
     public setMasterVolume(value: number) {
-        this.masterVolume = Math.max(0, Math.min(1, value / 100));
+        const val = Number(value);
+        if (isNaN(val)) return;
+        this.masterVolume = Math.max(0, Math.min(1, val / 100));
         // Apply to all sounds
         Object.values(this.sfx).forEach(sound => {
             if (sound && (sound as any).setVolume) {
-                (sound as any).setVolume(this.masterVolume * this.sfxVolume);
+                const sfxVol = Number(this.sfxVolume) || 0;
+                (sound as any).setVolume(this.masterVolume * sfxVol);
             }
         });
+        const musicVol = Number(this.musicVolume) || 0;
         if (this.currentMusic && (this.currentMusic as any).setVolume) {
-            (this.currentMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+            (this.currentMusic as any).setVolume(0.7 * this.masterVolume * musicVol);
         }
         if (this.openingMusic && (this.openingMusic as any).setVolume) {
-            (this.openingMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
+            (this.openingMusic as any).setVolume(0.7 * this.masterVolume * musicVol);
         }
     }
 
     public setMusicVolume(value: number) {
-        this.musicVolume = Math.max(0, Math.min(1, value / 100));
+        const val = Number(value);
+        if (isNaN(val)) return;
+        this.musicVolume = Math.max(0, Math.min(1, val / 100));
         if (this.currentMusic && (this.currentMusic as any).setVolume) {
             (this.currentMusic as any).setVolume(0.7 * this.masterVolume * this.musicVolume);
         }
@@ -3582,11 +3597,14 @@ class StartScene extends Phaser.Scene {
     }
 
     public setSfxVolume(value: number) {
-        this.sfxVolume = Math.max(0, Math.min(1, value / 100));
+        const val = Number(value);
+        if (isNaN(val)) return;
+        this.sfxVolume = Math.max(0, Math.min(1, val / 100));
         // Apply to all SFX sounds
         Object.values(this.sfx).forEach(sound => {
             if (sound && (sound as any).setVolume) {
-                (sound as any).setVolume(this.masterVolume * this.sfxVolume);
+                const masterVol = Number(this.masterVolume) || 0;
+                (sound as any).setVolume(masterVol * this.sfxVolume);
             }
         });
     }
