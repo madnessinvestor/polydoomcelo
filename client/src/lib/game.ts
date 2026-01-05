@@ -466,7 +466,8 @@ class MainScene extends Phaser.Scene {
             strokeThickness: 6
         }).setScrollFactor(0).setDepth(1000);
 
-        // Wallet HUD
+        // Wallet HUD - Ocultado conforme solicitado
+        /*
         const walletAddr = (window as any).walletAddress;
         if (walletAddr) {
             const walletDisplay = `${walletAddr.substring(0, 6)}...${walletAddr.substring(walletAddr.length - 4)}`;
@@ -481,6 +482,7 @@ class MainScene extends Phaser.Scene {
                 strokeThickness: 4
             }).setScrollFactor(0).setDepth(1000);
         }
+        */
 
         this.enemyCounterText = this.add.text(width - 16, 16 + fontSize * 2 + 20, `0/${this.totalEnemiesInWave}`, {
             fontSize: `${fontSize}px`,
