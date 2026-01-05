@@ -157,15 +157,25 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
               <CardTitle className="text-2xl font-bold text-yellow-500">Arc Upgrades</CardTitle>
               <CardDescription className="text-slate-400">Enhance your character using USDC</CardDescription>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onClose} 
-              className="text-slate-400 hover:text-white hover:bg-slate-800"
-              data-testid="button-close-upgrades"
-            >
-              <span className="text-xl">✕</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onClose}
+                className="hidden md:flex bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
+              >
+                Close
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={onClose} 
+                className="text-slate-400 hover:text-white hover:bg-slate-800"
+                data-testid="button-close-upgrades"
+              >
+                <span className="text-xl">✕</span>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
