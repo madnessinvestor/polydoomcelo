@@ -162,7 +162,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       
       // USDC Contract on Arc Testnet
       const usdcAddress = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; 
-      const receiverAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006"; // Game Treasury
+      const receiverAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08"; // Upgrades Contract
       
       const usdcAbi = [
         "function transfer(address to, uint256 amount) public returns (bool)"
