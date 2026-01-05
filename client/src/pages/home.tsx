@@ -117,16 +117,15 @@ export default function Home() {
               </div>
             </div>
           </div>
-            <div className="fixed bottom-4 right-4 z-50">
-              <a 
-                href="https://testnet.arcscan.app/address/0x9b673bDBA9ed06989b1846d4C63468BCE86cf006" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-[10px] text-slate-500 hover:text-slate-300 transition-colors font-mono"
-              >
-                0x9b673bDBA9ed06989b1846d4C63468BCE86cf006
-              </a>
-            </div>
+          <div className="fixed bottom-4 right-4 z-50">
+            <a 
+              href="https://testnet.arcscan.app/address/0x9b673bDBA9ed06989b1846d4C63468BCE86cf006" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[10px] text-slate-500 hover:text-slate-300 transition-colors font-mono"
+            >
+              0x9b673bDBA9ed06989b1846d4C63468BCE86cf006
+            </a>
           </div>
         </div>
       </div>
