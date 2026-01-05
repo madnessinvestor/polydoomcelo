@@ -150,7 +150,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl bg-slate-900 border-2 border-green-500 text-white max-h-[90vh] flex flex-col overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+      <Card className="w-full max-w-4xl bg-slate-900 border-2 border-green-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(34,197,94,0.3)]">
         <CardHeader className="border-b border-slate-800 relative">
           <div className="flex justify-between items-center">
             <div>
@@ -161,7 +161,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
               variant="ghost" 
               size="icon" 
               onClick={onClose} 
-              className="text-slate-400 hover:text-white hover:bg-slate-800"
+              className="text-slate-400 hover:text-white hover:bg-slate-800 rounded-none"
               data-testid="button-close-upgrades-icon"
             >
               <span className="text-xl">✕</span>
@@ -177,16 +177,16 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                 const Icon = upgrade.icon;
 
                 return (
-                  <Card key={upgrade.id} className="bg-slate-800/50 border-slate-700 hover:border-green-500/50 transition-colors">
+                  <Card key={upgrade.id} className="bg-slate-800/50 border-slate-700 hover:border-green-500/50 transition-colors rounded-none">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-4">
-                        <div className="p-3 bg-slate-900 rounded-lg text-green-500">
+                        <div className="p-3 bg-slate-900 rounded-none text-green-500">
                           <Icon size={24} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
                             <h3 className="font-bold text-lg truncate">{upgrade.name}</h3>
-                            <Badge variant="secondary" className="bg-slate-700 text-green-500">
+                            <Badge variant="secondary" className="bg-slate-700 text-green-500 rounded-none">
                               Lv {currentLevel}/10
                             </Badge>
                           </div>
@@ -196,7 +196,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                             {Array.from({ length: 10 }).map((_, i) => (
                               <div 
                                 key={i}
-                                className={`h-1.5 flex-1 rounded-full transition-colors ${
+                                className={`h-1.5 flex-1 rounded-none transition-colors ${
                                   i < currentLevel ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-slate-700"
                                 }`}
                               />
@@ -220,7 +220,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                               </Button>
                             </div>
                           ) : (
-                            <div className="h-10 flex items-center justify-center bg-slate-900/50 rounded-md border border-slate-700">
+                            <div className="h-10 flex items-center justify-center bg-slate-900/50 rounded-none border border-slate-700">
                               <span className="text-green-500 font-bold uppercase tracking-wider text-xs">Max Level Reached</span>
                             </div>
                           )}
