@@ -306,35 +306,50 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        // Reset to Level 1 for normal game start
-        this.level = data.level || 1;
-        this.currentWave = 1;
-        this.score = 0;
-        this.enemiesDefeated = 0;
-        this.totalEnemiesBeforeWave = 0;
-        this.isGameOver = false;
-        
-        // Reset status based on level
-        const stats = this.levelStats[this.level - 1] || this.levelStats[0];
-        this.health = stats.hp;
-        this.maxHealth = stats.hp;
-        this.kiarc = 0; // Start with 0 Ki
-        this.maxKiarc = stats.ki;
-        this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
-        this.hasPowerBoost = false;
-        this.hasScoreBoost = false;
-        this.isInvincible = false;
-        this.activeBuffs.clear();
-        
-        // Reset UI labels for fresh game
-        this.hpLabel = null as any;
-        this.kiLabel = null as any;
-        
-        // Load volume settings from localStorage
-        this.masterVolume = (parseInt(localStorage.getItem('masterVolume') || '100')) / 100;
-        this.musicVolume = (parseInt(localStorage.getItem('musicVolume') || '100')) / 100;
-        this.sfxVolume = (parseInt(localStorage.getItem('sfxVolume') || '100')) / 100;
-    }
+        // Doom Mode handling
+        if (data?.doomMode) {
+            this.isInGamemode = true;
+            this.stopOpeningMusic();
+            this.level = data.level || 1;
+            const stats = this.levelStats[this.level - 1] || this.levelStats[0];
+            
+            // Base stats from level
+            let baseHp = stats.hp;
+            let baseKi = stats.ki;
+
+            // Apply upgrades ON TOP of Doom Mode level stats
+            if (this.playerUpgrades.arc_hp > 0) {
+                const hpBonus = 1 + (this.playerUpgrades.arc_hp * 0.05);
+                baseHp = Math.floor(baseHp * hpBonus);
+            }
+            if (this.playerUpgrades.arc_ki > 0) {
+                const kiBonus = 1 + (this.playerUpgrades.arc_ki * 0.05);
+                baseKi = Math.floor(baseKi * kiBonus);
+            }
+
+            this.health = baseHp;
+            this.maxHealth = baseHp;
+            this.maxKiarc = baseKi;
+            this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
+            this.playNextMusic();
+        } else {
+            // Normal game initialization logic...
+            this.level = data.level || 1;
+            this.currentWave = 1;
+            this.score = 0;
+            this.enemiesDefeated = 0;
+            this.totalEnemiesBeforeWave = 0;
+            this.isGameOver = false;
+            
+            // Stats are already set above in the upgrades block if present,
+            // but we ensure they are set for level 1 if no upgrades.
+            if (!data?.upgrades) {
+                const stats = this.levelStats[0];
+                this.health = stats.hp;
+                this.maxHealth = stats.hp;
+                this.maxKiarc = stats.ki;
+            }
+        }
 
     // Sound assets
     private sfx: { [key: string]: Phaser.Sound.BaseSound } = {};
@@ -370,6 +385,21 @@ class MainScene extends Phaser.Scene {
     create() {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
+
+        // Apply permanent upgrades to base stats during creation
+        if (this.playerUpgrades) {
+            // HP
+            if (this.playerUpgrades.arc_hp > 0) {
+                const hpBonus = 1 + (this.playerUpgrades.arc_hp * 0.05);
+                this.maxHealth = Math.floor(this.maxHealth * hpBonus);
+                this.health = this.maxHealth;
+            }
+            // KI
+            if (this.playerUpgrades.arc_ki > 0) {
+                const kiBonus = 1 + (this.playerUpgrades.arc_ki * 0.05);
+                this.maxKiarc = Math.floor(this.maxKiarc * kiBonus);
+            }
+        }
 
         // Initialize SFX
         const sfxKeys = [
@@ -4736,17 +4766,4 @@ export function initGame(upgrades?: Record<string, number>) {
     game.scene.start('MainScene', { upgrades });
 
     return game;
-}
-        target: 60,
-        forceSetTimeOut: true
-    },
-    scene: [StartScene, MainScene, DeathScene]
-};
-
-export function initGame() {
-    if (window.game) {
-        window.game.destroy(true);
-    }
-    window.game = new Phaser.Game(config);
-    return window.game;
 }
