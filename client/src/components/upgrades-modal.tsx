@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Zap, Sword, Shield, Activity, Droplets } from "lucide-react";
+import { Heart, Zap, Sword, Shield, Activity, Droplets, Loader2 } from "lucide-react";
+import { ethers } from "ethers";
 
 interface UpgradeTier {
   level: number;
@@ -131,6 +132,7 @@ const UPGRADE_DATA: UpgradeCategory[] = [
 ];
 
 export function UpgradesModal({ onClose }: { onClose: () => void }) {
+  const [isUpgrading, setIsUpgrading] = useState<string | null>(null);
   const [purchasedLevels, setPurchasedLevels] = useState<Record<string, number>>({
     arc_hp: 0,
     arc_ki: 0,
@@ -140,9 +142,44 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
     arc_vamp: 0,
   });
 
-  const handleUpgrade = (id: string) => {
+  const handleUpgrade = async (id: string) => {
     const currentLevel = purchasedLevels[id];
-    if (currentLevel < 10) {
+    if (currentLevel >= 10) return;
+
+    const nextTier = UPGRADE_DATA.find(u => u.id === id)?.tiers[currentLevel];
+    if (!nextTier) return;
+
+    try {
+      setIsUpgrading(id);
+
+      if (!(window as any).ethereum) {
+        alert("Please install MetaMask or another wallet to buy upgrades!");
+        return;
+      }
+
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await provider.getSigner();
+      
+      // USDC Contract on Arc Testnet
+      const usdcAddress = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; 
+      const receiverAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006"; // Game Treasury
+      
+      const usdcAbi = [
+        "function transfer(address to, uint256 amount) public returns (bool)"
+      ];
+      
+      const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, signer);
+      
+      console.log(`Initiating payment of ${nextTier.price} USDC for ${id} upgrade...`);
+      
+      // Send USDC Transaction (6 decimals)
+      const amount = ethers.parseUnits(nextTier.price.toString(), 6);
+      const tx = await usdcContract.transfer(receiverAddress, amount);
+      
+      console.log("Transaction sent:", tx.hash);
+      await tx.wait();
+      console.log("Transaction confirmed!");
+
       const nextLevel = currentLevel + 1;
       setPurchasedLevels(prev => ({ ...prev, [id]: nextLevel }));
       
@@ -154,6 +191,13 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
           }
         });
       }
+      
+      alert(`Upgrade ${id} Level ${nextLevel} activated!`);
+    } catch (error: any) {
+      console.error("Upgrade failed:", error);
+      alert("Transaction failed: " + (error.reason || error.message || "Unknown error"));
+    } finally {
+      setIsUpgrading(null);
     }
   };
 
@@ -183,6 +227,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                 const currentLevel = purchasedLevels[upgrade.id];
                 const nextTier = upgrade.tiers[currentLevel];
                 const Icon = upgrade.icon;
+                const isLoading = isUpgrading === upgrade.id;
 
                 return (
                   <Card key={upgrade.id} className="bg-slate-800/50 border-slate-700 hover:border-green-500/50 transition-colors rounded-none">
@@ -221,10 +266,18 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                               </div>
                               <Button 
                                 onClick={() => handleUpgrade(upgrade.id)}
+                                disabled={!!isUpgrading}
                                 className="w-full bg-green-600 hover:bg-green-500 text-white font-bold h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg border-none"
                                 data-testid={`button-upgrade-${upgrade.id}`}
                               >
-                                Upgrade - {nextTier.price} USDC
+                                {isLoading ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Processing...
+                                  </>
+                                ) : (
+                                  `Upgrade - ${nextTier.price} USDC`
+                                )}
                               </Button>
                             </div>
                           ) : (
