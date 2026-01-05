@@ -355,6 +355,9 @@ class MainScene extends Phaser.Scene {
         ];
         sfxKeys.forEach(key => {
             this.sfx[key] = this.sound.add(key);
+            if ((this.sfx[key] as any).setVolume) {
+                (this.sfx[key] as any).setVolume(this.masterVolume * this.sfxVolume);
+            }
         });
 
         // Enhanced background with depth
@@ -1752,7 +1755,6 @@ class MainScene extends Phaser.Scene {
         // Play magic sound effect with proper volume
         const sound = this.sfx['magic'];
         if (sound) {
-            (sound as any).setVolume(this.masterVolume * this.sfxVolume);
             sound.play();
         }
         
@@ -3074,12 +3076,53 @@ class MainScene extends Phaser.Scene {
     public setSfxVolume(value: number) {
         const val = Number(value);
         if (isNaN(val)) return;
-        this.sfxVolume = Math.max(0, Math.min(1, val / 100));
-        // Apply to all SFX sounds
+        this.sfxVolume = val / 100;
+        
+        const targetVol = this.masterVolume * this.sfxVolume;
+        
+        // 1. Update the pre-loaded SFX map
         Object.values(this.sfx).forEach(sound => {
-            if (sound && (sound as any).setVolume) {
-                const masterVol = Number(this.masterVolume) || 0;
-                (sound as any).setVolume(masterVol * this.sfxVolume);
+            if (sound) {
+                try {
+                    // Phaser 3 WebAudio sounds have both volume property and setVolume method
+                    if (typeof (sound as any).setVolume === 'function') {
+                        (sound as any).setVolume(targetVol);
+                    }
+                    (sound as any).volume = targetVol;
+                } catch(e) {}
+            }
+        });
+        
+        // 2. Update all sound instances currently managed by Phaser
+        if (this.sound && this.sound.getAll) {
+            this.sound.getAll('').forEach(sound => {
+                const soundKey = (sound as any).key;
+                if (soundKey !== 'opening_music' && !soundKey.startsWith('music_')) {
+                    try {
+                        if (typeof (sound as any).setVolume === 'function') {
+                            (sound as any).setVolume(targetVol);
+                        }
+                        (sound as any).volume = targetVol;
+                    } catch(e) {}
+                }
+            });
+        }
+        
+        // 3. For any future sounds, we ensure the volume is applied immediately upon play
+        // We do this by overriding the play method of our SFX objects
+        Object.keys(this.sfx).forEach(key => {
+            const originalSound = this.sfx[key];
+            if (originalSound && !(originalSound as any)._volumeOverridden) {
+                const originalPlay = originalSound.play.bind(originalSound);
+                originalSound.play = (markerOrConfig?: string | Phaser.Types.Sound.SoundConfig, config?: Phaser.Types.Sound.SoundConfig) => {
+                    const currentTargetVol = this.masterVolume * this.sfxVolume;
+                    if (typeof (originalSound as any).setVolume === 'function') {
+                        (originalSound as any).setVolume(currentTargetVol);
+                    }
+                    (originalSound as any).volume = currentTargetVol;
+                    return originalPlay(markerOrConfig, config);
+                };
+                (originalSound as any)._volumeOverridden = true;
             }
         });
     }
@@ -3599,12 +3642,53 @@ class StartScene extends Phaser.Scene {
     public setSfxVolume(value: number) {
         const val = Number(value);
         if (isNaN(val)) return;
-        this.sfxVolume = Math.max(0, Math.min(1, val / 100));
-        // Apply to all SFX sounds
+        this.sfxVolume = val / 100;
+        
+        const targetVol = this.masterVolume * this.sfxVolume;
+        
+        // 1. Update the pre-loaded SFX map
         Object.values(this.sfx).forEach(sound => {
-            if (sound && (sound as any).setVolume) {
-                const masterVol = Number(this.masterVolume) || 0;
-                (sound as any).setVolume(masterVol * this.sfxVolume);
+            if (sound) {
+                try {
+                    // Phaser 3 WebAudio sounds have both volume property and setVolume method
+                    if (typeof (sound as any).setVolume === 'function') {
+                        (sound as any).setVolume(targetVol);
+                    }
+                    (sound as any).volume = targetVol;
+                } catch(e) {}
+            }
+        });
+        
+        // 2. Update all sound instances currently managed by Phaser
+        if (this.sound && this.sound.getAll) {
+            this.sound.getAll('').forEach(sound => {
+                const soundKey = (sound as any).key;
+                if (soundKey !== 'opening_music' && !soundKey.startsWith('music_')) {
+                    try {
+                        if (typeof (sound as any).setVolume === 'function') {
+                            (sound as any).setVolume(targetVol);
+                        }
+                        (sound as any).volume = targetVol;
+                    } catch(e) {}
+                }
+            });
+        }
+        
+        // 3. For any future sounds, we ensure the volume is applied immediately upon play
+        // We do this by overriding the play method of our SFX objects
+        Object.keys(this.sfx).forEach(key => {
+            const originalSound = this.sfx[key];
+            if (originalSound && !(originalSound as any)._volumeOverridden) {
+                const originalPlay = originalSound.play.bind(originalSound);
+                originalSound.play = (markerOrConfig?: string | Phaser.Types.Sound.SoundConfig, config?: Phaser.Types.Sound.SoundConfig) => {
+                    const currentTargetVol = this.masterVolume * this.sfxVolume;
+                    if (typeof (originalSound as any).setVolume === 'function') {
+                        (originalSound as any).setVolume(currentTargetVol);
+                    }
+                    (originalSound as any).volume = currentTargetVol;
+                    return originalPlay(markerOrConfig, config);
+                };
+                (originalSound as any)._volumeOverridden = true;
             }
         });
     }
