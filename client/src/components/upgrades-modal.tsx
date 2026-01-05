@@ -162,13 +162,15 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       const userAddress = await signer.getAddress();
       
       // USDC Contract on Arc Testnet
-      const usdcAddress = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; 
+      const usdcAddress = "0x3600000000000000000000000000000000000000"; 
       const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
       
       const usdcAbi = [
         "function transfer(address to, uint256 amount) public returns (bool)",
         "function approve(address spender, uint256 amount) public returns (bool)",
-        "function allowance(address owner, address spender) public view returns (uint256)"
+        "function allowance(address owner, address spender) public view returns (uint256)",
+        "function symbol() public view returns (string)",
+        "function decimals() public view returns (uint8)"
       ];
 
       const upgradeAbi = [
