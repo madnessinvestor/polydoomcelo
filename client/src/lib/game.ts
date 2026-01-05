@@ -3127,6 +3127,45 @@ class MainScene extends Phaser.Scene {
         });
     }
 
+    public applyUpgrade(id: string, level: number) {
+        const category = id.split('_')[1]; // e.g., "hp", "ki", "damage", etc.
+        const bonusValues = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.55, 0.7, 0.85, 1.0, 2.0]; // Match UPGRADE_DATA
+        const bonus = bonusValues[level] || 0;
+
+        switch (id) {
+            case 'arc_hp':
+                const oldMaxHp = this.maxHealth;
+                this.maxHealth = 300 * (1 + bonus);
+                this.health += (this.maxHealth - oldMaxHp); // Add the bonus HP to current health too
+                break;
+            case 'arc_ki':
+                this.maxKiarc = 100 * (1 + bonus);
+                break;
+            case 'arc_damage':
+                // We'll use a property to multiply damage
+                (this as any).damageMultiplier = 1 + bonus;
+                break;
+            case 'arc_defence':
+                (this as any).defenceBonus = bonus;
+                break;
+            case 'arc_regen':
+                if (!(this as any).regenTimer) {
+                    (this as any).regenTimer = this.time.addEvent({
+                        delay: 10000,
+                        callback: () => {
+                            const regenAmount = this.maxHealth * bonus;
+                            this.health = Math.min(this.maxHealth, this.health + regenAmount);
+                        },
+                        loop: true
+                    });
+                }
+                break;
+            case 'arc_vamp':
+                (this as any).vampBonus = bonus;
+                break;
+        }
+    }
+
     private kiLabel!: Phaser.GameObjects.Text;
     private hpLabel!: Phaser.GameObjects.Text;
     private buffIconsContainer!: Phaser.GameObjects.Container;
@@ -3691,6 +3730,45 @@ class StartScene extends Phaser.Scene {
                 (originalSound as any)._volumeOverridden = true;
             }
         });
+    }
+
+    public applyUpgrade(id: string, level: number) {
+        const category = id.split('_')[1]; // e.g., "hp", "ki", "damage", etc.
+        const bonusValues = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.55, 0.7, 0.85, 1.0, 2.0]; // Match UPGRADE_DATA
+        const bonus = bonusValues[level] || 0;
+
+        switch (id) {
+            case 'arc_hp':
+                const oldMaxHp = this.maxHealth;
+                this.maxHealth = 300 * (1 + bonus);
+                this.health += (this.maxHealth - oldMaxHp); // Add the bonus HP to current health too
+                break;
+            case 'arc_ki':
+                this.maxKiarc = 100 * (1 + bonus);
+                break;
+            case 'arc_damage':
+                // We'll use a property to multiply damage
+                (this as any).damageMultiplier = 1 + bonus;
+                break;
+            case 'arc_defence':
+                (this as any).defenceBonus = bonus;
+                break;
+            case 'arc_regen':
+                if (!(this as any).regenTimer) {
+                    (this as any).regenTimer = this.time.addEvent({
+                        delay: 10000,
+                        callback: () => {
+                            const regenAmount = this.maxHealth * bonus;
+                            this.health = Math.min(this.maxHealth, this.health + regenAmount);
+                        },
+                        loop: true
+                    });
+                }
+                break;
+            case 'arc_vamp':
+                (this as any).vampBonus = bonus;
+                break;
+        }
     }
 
     private openLeaderboardModal() {

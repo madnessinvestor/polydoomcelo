@@ -143,8 +143,17 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
   const handleUpgrade = (id: string) => {
     const currentLevel = purchasedLevels[id];
     if (currentLevel < 10) {
-      setPurchasedLevels(prev => ({ ...prev, [id]: currentLevel + 1 }));
-      // In a real app, this would trigger a blockchain transaction or server update
+      const nextLevel = currentLevel + 1;
+      setPurchasedLevels(prev => ({ ...prev, [id]: nextLevel }));
+      
+      // Apply upgrade to the game
+      if (window.game) {
+        window.game.scene.getScenes(true).forEach(scene => {
+          if ((scene as any).applyUpgrade) {
+            (scene as any).applyUpgrade(id, nextLevel);
+          }
+        });
+      }
     }
   };
 
