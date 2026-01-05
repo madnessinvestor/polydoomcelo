@@ -83,10 +83,6 @@ export default function Home() {
         <PauseModal 
           onContinue={handleContinueGame} 
           onExit={handleExitGame}
-          onUpgrades={() => {
-            setIsPauseModalOpen(false);
-            setIsUpgradesOpen(true);
-          }}
         />
       )}
       {isUpgradesOpen && (
