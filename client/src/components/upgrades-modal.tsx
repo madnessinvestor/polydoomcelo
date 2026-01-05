@@ -27,16 +27,16 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     description: "Increases maximum health",
     icon: Heart,
     tiers: [
-      { level: 1, bonus: "5%", price: 5 },
-      { level: 2, bonus: "10%", price: 10 },
-      { level: 3, bonus: "20%", price: 20 },
-      { level: 4, bonus: "30%", price: 30 },
-      { level: 5, bonus: "40%", price: 40 },
-      { level: 6, bonus: "55%", price: 50 },
-      { level: 7, bonus: "70%", price: 60 },
-      { level: 8, bonus: "85%", price: 70 },
-      { level: 9, bonus: "100%", price: 80 },
-      { level: 10, bonus: "200%", price: 100 },
+      { level: 1, bonus: "5", price: 5 },
+      { level: 2, bonus: "10", price: 10 },
+      { level: 3, bonus: "15", price: 20 },
+      { level: 4, bonus: "20", price: 30 },
+      { level: 5, bonus: "25", price: 40 },
+      { level: 6, bonus: "30", price: 50 },
+      { level: 7, bonus: "35", price: 60 },
+      { level: 8, bonus: "40", price: 70 },
+      { level: 9, bonus: "45", price: 80 },
+      { level: 10, bonus: "55", price: 100 },
     ]
   },
   {
@@ -45,16 +45,16 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     description: "Increases maximum Ki capacity",
     icon: Zap,
     tiers: [
-      { level: 1, bonus: "5%", price: 5 },
-      { level: 2, bonus: "10%", price: 10 },
-      { level: 3, bonus: "20%", price: 20 },
-      { level: 4, bonus: "30%", price: 30 },
-      { level: 5, bonus: "40%", price: 40 },
-      { level: 6, bonus: "55%", price: 50 },
-      { level: 7, bonus: "70%", price: 60 },
-      { level: 8, bonus: "85%", price: 70 },
-      { level: 9, bonus: "100%", price: 80 },
-      { level: 10, bonus: "200%", price: 100 },
+      { level: 1, bonus: "5", price: 5 },
+      { level: 2, bonus: "10", price: 10 },
+      { level: 3, bonus: "15", price: 20 },
+      { level: 4, bonus: "20", price: 30 },
+      { level: 5, bonus: "25", price: 40 },
+      { level: 6, bonus: "30", price: 50 },
+      { level: 7, bonus: "35", price: 60 },
+      { level: 8, bonus: "40", price: 70 },
+      { level: 9, bonus: "45", price: 80 },
+      { level: 10, bonus: "55", price: 100 },
     ]
   },
   {
@@ -310,7 +310,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {UPGRADE_DATA.map((upgrade) => {
                 const currentLevel = purchasedLevels[upgrade.id];
-                const currentBonus = currentLevel > 0 ? upgrade.tiers[currentLevel - 1].bonus : "0%";
+                const currentBonus = currentLevel > 0 ? upgrade.tiers[currentLevel - 1].bonus + "%" : "0%";
                 const nextTier = upgrade.tiers[currentLevel];
                 const Icon = upgrade.icon;
                 const isLoading = isUpgrading === upgrade.id;
@@ -360,7 +360,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                             <div className="space-y-3">
                               <div className="flex justify-between text-sm">
                                 <span className="text-slate-500">Next Bonus:</span>
-                                <span className="text-green-400 font-mono">+{nextTier.bonus}</span>
+                                <span className="text-green-400 font-mono">+{nextTier.bonus}%</span>
                               </div>
                               <Button 
                                 onClick={() => handleUpgrade(upgrade.id)}

@@ -118,17 +118,26 @@ class MainScene extends Phaser.Scene {
     private applyUpgrades() {
         if (!this.playerUpgrades) return;
 
-        // Apply HP upgrade
+        // Reset to base stats before applying bonuses to avoid compounding
+        const stats = this.levelStats[this.level - 1] || this.levelStats[0];
+        this.maxHealth = stats.hp;
+        this.maxKiarc = stats.ki;
+
+        // Apply HP upgrade (5% per level, lvl 10 is special bonus)
         if (this.playerUpgrades.arc_hp > 0) {
-            const hpBonus = 1 + (this.playerUpgrades.arc_hp * 0.05);
-            this.maxHealth = Math.floor(this.maxHealth * hpBonus);
+            let hpBonusPercent = this.playerUpgrades.arc_hp * 5;
+            if (this.playerUpgrades.arc_hp >= 10) hpBonusPercent = 55; // Match UPGRADE_DATA
+            
+            this.maxHealth = Math.floor(stats.hp * (1 + hpBonusPercent / 100));
             this.health = this.maxHealth;
         }
 
-        // Apply KI upgrade
+        // Apply KI upgrade (5% per level, lvl 10 is special bonus)
         if (this.playerUpgrades.arc_ki > 0) {
-            const kiBonus = 1 + (this.playerUpgrades.arc_ki * 0.05);
-            this.maxKiarc = Math.floor(this.maxKiarc * kiBonus);
+            let kiBonusPercent = this.playerUpgrades.arc_ki * 5;
+            if (this.playerUpgrades.arc_ki >= 10) kiBonusPercent = 55; // Match UPGRADE_DATA
+            
+            this.maxKiarc = Math.floor(stats.ki * (1 + kiBonusPercent / 100));
         }
 
         // Damage upgrade (affects mult)
