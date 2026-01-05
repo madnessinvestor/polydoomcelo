@@ -74,14 +74,6 @@ export default function Home() {
           <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden" />
           
           <div className="mt-4 flex flex-col items-center gap-4">
-            <Button 
-              onClick={() => setIsUpgradesOpen(true)}
-              className="bg-yellow-600 hover:bg-yellow-500 text-black font-bold gap-2 px-8 h-10"
-            >
-              <ArrowUpCircle size={20} />
-              UPGRADES
-            </Button>
-
             <div className="text-slate-400 text-sm flex flex-wrap justify-center gap-x-4 gap-y-2 px-4">
               <div className="flex gap-2">
                 <span className="text-white">Arrow Keys:</span>
