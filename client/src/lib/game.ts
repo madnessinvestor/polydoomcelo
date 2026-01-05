@@ -333,6 +333,9 @@ class MainScene extends Phaser.Scene {
         this.enemiesDefeated = 0;
         this.totalEnemiesBeforeWave = 0;
         this.isGameOver = false;
+        
+        // Reset timer specifically
+        this.waveStartTime = this.time.now;
 
         // Apply permanent upgrades if provided via scene data or global game object
         if (data?.upgrades) {
