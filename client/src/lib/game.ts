@@ -3130,7 +3130,7 @@ class MainScene extends Phaser.Scene {
     }
 
     private openUpgradesModal() {
-        this.sfx.menu_button.play({ volume: this.sfxVolume * this.masterVolume });
+        this.sfx['menu_button']?.play();
         if ((window as any).showUpgradesModal) {
             (window as any).showUpgradesModal();
         }
