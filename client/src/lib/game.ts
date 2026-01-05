@@ -2518,6 +2518,23 @@ class MainScene extends Phaser.Scene {
         this.enemiesDefeated++;
         this.updateHUD();
 
+        // Split Core explosion behavior
+        if (behavior === 'split_hybrid' && !enemy.getData('isChild')) {
+            for (let i = 0; i < 10; i++) {
+                const angle = (i / 10) * Math.PI * 2;
+                const speed = 200;
+                const child = this.spawnEnemy('split_core');
+                if (child) {
+                    child.setPosition(enemy.x, enemy.y);
+                    child.setData('isChild', true);
+                    child.setData('health', 5); // Children are weaker
+                    child.setScale(0.6); // Children are smaller
+                    child.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+                    // Prevent immediate collision damage if necessary, or just let them fly
+                }
+            }
+        }
+
         // Efeito de explosão
         this.createExplosion(enemy.x, enemy.y);
         
