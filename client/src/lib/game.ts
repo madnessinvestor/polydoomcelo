@@ -334,9 +334,11 @@ class MainScene extends Phaser.Scene {
         this.totalEnemiesBeforeWave = 0;
         this.isGameOver = false;
 
-        // Apply permanent upgrades if provided
+        // Apply permanent upgrades if provided via scene data or global game object
         if (data?.upgrades) {
             this.playerUpgrades = data.upgrades;
+        } else if ((this.game as any).playerUpgrades) {
+            this.playerUpgrades = (this.game as any).playerUpgrades;
         }
 
         // Set initial stats based on level
@@ -4759,14 +4761,18 @@ export function initGame(upgrades?: Record<string, number>) {
             target: 60,
             forceSetTimeOut: true
         },
-        scene: [MainScene]
+        scene: [StartScene, MainScene, DeathScene]
     };
 
     const game = new Phaser.Game(config);
     window.game = game;
 
-    // Start MainScene with initial data including upgrades
-    game.scene.start('MainScene', { upgrades });
-
+    // Start with StartScene (Main Menu) instead of MainScene directly
+    // Pass the upgrades as global data that can be accessed by all scenes
+    (game as any).playerUpgrades = upgrades;
+    
+    // Note: StartScene is already included in the scene array and will be the first one started by Phaser
+    // if it's the first element in the array. Let's ensure StartScene is first.
+    
     return game;
 }
