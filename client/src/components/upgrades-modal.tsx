@@ -157,25 +157,15 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
               <CardTitle className="text-2xl font-bold text-yellow-500">Arc Upgrades</CardTitle>
               <CardDescription className="text-slate-400">Enhance your character using USDC</CardDescription>
             </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onClose}
-                className="hidden md:flex bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
-              >
-                Close
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={onClose} 
-                className="text-slate-400 hover:text-white hover:bg-slate-800"
-                data-testid="button-close-upgrades"
-              >
-                <span className="text-xl">✕</span>
-              </Button>
-            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onClose} 
+              className="text-slate-400 hover:text-white hover:bg-slate-800"
+              data-testid="button-close-upgrades-icon"
+            >
+              <span className="text-xl">✕</span>
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
@@ -243,6 +233,15 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
             </div>
           </ScrollArea>
         </CardContent>
+        <div className="p-6 border-t border-slate-800 flex justify-center">
+          <Button 
+            onClick={onClose}
+            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-12 h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg"
+            data-testid="button-close-upgrades-footer"
+          >
+            Close
+          </Button>
+        </div>
       </Card>
     </div>
   );
