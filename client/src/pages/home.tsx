@@ -89,8 +89,9 @@ export default function Home() {
     };
 
     const handleOpeningMusic = () => {
-      if ((window as any).pauseOpening) {
-        (window as any).pauseOpening();
+      if (window.game?.scene.isActive('MainScene')) {
+        const scene = window.game.scene.getScene('MainScene') as any;
+        scene.stopOpeningMusic?.();
       }
     };
     (window as any).pauseOpening = handleOpeningMusic;
