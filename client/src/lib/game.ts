@@ -406,6 +406,9 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
+        // Force waveStartTime to current time at the very start of MainScene creation
+        this.waveStartTime = this.time.now;
+
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
