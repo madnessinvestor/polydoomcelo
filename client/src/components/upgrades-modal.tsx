@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -142,6 +142,39 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
     arc_vamp: 0,
   });
 
+  useEffect(() => {
+    async function fetchOnChainLevels() {
+      if (!(window as any).ethereum) return;
+      
+      try {
+        const provider = new ethers.BrowserProvider((window as any).ethereum);
+        const signer = await provider.getSigner();
+        const userAddress = await signer.getAddress();
+        
+        const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
+        const upgradeAbi = [
+          "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
+        ];
+        
+        const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
+        const data = await upgradeContract.upgrades(userAddress);
+        
+        setPurchasedLevels({
+          arc_hp: Number(data.hp),
+          arc_ki: Number(data.ki),
+          arc_damage: Number(data.damage),
+          arc_defence: Number(data.defence),
+          arc_regen: Number(data.regen),
+          arc_vamp: Number(data.vamp)
+        });
+      } catch (error) {
+        console.error("Error fetching on-chain levels:", error);
+      }
+    }
+
+    fetchOnChainLevels();
+  }, []);
+
   const handleUpgrade = async (id: string) => {
     const currentLevel = purchasedLevels[id];
     if (currentLevel >= 10) return;
@@ -216,8 +249,19 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       await tx.wait();
       console.log("Upgrade confirmed!");
 
-      const nextLevel = currentLevel + 1;
-      setPurchasedLevels(prev => ({ ...prev, [id]: nextLevel }));
+      // Fetch updated levels from contract after tx.wait()
+      const updatedData = await upgradeContract.upgrades(userAddress);
+      const newLevels: Record<string, number> = {
+        arc_hp: Number(updatedData.hp),
+        arc_ki: Number(updatedData.ki),
+        arc_damage: Number(updatedData.damage),
+        arc_defence: Number(updatedData.defence),
+        arc_regen: Number(updatedData.regen),
+        arc_vamp: Number(updatedData.vamp)
+      };
+      setPurchasedLevels(newLevels);
+      
+      const nextLevel = (newLevels[id as keyof typeof newLevels] || 0);
       
       // Apply upgrade to the game
       if (window.game) {
