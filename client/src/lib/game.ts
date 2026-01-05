@@ -106,6 +106,15 @@ class MainScene extends Phaser.Scene {
         'Arc Master', 'Arc Grandmaster', 'Arc Sage', 'Arc Archon', 'Arc Divine'
     ];
 
+    // Public method to trigger a re-application of upgrades from the global game object
+    public applyUpgradesFromGlobal() {
+        if ((this.game as any).playerUpgrades) {
+            this.playerUpgrades = (this.game as any).playerUpgrades;
+            this.applyUpgrades();
+            this.updateHUD();
+        }
+    }
+
     private applyUpgrades() {
         if (!this.playerUpgrades) return;
 

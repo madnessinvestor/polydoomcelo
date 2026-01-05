@@ -261,18 +261,23 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       };
       setPurchasedLevels(newLevels);
       
-      const nextLevel = (newLevels[id as keyof typeof newLevels] || 0);
-      
-      // Apply upgrade to the game
+      // CRITICAL: Synchronize the game state with the actual on-chain data
       if (window.game) {
+        // Update the global game object storage
+        (window.game as any).playerUpgrades = newLevels;
+        
+        // Notify all active scenes to re-apply their stats based on the new on-chain data
         window.game.scene.getScenes(true).forEach(scene => {
-          if ((scene as any).applyUpgrade) {
-            (scene as any).applyUpgrade(id, nextLevel);
+          if ((scene as any).applyUpgrades) {
+            (scene as any).applyUpgrades();
+          }
+          if ((scene as any).updateHUD) {
+            (scene as any).updateHUD();
           }
         });
       }
       
-      alert(`Upgrade ${id} Level ${nextLevel} activated!`);
+      alert(`Upgrade ${id} activated successfully! Stats synchronized with blockchain.`);
     } catch (error: any) {
       console.error("Upgrade failed:", error);
       alert("Transaction failed: " + (error.reason || error.message || "Unknown error"));
