@@ -319,9 +319,16 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
                             <h3 className="font-bold text-lg truncate">{upgrade.name}</h3>
-                            <Badge variant="secondary" className="bg-slate-700 text-green-500 rounded-none">
-                              Lv {currentLevel}/10
-                            </Badge>
+                            <div className="flex flex-col items-end">
+                              <Badge variant="secondary" className="bg-slate-700 text-green-500 rounded-none">
+                                Current: Lv {currentLevel}/10
+                              </Badge>
+                              {currentLevel < 10 && (
+                                <span className="text-[10px] text-slate-500 mt-0.5">
+                                  Next: Lv {currentLevel + 1}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           
                           {/* Evolution bar */}
