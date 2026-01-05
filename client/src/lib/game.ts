@@ -516,6 +516,12 @@ class MainScene extends Phaser.Scene {
         
         this.kiarcBar = this.add.graphics().setScrollFactor(0).setDepth(1000);
         
+        // Permanent Upgrade Icons Container
+        this.upgradeIconsContainer = this.add.container(16, 120).setScrollFactor(0).setDepth(1001);
+        
+        // Load initial upgrades
+        this.loadPermanentUpgrades();
+        
         // Buff Icons Container
         this.buffIconsContainer = this.add.container(16, 160).setScrollFactor(0).setDepth(1001);
         
@@ -3167,6 +3173,8 @@ class MainScene extends Phaser.Scene {
     }
 
     private kiLabel!: Phaser.GameObjects.Text;
+    private upgradeIconsContainer!: Phaser.GameObjects.Container;
+    private purchasedUpgrades: Record<string, number> = {};
     private hpLabel!: Phaser.GameObjects.Text;
     private buffIconsContainer!: Phaser.GameObjects.Container;
     private tooltipContainer!: Phaser.GameObjects.Container;
