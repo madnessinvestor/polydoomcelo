@@ -150,7 +150,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl bg-slate-900 border-slate-700 text-white max-h-[90vh] flex flex-col overflow-hidden">
+      <Card className="w-full max-w-4xl bg-slate-900 border-2 border-green-500 text-white max-h-[90vh] flex flex-col overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.3)]">
         <CardHeader className="border-b border-slate-800 relative">
           <div className="flex justify-between items-center">
             <div>
@@ -213,7 +213,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                               </div>
                               <Button 
                                 onClick={() => handleUpgrade(upgrade.id)}
-                                className="w-full bg-green-600 hover:bg-green-500 text-white font-bold h-10"
+                                className="w-full bg-green-600 hover:bg-green-500 text-white font-bold h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg border-none"
                                 data-testid={`button-upgrade-${upgrade.id}`}
                               >
                                 Upgrade - {nextTier.price} USDC
