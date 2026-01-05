@@ -106,6 +106,42 @@ class MainScene extends Phaser.Scene {
         'Arc Master', 'Arc Grandmaster', 'Arc Sage', 'Arc Archon', 'Arc Divine'
     ];
 
+    private applyUpgrades() {
+        if (!this.playerUpgrades) return;
+
+        // Apply HP upgrade
+        if (this.playerUpgrades.arc_hp > 0) {
+            const hpBonus = 1 + (this.playerUpgrades.arc_hp * 0.05);
+            this.maxHealth = Math.floor(this.maxHealth * hpBonus);
+            this.health = this.maxHealth;
+        }
+
+        // Apply KI upgrade
+        if (this.playerUpgrades.arc_ki > 0) {
+            const kiBonus = 1 + (this.playerUpgrades.arc_ki * 0.05);
+            this.maxKiarc = Math.floor(this.maxKiarc * kiBonus);
+        }
+
+        // Damage upgrade (affects mult)
+        if (this.playerUpgrades.arc_damage > 0) {
+            const damageBonus = 1 + (this.playerUpgrades.arc_damage * 0.10);
+            this.levelStats.forEach(stat => {
+                stat.mult *= damageBonus;
+                stat.punch = Math.floor(stat.punch * damageBonus);
+                stat.magic = Math.floor(stat.magic * damageBonus);
+                stat.kame = Math.floor(stat.kame * damageBonus);
+            });
+        }
+
+        // Defence upgrade (affects res)
+        if (this.playerUpgrades.arc_defence > 0) {
+            const resBonus = this.playerUpgrades.arc_defence * 0.03;
+            this.levelStats.forEach(stat => {
+                stat.res = Math.min(0.9, stat.res + resBonus);
+            });
+        }
+    }
+
     // Double-click dash system
     private lastKeyPressTime: { left: number, right: number, up: number, down: number } = { left: 0, right: 0, up: 0, down: 0 };
     private punchTimer: number = 0;
@@ -290,66 +326,48 @@ class MainScene extends Phaser.Scene {
     }
 
     init(data: any) {
+        // Reset basic game state
+        this.level = data.level || 1;
+        this.currentWave = 1;
+        this.score = 0;
+        this.enemiesDefeated = 0;
+        this.totalEnemiesBeforeWave = 0;
+        this.isGameOver = false;
+
         // Apply permanent upgrades if provided
         if (data?.upgrades) {
             this.playerUpgrades = data.upgrades;
-            // Apply HP upgrade to max health
-            if (this.playerUpgrades.arc_hp > 0) {
-                const hpBonus = 1 + (this.playerUpgrades.arc_hp * 0.05); // 5% per level
-                this.maxHealth = Math.floor(300 * hpBonus);
-                this.health = this.maxHealth;
-            }
-            // Apply KI upgrade to max ki
-            if (this.playerUpgrades.arc_ki > 0) {
-                const kiBonus = 1 + (this.playerUpgrades.arc_ki * 0.05); // 5% per level
-                this.maxKiarc = Math.floor(100 * kiBonus);
-            }
         }
 
-        // Doom Mode handling
+        // Set initial stats based on level
+        const stats = this.levelStats[this.level - 1] || this.levelStats[0];
+        this.health = stats.hp;
+        this.maxHealth = stats.hp;
+        this.kiarc = 0;
+        this.maxKiarc = stats.ki;
+        this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
+
+        // Apply on-chain upgrade bonuses
+        this.applyUpgrades();
+
+        // Doom Mode specific adjustments
         if (data?.doomMode) {
             this.isInGamemode = true;
             this.stopOpeningMusic();
-            this.level = data.level || 1;
-            const stats = this.levelStats[this.level - 1] || this.levelStats[0];
-            
-            // Base stats from level
-            let baseHp = stats.hp;
-            let baseKi = stats.ki;
-
-            // Apply upgrades ON TOP of Doom Mode level stats
-            if (this.playerUpgrades.arc_hp > 0) {
-                const hpBonus = 1 + (this.playerUpgrades.arc_hp * 0.05);
-                baseHp = Math.floor(baseHp * hpBonus);
-            }
-            if (this.playerUpgrades.arc_ki > 0) {
-                const kiBonus = 1 + (this.playerUpgrades.arc_ki * 0.05);
-                baseKi = Math.floor(baseKi * kiBonus);
-            }
-
-            this.health = baseHp;
-            this.maxHealth = baseHp;
-            this.maxKiarc = baseKi;
-            this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
             this.playNextMusic();
-        } else {
-            // Normal game initialization logic...
-            this.level = data.level || 1;
-            this.currentWave = 1;
-            this.score = 0;
-            this.enemiesDefeated = 0;
-            this.totalEnemiesBeforeWave = 0;
-            this.isGameOver = false;
-            
-            // Stats are already set above in the upgrades block if present,
-            // but we ensure they are set for level 1 if no upgrades.
-            if (!data?.upgrades) {
-                const stats = this.levelStats[0];
-                this.health = stats.hp;
-                this.maxHealth = stats.hp;
-                this.maxKiarc = stats.ki;
-            }
         }
+
+        // Reset other states
+        this.hasPowerBoost = false;
+        this.hasScoreBoost = false;
+        this.isInvincible = false;
+        this.activeBuffs.clear();
+        
+        // Load volume settings from localStorage
+        this.masterVolume = (parseInt(localStorage.getItem('masterVolume') || '100')) / 100;
+        this.musicVolume = (parseInt(localStorage.getItem('musicVolume') || '100')) / 100;
+        this.sfxVolume = (parseInt(localStorage.getItem('sfxVolume') || '100')) / 100;
+    }
 
     // Sound assets
     private sfx: { [key: string]: Phaser.Sound.BaseSound } = {};
@@ -385,21 +403,6 @@ class MainScene extends Phaser.Scene {
     create() {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
-
-        // Apply permanent upgrades to base stats during creation
-        if (this.playerUpgrades) {
-            // HP
-            if (this.playerUpgrades.arc_hp > 0) {
-                const hpBonus = 1 + (this.playerUpgrades.arc_hp * 0.05);
-                this.maxHealth = Math.floor(this.maxHealth * hpBonus);
-                this.health = this.maxHealth;
-            }
-            // KI
-            if (this.playerUpgrades.arc_ki > 0) {
-                const kiBonus = 1 + (this.playerUpgrades.arc_ki * 0.05);
-                this.maxKiarc = Math.floor(this.maxKiarc * kiBonus);
-            }
-        }
 
         // Initialize SFX
         const sfxKeys = [
