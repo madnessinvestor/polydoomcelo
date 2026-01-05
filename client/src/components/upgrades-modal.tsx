@@ -305,6 +305,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {UPGRADE_DATA.map((upgrade) => {
                 const currentLevel = purchasedLevels[upgrade.id];
+                const currentBonus = currentLevel > 0 ? upgrade.tiers[currentLevel - 1].bonus : "0%";
                 const nextTier = upgrade.tiers[currentLevel];
                 const Icon = upgrade.icon;
                 const isLoading = isUpgrading === upgrade.id;
@@ -343,7 +344,12 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                             ))}
                           </div>
 
-                          <p className="text-sm text-slate-400 mb-4 line-clamp-1">{upgrade.description}</p>
+                          <p className="text-sm text-slate-400 mb-2 line-clamp-1">{upgrade.description}</p>
+                          
+                          <div className="flex justify-between text-sm mb-4">
+                            <span className="text-slate-500">Current Bonus:</span>
+                            <span className="text-green-500 font-bold">+{currentBonus}</span>
+                          </div>
                           
                           {currentLevel < 10 ? (
                             <div className="space-y-3">
