@@ -57,16 +57,16 @@ class MainScene extends Phaser.Scene {
     ];
 
     private waveConfigs = [
-        { wave: 1, enemies: { ground_biter: 1.0 } },
-        { wave: 2, enemies: { ground_biter: 0.7, pouncer: 0.3 } },
-        { wave: 3, enemies: { ground_biter: 0.5, arc_shooter: 0.3, pouncer: 0.2 } },
-        { wave: 4, enemies: { ground_biter: 0.4, arc_shooter: 0.25, hover_mage: 0.2, pouncer: 0.15 } },
-        { wave: 5, enemies: { ground_biter: 0.35, charger_ram: 0.25, arc_shooter: 0.2, hover_mage: 0.2 } },
-        { wave: 6, enemies: { ground_biter: 0.3, charger_ram: 0.2, knockback_brute: 0.2, arc_shooter: 0.15, hover_mage: 0.15 } },
-        { wave: 7, enemies: { ground_biter: 0.25, split_core: 0.2, charger_ram: 0.15, knockback_brute: 0.15, arc_shooter: 0.15, hover_mage: 0.1 } },
-        { wave: 8, enemies: { ground_biter: 0.2, split_core: 0.2, blink_stalker: 0.2, arc_shooter: 0.15, hover_mage: 0.15, knockback_brute: 0.1 } },
-        { wave: 9, enemies: { ground_biter: 0.15, shield_sentinel: 0.2, split_core: 0.2, blink_stalker: 0.15, arc_shooter: 0.15, hover_mage: 0.15, arc_phantom: 0.05 } },
-        { wave: 10, enemies: { ground_biter: 0.1, charger_ram: 0.15, knockback_brute: 0.15, split_core: 0.15, blink_stalker: 0.15, shield_sentinel: 0.1, arc_shooter: 0.1, hover_mage: 0.1, arc_phantom: 0.1 } }
+        { wave: 1, total: 100, enemies: { ground_biter: 1.0 } },
+        { wave: 2, total: 140, enemies: { ground_biter: 0.65, charger_ram: 0.2, pouncer: 0.15 } },
+        { wave: 3, total: 190, enemies: { ground_biter: 0.5, charger_ram: 0.2, arc_shooter: 0.15, pouncer: 0.15 } },
+        { wave: 4, total: 250, enemies: { ground_biter: 0.45, charger_ram: 0.15, arc_shooter: 0.15, hover_mage: 0.15, pouncer: 0.1 } },
+        { wave: 5, total: 320, enemies: { ground_biter: 0.4, charger_ram: 0.15, arc_shooter: 0.15, hover_mage: 0.15, knockback_brute: 0.15 } },
+        { wave: 6, total: 400, enemies: { ground_biter: 0.35, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, knockback_brute: 0.15, split_core: 0.2 } },
+        { wave: 7, total: 500, enemies: { ground_biter: 0.3, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.2, shield_sentinel: 0.2 } },
+        { wave: 8, total: 650, enemies: { ground_biter: 0.25, charger_ram: 0.1, arc_shooter: 0.15, hover_mage: 0.15, split_core: 0.15, shield_sentinel: 0.1, blink_stalker: 0.1 } },
+        { wave: 9, total: 850, enemies: { ground_biter: 0.2, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.15, shield_sentinel: 0.1, blink_stalker: 0.15, arc_phantom: 0.1 } },
+        { wave: 10, total: 1100, enemies: { ground_biter: 0.15, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, pouncer: 0.05, knockback_brute: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, arc_phantom: 0.1 } }
     ];
 
     // Boss polygon graphics map
@@ -920,11 +920,8 @@ class MainScene extends Phaser.Scene {
         this.bossSpawned = false;
         this.waveStartTime = this.time.now;
         
-        // Waves increase total enemies: 60, 90, 130... 100 base
-        this.totalEnemiesInWave = 60 + (Math.min(this.currentWave, 10) - 1) * 40;
-        if (this.currentWave > 10) {
-            this.totalEnemiesInWave += (this.currentWave - 10) * 100;
-        }
+        const config = this.getWaveConfig(this.currentWave) as any;
+        this.totalEnemiesInWave = config?.total || (100 + (this.currentWave - 1) * 50);
 
         const waveName = this.currentWave > 10 ? `INFINITY WAVE ${this.currentWave}` : `WAVE: ${this.currentWave}`;
         this.waveText.setText(waveName);
@@ -933,7 +930,7 @@ class MainScene extends Phaser.Scene {
         if (this.spawnEvent) this.spawnEvent.destroy();
         
         this.spawnEvent = this.time.addEvent({
-            delay: this.currentWave > 10 ? 500 : 1000,
+            delay: 200, // Frequent spawn attempts
             callback: this.spawnBatch,
             callbackScope: this,
             loop: true
@@ -944,7 +941,6 @@ class MainScene extends Phaser.Scene {
             if (!this.isWaveInterval && !this.isGameOver && !this.bossSpawned) {
                 this.spawnBoss();
                 if (this.currentWave > 10) {
-                    // Spawn 2 more bosses for Infinity Wave (total 3)
                     this.time.delayedCall(2000, () => this.spawnBoss());
                     this.time.delayedCall(4000, () => this.spawnBoss());
                 }
@@ -952,7 +948,6 @@ class MainScene extends Phaser.Scene {
             }
         });
 
-        // Elite Arc Phantom logic
         if (this.currentWave >= 9) {
             const delay = this.currentWave === 9 ? 90000 : 45000;
             this.time.delayedCall(delay, () => {
@@ -978,8 +973,9 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
+        // Spawn a batch based on wave intensity
         const batchSize = Math.min(
-            Math.ceil(this.totalEnemiesInWave / 60), 
+            Phaser.Math.Between(2, 5), 
             this.totalEnemiesInWave - this.enemiesSpawnedInWave,
             this.maxSimultaneousEnemies - activeEnemies
         );
