@@ -271,7 +271,10 @@ class MainScene extends Phaser.Scene {
     }
 
     private updateInventoryHUD() {
-        if (!this.inventoryHUD) return;
+        // Ensure inventoryHUD container exists
+        if (!this.inventoryHUD) {
+            this.inventoryHUD = this.add.container(0, 0).setScrollFactor(0).setDepth(1000);
+        }
         
         // Load inventory directly from localStorage using the connected wallet address
         const walletAddress = (window as any).walletAddress;
@@ -291,6 +294,11 @@ class MainScene extends Phaser.Scene {
         } else if ((this.game as any).playerInventory) {
             // Fallback to global if localStorage is empty but global has data
             this.playerInventory = (this.game as any).playerInventory;
+        }
+
+        // Ensure playerInventory is at least an empty object to prevent errors
+        if (!this.playerInventory) {
+            this.playerInventory = { health: 0, ki: 0, immunity: 0, score: 0 };
         }
 
         const items = [
