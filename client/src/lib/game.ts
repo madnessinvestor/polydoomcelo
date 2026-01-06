@@ -164,6 +164,25 @@ class MainScene extends Phaser.Scene {
     private inventoryIcons: Map<string, Phaser.GameObjects.Graphics> = new Map();
     private inventoryCounts: Map<string, Phaser.GameObjects.Text> = new Map();
 
+    private async syncInventoryWithBackend() {
+        const walletAddress = (window as any).walletAddress;
+        if (!walletAddress) return;
+
+        try {
+            // Save current inventory to backend
+            await fetch('/api/inventory', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    walletAddress,
+                    potions: this.playerInventory
+                })
+            });
+        } catch (err) {
+            console.error("Failed to sync inventory with backend:", err);
+        }
+    }
+
     private useInventoryItem(type: string) {
         if (!this.playerInventory || (this.playerInventory[type] || 0) <= 0) return;
 
@@ -213,6 +232,10 @@ class MainScene extends Phaser.Scene {
             (this.game as any).playerInventory = this.playerInventory;
             this.updateInventoryHUD();
             this.updateHUD();
+            
+            // Sync with backend after use
+            this.syncInventoryWithBackend();
+
             if (this.sfx['item_pickup']) {
                 this.sfx['item_pickup'].play({ volume: this.sfxVolume });
             }
@@ -522,7 +545,9 @@ class MainScene extends Phaser.Scene {
         this.maxKiarc = stats.ki;
         this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
 
+        // Sync inventory on-chain and with backend
         this.syncInventoryOnChain();
+        this.syncWithBackendOnStart();
 
         // CRITICAL: Re-apply on-chain upgrade bonuses to the current level's base stats
         this.applyUpgrade();
@@ -3017,6 +3042,27 @@ class MainScene extends Phaser.Scene {
     }
 
     // Load inventory from blockchain
+    private async syncWithBackendOnStart() {
+        const walletAddress = (window as any).walletAddress;
+        if (!walletAddress) return;
+
+        try {
+            const response = await fetch(`/api/inventory/${walletAddress}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.potions) {
+                    this.playerInventory = data.potions;
+                    localStorage.setItem('player_inventory', JSON.stringify(this.playerInventory));
+                    (this.game as any).playerInventory = this.playerInventory;
+                    this.updateInventoryHUD();
+                    this.updateHUD();
+                }
+            }
+        } catch (err) {
+            console.error("Failed to sync inventory with backend on start:", err);
+        }
+    }
+
     private async syncInventoryOnChain() {
         if (!(window as any).ethereum) return;
         

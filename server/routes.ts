@@ -45,5 +45,35 @@ export async function registerRoutes(
     }
   });
 
+  // Inventory endpoints
+  app.get('/api/inventory/:walletAddress', async (req, res) => {
+    try {
+      const { walletAddress } = req.params;
+      const inv = await storage.getInventory(walletAddress);
+      if (!inv) {
+        return res.json({
+          walletAddress,
+          potions: { health: 0, ki: 0, immunity: 0, score: 0 }
+        });
+      }
+      res.json(inv);
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to fetch inventory' });
+    }
+  });
+
+  app.post('/api/inventory', async (req, res) => {
+    try {
+      const { walletAddress, potions } = req.body;
+      if (!walletAddress) {
+        return res.status(400).json({ message: 'walletAddress is required' });
+      }
+      const inv = await storage.upsertInventory({ walletAddress, potions });
+      res.json(inv);
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to save inventory' });
+    }
+  });
+
   return httpServer;
 }
