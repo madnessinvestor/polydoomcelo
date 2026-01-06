@@ -53,20 +53,25 @@ class MainScene extends Phaser.Scene {
         { id: 'blink_stalker', name: 'Blink Stalker', sides: 8, color: 0x4ade80, behavior: 'teleport_bomb', scale: 0.8 },
         { id: 'split_core', name: 'Split Core', sides: 8, color: 0x4ade80, behavior: 'split_hybrid', scale: 1.2 },
         { id: 'shield_sentinel', name: 'Shield Sentinel', sides: 4, color: 0x4ade80, behavior: 'shield', scale: 1.3, doubleBorder: true },
-        { id: 'arc_phantom', name: 'Arc Phantom', sides: 10, color: 0x4ade80, behavior: 'elite_hybrid', scale: 1.8 }
+        { id: 'arc_phantom', name: 'Arc Phantom', sides: 10, color: 0x4ade80, behavior: 'elite_hybrid', scale: 1.8 },
+        { id: 'spin_star', name: 'Spin Star', sides: 10, isStar: true, color: 0x4ade80, behavior: 'spin', scale: 1.0 },
+        { id: 'phase_heptar', name: 'Phase Heptar', sides: 7, color: 0x4ade80, behavior: 'phase', scale: 1.2 },
+        { id: 'crescent_reaver', name: 'Crescent Reaver', sides: 30, isCrescent: true, color: 0x4ade80, behavior: 'arc_dash', scale: 1.2 },
+        { id: 'spiral_warden', name: 'Spiral Warden', isSpiral: true, color: 0x4ade80, behavior: 'spiral', scale: 1.3 },
+        { id: 'prism_drifter', name: 'Prism Drifter', sides: 4, ratio: 0.6, color: 0x4ade80, behavior: 'prism', scale: 1.1 }
     ];
 
     private waveConfigs = [
         { wave: 1, total: 100, enemies: { ground_biter: 1.0 } },
         { wave: 2, total: 140, enemies: { ground_biter: 0.65, charger_ram: 0.2, pouncer: 0.15 } },
         { wave: 3, total: 190, enemies: { ground_biter: 0.5, charger_ram: 0.2, arc_shooter: 0.15, pouncer: 0.15 } },
-        { wave: 4, total: 250, enemies: { ground_biter: 0.45, charger_ram: 0.15, arc_shooter: 0.15, hover_mage: 0.15, pouncer: 0.1 } },
-        { wave: 5, total: 320, enemies: { ground_biter: 0.4, charger_ram: 0.15, arc_shooter: 0.15, hover_mage: 0.15, knockback_brute: 0.15 } },
-        { wave: 6, total: 400, enemies: { ground_biter: 0.35, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, knockback_brute: 0.15, split_core: 0.2 } },
-        { wave: 7, total: 500, enemies: { ground_biter: 0.3, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.2, shield_sentinel: 0.2 } },
-        { wave: 8, total: 650, enemies: { ground_biter: 0.25, charger_ram: 0.1, arc_shooter: 0.15, hover_mage: 0.15, split_core: 0.15, shield_sentinel: 0.1, blink_stalker: 0.1 } },
-        { wave: 9, total: 850, enemies: { ground_biter: 0.2, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.15, shield_sentinel: 0.1, blink_stalker: 0.15, arc_phantom: 0.1 } },
-        { wave: 10, total: 1100, enemies: { ground_biter: 0.15, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, pouncer: 0.05, knockback_brute: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, arc_phantom: 0.1 } }
+        { wave: 4, total: 250, enemies: { ground_biter: 0.3, charger_ram: 0.15, arc_shooter: 0.15, hover_mage: 0.15, pouncer: 0.1, spin_star: 0.15 } },
+        { wave: 5, total: 320, enemies: { ground_biter: 0.25, charger_ram: 0.15, arc_shooter: 0.1, hover_mage: 0.15, knockback_brute: 0.15, phase_heptar: 0.2 } },
+        { wave: 6, total: 400, enemies: { ground_biter: 0.2, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, knockback_brute: 0.1, split_core: 0.2, crescent_reaver: 0.2 } },
+        { wave: 7, total: 500, enemies: { ground_biter: 0.15, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.15, shield_sentinel: 0.2, spiral_warden: 0.2 } },
+        { wave: 8, total: 650, enemies: { ground_biter: 0.1, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, prism_drifter: 0.3 } },
+        { wave: 9, total: 850, enemies: { ground_biter: 0.1, charger_ram: 0.05, arc_shooter: 0.05, hover_mage: 0.05, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.15, arc_phantom: 0.1, prism_drifter: 0.3 } },
+        { wave: 10, total: 1100, enemies: { ground_biter: 0.1, charger_ram: 0.05, arc_shooter: 0.05, hover_mage: 0.05, pouncer: 0.05, knockback_brute: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, arc_phantom: 0.1, prism_drifter: 0.2 } }
     ];
 
     // Boss polygon graphics map
@@ -1176,6 +1181,46 @@ class MainScene extends Phaser.Scene {
             graphics.lineStyle(2, 0x4ade80, 0.5); // Fixed green outline
         }
 
+        if (type.isStar) {
+            const innerRadius = size * 0.5;
+            const outerRadius = size;
+            const points: Phaser.Geom.Point[] = [];
+            for (let i = 0; i < 10; i++) {
+                const angle = (i * Math.PI) / 5 - Math.PI / 2;
+                const r = i % 2 === 0 ? outerRadius : innerRadius;
+                points.push(new Phaser.Geom.Point(Math.cos(angle) * r, Math.sin(angle) * r));
+            }
+            graphics.beginPath();
+            graphics.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) graphics.lineTo(points[i].x, points[i].y);
+            graphics.closePath();
+            graphics.strokePath();
+            return;
+        }
+
+        if (type.isCrescent) {
+            graphics.beginPath();
+            graphics.arc(0, 0, size, Math.PI * 0.2, Math.PI * 1.8);
+            graphics.arc(size * 0.4, 0, size * 0.8, Math.PI * 1.7, Math.PI * 0.3, true);
+            graphics.closePath();
+            graphics.strokePath();
+            return;
+        }
+
+        if (type.isSpiral) {
+            graphics.beginPath();
+            let r = 0;
+            for (let a = 0; a < Math.PI * 6; a += 0.2) {
+                r = (a / (Math.PI * 6)) * size;
+                const px = Math.cos(a) * r;
+                const py = Math.sin(a) * r;
+                if (a === 0) graphics.moveTo(px, py);
+                else graphics.lineTo(px, py);
+            }
+            graphics.strokePath();
+            return;
+        }
+
         const sides = type.sides;
         const points: Phaser.Geom.Point[] = [];
         const angleSlice = (Math.PI * 2) / sides;
@@ -1369,6 +1414,55 @@ class MainScene extends Phaser.Scene {
                 }
 
                 switch (behavior) {
+                    case 'spin':
+                        enemy.setAngularVelocity(360);
+                        enemy.setVelocity(Math.cos(angle) * enemySpeed, Math.sin(angle) * enemySpeed);
+                        if (dist < 200 && Math.random() < 0.02) {
+                            const dashAngle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+                            enemy.setVelocity(Math.cos(dashAngle) * 600, Math.sin(dashAngle) * 600);
+                        }
+                        break;
+                    case 'phase':
+                        if (time % 2000 < 1000) {
+                            enemy.setAlpha(0.3);
+                            enemy.setData('isPhased', true);
+                        } else {
+                            if (enemy.getData('isPhased')) {
+                                this.useEnemyHexPulse(enemy);
+                                enemy.setData('isPhased', false);
+                            }
+                            enemy.setAlpha(1.0);
+                        }
+                        enemy.setVelocity(Math.cos(angle) * enemySpeed * 0.5, Math.sin(angle) * enemySpeed * 0.5);
+                        break;
+                    case 'arc_dash':
+                        const orbitX = this.player.x + Math.cos(time/500) * 200;
+                        const orbitY = this.player.y + Math.sin(time/500) * 200;
+                        enemy.setVelocity((orbitX - enemy.x) * 2, (orbitY - enemy.y) * 2);
+                        if (Math.random() < 0.01) {
+                            this.enemyCrescentSlash(enemy);
+                        }
+                        break;
+                    case 'spiral':
+                        const spiralTargetX = this.player.x + Math.cos(time/1000) * 300;
+                        const spiralTargetY = this.player.y + Math.sin(time/1000) * 300;
+                        enemy.setVelocity((spiralTargetX - enemy.x) * 1, (spiralTargetY - enemy.y) * 1);
+                        if (Math.random() < 0.02) {
+                            this.enemySpiralCast(enemy);
+                        }
+                        // Mana Pull
+                        if (dist < 400) {
+                            this.player.x += (enemy.x - this.player.x) * 0.005;
+                            this.player.y += (enemy.y - this.player.y) * 0.005;
+                        }
+                        break;
+                    case 'prism':
+                        const zigZagX = Math.sin(time/200) * 100;
+                        enemy.setVelocity(Math.cos(angle) * enemySpeed + zigZagX, Math.sin(angle) * enemySpeed);
+                        if (Math.random() < 0.01) {
+                            this.enemyTriArcSpell(enemy);
+                        }
+                        break;
                     case 'charge':
                         if (!enemy.getData('isDashing') && dist < 300) {
                             this.enemyDashAttack(enemy);
@@ -2857,6 +2951,62 @@ class MainScene extends Phaser.Scene {
 
     private isUsingMagic(): boolean {
         return this.keys.C.isDown || this.keys.V.isDown || this.keys.B.isDown;
+    }
+
+    private useEnemyHexPulse(enemy: Phaser.Physics.Arcade.Sprite) {
+        const pulse = this.add.circle(enemy.x, enemy.y, 10, 0x4ade80, 0.5);
+        this.tweens.add({
+            targets: pulse,
+            radius: 100,
+            alpha: 0,
+            duration: 500,
+            onComplete: () => pulse.destroy()
+        });
+        const dist = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        if (dist < 100 && !this.isInvincible) {
+            this.takeDamage(enemy.getData('damage') * 2);
+        }
+    }
+
+    private enemyCrescentSlash(enemy: Phaser.Physics.Arcade.Sprite) {
+        const slash = this.add.graphics();
+        slash.lineStyle(2, 0x4ade80, 0.8);
+        slash.beginPath();
+        slash.arc(enemy.x, enemy.y, 150, Math.PI * 0.2, Math.PI * 1.8);
+        slash.strokePath();
+        this.time.delayedCall(200, () => slash.destroy());
+        const dist = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        if (dist < 150 && !this.isInvincible) {
+            this.takeDamage(enemy.getData('damage'));
+        }
+    }
+
+    private enemySpiralCast(enemy: Phaser.Physics.Arcade.Sprite) {
+        for (let i = 0; i < 3; i++) {
+            const angle = (this.time.now / 500) + (i * Math.PI * 2 / 3);
+            const magic = this.physics.add.arc(enemy.x, enemy.y, 8, 0, 360, false, 0x4ade80, 1);
+            this.physics.add.existing(magic);
+            const body = magic.body as Phaser.Physics.Arcade.Body;
+            body.setVelocity(Math.cos(angle) * 300, Math.sin(angle) * 300);
+            this.physics.add.overlap(this.player, magic, () => {
+                magic.destroy();
+                this.takeDamage(enemy.getData('damage'));
+            });
+            this.time.delayedCall(3000, () => magic.destroy());
+        }
+    }
+
+    private enemyTriArcSpell(enemy: Phaser.Physics.Arcade.Sprite) {
+        const triangle = this.add.polygon(enemy.x, enemy.y, [0, -20, 15, 10, -15, 10], 0x00ffff, 0.5);
+        this.physics.add.existing(triangle);
+        const body = triangle.body as Phaser.Physics.Arcade.Body;
+        const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        body.setVelocity(Math.cos(angle) * 500, Math.sin(angle) * 500);
+        this.physics.add.overlap(this.player, triangle, () => {
+            triangle.destroy();
+            this.takeDamage(enemy.getData('damage') * 1.5);
+        });
+        this.time.delayedCall(2000, () => triangle.destroy());
     }
 
     private enemyMeleeAttack(enemy: Phaser.Physics.Arcade.Sprite) {

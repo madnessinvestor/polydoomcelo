@@ -1,0 +1,120 @@
+📊 Tabela Geral
+Inimigo	Wave Inicial	Formato (Borda Verde)	HP	Dano	Papel
+Spin Star	Wave 4	Estrela (5–6 pontas)	50 HP	1	Controle de espaço
+Phase Heptar	Wave 5	Heptágono (7 lados)	80 HP	1	Pressão tática
+Crescent Reaver	Wave 6	Meia-lua	100 HP	1	Ataque em arco
+Spiral Warden	Wave 7	Espiral geométrica	120 HP	1	Mago zoner
+Prism Drifter	Wave 8	Losango	150 HP	1	Assassino mágico
+🧠 Ataques e Comportamentos (Detalhado)
+⭐ Spin Star — Wave 4
+
+Formato: Estrela vazada (borda verde)
+Movimento Base: Avanço direto
+
+Ataques:
+
+Spin Core
+
+Gira continuamente
+
+Dano por contato enquanto gira
+
+Whirl Dash
+
+Avanço curto em linha reta girando mais rápido
+
+Star Burst (passivo)
+
+Ao morrer, gira rapidamente por 0.5s antes de desaparecer (última ameaça)
+
+👻 Phase Heptar — Wave 5
+
+Formato: Heptágono vazado
+Movimento Base: Lento e calculado
+
+Ataques:
+
+Phase Shift
+
+Alterna entre:
+
+Sólido: recebe dano
+
+Fase: atravessa tiros e player
+
+Hex Pulse
+
+Pulso circular curto ao sair da fase
+
+Blink Step
+
+Micro-teleporte lateral
+
+🌙 Crescent Reaver — Wave 6
+
+Formato: Meia-lua vazada
+Movimento Base: Orbital
+
+Ataques:
+
+Arc Dash
+
+Dash em curva (meia-lua)
+
+Crescent Slash
+
+Lâmina de energia curva (outline verde fino)
+
+Backstep Cut
+
+Salta para trás e ataca simultaneamente
+
+🌀 Spiral Warden — Wave 7
+
+Formato: Espiral vazada
+Movimento Base: Flutuação lenta
+
+Ataques (🔥 igual KiaArc do Player):
+
+Arc Spell
+
+Dispara projéteis mágicos idênticos ao KiaArc do player
+
+Spiral Cast
+
+Lança 3 projéteis em padrão espiral
+
+Mana Pull (passivo)
+
+Puxa levemente o player para o centro da espiral
+
+👉 Esse inimigo define zona, força movimentação e combina muito bem com melee enemies.
+
+💎 Prism Drifter — Wave 8
+
+Formato: Losango vazado
+Movimento Base: Zigue-zague rápido
+
+Ataques:
+
+Prism Dash
+
+Avanço errático em ângulos agudos
+
+🔺 TriArc Spell (EXCLUSIVO)
+
+Lança um triângulo mágico:
+
+Cor: azul
+
+Transparência: 50%
+
+Forma sólida geométrica
+
+Dano ao contato
+
+Mirror Step
+
+Inverte direção instantaneamente após atacar
+
+⚠️ É o inimigo mais perigoso até aqui: rápido + magia + alto HP.
