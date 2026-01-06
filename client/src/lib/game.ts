@@ -2984,7 +2984,7 @@ class MainScene extends Phaser.Scene {
     private enemySpiralCast(enemy: Phaser.Physics.Arcade.Sprite) {
         for (let i = 0; i < 3; i++) {
             const angle = (this.time.now / 500) + (i * Math.PI * 2 / 3);
-            const magic = this.physics.add.arc(enemy.x, enemy.y, 8, 0, 360, false, 0x4ade80, 1);
+            const magic = this.add.circle(enemy.x, enemy.y, 8, 0x4ade80, 1);
             this.physics.add.existing(magic);
             const body = magic.body as Phaser.Physics.Arcade.Body;
             body.setVelocity(Math.cos(angle) * 300, Math.sin(angle) * 300);
@@ -2992,7 +2992,9 @@ class MainScene extends Phaser.Scene {
                 magic.destroy();
                 this.takeDamage(enemy.getData('damage'));
             });
-            this.time.delayedCall(3000, () => magic.destroy());
+            this.time.delayedCall(3000, () => {
+                if (magic.active) magic.destroy();
+            });
         }
     }
 
