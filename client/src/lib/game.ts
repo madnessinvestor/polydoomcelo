@@ -1000,11 +1000,13 @@ class MainScene extends Phaser.Scene {
         
         if (!specificType) {
             const config = this.getWaveConfig(this.currentWave);
+            const rand = Math.random();
+            let cumulative = 0;
+            
             if (!config || !config.enemies) {
-                const infinityConfig = this.waveConfigs[9];
-                const rand = Math.random();
-                let cumulative = 0;
-                for (const [typeId, chance] of Object.entries(infinityConfig.enemies)) {
+                // Infinity mode or fallback
+                const fallbackConfig = this.waveConfigs[this.waveConfigs.length - 1];
+                for (const [typeId, chance] of Object.entries(fallbackConfig.enemies)) {
                     cumulative += (chance as number);
                     if (rand <= cumulative) {
                         selectedTypeId = typeId;
@@ -1012,8 +1014,6 @@ class MainScene extends Phaser.Scene {
                     }
                 }
             } else {
-                const rand = Math.random();
-                let cumulative = 0;
                 for (const [typeId, chance] of Object.entries(config.enemies)) {
                     cumulative += (chance as number);
                     if (rand <= cumulative) {
