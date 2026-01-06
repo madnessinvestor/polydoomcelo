@@ -2087,6 +2087,9 @@ class MainScene extends Phaser.Scene {
                         this.kiarc = this.maxKiarc;
                         
                         this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
+
+                        // CRITICAL: Re-apply permanent upgrades on top of new level base stats
+                        this.applyUpgrade();
                         
                         // Powerful camera effects
                         this.cameras.main.flash(800, 0, 255, 100);
