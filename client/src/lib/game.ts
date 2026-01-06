@@ -1004,10 +1004,14 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
+        // Spawn logic: Waves 7+ should spawn over 2 minutes (120 seconds)
+        // Others use default (roughly 1 minute/60 seconds implicitly by totalEnemies/60)
+        const spawnDuration = this.currentWave >= 7 ? 120000 : 60000;
+        const enemiesPerSecond = this.totalEnemiesInWave / (spawnDuration / 1000);
+        
         // Spawn a small batch or single enemy to keep it steady
-        // For higher waves with many enemies, we might spawn 2-3 at once to fit the minute
         const batchSize = Math.max(1, Math.min(
-            Math.ceil(this.totalEnemiesInWave / 300), // Scale batch size for very high counts
+            Math.ceil(enemiesPerSecond), 
             this.totalEnemiesInWave - this.enemiesSpawnedInWave,
             this.maxSimultaneousEnemies - activeEnemies
         ));
