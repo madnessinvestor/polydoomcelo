@@ -1079,10 +1079,10 @@ class MainScene extends Phaser.Scene {
 
         if (this.currentWave > 10) {
             const infinityLevel = this.currentWave - 10;
-            scaleModifier = Math.pow(1.2, infinityLevel);
+            scaleModifier = Math.min(3.0, Math.pow(1.2, infinityLevel));
             damageModifier = Math.pow(1.2, infinityLevel);
         } else if (this.currentWave >= 2) {
-            scaleModifier = Math.pow(1.4, this.currentWave - 1);
+            scaleModifier = Math.min(3.0, Math.pow(1.4, this.currentWave - 1));
         }
 
         const enemy = this.createEnemyObject(x, y, { ...typeInfo, scale: (typeInfo.scale || 1) * scaleModifier }, damageModifier, hpModifier);
@@ -1117,10 +1117,10 @@ class MainScene extends Phaser.Scene {
 
         if (this.currentWave > 10) {
             const infinityLevel = this.currentWave - 10;
-            scaleModifier = Math.pow(1.2, infinityLevel);
+            scaleModifier = Math.min(3.0, Math.pow(1.2, infinityLevel));
             damageModifier = Math.pow(1.2, infinityLevel);
         } else if (this.currentWave >= 2) {
-            scaleModifier = Math.pow(1.4, this.currentWave - 1);
+            scaleModifier = Math.min(3.0, Math.pow(1.4, this.currentWave - 1));
         }
 
         this.createEnemyObject(x, y, { ...typeInfo, scale: (typeInfo.scale || 1) * scaleModifier }, damageModifier, hpModifier);
