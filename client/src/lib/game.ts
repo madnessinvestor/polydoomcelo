@@ -2988,12 +2988,41 @@ class MainScene extends Phaser.Scene {
         const kiX = 16;
         const kiY = hbY + hbHeight + 8;
 
-        // ... existing bar drawing ...
+        // BG
+        this.kiarcBar.fillStyle(0x000000, 0.7);
+        this.kiarcBar.fillRect(kiX, kiY, kiWidth, kiHeight);
+        
+        // Ki Fill
+        const kiRatio = Math.max(0, this.kiarc / this.maxKiarc);
+        this.kiarcBar.fillStyle(0xffd700, 1);
+        this.kiarcBar.fillRect(kiX, kiY, kiWidth * kiRatio, kiHeight);
+        
+        // Border
+        this.kiarcBar.lineStyle(2, 0xffffff, 1);
+        this.kiarcBar.strokeRect(kiX, kiY, kiWidth, kiHeight);
+
+        // KI Text
+        if (!this.kiLabel) {
+            this.kiLabel = this.add.text(kiX + 10, kiY + 0, '', { 
+                fontSize: `${Math.floor(12 * hudScale)}px`, 
+                color: '#fff', 
+                fontFamily: '"Courier New", Courier, monospace',
+                fontStyle: 'bold'
+            }).setScrollFactor(0).setDepth(1001);
+        }
+        if (this.kiLabel && this.kiLabel.active && this.kiLabel.scene) {
+            try {
+                this.kiLabel.setText(`KI: ${Math.ceil(this.kiarc)}/${this.maxKiarc}`);
+                this.kiLabel.setPosition(kiX + 10, kiY + 0);
+            } catch (e) {
+                console.warn('Error updating kiLabel:', e);
+            }
+        }
 
         // Update permanent upgrades UI
         if (this.upgradeIconsContainer) {
-            // Position at the end of the KI bar (kiX + kiWidth) and slightly below (kiY + kiHeight + 10)
-            this.upgradeIconsContainer.setPosition(kiX + kiWidth, kiY + kiHeight + 20);
+            // Position exactly below the KI bar (kiX) and slightly below (kiY + kiHeight + 20)
+            this.upgradeIconsContainer.setPosition(kiX + 20, kiY + kiHeight + 20);
         }
         this.updateUpgradeIconsUI();
 
@@ -3016,6 +3045,8 @@ class MainScene extends Phaser.Scene {
         if (!this.upgradeIconsContainer) return;
         this.upgradeIconsContainer.removeAll(true);
 
+        const upgradeOrder = ['arc_hp', 'arc_ki', 'arc_damage', 'arc_defence', 'arc_regen', 'arc_vamp'];
+
         const upgradeNames: Record<string, string> = {
             arc_hp: 'HP',
             arc_ki: 'KI',
@@ -3035,11 +3066,11 @@ class MainScene extends Phaser.Scene {
         };
 
         let index = 0;
-        Object.entries(this.playerUpgrades).forEach(([id, level]) => {
+        upgradeOrder.forEach((id) => {
+            const level = this.playerUpgrades[id] || 0;
             if (level > 0) {
-                // De trás para frente: x diminui conforme o index aumenta
-                const x = -(index * 40);
-                const container = this.add.container(x - 20, 0); // Ajuste fino para alinhar o último ícone com o fim da barra
+                const x = index * 40;
+                const container = this.add.container(x, 0);
 
                 // Icon Background (Square for upgrades)
                 const bg = this.add.graphics();
