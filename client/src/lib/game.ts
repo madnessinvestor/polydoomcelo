@@ -368,6 +368,8 @@ class MainScene extends Phaser.Scene {
         this.maxKiarc = stats.ki;
         this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
 
+        this.syncInventoryOnChain();
+
         // CRITICAL: Re-apply on-chain upgrade bonuses to the current level's base stats
         this.applyUpgrade();
 
@@ -2840,6 +2842,39 @@ class MainScene extends Phaser.Scene {
             const bonus = 1 + (level * 0.1);
             this.maxKiarc = stats.ki * bonus;
             this.updateHUD();
+        }
+    }
+
+    // Load inventory from blockchain
+    private async syncInventoryOnChain() {
+        if (!(window as any).ethereum) return;
+        
+        try {
+            const provider = new ethers.BrowserProvider((window as any).ethereum);
+            const accounts = await provider.listAccounts();
+            if (accounts.length === 0) return;
+            
+            const userAddress = accounts[0].address;
+            const SHOP_CONTRACT_ADDRESS = "0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a";
+            const SHOP_ABI = ["function getPotionBalances(address user) external view returns (uint256, uint256, uint256, uint256)"];
+            
+            const shopContract = new ethers.Contract(SHOP_CONTRACT_ADDRESS, SHOP_ABI, provider);
+            const [health, ki, immunity, score] = await shopContract.getPotionBalances(userAddress);
+            
+            const onChainInventory = {
+                health: Number(health),
+                ki: Number(ki),
+                immunity: Number(immunity),
+                score: Number(score)
+            };
+            
+            this.playerInventory = onChainInventory;
+            (this.game as any).playerInventory = onChainInventory;
+            localStorage.setItem('player_inventory', JSON.stringify(onChainInventory));
+            this.updateHUD();
+            console.log("Game inventory synced on-chain:", onChainInventory);
+        } catch (error) {
+            console.error("Failed to sync game inventory on-chain:", error);
         }
     }
 
