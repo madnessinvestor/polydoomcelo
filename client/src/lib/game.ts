@@ -319,10 +319,12 @@ class MainScene extends Phaser.Scene {
         this.enemiesDefeated = 0;
         this.totalEnemiesBeforeWave = 0;
         this.isGameOver = false;
+        this.isWaveInterval = false; // Ensure we are not in interval state
+        this.waveTimer = 0;
 
         // Reset timer tracking specifically
-        // Setting it to a very large number so it doesn't count until create() sets it correctly
-        this.waveStartTime = 9999999999999; 
+        // We will set this in create() using this.time.now
+        this.waveStartTime = 0; 
 
         // Apply permanent upgrades if provided via scene data or global game object
         if (data?.upgrades) {
@@ -394,6 +396,7 @@ class MainScene extends Phaser.Scene {
 
     create() {
         // Force waveStartTime to current time at the very start of MainScene creation
+        // Phaser's this.time.now is relative to game start, so we sync here
         this.waveStartTime = this.time.now;
         console.log("MainScene created, timer reset to:", this.waveStartTime);
 
@@ -1268,8 +1271,10 @@ class MainScene extends Phaser.Scene {
         
         const currentSpeed = this.getPlayerSpeed(this.level);
 
-        // Update timer display - strictly relative to waveStartTime set in create()
-        const elapsed = Math.max(0, Math.floor((this.time.now - this.waveStartTime) / 1000));
+        // Reset timer display - strictly relative to waveStartTime set in create()
+        // Ensure we handle the case where waveStartTime might be reset to 0
+        const now = this.time.now;
+        const elapsed = Math.max(0, Math.floor((now - this.waveStartTime) / 1000));
         if (!this.isWaveInterval) {
             const mins = Math.floor(elapsed / 60);
             const secs = elapsed % 60;
