@@ -263,7 +263,7 @@ class MainScene extends Phaser.Scene {
         
         const SPACING = 60;
         const SQUARE_SIZE = 50;
-        const BOTTOM_MARGIN = 10;
+        const BOTTOM_MARGIN = 100;
 
         items.forEach((item, index) => {
             const x = START_X;
