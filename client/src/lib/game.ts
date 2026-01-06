@@ -3024,6 +3024,9 @@ class MainScene extends Phaser.Scene {
             this.buffIconsContainer.setPosition(16, 160);
         }
 
+        // Update permanent upgrades UI
+        this.updateUpgradeIconsUI();
+
         // Update notification position to be below buff icons
         const notifyY = 160 + (this.buffIconsContainer ? 50 : 0);
         if (this.pickupNotification) {
@@ -3037,6 +3040,66 @@ class MainScene extends Phaser.Scene {
                 this.pickupNotificationBg.strokeRoundedRect(bounds.x - 8, bounds.y - 4, bounds.width + 16, bounds.height + 8, 6);
             }
         }
+    }
+
+    private updateUpgradeIconsUI() {
+        if (!this.upgradeIconsContainer) return;
+        this.upgradeIconsContainer.removeAll(true);
+
+        const upgradeNames: Record<string, string> = {
+            arc_hp: 'HP',
+            arc_ki: 'KI',
+            arc_damage: 'DMG',
+            arc_defence: 'DEF',
+            arc_regen: 'REG',
+            arc_vamp: 'VMP'
+        };
+
+        const upgradeColors: Record<string, number> = {
+            arc_hp: 0xff4444,
+            arc_ki: 0xffd700,
+            arc_damage: 0xff8800,
+            arc_defence: 0x4444ff,
+            arc_regen: 0x44ff44,
+            arc_vamp: 0xff00ff
+        };
+
+        let index = 0;
+        Object.entries(this.playerUpgrades).forEach(([id, level]) => {
+            if (level > 0) {
+                const x = index * 40;
+                const container = this.add.container(x, 0);
+
+                // Icon Background (Square for upgrades)
+                const bg = this.add.graphics();
+                bg.lineStyle(2, 0xffffff, 0.8);
+                bg.fillStyle(upgradeColors[id] || 0x888888, 0.6);
+                bg.strokeRect(-15, -15, 30, 30);
+                bg.fillRect(-15, -15, 30, 30);
+
+                // Text for the upgrade type (abbreviated)
+                const nameText = this.add.text(0, -2, upgradeNames[id] || 'UPG', {
+                    fontSize: '10px',
+                    color: '#ffffff',
+                    fontStyle: 'bold',
+                    fontFamily: 'monospace'
+                }).setOrigin(0.5);
+
+                // Level text in bottom right
+                const levelText = this.add.text(12, 12, level.toString(), {
+                    fontSize: '12px',
+                    color: '#ffff00',
+                    fontStyle: 'bold',
+                    fontFamily: 'monospace',
+                    stroke: '#000000',
+                    strokeThickness: 2
+                }).setOrigin(0.5);
+
+                container.add([bg, nameText, levelText]);
+                this.upgradeIconsContainer.add(container);
+                index++;
+            }
+        });
     }
 
     private updateBuffsUI() {
