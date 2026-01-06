@@ -4583,9 +4583,8 @@ class DeathScene extends Phaser.Scene {
 
         noRegisterBtn.setInteractive().on('pointerdown', () => {
             this.sound.stopAll();
-            // Reset waveStartTime specifically when returning to start scene
-            this.waveStartTime = 0;
-            this.scene.start('StartScene');
+            // Force full reload of the page to reset everything
+            window.location.reload();
         }).on('pointerover', () => {
             noRegisterBtn.setFillStyle(0xff5252);
         }).on('pointerout', () => {
@@ -4911,9 +4910,8 @@ class DeathScene extends Phaser.Scene {
             if (response.ok) {
                 console.log('✓ Score registrado na API local com sucesso!');
                 this.sound.stopAll();
-                // Reset waveStartTime specifically when returning to start scene
-                this.waveStartTime = 0;
-                this.scene.start('StartScene');
+                // Force full reload of the page to reset everything
+                window.location.reload();
             } else {
                 console.error('Erro ao registrar na API local');
             }
