@@ -161,6 +161,7 @@ class MainScene extends Phaser.Scene {
         score: 0
     };
     private hpLabel: Phaser.GameObjects.Text | null = null;
+    private inventoryHUD: Phaser.GameObjects.Container | null = null;
     private buffIconsContainer: Phaser.GameObjects.Container | null = null;
     private tooltipContainer: Phaser.GameObjects.Container | null = null;
     private tooltipBg: Phaser.GameObjects.Graphics | null = null;
@@ -3216,12 +3217,58 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    updateHUD() {
-        if (this.health === undefined || isNaN(this.health)) {
-            console.error('Player health is NaN in updateHUD, resetting to 100');
-            this.health = 100;
+        // Inventory HUD Update
+        this.createInventoryHUD();
+
+    private createInventoryHUD() {
+        if (this.inventoryHUD) {
+            this.inventoryHUD.destroy();
         }
-        if (this.maxHealth === undefined || isNaN(this.maxHealth) || this.maxHealth <= 0) {
+        
+        const { width, height } = this.cameras.main;
+        // Posicionado no canto esquerdo, quase centralizado verticalmente
+        this.inventoryHUD = this.add.container(20, height / 2 - 120);
+        this.inventoryHUD.setScrollFactor(0);
+        this.inventoryHUD.setDepth(100);
+
+        const potionTypes = [
+            { id: 'health', key: '1', color: 0xff4d4d },
+            { id: 'ki', key: '2', color: 0x4d4dff },
+            { id: 'immunity', key: '3', color: 0xffff4d },
+            { id: 'score', key: '4', color: 0xff4dff }
+        ];
+
+        potionTypes.forEach((potion, index) => {
+            const y = index * 60;
+            
+            // Quadrado base
+            const bg = this.add.rectangle(0, y, 50, 50, 0x1e293b, 0.8)
+                .setStrokeStyle(2, 0x3b82f6)
+                .setOrigin(0, 0);
+            
+            // Número para usar (Canto Superior Esquerdo)
+            this.add.text(4, y + 2, potion.key, {
+                fontSize: '12px',
+                fontFamily: 'Arial',
+                color: '#60a5fa',
+                fontStyle: 'bold'
+            }).setOrigin(0, 0);
+
+            // Quantidade (Canto Inferior Direito)
+            const count = this.playerInventory[potion.id] || 0;
+            this.add.text(46, y + 46, count.toString(), {
+                fontSize: '14px',
+                fontFamily: 'Arial',
+                color: '#ffffff',
+                fontStyle: 'bold'
+            }).setOrigin(1, 1);
+            
+            // Ícone do Item (Círculo colorido no centro)
+            const icon = this.add.circle(25, y + 25, 12, potion.color);
+            
+            this.inventoryHUD?.add([bg, icon]);
+        });
+    }
             this.maxHealth = 300;
         }
 
