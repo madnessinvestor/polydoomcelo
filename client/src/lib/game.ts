@@ -536,7 +536,6 @@ class MainScene extends Phaser.Scene {
 
         this.keys = this.input.keyboard?.addKeys('Z,X,C,V,B,F,ONE,TWO,THREE,FOUR');
         this.cursors = this.input.keyboard!.createCursorKeys();
-        this.keys = this.input.keyboard!.addKeys('Z,X,C,V,B,F');
 
         // ESC key for pause
         this.input.keyboard!.on('keydown-ESC', () => {
