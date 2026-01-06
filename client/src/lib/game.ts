@@ -268,441 +268,9 @@ class MainScene extends Phaser.Scene {
 
         // Initial HUD update
         this.updateInventoryHUD();
-    }
-
-    private updateInventoryHUD() {
-        // Ensure inventoryHUD container exists
-        if (!this.inventoryHUD) {
-            this.inventoryHUD = this.add.container(0, 0).setScrollFactor(0).setDepth(1000);
-        }
-        
-        // Load inventory directly from localStorage using the connected wallet address
-        const walletAddress = (window as any).walletAddress;
-        const inventoryKey = walletAddress 
-            ? `player_inventory_${walletAddress.toLowerCase()}` 
-            : 'player_inventory';
-        
-        const saved = localStorage.getItem(inventoryKey);
-        if (saved) {
-            try {
-                this.playerInventory = JSON.parse(saved);
-                // Also update the global game object for consistency
-                (this.game as any).playerInventory = this.playerInventory;
-            } catch (e) {
-                console.error("Error parsing inventory from localStorage:", e);
-            }
-        } else if ((this.game as any).playerInventory) {
-            // Fallback to global if localStorage is empty but global has data
-            this.playerInventory = (this.game as any).playerInventory;
-        }
-
-        // Ensure playerInventory is at least an empty object to prevent errors
-        if (!this.playerInventory) {
-            this.playerInventory = { health: 0, ki: 0, immunity: 0, score: 0 };
-        }
-
-        const items = [
-            { id: 'health', key: 'Q', color: 0xff0000 },
-            { id: 'ki', key: 'W', color: 0x0000ff },
-            { id: 'immunity', key: 'E', color: 0xffff00 },
-            { id: 'score', key: 'R', color: 0xa020f0 }
-        ];
-        
-        // Match Upgrade HUD pattern: Left side, vertical
-        const START_X = 20;
-        // Position below upgrades (which usually start around y=100-150 and go down)
-        // We'll calculate the bottom of the upgrade icons
-        let startY = 150; 
-        if (this.upgradeIconsContainer) {
-            // Find the lowest point of upgrades
-            startY = 350; // Approximate offset to be below upgrades with ~5 spaces
-        }
-        
-        const SPACING = 60;
-        const SQUARE_SIZE = 50;
-        const BOTTOM_MARGIN = 100;
-
-        items.forEach((item, index) => {
-            const x = START_X;
-            const y = startY + (index * SPACING) + BOTTOM_MARGIN;
-            const count = this.playerInventory[item.id] || 0;
-            
-            let graphics = this.inventoryIcons.get(item.id);
-            if (!graphics) {
-                graphics = this.add.graphics();
-                this.inventoryHUD!.add(graphics);
-                this.inventoryIcons.set(item.id, graphics);
-            }
-            
-            graphics.clear();
-            graphics.lineStyle(2, item.color, count > 0 ? 1 : 0.3);
-            graphics.strokeRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
-            graphics.fillStyle(0x000000, 0.5);
-            graphics.fillRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
-            
-            graphics.fillStyle(item.color, count > 0 ? 0.8 : 0.2);
-            if (item.id === 'health') {
-                graphics.fillRect(x + 20, y + 10, 10, 30);
-                graphics.fillRect(x + 10, y + 20, 30, 10);
-            } else if (item.id === 'ki') {
-                graphics.beginPath();
-                graphics.moveTo(x + 30, y + 10);
-                graphics.lineTo(x + 15, y + 30);
-                graphics.lineTo(x + 25, y + 30);
-                graphics.lineTo(x + 20, y + 45);
-                graphics.lineTo(x + 40, y + 20);
-                graphics.lineTo(x + 30, y + 20);
-                graphics.closePath();
-                graphics.fillPath();
-            } else if (item.id === 'immunity') {
-                graphics.beginPath();
-                graphics.moveTo(x + 10, y + 10);
-                graphics.lineTo(x + 40, y + 10);
-                graphics.lineTo(x + 40, y + 35);
-                graphics.lineTo(x + 25, y + 45);
-                graphics.lineTo(x + 10, y + 35);
-                graphics.closePath();
-                graphics.fillPath();
-            } else if (item.id === 'score') {
-                const centerX = x + 25;
-                const centerY = y + 25;
-                const innerRadius = 8;
-                const outerRadius = 18;
-                const points = 5;
-                graphics.beginPath();
-                for (let i = 0; i < points * 2; i++) {
-                    const radius = i % 2 === 0 ? outerRadius : innerRadius;
-                    const angle = (Math.PI / points) * i - Math.PI / 2;
-                    const px = centerX + Math.cos(angle) * radius;
-                    const py = centerY + Math.sin(angle) * radius;
-                    if (i === 0) graphics.moveTo(px, py);
-                    else graphics.lineTo(px, py);
-                }
-                graphics.closePath();
-                graphics.fillPath();
-            }
-
-            let keyText = this.inventoryCounts.get(item.id + '_key');
-            if (!keyText) {
-                keyText = this.add.text(x + 4, y + 2, item.key, {
-                    fontSize: '12px',
-                    fontFamily: 'monospace',
-                    color: '#ffffff',
-                    stroke: '#000000',
-                    strokeThickness: 2,
-                    fontStyle: 'bold'
-                });
-                this.inventoryHUD!.add(keyText);
-                this.inventoryCounts.set(item.id + '_key', keyText);
-            }
-            keyText.setPosition(x + 4, y + 2);
-
-            let qtyText = this.inventoryCounts.get(item.id + '_qty');
-            if (!qtyText) {
-                qtyText = this.add.text(x + SQUARE_SIZE - 4, y + SQUARE_SIZE - 4, `x${count}`, {
-                    fontSize: '14px',
-                    fontFamily: 'monospace',
-                    color: '#00ff00',
-                    stroke: '#000000',
-                    strokeThickness: 2,
-                    fontStyle: 'bold'
-                }).setOrigin(1, 1);
-                this.inventoryHUD!.add(qtyText);
-                this.inventoryCounts.set(item.id + '_qty', qtyText);
-            }
-            qtyText.setPosition(x + SQUARE_SIZE - 4, y + SQUARE_SIZE - 4);
-            qtyText.setText(`x${count}`);
-            qtyText.setColor(count > 0 ? '#00ff00' : '#666666');
-        });
-    }
-
-    private buffIconsContainer: Phaser.GameObjects.Container | null = null;
-    private tooltipContainer: Phaser.GameObjects.Container | null = null;
-    private tooltipBg: Phaser.GameObjects.Graphics | null = null;
-    private tooltipTitle: Phaser.GameObjects.Text | null = null;
-    private tooltipText: Phaser.GameObjects.Text | null = null;
-    private pickupNotification: Phaser.GameObjects.Text | null = null;
-    private pickupNotificationBg: Phaser.GameObjects.Graphics | null = null;
-    private pickupTimer: Phaser.Time.TimerEvent | null = null;
-    private walletHUDText: Phaser.GameObjects.Text | null = null;
-    private tooltipHideTimer: Phaser.Time.TimerEvent | null = null;
-    private playerUpgrades: Record<string, number> = {
-        arc_hp: 0,
-        arc_ki: 0,
-        arc_damage: 0,
-        arc_defence: 0,
-        arc_regen: 0,
-        arc_vamp: 0
-    };
-
-    private isPaused: boolean = false;
-    private pauseModalOpen: boolean = false;
-    private pausedTime: number = 0;
-    private hpLabel: Phaser.GameObjects.Text | null = null;
-
-    constructor() {
-        super('MainScene');
-    }
-
-    // Draw a regular polygon and return the vertices
-    private createPolygonGeometry(sides: number, radius: number): Phaser.Geom.Point[] {
-        const points: Phaser.Geom.Point[] = [];
-        const angleSlice = (Math.PI * 2) / sides;
-        for (let i = 0; i < sides; i++) {
-            const angle = i * angleSlice - Math.PI / 2;
-            const x = Math.cos(angle) * radius;
-            const y = Math.sin(angle) * radius;
-            points.push(new Phaser.Geom.Point(x, y));
-        }
-        return points;
-    }
-
-    // Draw a polygon with graphics
-    private drawPolygon(graphics: Phaser.GameObjects.Graphics, sides: number, size: number, color: number) {
-        graphics.clear();
-        const points = this.createPolygonGeometry(sides, size);
-        graphics.lineStyle(2, 0x4ade80, 1); // Verde fixo
-        graphics.beginPath();
-        graphics.moveTo(points[0].x, points[0].y);
-        for (let i = 1; i < points.length; i++) {
-            graphics.lineTo(points[i].x, points[i].y);
-        }
-        graphics.closePath();
-        // Sem preenchimento (vazado)
-        graphics.strokePath();
-    }
-
-        // Draw evolving yellow square player based on level
-    private drawPlayerSquare(level: number) {
-        // Base size grows progressiveley
-        const baseSize = 16;
-        const scaleFactor = 1 + (level - 1) * 0.08; // ~8% growth per level
-        const size = baseSize * scaleFactor;
-        
-        this.playerGraphics.clear();
-        this.playerAuraGraphics.clear();
-        
-        const yellowColor = 0xffdd00;
-
-        // Visual for Invincibility
-        if (this.isInvincible) {
-            this.playerAuraGraphics.lineStyle(2, 0x800080, 0.6);
-            this.playerAuraGraphics.strokeCircle(this.player.x, this.player.y, size + 15);
-        }
-
-        // Visual for Power Boost
-        const drawColor = this.hasPowerBoost ? 0xff0000 : yellowColor;
-        
-        // Rules: Hollow square, thickness/complexity grows with level
-        if (level === 1) {
-            // Lvl 1: Small, hollow, thin line, yellow, static
-            this.playerGraphics.lineStyle(1.5, drawColor, 1);
-            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-        } else if (level === 2) {
-            // Lvl 2: Slightly larger, thicker contour
-            this.playerGraphics.lineStyle(4, yellowColor, 1);
-            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-        } else if (level === 3) {
-            // Lvl 3: Larger + double border, robust
-            this.playerGraphics.lineStyle(2, yellowColor, 1);
-            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            this.playerGraphics.strokeRect(this.player.x - size - 4, this.player.y - size - 4, size * 2 + 8, size * 2 + 8);
-        } else if (level === 4) {
-            // Lvl 4: Larger + symmetric internal lines
-            this.playerGraphics.lineStyle(2, yellowColor, 1);
-            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            this.playerGraphics.lineStyle(1.5, yellowColor, 0.7);
-            this.playerGraphics.lineBetween(this.player.x - size, this.player.y, this.player.x + size, this.player.y);
-            this.playerGraphics.lineBetween(this.player.x, this.player.y - size, this.player.x, this.player.y + size);
-        } else if (level === 5) {
-            // Lvl 5: Inner hollow square, multiple layers
-            this.playerGraphics.lineStyle(2, yellowColor, 1);
-            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            this.playerGraphics.strokeRect(this.player.x - size/2, this.player.y - size/2, size, size);
-        } else if (level === 6) {
-            // Lvl 6: Chamfered corners (soft octagon)
-            this.playerGraphics.lineStyle(3, yellowColor, 1);
-            const chamfer = size * 0.25;
-            this.playerGraphics.beginPath();
-            this.playerGraphics.moveTo(this.player.x - size + chamfer, this.player.y - size);
-            this.playerGraphics.lineTo(this.player.x + size - chamfer, this.player.y - size);
-            this.playerGraphics.lineTo(this.player.x + size, this.player.y - size + chamfer);
-            this.playerGraphics.lineTo(this.player.x + size, this.player.y + size - chamfer);
-            this.playerGraphics.lineTo(this.player.x + size - chamfer, this.player.y + size);
-            this.playerGraphics.lineTo(this.player.x - size + chamfer, this.player.y + size);
-            this.playerGraphics.lineTo(this.player.x - size, this.player.y + size - chamfer);
-            this.playerGraphics.lineTo(this.player.x - size, this.player.y - size + chamfer);
-            this.playerGraphics.closePath();
-            this.playerGraphics.strokePath();
-        } else if (level === 7) {
-            // Lvl 7: Animated internal lines, flow feeling
-            this.playerGraphics.lineStyle(2, yellowColor, 1);
-            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            const flowOffset = (this.time.now / 10) % (size * 2);
-            this.playerGraphics.lineStyle(1, yellowColor, 0.5);
-            this.playerGraphics.lineBetween(this.player.x - size + flowOffset, this.player.y - size, this.player.x - size + flowOffset, this.player.y + size);
-            this.playerGraphics.lineBetween(this.player.x - size, this.player.y - size + flowOffset, this.player.x + size, this.player.y - size + flowOffset);
-        } else if (level === 8) {
-            // Lvl 8: Concentric squares, different opacities
-            for (let i = 0; i < 4; i++) {
-                const layerSize = size - (i * (size / 4));
-                this.playerGraphics.lineStyle(2, yellowColor, 1 - (i * 0.2));
-                this.playerGraphics.strokeRect(this.player.x - layerSize, this.player.y - layerSize, layerSize * 2, layerSize * 2);
-            }
-        } else if (level === 9) {
-            // Lvl 9: Pulsing aura, dominant square
-            this.playerGraphics.lineStyle(4, yellowColor, 1);
-            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            const pulse = Math.sin(this.time.now / 200) * 0.5 + 0.5;
-            this.playerAuraGraphics.lineStyle(4, yellowColor, pulse * 0.6);
-            this.playerAuraGraphics.strokeRect(this.player.x - size - 10, this.player.y - size - 10, size * 2 + 20, size * 2 + 20);
-        } else if (level === 10) {
-            // Lvl 10: Max power, multi-layer aura, particles, orbital mana
-            const auraPulse = Math.sin(this.time.now / 150) * 5;
-            this.playerGraphics.lineStyle(5, yellowColor, 1);
-            this.playerGraphics.strokeRect(this.player.x - size, this.player.y - size, size * 2, size * 2);
-            
-            // Multilayer aura
-            for (let i = 1; i <= 3; i++) {
-                const auraSize = size + (i * 8) + auraPulse;
-                this.playerAuraGraphics.lineStyle(2, yellowColor, 0.4 / i);
-                this.playerAuraGraphics.strokeRect(this.player.x - auraSize, this.player.y - auraSize, auraSize * 2, auraSize * 2);
-            }
-
-            // Orbital mana particles (visual only here, damage in update)
-            const particleCount = 6;
-            for (let i = 0; i < particleCount; i++) {
-                const angle = (this.time.now / 500) + (i * (Math.PI * 2 / particleCount));
-                const orbitRadius = size + 25;
-                const px = this.player.x + Math.cos(angle) * orbitRadius;
-                const py = this.player.y + Math.sin(angle) * orbitRadius;
-                this.playerGraphics.fillStyle(0x00ffff, 0.8);
-                this.playerGraphics.fillCircle(px, py, 4);
-            }
-        }
-    }
-
-    init(data: any) {
-        // Reset basic game state
-        this.level = data.level || 1;
-        this.currentWave = 1;
-        this.score = 0;
-        this.enemiesDefeated = 0;
-        this.totalEnemiesBeforeWave = 0;
-        this.isGameOver = false;
-        this.isWaveInterval = false; // Ensure we are not in interval state
-        this.waveTimer = 0;
-
-        // Reset timer tracking specifically
-        // We will set this in create() using this.time.now
-        this.waveStartTime = 0; 
-
-        // Apply permanent upgrades if provided via scene data or global game object
-        if (data?.upgrades) {
-            this.playerUpgrades = data.upgrades;
-        } else if ((this.game as any).playerUpgrades) {
-            this.playerUpgrades = (this.game as any).playerUpgrades;
-        }
-
-        // Set initial stats based on level
-        const stats = this.levelStats[this.level - 1] || this.levelStats[0];
-        
-        // Load inventory from localStorage
-        const savedInv = localStorage.getItem('player_inventory');
-        if (savedInv) {
-            this.playerInventory = JSON.parse(savedInv);
-            (this.game as any).playerInventory = this.playerInventory;
-        }
-
-        // Add event listener to sync inventory from external sources (like ShoppingModal)
-        this.events.on('sync_inventory', (newInventory: any) => {
-            this.playerInventory = newInventory;
-            (this.game as any).playerInventory = newInventory;
-            this.updateHUD();
-        });
-
-        this.health = stats.hp;
-        this.maxHealth = stats.hp;
-        this.kiarc = 0;
-        this.maxKiarc = stats.ki;
-        this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
-
-        // Sync inventory on-chain and with backend
-        this.syncInventoryOnChain();
-        this.syncWithBackendOnStart();
-
-        // CRITICAL: Re-apply on-chain upgrade bonuses to the current level's base stats
-        this.applyUpgrade();
-
-        // Doom Mode specific adjustments
-        if (data?.doomMode) {
-            this.isInGamemode = true;
-            this.stopOpeningMusic();
-            this.playNextMusic();
-        }
-
-        // Reset other states
-        this.hasPowerBoost = false;
-        this.hasScoreBoost = false;
-        this.isInvincible = false;
-        this.activeBuffs.clear();
-        
-        // Load volume settings from localStorage
-        this.masterVolume = (parseInt(localStorage.getItem('masterVolume') || '100')) / 100;
-        this.musicVolume = (parseInt(localStorage.getItem('musicVolume') || '100')) / 100;
-        this.sfxVolume = (parseInt(localStorage.getItem('sfxVolume') || '100')) / 100;
-    }
-
-    // Sound assets
-    private sfx: { [key: string]: Phaser.Sound.BaseSound } = {};
-
-    preload() {
-        this.load.spritesheet('criptoide_basic', '/attached_assets/generated_images/pixel_art_criptoide_basic_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
-        this.load.spritesheet('jungle_tiles', '/attached_assets/generated_images/pixel_art_jungle_tileset.png', { frameWidth: 32, frameHeight: 32 });
-        
-        // Load music tracks
-        this.load.audio('music_0', this.musicTracks[0]);
-        this.load.audio('music_1', this.musicTracks[1]);
-        this.load.audio('music_2', this.musicTracks[2]);
-        this.load.audio('music_3', this.musicTracks[3]);
-
-        // Load Opening Music
-        this.load.audio('opening_music', '/attached_assets/Abertura_1767113066246.mp3');
-
-        // Load SFX
-        this.load.audio('genkidama_charge', '/attached_assets/ArcGenkiDama_(Carregando)_1767105766842.mp3');
-        this.load.audio('genkidama_launch', '/attached_assets/ArcGenkiDama_(Lançando)_1767105766844.mp3');
-        this.load.audio('kamehameha_charge', '/attached_assets/ArcKamehameha_(Carregando)_1767105836583.mp3');
-        this.load.audio('kamehameha_launch', '/attached_assets/ArcKamehameha_(Lançando)_1767105839121.mp3');
-        this.load.audio('charge_ki', '/attached_assets/Charge_KiArc_1767105879554.mp3');
-        this.load.audio('dash', '/attached_assets/Dash_1767105889490.mp3');
-        this.load.audio('explosion_ki', '/attached_assets/Explosion_KiArc_1767105910641.mp3');
-        this.load.audio('item_pickup', '/attached_assets/Pegando_Item_1767106047757.mp3');
-        this.load.audio('punch', '/attached_assets/Punch_1767106076988.mp3');
-        this.load.audio('magic', '/attached_assets/Magic_1767122074232.mp3');
-        this.load.audio('menu_button', '/attached_assets/Som_do_Botão_Start_Game_Leaderboard_e_History_1767106107861.ogg');
-        this.load.audio('close_button', '/attached_assets/Close_1767118231095.ogg');
-    }
-
-    create() {
-        // Handle wallet auto-connect if already connected in browser
-        const autoConnectWallet = async () => {
-            if ((window as any).ethereum) {
-                try {
-                    const accounts = await (window as any).ethereum.request({ method: 'eth_accounts' });
-                    if (accounts.length > 0) {
-                        (window as any).walletAddress = accounts[0];
-                        console.log("Wallet auto-connected:", accounts[0]);
-                    }
-                } catch (err) {
-                    console.error("Error auto-connecting wallet:", err);
-                }
-            }
-        };
-        autoConnectWallet();
 
         // Initialize and apply upgrades before starting
-        const baseStats = this.levelStats[this.level - 1] || this.levelStats[0];
+        const baseStats = (this as any).levelStats[this.level - 1] || (this as any).levelStats[0];
         this.maxHealth = baseStats.hp;
         this.health = this.maxHealth;
         this.maxKiarc = baseStats.ki;
@@ -710,7 +278,6 @@ class MainScene extends Phaser.Scene {
         this.applyUpgradesFromGlobal();
 
         // Force waveStartTime to current time at the very start of MainScene creation
-        // Phaser's this.time.now is relative to game start, so we sync here
         this.waveStartTime = this.time.now;
         console.log("MainScene created, timer reset to:", this.waveStartTime);
 
@@ -724,23 +291,15 @@ class MainScene extends Phaser.Scene {
             'menu_button', 'close_button'
         ];
         sfxKeys.forEach(key => {
-            this.sfx[key] = this.sound.add(key);
+            if (this.sound.get(key)) {
+                this.sfx[key] = this.sound.get(key)!;
+            } else {
+                this.sfx[key] = this.sound.add(key);
+            }
             if ((this.sfx[key] as any).setVolume) {
                 (this.sfx[key] as any).setVolume(this.masterVolume * this.sfxVolume);
             }
         });
-
-        // Initialize Inventory HUD
-        this.inventoryHUD = this.add.container(0, 0).setScrollFactor(0).setDepth(1000);
-        this.updateInventoryHUD();
-
-        // Setup Inventory Hotkeys
-        if (this.input && this.input.keyboard) {
-            this.input.keyboard.on('keydown-Q', () => this.useInventoryItem('health'));
-            this.input.keyboard.on('keydown-W', () => this.useInventoryItem('ki'));
-            this.input.keyboard.on('keydown-E', () => this.useInventoryItem('immunity'));
-            this.input.keyboard.on('keydown-R', () => this.useInventoryItem('score'));
-        }
 
         // Enhanced background with depth
         this.add.rectangle(0, 0, width, height, 0x0a0a20).setOrigin(0).setScrollFactor(0);
@@ -840,7 +399,6 @@ class MainScene extends Phaser.Scene {
         // Enhanced HUD
         const hudScale = Math.max(1, width / 800);
         const fontSize = Math.floor(24 * hudScale);
-        const titleFontSize = Math.floor(32 * hudScale);
         
         this.scoreText = this.add.text(16, 16, `Score: ${this.score.toLocaleString()} | LEVEL: ${this.level} (${this.levelTitle})`, { 
             fontSize: `${fontSize}px`, 
@@ -850,24 +408,6 @@ class MainScene extends Phaser.Scene {
             stroke: '#000',
             strokeThickness: 6
         }).setScrollFactor(0).setDepth(1000);
-
-        // Wallet HUD - Ocultado conforme solicitado
-        /*
-        const walletAddr = (window as any).walletAddress;
-        if (walletAddr) {
-            const walletDisplay = `${walletAddr.substring(0, 6)}...${walletAddr.substring(walletAddr.length - 4)}`;
-            const networkDisplay = (window as any).networkName || 'Arc Testnet';
-            
-            this.add.text(16, 16 + fontSize + 10, `Player: ${walletDisplay} | Network: ${networkDisplay}`, {
-                fontSize: `${Math.floor(fontSize * 0.7)}px`,
-                color: '#4ade80',
-                fontFamily: '"Courier New", Courier, monospace',
-                fontStyle: 'bold',
-                stroke: '#000',
-                strokeThickness: 4
-            }).setScrollFactor(0).setDepth(1000);
-        }
-        */
 
         this.enemyCounterText = this.add.text(width - 16, 16 + fontSize * 2 + 20, `0/${this.totalEnemiesInWave}`, {
             fontSize: `${fontSize}px`,
@@ -924,6 +464,22 @@ class MainScene extends Phaser.Scene {
             backgroundColor: '#000000',
             padding: { x: 12, y: 6 }
         }).setScrollFactor(0).setDepth(2002).setVisible(false);
+
+        // ESC key for pause (redundant, already added above)
+        
+        // Initialize Inventory HUD
+        if (!this.inventoryHUD) {
+            this.inventoryHUD = this.add.container(0, 0).setScrollFactor(0).setDepth(1000);
+        }
+        this.updateInventoryHUD();
+
+        // Setup Inventory Hotkeys
+        if (this.input && this.input.keyboard) {
+            this.input.keyboard.on('keydown-Q', () => this.useInventoryItem('health'));
+            this.input.keyboard.on('keydown-W', () => this.useInventoryItem('ki'));
+            this.input.keyboard.on('keydown-E', () => this.useInventoryItem('immunity'));
+            this.input.keyboard.on('keydown-R', () => this.useInventoryItem('score'));
+        }
 
         // Event listener for scene shutdown - clean up labels
         this.events.once('shutdown', () => {
