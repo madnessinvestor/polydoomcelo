@@ -395,6 +395,22 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
+        // Handle wallet auto-connect if already connected in browser
+        const autoConnectWallet = async () => {
+            if ((window as any).ethereum) {
+                try {
+                    const accounts = await (window as any).ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        (window as any).walletAddress = accounts[0];
+                        console.log("Wallet auto-connected:", accounts[0]);
+                    }
+                } catch (err) {
+                    console.error("Error auto-connecting wallet:", err);
+                }
+            }
+        };
+        autoConnectWallet();
+
         // Force waveStartTime to current time at the very start of MainScene creation
         // Phaser's this.time.now is relative to game start, so we sync here
         this.waveStartTime = this.time.now;
