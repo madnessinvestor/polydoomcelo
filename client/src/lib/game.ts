@@ -1056,6 +1056,7 @@ class MainScene extends Phaser.Scene {
 
     private createEnemyObject(x: number, y: number, typeInfo: any, extraDamageMult: number = 1, extraHpMult: number = 1): Phaser.Physics.Arcade.Sprite | null {
         const enemy = this.enemies.create(x, y, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
+        if (!enemy) return null;
         enemy.setBounce(0.5);
         enemy.setCollideWorldBounds(true);
         enemy.setData('typeId', typeInfo.id);
@@ -1100,6 +1101,7 @@ class MainScene extends Phaser.Scene {
         const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
         const speed = 150 * waveMultiplier;
         enemy.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+        return enemy;
     }
 
     private drawEnemyShape(graphics: Phaser.GameObjects.Graphics, type: any, size: number) {
@@ -3277,15 +3279,18 @@ class MainScene extends Phaser.Scene {
     private applySingleUpgrade(id: string, level: number) {
         const bonusValues = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.55, 0.7, 0.85, 1.0, 2.0]; // Match UPGRADE_DATA
         const bonus = bonusValues[level] || 0;
+        
+        // Get base stats for current level
+        const baseStats = this.levelStats[this.level - 1] || this.levelStats[0];
 
         switch (id) {
             case 'arc_hp':
                 const oldMaxHp = this.maxHealth;
-                this.maxHealth = 300 * (1 + bonus);
+                this.maxHealth = baseStats.hp * (1 + bonus);
                 this.health += (this.maxHealth - oldMaxHp); // Add the bonus HP to current health too
                 break;
             case 'arc_ki':
-                this.maxKiarc = 100 * (1 + bonus);
+                this.maxKiarc = baseStats.ki * (1 + bonus);
                 break;
             case 'arc_damage':
                 // We'll use a property to multiply damage
