@@ -232,15 +232,22 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
 
       // Verificação específica para ArcDefence
       if (id === "arc_defence") {
-        // Garantir que apenas o próximo nível disponível possa ser comprado
         // Ler sempre upgrades(userAddress).defence como fonte da verdade
         // Calcular o preço usando defencePrices[defence]
         try {
-          const price = await upgradeContract.defencePrices(currentLevel);
-          if (price === 0n) {
-            throw new Error(`Nível de defesa ${currentLevel + 1} não disponível (defencePrices[${currentLevel}] == 0).`);
+          const onChainData = await upgradeContract.upgrades(userAddress);
+          const currentOnChainDefence = Number(onChainData.defence);
+          
+          if (currentOnChainDefence >= 10) {
+            throw new Error("Nível máximo de defesa atingido on-chain.");
           }
-          console.log(`Preço validado on-chain para nível ${currentLevel + 1}: ${price.toString()}`);
+
+          const price = await upgradeContract.defencePrices(currentOnChainDefence);
+          if (price === BigInt(0)) {
+            throw new Error(`Nível de defesa ${currentOnChainDefence + 1} não disponível (defencePrices[${currentOnChainDefence}] == 0).`);
+          }
+          
+          console.log(`Validado on-chain: Nível Atual ${currentOnChainDefence}, Preço ${price.toString()}`);
         } catch (e: any) {
           throw new Error("Erro de validação on-chain (ArcDefence): " + (e.reason || e.message));
         }
