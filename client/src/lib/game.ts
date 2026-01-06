@@ -929,8 +929,15 @@ class MainScene extends Phaser.Scene {
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
+        // Calculate delay to distribute total enemies over 60 seconds (60000ms)
+        // Ensure at least some reasonable delay between spawns
+        const spawnDuration = 60000; // 1 minute in ms
+        const calculatedDelay = Math.max(100, Math.floor(spawnDuration / this.totalEnemiesInWave));
+        
+        console.log(`Wave ${this.currentWave}: Spawning ${this.totalEnemiesInWave} enemies over 60s (Delay: ${calculatedDelay}ms)`);
+
         this.spawnEvent = this.time.addEvent({
-            delay: 200, // Frequent spawn attempts
+            delay: calculatedDelay,
             callback: this.spawnBatch,
             callbackScope: this,
             loop: true
@@ -973,12 +980,13 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        // Spawn a batch based on wave intensity
-        const batchSize = Math.min(
-            Phaser.Math.Between(2, 5), 
+        // Spawn a small batch or single enemy to keep it steady
+        // For higher waves with many enemies, we might spawn 2-3 at once to fit the minute
+        const batchSize = Math.max(1, Math.min(
+            Math.ceil(this.totalEnemiesInWave / 300), // Scale batch size for very high counts
             this.totalEnemiesInWave - this.enemiesSpawnedInWave,
             this.maxSimultaneousEnemies - activeEnemies
-        );
+        ));
 
         for (let i = 0; i < batchSize; i++) {
             this.spawnEnemy();
