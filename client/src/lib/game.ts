@@ -229,6 +229,12 @@ class MainScene extends Phaser.Scene {
 
     private updateInventoryHUD() {
         if (!this.inventoryHUD) return;
+        
+        // Ensure we have the latest inventory from window/global
+        if ((this.game as any).playerInventory) {
+            this.playerInventory = (this.game as any).playerInventory;
+        }
+
         const items = [
             { id: 'health', key: 'Q', color: 0xff0000 },
             { id: 'ki', key: 'W', color: 0x0000ff },

@@ -125,6 +125,12 @@ export default function Home() {
           if (window.game) {
             if (upgrades) (window.game as any).playerUpgrades = upgrades;
             if (inventory) (window.game as any).playerInventory = inventory;
+            
+            // Trigger an initial HUD update if the scene is already ready
+            const scene = (window.game as any).scene.getScene('MainScene') as any;
+            if (scene && scene.updateInventoryHUD) {
+              scene.updateInventoryHUD();
+            }
           }
         });
       });
