@@ -3764,6 +3764,28 @@ class StartScene extends Phaser.Scene {
     }
 
     create() {
+        // Auto-connect wallet if possible
+        const checkAutoConnect = async () => {
+            if ((window as any).ethereum) {
+                try {
+                    const accounts = await (window as any).ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        this.walletAddress = accounts[0];
+                        (window as any).walletAddress = this.walletAddress;
+                        this.updateWalletButtonText(`CONNECTED: ${this.walletAddress?.substring(0, 6)}...`);
+                        this.updateNetworkDisplay('Arc Testnet');
+                        
+                        if ((window as any).updateStartButtonState) {
+                            (window as any).updateStartButtonState();
+                        }
+                    }
+                } catch (err) {
+                    console.error("Auto-connect check failed:", err);
+                }
+            }
+        };
+        checkAutoConnect();
+
         // Load sounds if not already available (usually preloaded in PreloadScene)
         if (this.cache.audio.exists('menu_button')) {
             this.sfx['menu_button'] = this.sound.add('menu_button');
