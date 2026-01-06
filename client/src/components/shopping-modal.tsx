@@ -13,8 +13,7 @@ const SHOP_ABI = [
   "function buyHealthPotion() external",
   "function buyKiPotion() external",
   "function buyImmunityPotion() external",
-  "function buyScorePotion() external",
-  "function getPotionBalances(address user) external view returns (uint256, uint256, uint256, uint256)"
+  "function buyScorePotion() external"
 ];
 
 const ERC20_ABI = [
@@ -91,48 +90,6 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
       const savedInventory = localStorage.getItem('player_inventory');
       if (savedInventory) {
         setInventory(JSON.parse(savedInventory));
-      }
-
-      // Sync with blockchain if wallet is connected
-      if ((window as any).ethereum) {
-        try {
-          const provider = new ethers.BrowserProvider((window as any).ethereum);
-          const signer = await provider.getSigner();
-          const userAddress = await signer.getAddress();
-          
-          const shopContract = new ethers.Contract(SHOP_CONTRACT_ADDRESS, SHOP_ABI, provider);
-          
-          // Fetch balances from contract
-          console.log("Fetching on-chain balances for:", userAddress);
-          // Fallback to local inventory if contract call fails
-          let onChainInventory;
-          try {
-            const [health, ki, immunity, score] = await shopContract.getPotionBalances(userAddress);
-            onChainInventory = {
-              health: Number(health),
-              ki: Number(ki),
-              immunity: Number(immunity),
-              score: Number(score)
-            };
-            console.log("On-chain balances fetched:", onChainInventory);
-          } catch (contractErr) {
-            console.warn("Contract getPotionBalances failed, using local storage truth:", contractErr);
-            return; // Exit if contract call fails to avoid overwriting with zeros
-          }
-          
-          setInventory(onChainInventory);
-          localStorage.setItem('player_inventory', JSON.stringify(onChainInventory));
-          
-          if (window.game) {
-            (window.game as any).playerInventory = onChainInventory;
-            const scene = (window.game as any).scene.getScene('MainScene');
-            if (scene) {
-              scene.events.emit('sync_inventory', onChainInventory);
-            }
-          }
-        } catch (error) {
-          console.error("Failed to fetch blockchain inventory:", error);
-        }
       }
     };
     

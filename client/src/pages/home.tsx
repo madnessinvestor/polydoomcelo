@@ -54,13 +54,7 @@ export default function Home() {
         "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
       ];
       
-      const shopContractAddress = "0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a";
-      const shopAbi = [
-        "function getPotionBalances(address user) external view returns (uint256, uint256, uint256, uint256)"
-      ];
-
       let upgradesData = null;
-      let inventoryData = null;
 
       // Fetch Upgrades
       try {
@@ -79,24 +73,10 @@ export default function Home() {
         console.warn("Could not fetch on-chain upgrades:", err);
       }
 
-      // Fetch Inventory
-      try {
-        const shopContract = new ethers.Contract(shopContractAddress, shopAbi, signer);
-        const [health, ki, immunity, score] = await shopContract.getPotionBalances(userAddress);
-        inventoryData = {
-          health: Number(health),
-          ki: Number(ki),
-          immunity: Number(immunity),
-          score: Number(score)
-        };
-        console.log("React: Initial inventory fetched:", inventoryData);
-        setInventory(inventoryData);
-        localStorage.setItem('player_inventory', JSON.stringify(inventoryData));
-      } catch (err) {
-        console.warn("Could not fetch on-chain inventory:", err);
-        const saved = localStorage.getItem('player_inventory');
-        if (saved) setInventory(JSON.parse(saved));
-      }
+      // Get Inventory from local storage
+      const saved = localStorage.getItem('player_inventory');
+      let inventoryData = saved ? JSON.parse(saved) : { health: 0, ki: 0, immunity: 0, score: 0 };
+      setInventory(inventoryData);
 
       return { upgrades: upgradesData, inventory: inventoryData };
     } catch (e) {

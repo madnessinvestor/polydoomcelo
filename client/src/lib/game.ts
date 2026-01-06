@@ -164,25 +164,6 @@ class MainScene extends Phaser.Scene {
     private inventoryIcons: Map<string, Phaser.GameObjects.Graphics> = new Map();
     private inventoryCounts: Map<string, Phaser.GameObjects.Text> = new Map();
 
-    private async syncInventoryWithBackend() {
-        const walletAddress = (window as any).walletAddress;
-        if (!walletAddress) return;
-
-        try {
-            // Save current inventory to backend
-            await fetch('/api/inventory', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    walletAddress,
-                    potions: this.playerInventory
-                })
-            });
-        } catch (err) {
-            console.error("Failed to sync inventory with backend:", err);
-        }
-    }
-
     private useInventoryItem(type: string) {
         if (!this.playerInventory || (this.playerInventory[type] || 0) <= 0) return;
 
@@ -232,9 +213,6 @@ class MainScene extends Phaser.Scene {
             (this.game as any).playerInventory = this.playerInventory;
             this.updateInventoryHUD();
             this.updateHUD();
-            
-            // Sync with backend after use
-            this.syncInventoryWithBackend();
 
             if (this.sfx['item_pickup']) {
                 this.sfx['item_pickup'].play({ volume: this.sfxVolume });
