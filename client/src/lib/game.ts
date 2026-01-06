@@ -146,9 +146,20 @@ class MainScene extends Phaser.Scene {
     private sfxVolume: number = 1.0;
 
     // Pause system
-    private isPaused: boolean = false;
-    private pausedTime: number = 0;
-    private pauseModalOpen: boolean = false;
+    private kiLabel: Phaser.GameObjects.Text | null = null;
+    private upgradeIconsContainer: Phaser.GameObjects.Container | null = null;
+    private purchasedUpgrades: Record<string, number> = {};
+    private hpLabel: Phaser.GameObjects.Text | null = null;
+    private buffIconsContainer: Phaser.GameObjects.Container | null = null;
+    private tooltipContainer: Phaser.GameObjects.Container | null = null;
+    private tooltipBg: Phaser.GameObjects.Graphics | null = null;
+    private tooltipTitle: Phaser.GameObjects.Text | null = null;
+    private tooltipText: Phaser.GameObjects.Text | null = null;
+    private pickupNotification: Phaser.GameObjects.Text | null = null;
+    private pickupNotificationBg: Phaser.GameObjects.Graphics | null = null;
+    private pickupTimer: Phaser.Time.TimerEvent | null = null;
+    private walletHUDText: Phaser.GameObjects.Text | null = null;
+    private tooltipHideTimer: Phaser.Time.TimerEvent | null = null;
     private playerUpgrades: Record<string, number> = {
         arc_hp: 0,
         arc_ki: 0,
@@ -3004,15 +3015,22 @@ class MainScene extends Phaser.Scene {
         // Tooltip container
         if (!this.tooltipContainer) {
             this.tooltipContainer = this.add.container(0, 0).setScrollFactor(0).setDepth(2000).setVisible(false);
-            const bg = this.add.graphics();
-            const text = this.add.text(0, 0, '', {
+            
+            this.tooltipBg = this.add.graphics();
+            this.tooltipTitle = this.add.text(10, 10, '', {
+                fontSize: '14px',
+                color: '#fbbf24',
+                fontStyle: 'bold',
+                fontFamily: 'monospace'
+            });
+            this.tooltipText = this.add.text(10, 30, '', {
                 fontSize: '12px',
                 color: '#ffffff',
-                backgroundColor: '#000000cc',
-                padding: { x: 8, y: 4 },
+                fontFamily: 'monospace',
                 wordWrap: { width: 200 }
             });
-            this.tooltipContainer.add([bg, text]);
+            
+            this.tooltipContainer.add([this.tooltipBg, this.tooltipTitle, this.tooltipText]);
         }
 
         // KI Text
@@ -3134,7 +3152,7 @@ class MainScene extends Phaser.Scene {
                 };
 
                 container.on('pointerover', () => {
-                    this.showTooltip(upgradeNames[id], descriptions[id], container.x + this.upgradeIconsContainer!.x, container.y + this.upgradeIconsContainer!.y - 40);
+                    this.showTooltip(container.x + this.upgradeIconsContainer!.x, container.y + this.upgradeIconsContainer!.y - 40, upgradeNames[id], descriptions[id]);
                 });
                 container.on('pointerout', () => {
                     this.hideTooltip();
@@ -3286,26 +3304,6 @@ class MainScene extends Phaser.Scene {
             this.tooltipHideTimer = null;
         });
     }
-        this.tooltipTitle.setText(title);
-        const fullText = duration ? `${text}\nDuração: ${duration}` : text;
-        this.tooltipText.setText(fullText);
-
-        const bounds = this.tooltipText.getBounds();
-        const width = Math.max(bounds.width + 20, 220);
-        const height = bounds.height + 50;
-
-        this.tooltipBg.clear();
-        this.tooltipBg.fillStyle(0x000000, 0.9);
-        this.tooltipBg.lineStyle(2, 0xfbbf24, 1);
-        this.tooltipBg.fillRoundedRect(0, 0, width, height, 8);
-        this.tooltipBg.strokeRoundedRect(0, 0, width, height, 8);
-
-        this.tooltipContainer.setPosition(x + 20, y + 25);
-        if (this.tooltipContainer.x + width > this.cameras.main.width) {
-            this.tooltipContainer.x = x - width - 20;
-        }
-        this.tooltipContainer.setVisible(true);
-    }
 
     // Public volume control methods
     public setMasterVolume(value: number) {
@@ -3447,20 +3445,6 @@ class MainScene extends Phaser.Scene {
                 break;
         }
     }
-
-    private kiLabel!: Phaser.GameObjects.Text;
-    private upgradeIconsContainer!: Phaser.GameObjects.Container;
-    private purchasedUpgrades: Record<string, number> = {};
-    private hpLabel!: Phaser.GameObjects.Text;
-    private buffIconsContainer!: Phaser.GameObjects.Container;
-    private tooltipContainer!: Phaser.GameObjects.Container;
-    private tooltipBg!: Phaser.GameObjects.Graphics;
-    private tooltipTitle!: Phaser.GameObjects.Text;
-    private tooltipText!: Phaser.GameObjects.Text;
-    private pickupNotification!: Phaser.GameObjects.Text;
-    private pickupNotificationBg!: Phaser.GameObjects.Graphics;
-    private pickupTimer!: Phaser.Time.TimerEvent;
-    private walletHUDText!: Phaser.GameObjects.Text;
 
     public updateWalletHUD() {
         if (this.walletHUDText) {
