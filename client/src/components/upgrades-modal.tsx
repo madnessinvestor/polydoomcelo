@@ -233,15 +233,16 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       // Verificação específica para ArcDefence
       if (id === "arc_defence") {
         // Garantir que apenas o próximo nível disponível possa ser comprado
-        // O contrato upgradeDefense() falha se o usuário já tiver o nível ou se o preço não for válido
-        // Verificação on-chain do preço antes de prosseguir
+        // Ler sempre upgrades(userAddress).defence como fonte da verdade
+        // Calcular o preço usando defencePrices[defence]
         try {
           const price = await upgradeContract.defencePrices(currentLevel);
           if (price === 0n) {
-            throw new Error(`Nível de defesa ${currentLevel + 1} não disponível para compra (preço zero no contrato).`);
+            throw new Error(`Nível de defesa ${currentLevel + 1} não disponível (defencePrices[${currentLevel}] == 0).`);
           }
+          console.log(`Preço validado on-chain para nível ${currentLevel + 1}: ${price.toString()}`);
         } catch (e: any) {
-          throw new Error("Erro de validação on-chain: " + (e.reason || e.message));
+          throw new Error("Erro de validação on-chain (ArcDefence): " + (e.reason || e.message));
         }
       }
       
