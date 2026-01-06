@@ -24,7 +24,7 @@ const POTIONS: Potion[] = [
     type: "Consumable",
     effect: "Restores 100% HP instantly",
     description: "A basic potion that fully restores health.",
-    price: 2,
+    price: 100,
     icon: Beaker,
     color: "text-red-500"
   },
@@ -34,7 +34,7 @@ const POTIONS: Potion[] = [
     type: "Consumable",
     effect: "Restores 100% Ki instantly",
     description: "Pure arcane energy condensed into liquid form.",
-    price: 2,
+    price: 100,
     icon: Zap,
     color: "text-blue-500"
   },
@@ -44,7 +44,7 @@ const POTIONS: Potion[] = [
     type: "Consumable",
     effect: "Total immunity for 30 seconds",
     description: "Absolute protection against all threats — for a short time.",
-    price: 5,
+    price: 500,
     icon: Shield,
     color: "text-yellow-500"
   },
@@ -54,7 +54,7 @@ const POTIONS: Potion[] = [
     type: "Consumable",
     effect: "200% score for 100 seconds",
     description: "Every enemy defeated is worth double while the effect lasts.",
-    price: 4,
+    price: 100,
     icon: Star,
     color: "text-purple-500"
   }
