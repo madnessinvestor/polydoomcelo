@@ -263,10 +263,11 @@ class MainScene extends Phaser.Scene {
         
         const SPACING = 60;
         const SQUARE_SIZE = 50;
+        const BOTTOM_MARGIN = 10;
 
         items.forEach((item, index) => {
             const x = START_X;
-            const y = startY + (index * SPACING);
+            const y = startY + (index * SPACING) + BOTTOM_MARGIN;
             const count = this.playerInventory[item.id] || 0;
             
             let graphics = this.inventoryIcons.get(item.id);
