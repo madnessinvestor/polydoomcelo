@@ -978,34 +978,37 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    private spawnEnemy() {
+    private spawnEnemy(specificType?: string): Phaser.Physics.Arcade.Sprite | null {
+        if (this.isGameOver || this.isWaveInterval) return null;
+        
         const width = this.cameras.main.width;
         const x = Phaser.Math.Between(0, 1) === 0 ? -50 : width + 50;
         const y = this.cameras.main.height - 100;
 
-        const config = this.getWaveConfig(this.currentWave);
-        let selectedTypeId = 'ground_biter';
-
-        if (!config || !config.enemies) {
-            // Use Wave 10 config for Infinity Wave
-            const infinityConfig = this.waveConfigs[9];
-            const rand = Math.random();
-            let cumulative = 0;
-            for (const [typeId, chance] of Object.entries(infinityConfig.enemies)) {
-                cumulative += (chance as number);
-                if (rand <= cumulative) {
-                    selectedTypeId = typeId;
-                    break;
+        let selectedTypeId = specificType || 'ground_biter';
+        
+        if (!specificType) {
+            const config = this.getWaveConfig(this.currentWave);
+            if (!config || !config.enemies) {
+                const infinityConfig = this.waveConfigs[9];
+                const rand = Math.random();
+                let cumulative = 0;
+                for (const [typeId, chance] of Object.entries(infinityConfig.enemies)) {
+                    cumulative += (chance as number);
+                    if (rand <= cumulative) {
+                        selectedTypeId = typeId;
+                        break;
+                    }
                 }
-            }
-        } else {
-            const rand = Math.random();
-            let cumulative = 0;
-            for (const [typeId, chance] of Object.entries(config.enemies)) {
-                cumulative += (chance as number);
-                if (rand <= cumulative) {
-                    selectedTypeId = typeId;
-                    break;
+            } else {
+                const rand = Math.random();
+                let cumulative = 0;
+                for (const [typeId, chance] of Object.entries(config.enemies)) {
+                    cumulative += (cumulative as number);
+                    if (rand <= cumulative) {
+                        selectedTypeId = typeId;
+                        break;
+                    }
                 }
             }
         }
@@ -1024,8 +1027,9 @@ class MainScene extends Phaser.Scene {
             scaleModifier = Math.pow(1.4, this.currentWave - 1);
         }
 
-        this.createEnemyObject(x, y, { ...typeInfo, scale: (typeInfo.scale || 1) * scaleModifier }, damageModifier, hpModifier);
-        this.enemiesSpawnedInWave++;
+        const enemy = this.createEnemyObject(x, y, { ...typeInfo, scale: (typeInfo.scale || 1) * scaleModifier }, damageModifier, hpModifier);
+        if (enemy) this.enemiesSpawnedInWave++;
+        return enemy;
     }
 
     private spawnEnemyOfType(typeId: string) {
@@ -1050,7 +1054,7 @@ class MainScene extends Phaser.Scene {
         this.createEnemyObject(x, y, { ...typeInfo, scale: (typeInfo.scale || 1) * scaleModifier }, damageModifier, hpModifier);
     }
 
-    private createEnemyObject(x: number, y: number, typeInfo: any, extraDamageMult: number = 1, extraHpMult: number = 1) {
+    private createEnemyObject(x: number, y: number, typeInfo: any, extraDamageMult: number = 1, extraHpMult: number = 1): Phaser.Physics.Arcade.Sprite | null {
         const enemy = this.enemies.create(x, y, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
         enemy.setBounce(0.5);
         enemy.setCollideWorldBounds(true);
