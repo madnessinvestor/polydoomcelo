@@ -85,10 +85,32 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
   });
 
   useEffect(() => {
-    const savedInventory = localStorage.getItem('player_inventory');
-    if (savedInventory) {
-      setInventory(JSON.parse(savedInventory));
-    }
+    const fetchInventory = async () => {
+      // Prioritize local storage
+      const savedInventory = localStorage.getItem('player_inventory');
+      if (savedInventory) {
+        setInventory(JSON.parse(savedInventory));
+      }
+
+      // Check blockchain if wallet is connected
+      if ((window as any).ethereum) {
+        try {
+          const provider = new ethers.BrowserProvider((window as any).ethereum);
+          const signer = await provider.getSigner();
+          const userAddress = await signer.getAddress();
+          
+          // The shop contract seems to be responsible for buying, 
+          // but we need to check if it has a way to query balances or if there's a separate contract.
+          // For now, if the contract doesn't have a view function for balance, 
+          // we rely on local storage but ensure it's synced after transactions.
+          console.log("Checking blockchain for user:", userAddress);
+        } catch (error) {
+          console.error("Failed to fetch blockchain inventory:", error);
+        }
+      }
+    };
+    
+    fetchInventory();
   }, []);
 
   const handleBuy = async (potion: Potion) => {
@@ -152,6 +174,11 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
       
       if (window.game) {
         (window.game as any).playerInventory = newInventory;
+        // Trigger sync event if game is running a scene that listens
+        const scene = (window.game as any).scene.getScene('MainScene');
+        if (scene) {
+          scene.events.emit('sync_inventory', newInventory);
+        }
       }
 
       alert(`${potion.name} purchased successfully on-chain!`);

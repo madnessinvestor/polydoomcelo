@@ -355,6 +355,13 @@ class MainScene extends Phaser.Scene {
             (this.game as any).playerInventory = this.playerInventory;
         }
 
+        // Add event listener to sync inventory from external sources (like ShoppingModal)
+        this.events.on('sync_inventory', (newInventory: any) => {
+            this.playerInventory = newInventory;
+            (this.game as any).playerInventory = newInventory;
+            this.updateHUD();
+        });
+
         this.health = stats.hp;
         this.maxHealth = stats.hp;
         this.kiarc = 0;
