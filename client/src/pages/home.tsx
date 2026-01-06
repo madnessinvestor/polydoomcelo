@@ -28,24 +28,31 @@ export default function Home() {
   const [isUpgradesOpen, setIsUpgradesOpen] = useState(false);
   const [isShoppingOpen, setIsShoppingOpen] = useState(false);
 
-  const fetchUpgrades = async () => {
+  const fetchUpgradesAndInventory = async () => {
     if (!(window as any).ethereum) return null;
     try {
       const provider = new ethers.BrowserProvider((window as any).ethereum);
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
+      
       const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
       const upgradeAbi = [
         "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
       ];
       
-      // A chamada abaixo está sendo removida/protegida conforme solicitado
-      // pois o contrato pode não ter essa função ou o retorno é inválido,
-      // e os upgrades já são gerenciados pela MainScene após a transação.
+      const shopContractAddress = "0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a";
+      const shopAbi = [
+        "function getPotionBalances(address user) external view returns (uint256, uint256, uint256, uint256)"
+      ];
+
+      let upgradesData = null;
+      let inventoryData = null;
+
+      // Fetch Upgrades
       try {
         const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
         const data = await upgradeContract.upgrades(userAddress);
-        return {
+        upgradesData = {
           arc_hp: Number(data.hp),
           arc_ki: Number(data.ki),
           arc_damage: Number(data.damage),
@@ -53,41 +60,48 @@ export default function Home() {
           arc_regen: Number(data.regen),
           arc_vamp: Number(data.vamp)
         };
-      } catch (innerError) {
-        console.warn("Could not fetch on-chain upgrades, using defaults:", innerError);
-        return null;
+        console.log("React: Initial upgrades fetched:", upgradesData);
+      } catch (err) {
+        console.warn("Could not fetch on-chain upgrades:", err);
       }
+
+      // Fetch Inventory
+      try {
+        const shopContract = new ethers.Contract(shopContractAddress, shopAbi, signer);
+        const [health, ki, immunity, score] = await shopContract.getPotionBalances(userAddress);
+        inventoryData = {
+          health: Number(health),
+          ki: Number(ki),
+          immunity: Number(immunity),
+          score: Number(score)
+        };
+        console.log("React: Initial inventory fetched:", inventoryData);
+        localStorage.setItem('player_inventory', JSON.stringify(inventoryData));
+      } catch (err) {
+        console.warn("Could not fetch on-chain inventory:", err);
+      }
+
+      return { upgrades: upgradesData, inventory: inventoryData };
     } catch (e) {
-      console.error("Error fetching upgrades for game start:", e);
+      console.error("Error fetching data for game start:", e);
       return null;
-    }
-  };
-
-  const handleContinueGame = () => {
-    setIsPauseModalOpen(false);
-    // Resume game through window reference
-    if (window.game?.scene.isActive('MainScene')) {
-      const scene = window.game.scene.getScene('MainScene') as any;
-      if (scene.isPaused) {
-        scene.closePauseModal?.();
-      }
-    }
-  };
-
-  const handleExitGame = () => {
-    setIsPauseModalOpen(false);
-    // Exit game through window reference
-    if (window.game?.scene.isActive('MainScene')) {
-      const scene = window.game.scene.getScene('MainScene') as any;
-      scene?.exitGameFromPause?.();
     }
   };
 
   useEffect(() => {
     if (isConnected) {
-      fetchUpgrades().then(upgrades => {
+      fetchUpgradesAndInventory().then(data => {
+        const upgrades = data?.upgrades;
+        const inventory = data?.inventory;
+        
         import("@/lib/game").then((mod) => {
           mod.initGame(upgrades || undefined);
+          
+          // Ensure data is available to game immediately
+          if (window.game) {
+            if (upgrades) (window.game as any).playerUpgrades = upgrades;
+            if (inventory) (window.game as any).playerInventory = inventory;
+          }
         });
       });
     }
