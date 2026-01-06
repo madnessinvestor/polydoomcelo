@@ -319,16 +319,6 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
           <div className="flex flex-col items-center justify-center py-2">
             <CardTitle className="text-3xl font-bold text-green-500 uppercase tracking-widest text-center">Upgrades</CardTitle>
             <CardDescription className="text-slate-400 mt-1">Enhance your character using USDC</CardDescription>
-            
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onClose} 
-              className="absolute right-4 top-4 text-slate-400 hover:text-white hover:bg-slate-800 rounded-none"
-              data-testid="button-close-upgrades-icon"
-            >
-              <span className="text-xl">✕</span>
-            </Button>
           </div>
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
