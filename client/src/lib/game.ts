@@ -3026,8 +3026,15 @@ class MainScene extends Phaser.Scene {
         }
         this.updateUpgradeIconsUI();
 
+        // Update buff icons position below upgrades
+        if (this.buffIconsContainer) {
+            const upgradeRowHeight = 40; // Height of the upgrade icons row
+            this.buffIconsContainer.setPosition(16, kiY + kiHeight + 20 + upgradeRowHeight + 10);
+        }
+
         // Update notification position to be below buff icons
-        const notifyY = 160 + (this.buffIconsContainer ? 50 : 0);
+        const buffY = kiY + kiHeight + 20 + 40 + 10;
+        const notifyY = buffY + (this.buffIconsContainer && this.buffIconsContainer.list.length > 0 ? 50 : 0);
         if (this.pickupNotification) {
             this.pickupNotification.setPosition(16, notifyY);
             if (this.pickupNotification.visible) {
