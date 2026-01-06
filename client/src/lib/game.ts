@@ -2906,8 +2906,17 @@ class MainScene extends Phaser.Scene {
 
         const finalDamage = baseDamage * resMultiplier * incomingDamageMult;
         
-        if (!isNaN(finalDamage)) {
+        if (!isNaN(finalDamage) && isFinite(finalDamage)) {
             this.health = Math.max(0, this.health - finalDamage);
+        } else {
+            console.warn('Detected NaN or Infinite damage, ignoring. Details:', {
+                baseDamage,
+                resMultiplier,
+                incomingDamageMult,
+                finalDamage,
+                enemyType: behavior,
+                wave: this.currentWave
+            });
         }
         
         // Efeito de piscar em vermelho semi-transparente no gráfico
@@ -3170,8 +3179,8 @@ class MainScene extends Phaser.Scene {
             const stats = this.levelStats[this.level - 1];
             
             // Update current max stats from table
-            this.maxHealth = stats.hp;
-            this.maxKiarc = stats.ki;
+            this.maxHealth = stats.hp || 300;
+            this.maxKiarc = stats.ki || 100;
             
             // CRITICAL: Re-apply upgrades to new level base stats
             this.applyUpgrade();
@@ -3188,6 +3197,14 @@ class MainScene extends Phaser.Scene {
     }
 
     updateHUD() {
+        if (this.health === undefined || isNaN(this.health)) {
+            console.error('Player health is NaN in updateHUD, resetting to 100');
+            this.health = 100;
+        }
+        if (this.maxHealth === undefined || isNaN(this.maxHealth) || this.maxHealth <= 0) {
+            this.maxHealth = 300;
+        }
+
         const width = this.cameras.main.width;
         const hudScale = Math.max(1, width / 800);
         const fontSize = Math.floor(24 * hudScale);
@@ -3662,12 +3679,14 @@ class MainScene extends Phaser.Scene {
 
         switch (id) {
             case 'arc_hp':
-                const oldMaxHp = this.maxHealth;
-                this.maxHealth = baseStats.hp * (1 + bonus);
-                this.health += (this.maxHealth - oldMaxHp); // Add the bonus HP to current health too
+                const oldMaxHp = this.maxHealth || 300;
+                this.maxHealth = (baseStats.hp || 300) * (1 + bonus);
+                if (isNaN(this.maxHealth)) this.maxHealth = oldMaxHp;
+                this.health += (this.maxHealth - oldMaxHp); 
                 break;
             case 'arc_ki':
-                this.maxKiarc = baseStats.ki * (1 + bonus);
+                this.maxKiarc = (baseStats.ki || 100) * (1 + bonus);
+                if (isNaN(this.maxKiarc)) this.maxKiarc = (baseStats.ki || 100);
                 break;
             case 'arc_damage':
                 // We'll use a property to multiply damage
