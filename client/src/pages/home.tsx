@@ -88,6 +88,26 @@ export default function Home() {
     }
   };
 
+  const handleContinueGame = () => {
+    setIsPauseModalOpen(false);
+    // Resume game through window reference
+    if (window.game?.scene.isActive('MainScene')) {
+      const scene = window.game.scene.getScene('MainScene') as any;
+      if (scene.isPaused) {
+        scene.closePauseModal?.();
+      }
+    }
+  };
+
+  const handleExitGame = () => {
+    setIsPauseModalOpen(false);
+    // Exit game through window reference
+    if (window.game?.scene.isActive('MainScene')) {
+      const scene = window.game.scene.getScene('MainScene') as any;
+      scene?.exitGameFromPause?.();
+    }
+  };
+
   useEffect(() => {
     if (isConnected) {
       fetchUpgradesAndInventory().then(data => {
