@@ -250,25 +250,38 @@ class MainScene extends Phaser.Scene {
             { id: 'immunity', key: 'E', color: 0xffff00 },
             { id: 'score', key: 'R', color: 0xa020f0 }
         ];
+        
+        // Match Upgrade HUD pattern: Left side, vertical
         const START_X = 20;
-        const START_Y = this.cameras.main.height - 80;
-        const SPACING = 70;
+        // Position below upgrades (which usually start around y=100-150 and go down)
+        // We'll calculate the bottom of the upgrade icons
+        let startY = 150; 
+        if (this.upgradeIconsContainer) {
+            // Find the lowest point of upgrades
+            startY = 350; // Approximate offset to be below upgrades with ~5 spaces
+        }
+        
+        const SPACING = 60;
         const SQUARE_SIZE = 50;
+
         items.forEach((item, index) => {
-            const x = START_X + (index * SPACING);
-            const y = START_Y;
+            const x = START_X;
+            const y = startY + (index * SPACING);
             const count = this.playerInventory[item.id] || 0;
+            
             let graphics = this.inventoryIcons.get(item.id);
             if (!graphics) {
                 graphics = this.add.graphics();
                 this.inventoryHUD!.add(graphics);
                 this.inventoryIcons.set(item.id, graphics);
             }
+            
             graphics.clear();
             graphics.lineStyle(2, item.color, count > 0 ? 1 : 0.3);
             graphics.strokeRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
             graphics.fillStyle(0x000000, 0.5);
             graphics.fillRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
+            
             graphics.fillStyle(item.color, count > 0 ? 0.8 : 0.2);
             if (item.id === 'health') {
                 graphics.fillRect(x + 20, y + 10, 10, 30);
@@ -310,30 +323,36 @@ class MainScene extends Phaser.Scene {
                 graphics.closePath();
                 graphics.fillPath();
             }
-            let countText = this.inventoryCounts.get(item.id + '_key');
-            if (!countText) {
-                countText = this.add.text(x + 2, y + 2, item.key, {
+
+            let keyText = this.inventoryCounts.get(item.id + '_key');
+            if (!keyText) {
+                keyText = this.add.text(x + 4, y + 2, item.key, {
                     fontSize: '12px',
                     fontFamily: 'monospace',
                     color: '#ffffff',
                     stroke: '#000000',
-                    strokeThickness: 2
+                    strokeThickness: 2,
+                    fontStyle: 'bold'
                 });
-                this.inventoryHUD!.add(countText);
-                this.inventoryCounts.set(item.id + '_key', countText);
+                this.inventoryHUD!.add(keyText);
+                this.inventoryCounts.set(item.id + '_key', keyText);
             }
+            keyText.setPosition(x + 4, y + 2);
+
             let qtyText = this.inventoryCounts.get(item.id + '_qty');
             if (!qtyText) {
-                qtyText = this.add.text(x + SQUARE_SIZE - 2, y + SQUARE_SIZE - 2, `x${count}`, {
+                qtyText = this.add.text(x + SQUARE_SIZE - 4, y + SQUARE_SIZE - 4, `x${count}`, {
                     fontSize: '14px',
                     fontFamily: 'monospace',
                     color: '#00ff00',
                     stroke: '#000000',
-                    strokeThickness: 2
+                    strokeThickness: 2,
+                    fontStyle: 'bold'
                 }).setOrigin(1, 1);
                 this.inventoryHUD!.add(qtyText);
                 this.inventoryCounts.set(item.id + '_qty', qtyText);
             }
+            qtyText.setPosition(x + SQUARE_SIZE - 4, y + SQUARE_SIZE - 4);
             qtyText.setText(`x${count}`);
             qtyText.setColor(count > 0 ? '#00ff00' : '#666666');
         });

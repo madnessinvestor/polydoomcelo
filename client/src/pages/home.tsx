@@ -204,26 +204,6 @@ export default function Home() {
         <div className="flex-1 flex flex-col items-center justify-center min-h-0 relative">
           <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden relative" />
           
-          {/* Vertical Inventory Display - Only appears when game container is visible and active */}
-          {window.game?.scene.isActive('MainScene') && (window.game.scene.getScene('MainScene') as any).isInGamemode && (
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 pointer-events-none">
-              {POTIONS_UI.map((potion) => {
-                const Icon = potion.icon;
-                const count = inventory[potion.id] || 0;
-                return (
-                  <div 
-                    key={potion.id} 
-                    className={`w-12 h-12 bg-slate-900/60 border-2 ${potion.borderColor} flex flex-col items-center justify-center relative rounded-md shadow-lg backdrop-blur-sm opacity-80`}
-                  >
-                    <span className="absolute top-0.5 left-1 text-[8px] font-bold text-white/70">{potion.key}</span>
-                    <Icon className={`${potion.color} w-6 h-6 mb-0.5`} />
-                    <span className="absolute bottom-0.5 right-1 text-[10px] font-bold text-green-400">x{count}</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-          
           <div className="mt-4 flex flex-col items-center gap-4">
             <div className="text-slate-400 text-sm flex flex-wrap justify-center gap-x-4 gap-y-2 px-4">
               <div className="flex gap-2">
