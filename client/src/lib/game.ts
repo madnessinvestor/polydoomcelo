@@ -615,6 +615,18 @@ class MainScene extends Phaser.Scene {
             }
         });
 
+        // Initialize Inventory HUD
+        this.inventoryHUD = this.add.container(0, 0).setScrollFactor(0).setDepth(1000);
+        this.updateInventoryHUD();
+
+        // Setup Inventory Hotkeys
+        if (this.input && this.input.keyboard) {
+            this.input.keyboard.on('keydown-Q', () => this.useInventoryItem('health'));
+            this.input.keyboard.on('keydown-W', () => this.useInventoryItem('ki'));
+            this.input.keyboard.on('keydown-E', () => this.useInventoryItem('immunity'));
+            this.input.keyboard.on('keydown-R', () => this.useInventoryItem('score'));
+        }
+
         // Enhanced background with depth
         this.add.rectangle(0, 0, width, height, 0x0a0a20).setOrigin(0).setScrollFactor(0);
         
@@ -2616,24 +2628,29 @@ class MainScene extends Phaser.Scene {
         });
     }
 
-    private showPickupNotification(title: string, description: string) {
+    private showPickupNotification(title: string, description: string = "") {
         if (this.pickupTimer) this.pickupTimer.remove();
         
-        this.pickupNotification.setText(`${title}: ${description}`);
-        this.pickupNotification.setVisible(true);
+        const message = description ? `${title}: ${description}` : title;
+        if (this.pickupNotification) {
+            this.pickupNotification.setText(message);
+            this.pickupNotification.setVisible(true);
+        }
         
         // Background for the notification
-        const bounds = this.pickupNotification.getBounds();
-        this.pickupNotificationBg.clear();
-        this.pickupNotificationBg.fillStyle(0x000000, 0.8);
-        this.pickupNotificationBg.lineStyle(1, 0xffdd00, 1);
-        this.pickupNotificationBg.fillRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
-        this.pickupNotificationBg.strokeRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
-        this.pickupNotificationBg.setVisible(true);
+        if (this.pickupNotification && this.pickupNotificationBg) {
+            const bounds = this.pickupNotification.getBounds();
+            this.pickupNotificationBg.clear();
+            this.pickupNotificationBg.fillStyle(0x000000, 0.8);
+            this.pickupNotificationBg.lineStyle(1, 0xffdd00, 1);
+            this.pickupNotificationBg.fillRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
+            this.pickupNotificationBg.strokeRoundedRect(bounds.x - 4, bounds.y - 2, bounds.width + 8, bounds.height + 4, 4);
+            this.pickupNotificationBg.setVisible(true);
+        }
 
         this.pickupTimer = this.time.delayedCall(3000, () => {
-            this.pickupNotification.setVisible(false);
-            this.pickupNotificationBg.setVisible(false);
+            if (this.pickupNotification) this.pickupNotification.setVisible(false);
+            if (this.pickupNotificationBg) this.pickupNotificationBg.setVisible(false);
         });
     }
 
