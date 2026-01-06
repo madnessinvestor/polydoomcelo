@@ -227,6 +227,10 @@ class MainScene extends Phaser.Scene {
         }
     }
 
+    private usePotion(type: string) {
+        this.useInventoryItem(type);
+    }
+
     create() {
         // Handle wallet auto-connect if already connected in browser
         const autoConnectWallet = async () => {
@@ -418,6 +422,11 @@ class MainScene extends Phaser.Scene {
         arc_regen: 0,
         arc_vamp: 0
     };
+
+    private isPaused: boolean = false;
+    private pauseModalOpen: boolean = false;
+    private pausedTime: number = 0;
+    private hpLabel: Phaser.GameObjects.Text | null = null;
 
     constructor() {
         super('MainScene');
@@ -3287,6 +3296,7 @@ class MainScene extends Phaser.Scene {
 
         if (this.health <= 0) {
             this.isGameOver = true;
+        (this as any).gameOver = true;
             this.health = 0;
             this.playerGraphics.clear();
             this.playerAuraGraphics.clear();
@@ -4208,6 +4218,7 @@ class MainScene extends Phaser.Scene {
 
     public exitGameFromPause() {
         this.isGameOver = true;
+        (this as any).gameOver = true;
         this.isPaused = false;
         this.pauseModalOpen = false;
         
