@@ -3009,6 +3009,27 @@ class MainScene extends Phaser.Scene {
         this.time.delayedCall(2000, () => triangle.destroy());
     }
 
+    private takeDamage(damage: number) {
+        if (this.isInvincible || this.isGameOver) return;
+        
+        const finalDamage = damage;
+        this.health -= finalDamage;
+        this.updateHUD();
+        
+        this.isInvincible = true;
+        this.invincibilityTimer = 1000;
+        
+        this.cameras.main.shake(100, 0.01);
+        this.player.setTint(0xff0000);
+        this.time.delayedCall(100, () => {
+            if (this.player.active) this.player.clearTint();
+        });
+        
+        if (this.health <= 0) {
+            this.gameOver();
+        }
+    }
+
     private enemyMeleeAttack(enemy: Phaser.Physics.Arcade.Sprite) {
         if (this.time.now < (enemy.getData('lastMeleeTime') || 0) + 1000) return;
         enemy.setData('lastMeleeTime', this.time.now);
