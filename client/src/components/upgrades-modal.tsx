@@ -157,16 +157,20 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
         ];
         
         const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
-        const data = await upgradeContract.upgrades(userAddress);
         
-        setPurchasedLevels({
-          arc_hp: Number(data.hp),
-          arc_ki: Number(data.ki),
-          arc_damage: Number(data.damage),
-          arc_defence: Number(data.defence),
-          arc_regen: Number(data.regen),
-          arc_vamp: Number(data.vamp)
-        });
+        try {
+          const data = await upgradeContract.upgrades(userAddress);
+          setPurchasedLevels({
+            arc_hp: Number(data.hp),
+            arc_ki: Number(data.ki),
+            arc_damage: Number(data.damage),
+            arc_defence: Number(data.defence),
+            arc_regen: Number(data.regen),
+            arc_vamp: Number(data.vamp)
+          });
+        } catch (err) {
+          console.warn("Silent: Could not fetch levels via .upgrades()", err);
+        }
       } catch (error) {
         console.error("Error fetching on-chain levels:", error);
       }
@@ -246,25 +250,38 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       await tx.wait();
       console.log("Upgrade confirmed!");
 
-      const updatedData = await upgradeContract.upgrades(userAddress);
-      const newLevels: Record<string, number> = {
-        arc_hp: Number(updatedData.hp),
-        arc_ki: Number(updatedData.ki),
-        arc_damage: Number(updatedData.damage),
-        arc_defence: Number(updatedData.defence),
-        arc_regen: Number(updatedData.regen),
-        arc_vamp: Number(updatedData.vamp)
-      };
-      setPurchasedLevels(newLevels);
-      
-      if (window.game) {
-        (window.game as any).playerUpgrades = newLevels;
+      try {
+        const updatedData = await upgradeContract.upgrades(userAddress);
+        const newLevels: Record<string, number> = {
+          arc_hp: Number(updatedData.hp),
+          arc_ki: Number(updatedData.ki),
+          arc_damage: Number(updatedData.damage),
+          arc_defence: Number(updatedData.defence),
+          arc_regen: Number(updatedData.regen),
+          arc_vamp: Number(updatedData.vamp)
+        };
+        setPurchasedLevels(newLevels);
         
-        window.game.scene.getScenes(true).forEach(scene => {
-          if ((scene as any).applyUpgradesFromGlobal) {
-            (scene as any).applyUpgradesFromGlobal();
-          }
-        });
+        if (window.game) {
+          (window.game as any).playerUpgrades = newLevels;
+          
+          window.game.scene.getScenes(true).forEach(scene => {
+            if ((scene as any).applyUpgradesFromGlobal) {
+              (scene as any).applyUpgradesFromGlobal();
+            }
+          });
+        }
+      } catch (err) {
+        console.warn("Silent: Could not update levels via .upgrades() post-tx", err);
+        // Mesmo sem o fetch on-chain, incrementamos localmente para feedback visual imediato
+        const newLevels = { ...purchasedLevels, [id]: currentLevel + 1 };
+        setPurchasedLevels(newLevels);
+        if (window.game) {
+          (window.game as any).playerUpgrades = newLevels;
+          window.game.scene.getScenes(true).forEach(scene => {
+            if ((scene as any).applyUpgradesFromGlobal) (scene as any).applyUpgradesFromGlobal();
+          });
+        }
       }
       
       alert(`Upgrade ${id} activated successfully! Stats synchronized with blockchain.`);
