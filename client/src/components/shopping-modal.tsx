@@ -7,7 +7,7 @@ import { Beaker, Zap, Shield, Star, Loader2 } from "lucide-react";
 import { ethers } from "ethers";
 
 const SHOP_CONTRACT_ADDRESS = "0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a";
-const USDC_ADDRESS = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; // Polygon Mainnet USDC. Adjust if on different network.
+const USDC_ADDRESS = "0x3600000000000000000000000000000000000000"; // Correct USDC address for Arc Testnet 0x4cef52
 
 const SHOP_ABI = [
   "function buyHealthPotion() external",
