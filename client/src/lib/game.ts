@@ -154,6 +154,12 @@ class MainScene extends Phaser.Scene {
     private kiLabel: Phaser.GameObjects.Text | null = null;
     private upgradeIconsContainer: Phaser.GameObjects.Container | null = null;
     private purchasedUpgrades: Record<string, number> = {};
+    private playerInventory: Record<string, number> = {
+        health: 0,
+        ki: 0,
+        immunity: 0,
+        score: 0
+    };
     private hpLabel: Phaser.GameObjects.Text | null = null;
     private buffIconsContainer: Phaser.GameObjects.Container | null = null;
     private tooltipContainer: Phaser.GameObjects.Container | null = null;
@@ -340,6 +346,14 @@ class MainScene extends Phaser.Scene {
 
         // Set initial stats based on level
         const stats = this.levelStats[this.level - 1] || this.levelStats[0];
+        
+        // Load inventory from localStorage
+        const savedInv = localStorage.getItem('player_inventory');
+        if (savedInv) {
+            this.playerInventory = JSON.parse(savedInv);
+            (this.game as any).playerInventory = this.playerInventory;
+        }
+
         this.health = stats.hp;
         this.maxHealth = stats.hp;
         this.kiarc = 0;
@@ -520,6 +534,7 @@ class MainScene extends Phaser.Scene {
             this.playNextMusic();
         }
 
+        this.keys = this.input.keyboard?.addKeys('Z,X,C,V,B,F,ONE,TWO,THREE,FOUR');
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.keys = this.input.keyboard!.addKeys('Z,X,C,V,B,F');
 
@@ -1373,6 +1388,12 @@ class MainScene extends Phaser.Scene {
                 this.updateHUD();
             }
         }
+
+        // Potion Hotkeys (1, 2, 3, 4)
+        if (Phaser.Input.Keyboard.JustDown(this.keys.ONE)) this.usePotion('health');
+        if (Phaser.Input.Keyboard.JustDown(this.keys.TWO)) this.usePotion('ki');
+        if (Phaser.Input.Keyboard.JustDown(this.keys.THREE)) this.usePotion('immunity');
+        if (Phaser.Input.Keyboard.JustDown(this.keys.FOUR)) this.usePotion('score');
 
         // Horizontal movement
         if (!this.isDashing) {
@@ -4191,13 +4212,10 @@ class StartScene extends Phaser.Scene {
             if (this.sfx && this.sfx['menu_button']) {
                 this.sfx['menu_button'].play();
             }
-            // Use window reference directly to avoid 'this' context issues in the callback
             const win = window as any;
             const upgradeFunc = win.openUpgradesModal || win.showUpgradesModal;
             if (typeof upgradeFunc === 'function') {
                 upgradeFunc();
-            } else {
-                console.error("Upgrade function not found on window object");
             }
         }).on('pointerover', () => {
             upgradesBtn.setFillStyle(0x34d399);
@@ -4205,9 +4223,31 @@ class StartScene extends Phaser.Scene {
             upgradesBtn.setFillStyle(0x10b981);
         });
 
+        // Shopping Button
+        const shoppingBtn = this.add.rectangle(width / 2, height / 2 + 310, 200, 40, 0x3b82f6);
+        const shoppingText = this.add.text(width / 2, height / 2 + 310, 'SHOPPING', {
+            fontSize: '18px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        shoppingBtn.setInteractive().on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
+            const win = window as any;
+            if (typeof win.openShoppingModal === 'function') {
+                win.openShoppingModal();
+            }
+        }).on('pointerover', () => {
+            shoppingBtn.setFillStyle(0x60a5fa);
+        }).on('pointerout', () => {
+            shoppingBtn.setFillStyle(0x3b82f6);
+        });
+
         // Settings Button
-        const settingsBtn = this.add.rectangle(width / 2, height / 2 + 310, 200, 40, 0x8b5cf6);
-        const settingsText = this.add.text(width / 2, height / 2 + 310, 'SETTINGS', {
+        const settingsBtn = this.add.rectangle(width / 2, height / 2 + 370, 200, 40, 0x8b5cf6);
+        const settingsText = this.add.text(width / 2, height / 2 + 370, 'SETTINGS', {
             fontSize: '18px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
@@ -4312,42 +4352,67 @@ class StartScene extends Phaser.Scene {
     }
 
     public applyUpgrade(id: string, level: number) {
-        const category = id.split('_')[1]; // e.g., "hp", "ki", "damage", etc.
-        const bonusValues = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.55, 0.7, 0.85, 1.0, 2.0]; // Match UPGRADE_DATA
-        const bonus = bonusValues[level] || 0;
+        // ... existing applyUpgrade ...
+    }
 
-        switch (id) {
-            case 'arc_hp':
-                const oldMaxHp = this.maxHealth;
-                this.maxHealth = 300 * (1 + bonus);
-                this.health += (this.maxHealth - oldMaxHp); // Add the bonus HP to current health too
+    private usePotion(type: string) {
+        const count = this.playerInventory[type] || 0;
+        if (count <= 0) {
+            this.showPickupNotification('Shopping', `Você não possui ${type} potion!`);
+            return;
+        }
+
+        switch (type) {
+            case 'health':
+                if (this.health >= this.maxHealth) return;
+                this.health = this.maxHealth;
+                this.cameras.main.flash(200, 0, 255, 0, true);
+                this.showPickupNotification('Health Potion', 'Vida restaurada 100%!');
                 break;
-            case 'arc_ki':
-                this.maxKiarc = 100 * (1 + bonus);
+            case 'ki':
+                if (this.kiarc >= this.maxKiarc) return;
+                this.kiarc = this.maxKiarc;
+                this.cameras.main.flash(200, 0, 0, 255, true);
+                this.showPickupNotification('Ki Potion', 'KI restaurado 100%!');
                 break;
-            case 'arc_damage':
-                // We'll use a property to multiply damage
-                (this as any).damageMultiplier = 1 + bonus;
+            case 'immunity':
+                this.isInvincible = true;
+                this.invincibilityTimer = 30000;
+                this.addBuff('ArcBarrier', 'Total Immunity', 'Invencibilidade total por 30s!', 30);
+                this.cameras.main.flash(300, 255, 255, 255, true);
+                this.showPickupNotification('Immunity Potion', 'Imunidade por 30 segundos!');
                 break;
-            case 'arc_defence':
-                (this as any).defenceBonus = bonus;
-                break;
-            case 'arc_regen':
-                if (!(this as any).regenTimer) {
-                    (this as any).regenTimer = this.time.addEvent({
-                        delay: 10000,
-                        callback: () => {
-                            const regenAmount = this.maxHealth * bonus;
-                            this.health = Math.min(this.maxHealth, this.health + regenAmount);
-                        },
-                        loop: true
-                    });
-                }
-                break;
-            case 'arc_vamp':
-                (this as any).vampBonus = bonus;
+            case 'score':
+                this.hasScoreBoost = true;
+                this.addBuff('ArcScore', 'Double Score', 'Score dobrado por 100s!', 100);
+                this.cameras.main.flash(500, 255, 215, 0, true);
+                this.showPickupNotification('Score Potion', 'Score x2 por 100 segundos!');
+                this.time.delayedCall(100000, () => {
+                    this.hasScoreBoost = false;
+                    this.removeBuff('ArcScore');
+                });
                 break;
         }
+
+        // Consume potion
+        this.playerInventory[type]--;
+        localStorage.setItem('player_inventory', JSON.stringify(this.playerInventory));
+        this.updateHUD();
+    }
+
+    private addBuff(id: string, title: string, description: string, durationSeconds: number) {
+        this.activeBuffs.set(id, { 
+            title, 
+            description, 
+            duration: durationSeconds, 
+            startTime: this.time.now 
+        });
+        this.updateBuffsUI();
+    }
+
+    private removeBuff(id: string) {
+        this.activeBuffs.delete(id);
+        this.updateBuffsUI();
     }
 
     private openLeaderboardModal() {

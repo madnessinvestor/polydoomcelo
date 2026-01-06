@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, Loader2, ArrowUpCircle } from "lucide-react";
 import { PauseModal } from "@/components/pause-modal";
 import { UpgradesModal } from "@/components/upgrades-modal";
+import { ShoppingModal } from "@/components/shopping-modal";
 import { ethers } from "ethers";
 
 declare global {
@@ -14,6 +15,9 @@ declare global {
     showPauseModal?: () => void;
     hidePauseModal?: () => void;
     pauseOpening?: () => void;
+    openUpgradesModal?: () => void;
+    showUpgradesModal?: () => void;
+    openShoppingModal?: () => void;
   }
 }
 
@@ -22,6 +26,7 @@ export default function Home() {
   const [isChecking, setIsChecking] = useState(false);
   const [isPauseModalOpen, setIsPauseModalOpen] = useState(false);
   const [isUpgradesOpen, setIsUpgradesOpen] = useState(false);
+  const [isShoppingOpen, setIsShoppingOpen] = useState(false);
 
   const fetchUpgrades = async () => {
     if (!(window as any).ethereum) return null;
@@ -113,11 +118,19 @@ export default function Home() {
     (window as any).openUpgradesModal = triggerUpgrades;
     (window as any).showUpgradesModal = triggerUpgrades;
 
+    const triggerShopping = () => {
+      console.log("React: triggerShopping called");
+      setIsPauseModalOpen(false);
+      setIsShoppingOpen(true);
+    };
+    (window as any).openShoppingModal = triggerShopping;
+
     return () => {
       delete (window as any).showPauseModal;
       delete (window as any).hidePauseModal;
       delete (window as any).openUpgradesModal;
       delete (window as any).showUpgradesModal;
+      delete (window as any).openShoppingModal;
     };
   }, [isConnected]);
 
@@ -131,6 +144,9 @@ export default function Home() {
       )}
       {isUpgradesOpen && (
         <UpgradesModal onClose={() => setIsUpgradesOpen(false)} />
+      )}
+      {isShoppingOpen && (
+        <ShoppingModal onClose={() => setIsShoppingOpen(false)} />
       )}
       <div className="w-full max-w-2xl flex flex-col h-screen">
         {/* Game Container */}
