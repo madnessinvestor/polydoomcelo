@@ -2859,14 +2859,20 @@ class MainScene extends Phaser.Scene {
             const SHOP_ABI = ["function getPotionBalances(address user) external view returns (uint256, uint256, uint256, uint256)"];
             
             const shopContract = new ethers.Contract(SHOP_CONTRACT_ADDRESS, SHOP_ABI, provider);
-            const [health, ki, immunity, score] = await shopContract.getPotionBalances(userAddress);
             
-            const onChainInventory = {
-                health: Number(health),
-                ki: Number(ki),
-                immunity: Number(immunity),
-                score: Number(score)
-            };
+            let onChainInventory;
+            try {
+                const [health, ki, immunity, score] = await shopContract.getPotionBalances(userAddress);
+                onChainInventory = {
+                    health: Number(health),
+                    ki: Number(ki),
+                    immunity: Number(immunity),
+                    score: Number(score)
+                };
+            } catch (contractErr) {
+                console.warn("Game: getPotionBalances failed, staying with local data", contractErr);
+                return;
+            }
             
             this.playerInventory = onChainInventory;
             (this.game as any).playerInventory = onChainInventory;

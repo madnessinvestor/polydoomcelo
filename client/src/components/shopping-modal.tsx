@@ -104,16 +104,21 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
           
           // Fetch balances from contract
           console.log("Fetching on-chain balances for:", userAddress);
-          const [health, ki, immunity, score] = await shopContract.getPotionBalances(userAddress);
-          
-          const onChainInventory = {
-            health: Number(health),
-            ki: Number(ki),
-            immunity: Number(immunity),
-            score: Number(score)
-          };
-          
-          console.log("On-chain balances:", onChainInventory);
+          // Fallback to local inventory if contract call fails
+          let onChainInventory;
+          try {
+            const [health, ki, immunity, score] = await shopContract.getPotionBalances(userAddress);
+            onChainInventory = {
+              health: Number(health),
+              ki: Number(ki),
+              immunity: Number(immunity),
+              score: Number(score)
+            };
+            console.log("On-chain balances fetched:", onChainInventory);
+          } catch (contractErr) {
+            console.warn("Contract getPotionBalances failed, using local storage truth:", contractErr);
+            return; // Exit if contract call fails to avoid overwriting with zeros
+          }
           
           setInventory(onChainInventory);
           localStorage.setItem('player_inventory', JSON.stringify(onChainInventory));
