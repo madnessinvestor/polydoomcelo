@@ -160,8 +160,162 @@ class MainScene extends Phaser.Scene {
         immunity: 0,
         score: 0
     };
-    private hpLabel: Phaser.GameObjects.Text | null = null;
     private inventoryHUD: Phaser.GameObjects.Container | null = null;
+    private inventoryIcons: Map<string, Phaser.GameObjects.Graphics> = new Map();
+    private inventoryCounts: Map<string, Phaser.GameObjects.Text> = new Map();
+
+    private useInventoryItem(type: string) {
+        if (!this.playerInventory || (this.playerInventory[type] || 0) <= 0) return;
+
+        let used = false;
+        switch (type) {
+            case 'health':
+                if (this.health < this.maxHealth) {
+                    this.health = this.maxHealth;
+                    used = true;
+                    this.showPickupNotification("HP Fully Restored!");
+                }
+                break;
+            case 'ki':
+                if (this.kiarc < this.maxKiarc) {
+                    this.kiarc = this.maxKiarc;
+                    used = true;
+                    this.showPickupNotification("Ki Fully Restored!");
+                }
+                break;
+            case 'immunity':
+                this.isInvincible = true;
+                this.invincibilityTimer = 30000;
+                used = true;
+                this.showPickupNotification("Invincibility Active (30s)!");
+                break;
+            case 'score':
+                this.hasScoreBoost = true;
+                this.activeBuffs.set('score_potion', {
+                    title: 'Score Potion',
+                    description: '2x Score Multiplier',
+                    duration: 100000,
+                    startTime: this.time.now
+                });
+                used = true;
+                this.showPickupNotification("2x Score Active (100s)!");
+                this.time.delayedCall(100000, () => {
+                    this.hasScoreBoost = false;
+                    this.activeBuffs.delete('score_potion');
+                    this.updateHUD();
+                });
+                break;
+        }
+
+        if (used) {
+            this.playerInventory[type]--;
+            localStorage.setItem('player_inventory', JSON.stringify(this.playerInventory));
+            (this.game as any).playerInventory = this.playerInventory;
+            this.updateInventoryHUD();
+            this.updateHUD();
+            if (this.sfx['item_pickup']) {
+                this.sfx['item_pickup'].play({ volume: this.sfxVolume });
+            }
+        }
+    }
+
+    private updateInventoryHUD() {
+        if (!this.inventoryHUD) return;
+        const items = [
+            { id: 'health', key: 'Q', color: 0xff0000 },
+            { id: 'ki', key: 'W', color: 0x0000ff },
+            { id: 'immunity', key: 'E', color: 0xffff00 },
+            { id: 'score', key: 'R', color: 0xa020f0 }
+        ];
+        const START_X = 20;
+        const START_Y = this.cameras.main.height - 80;
+        const SPACING = 70;
+        const SQUARE_SIZE = 50;
+        items.forEach((item, index) => {
+            const x = START_X + (index * SPACING);
+            const y = START_Y;
+            const count = this.playerInventory[item.id] || 0;
+            let graphics = this.inventoryIcons.get(item.id);
+            if (!graphics) {
+                graphics = this.add.graphics();
+                this.inventoryHUD!.add(graphics);
+                this.inventoryIcons.set(item.id, graphics);
+            }
+            graphics.clear();
+            graphics.lineStyle(2, item.color, count > 0 ? 1 : 0.3);
+            graphics.strokeRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
+            graphics.fillStyle(0x000000, 0.5);
+            graphics.fillRect(x, y, SQUARE_SIZE, SQUARE_SIZE);
+            graphics.fillStyle(item.color, count > 0 ? 0.8 : 0.2);
+            if (item.id === 'health') {
+                graphics.fillRect(x + 20, y + 10, 10, 30);
+                graphics.fillRect(x + 10, y + 20, 30, 10);
+            } else if (item.id === 'ki') {
+                graphics.beginPath();
+                graphics.moveTo(x + 30, y + 10);
+                graphics.lineTo(x + 15, y + 30);
+                graphics.lineTo(x + 25, y + 30);
+                graphics.lineTo(x + 20, y + 45);
+                graphics.lineTo(x + 40, y + 20);
+                graphics.lineTo(x + 30, y + 20);
+                graphics.closePath();
+                graphics.fillPath();
+            } else if (item.id === 'immunity') {
+                graphics.beginPath();
+                graphics.moveTo(x + 10, y + 10);
+                graphics.lineTo(x + 40, y + 10);
+                graphics.lineTo(x + 40, y + 35);
+                graphics.lineTo(x + 25, y + 45);
+                graphics.lineTo(x + 10, y + 35);
+                graphics.closePath();
+                graphics.fillPath();
+            } else if (item.id === 'score') {
+                const centerX = x + 25;
+                const centerY = y + 25;
+                const innerRadius = 8;
+                const outerRadius = 18;
+                const points = 5;
+                graphics.beginPath();
+                for (let i = 0; i < points * 2; i++) {
+                    const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                    const angle = (Math.PI / points) * i - Math.PI / 2;
+                    const px = centerX + Math.cos(angle) * radius;
+                    const py = centerY + Math.sin(angle) * radius;
+                    if (i === 0) graphics.moveTo(px, py);
+                    else graphics.lineTo(px, py);
+                }
+                graphics.closePath();
+                graphics.fillPath();
+            }
+            let countText = this.inventoryCounts.get(item.id + '_key');
+            if (!countText) {
+                countText = this.add.text(x + 2, y + 2, item.key, {
+                    fontSize: '12px',
+                    fontFamily: 'monospace',
+                    color: '#ffffff',
+                    stroke: '#000000',
+                    strokeThickness: 2
+                });
+                this.inventoryHUD!.add(countText);
+                this.inventoryCounts.set(item.id + '_key', countText);
+            }
+            let qtyText = this.inventoryCounts.get(item.id + '_qty');
+            if (!qtyText) {
+                qtyText = this.add.text(x + SQUARE_SIZE - 2, y + SQUARE_SIZE - 2, `x${count}`, {
+                    fontSize: '14px',
+                    fontFamily: 'monospace',
+                    color: '#00ff00',
+                    stroke: '#000000',
+                    strokeThickness: 2
+                }).setOrigin(1, 1);
+                this.inventoryHUD!.add(qtyText);
+                this.inventoryCounts.set(item.id + '_qty', qtyText);
+            }
+            qtyText.setText(`x${count}`);
+            qtyText.setColor(count > 0 ? '#00ff00' : '#666666');
+        });
+    }
+
     private buffIconsContainer: Phaser.GameObjects.Container | null = null;
     private tooltipContainer: Phaser.GameObjects.Container | null = null;
     private tooltipBg: Phaser.GameObjects.Graphics | null = null;
