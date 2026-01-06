@@ -156,7 +156,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
           "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
         ];
         
-        const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
+        const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, provider);
         
         try {
           const data = await upgradeContract.upgrades(userAddress);
@@ -215,7 +215,8 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
         "function upgradeDamage() public",
         "function upgradeDefense() public",
         "function upgradeRegen() public",
-        "function upgradeVamp() public"
+        "function upgradeVamp() public",
+        "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
       ];
       
       const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, signer);
@@ -244,12 +245,14 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       if (!functionName) throw new Error("Unknown upgrade function");
 
       console.log(`Calling ${functionName} on upgrade contract...`);
+      // Use the contract instance with signer for the transaction
       const tx = await upgradeContract[functionName]();
       
       console.log("Transaction sent:", tx.hash);
       await tx.wait();
       console.log("Upgrade confirmed!");
 
+      // Fetch the updated levels from on-chain to ensure consistency
       try {
         const updatedData = await upgradeContract.upgrades(userAddress);
         const newLevels: Record<string, number> = {
@@ -273,7 +276,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
         }
       } catch (err) {
         console.warn("Silent: Could not update levels via .upgrades() post-tx", err);
-        // Mesmo sem o fetch on-chain, incrementamos localmente para feedback visual imediato
+        // Fallback to local update if fetch fails
         const newLevels = { ...purchasedLevels, [id]: currentLevel + 1 };
         setPurchasedLevels(newLevels);
         if (window.game) {
