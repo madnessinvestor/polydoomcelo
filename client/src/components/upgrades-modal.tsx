@@ -76,24 +76,6 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     ]
   },
   {
-    id: "arc_defence",
-    name: "ArcDefence",
-    description: "Reduces damage taken from enemies",
-    icon: Shield,
-    tiers: [
-      { level: 1, bonus: "3", price: 10 },
-      { level: 2, bonus: "6", price: 20 },
-      { level: 3, bonus: "9", price: 40 },
-      { level: 4, bonus: "12", price: 60 },
-      { level: 5, bonus: "15", price: 80 },
-      { level: 6, bonus: "18", price: 100 },
-      { level: 7, bonus: "21", price: 120 },
-      { level: 8, bonus: "24", price: 140 },
-      { level: 9, bonus: "27", price: 160 },
-      { level: 10, bonus: "30", price: 200 },
-    ]
-  },
-  {
     id: "arc_regen",
     name: "ArcRegen",
     description: "Regenerates HP every 10 seconds",
