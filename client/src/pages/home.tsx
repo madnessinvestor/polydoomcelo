@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Loader2, ArrowUpCircle } from "lucide-react";
+import { ShieldCheck, Loader2, ArrowUpCircle, Beaker, Zap, Shield, Star } from "lucide-react";
 import { PauseModal } from "@/components/pause-modal";
 import { UpgradesModal } from "@/components/upgrades-modal";
 import { ShoppingModal } from "@/components/shopping-modal";
 import { ethers } from "ethers";
+
+const POTIONS_UI = [
+  { id: "health", key: "Q", icon: Beaker, color: "text-red-500", borderColor: "border-red-500/50" },
+  { id: "ki", key: "W", icon: Zap, color: "text-blue-500", borderColor: "border-blue-500/50" },
+  { id: "immunity", key: "E", icon: Shield, color: "text-yellow-500", borderColor: "border-yellow-500/50" },
+  { id: "score", key: "R", icon: Star, color: "text-purple-500", borderColor: "border-purple-500/50" }
+];
 
 declare global {
   interface Window {
@@ -18,6 +25,7 @@ declare global {
     openUpgradesModal?: () => void;
     showUpgradesModal?: () => void;
     openShoppingModal?: () => void;
+    playerInventory?: Record<string, number>;
   }
 }
 
@@ -27,6 +35,12 @@ export default function Home() {
   const [isPauseModalOpen, setIsPauseModalOpen] = useState(false);
   const [isUpgradesOpen, setIsUpgradesOpen] = useState(false);
   const [isShoppingOpen, setIsShoppingOpen] = useState(false);
+  const [inventory, setInventory] = useState<Record<string, number>>({
+    health: 0,
+    ki: 0,
+    immunity: 0,
+    score: 0
+  });
 
   const fetchUpgradesAndInventory = async () => {
     if (!(window as any).ethereum) return null;
@@ -76,9 +90,12 @@ export default function Home() {
           score: Number(score)
         };
         console.log("React: Initial inventory fetched:", inventoryData);
+        setInventory(inventoryData);
         localStorage.setItem('player_inventory', JSON.stringify(inventoryData));
       } catch (err) {
         console.warn("Could not fetch on-chain inventory:", err);
+        const saved = localStorage.getItem('player_inventory');
+        if (saved) setInventory(JSON.parse(saved));
       }
 
       return { upgrades: upgradesData, inventory: inventoryData };
@@ -169,7 +186,25 @@ export default function Home() {
   }, [isConnected]);
 
   return (
-    <div className="min-h-screen w-full bg-black flex items-center justify-center p-4 overflow-hidden">
+    <div className="min-h-screen w-full bg-black flex items-center justify-center p-4 overflow-hidden relative">
+      {/* Vertical Inventory Display - Left Centered */}
+      <div className="fixed left-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-4">
+        {POTIONS_UI.map((potion) => {
+          const Icon = potion.icon;
+          const count = inventory[potion.id] || 0;
+          return (
+            <div 
+              key={potion.id} 
+              className={`w-16 h-16 bg-slate-900/80 border-2 ${potion.borderColor} flex flex-col items-center justify-center relative rounded-md shadow-lg backdrop-blur-sm`}
+            >
+              <span className="absolute top-0.5 left-1 text-[10px] font-bold text-white/70">{potion.key}</span>
+              <Icon className={`${potion.color} w-8 h-8 mb-1`} />
+              <span className="absolute bottom-0.5 right-1 text-xs font-bold text-green-400">x{count}</span>
+            </div>
+          );
+        })}
+      </div>
+
       {isPauseModalOpen && (
         <PauseModal 
           onContinue={handleContinueGame} 
