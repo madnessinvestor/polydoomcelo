@@ -153,18 +153,23 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
         
         const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
         const upgradeAbi = [
-          "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
+          "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)",
+          "function defencePrices(uint256) public view returns (uint256)"
         ];
         
         const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, provider);
         
         try {
           const data = await upgradeContract.upgrades(userAddress);
+          
+          // Source of truth: upgrades(user).defence
+          const onChainDefence = Number(data.defence);
+          
           setPurchasedLevels({
             arc_hp: Number(data.hp),
             arc_ki: Number(data.ki),
             arc_damage: Number(data.damage),
-            arc_defence: Number(data.defence),
+            arc_defence: onChainDefence,
             arc_regen: Number(data.regen),
             arc_vamp: Number(data.vamp)
           });
@@ -181,6 +186,8 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
 
   const handleUpgrade = async (id: string) => {
     const currentLevel = purchasedLevels[id];
+    
+    // Bloquear botão quando defence >= 10
     if (currentLevel >= 10) return;
 
     const nextTier = UPGRADE_DATA.find(u => u.id === id)?.tiers[currentLevel];
@@ -216,11 +223,27 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
         "function upgradeDefense() public",
         "function upgradeRegen() public",
         "function upgradeVamp() public",
-        "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
+        "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)",
+        "function defencePrices(uint256) public view returns (uint256)"
       ];
       
       const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, signer);
       const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
+
+      // Verificação específica para ArcDefence
+      if (id === "arc_defence") {
+        // Garantir que apenas o próximo nível disponível possa ser comprado
+        // O contrato upgradeDefense() falha se o usuário já tiver o nível ou se o preço não for válido
+        // Verificação on-chain do preço antes de prosseguir
+        try {
+          const price = await upgradeContract.defencePrices(currentLevel);
+          if (price === 0n) {
+            throw new Error(`Nível de defesa ${currentLevel + 1} não disponível para compra (preço zero no contrato).`);
+          }
+        } catch (e: any) {
+          throw new Error("Erro de validação on-chain: " + (e.reason || e.message));
+        }
+      }
       
       const amount = ethers.parseUnits(nextTier.price.toString(), 6);
       const currentAllowance = await usdcContract.allowance(userAddress, upgradeContractAddress);
@@ -248,7 +271,6 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       console.log(`Calling ${functionName} on upgrade contract...`);
       
       // Manual gas limit for upgradeDefense to prevent estimateGas failure
-      // Ensure we use 'arc_defence' as the ID key for comparison
       const txOptions = id === "arc_defence" ? { gasLimit: 500000 } : {};
       const tx = await upgradeContract[functionName](txOptions);
       
