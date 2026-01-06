@@ -639,6 +639,14 @@ class MainScene extends Phaser.Scene {
         };
         autoConnectWallet();
 
+        // Initialize and apply upgrades before starting
+        const baseStats = this.levelStats[this.level - 1] || this.levelStats[0];
+        this.maxHealth = baseStats.hp;
+        this.health = this.maxHealth;
+        this.maxKiarc = baseStats.ki;
+        this.kiarc = 0;
+        this.applyUpgradesFromGlobal();
+
         // Force waveStartTime to current time at the very start of MainScene creation
         // Phaser's this.time.now is relative to game start, so we sync here
         this.waveStartTime = this.time.now;
@@ -3554,7 +3562,7 @@ class MainScene extends Phaser.Scene {
 
     private updateHUD() {
         if (!this.kiarcBar || !this.cameras?.main) {
-            this.maxHealth = 300;
+            return;
         }
 
         const width = this.cameras.main.width;
