@@ -953,12 +953,11 @@ class MainScene extends Phaser.Scene {
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
-        // Calculate delay to distribute total enemies over 60 seconds (60000ms)
-        // Ensure at least some reasonable delay between spawns
-        const spawnDuration = 60000; // 1 minute in ms
+        // Waves 7+ should spawn over 2 minutes (120 seconds), others 1 minute (60 seconds)
+        const spawnDuration = this.currentWave >= 7 ? 120000 : 60000;
         const calculatedDelay = Math.max(100, Math.floor(spawnDuration / this.totalEnemiesInWave));
         
-        console.log(`Wave ${this.currentWave}: Spawning ${this.totalEnemiesInWave} enemies over 60s (Delay: ${calculatedDelay}ms)`);
+        console.log(`Wave ${this.currentWave}: Spawning ${this.totalEnemiesInWave} enemies over ${spawnDuration/1000}s (Delay: ${calculatedDelay}ms)`);
 
         this.spawnEvent = this.time.addEvent({
             delay: calculatedDelay,
