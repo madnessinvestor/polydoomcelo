@@ -1015,7 +1015,7 @@ class MainScene extends Phaser.Scene {
                 const rand = Math.random();
                 let cumulative = 0;
                 for (const [typeId, chance] of Object.entries(config.enemies)) {
-                    cumulative += (cumulative as number);
+                    cumulative += (chance as number);
                     if (rand <= cumulative) {
                         selectedTypeId = typeId;
                         break;
@@ -3542,15 +3542,29 @@ class MainScene extends Phaser.Scene {
         this.isGameOver = true;
         this.isPaused = false;
         this.pauseModalOpen = false;
-        this.playerGraphics.clear();
-        this.playerAuraGraphics.clear();
-        this.player.setActive(false);
-        if (this.player.body) {
-            this.player.body.enable = false;
+        
+        // Finalize player state
+        if (this.player) {
+            this.player.setActive(false);
+            if (this.player.body) {
+                this.player.body.enable = false;
+            }
         }
         
-        // Go to death scene
-        this.scene.switch('DeathScene');
+        // Stop all timers and systems
+        this.physics.pause();
+        this.tweens.pauseAll();
+        this.sound.stopAll();
+        
+        if (this.spawnEvent) this.spawnEvent.remove();
+        if (this.waveTimerEvent) this.waveTimerEvent.remove();
+        
+        // Notify React to hide pause modal before switching scenes
+        if ((window as any).hidePauseModal) {
+            (window as any).hidePauseModal();
+        }
+        
+        // Switch to DeathScene with full stats
         this.scene.start('DeathScene', { 
             level: this.level,
             wave: this.currentWave,
