@@ -3217,9 +3217,6 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-        // Inventory HUD Update
-        this.createInventoryHUD();
-
     private createInventoryHUD() {
         if (this.inventoryHUD) {
             this.inventoryHUD.destroy();
@@ -3269,6 +3266,9 @@ class MainScene extends Phaser.Scene {
             this.inventoryHUD?.add([bg, icon]);
         });
     }
+
+    private updateHUD() {
+        if (!this.kiarcBar || !this.cameras?.main) {
             this.maxHealth = 300;
         }
 
