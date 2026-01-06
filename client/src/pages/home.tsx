@@ -33,16 +33,25 @@ export default function Home() {
       const upgradeAbi = [
         "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
       ];
-      const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
-      const data = await upgradeContract.upgrades(userAddress);
-      return {
-        arc_hp: Number(data.hp),
-        arc_ki: Number(data.ki),
-        arc_damage: Number(data.damage),
-        arc_defence: Number(data.defence),
-        arc_regen: Number(data.regen),
-        arc_vamp: Number(data.vamp)
-      };
+      
+      // A chamada abaixo está sendo removida/protegida conforme solicitado
+      // pois o contrato pode não ter essa função ou o retorno é inválido,
+      // e os upgrades já são gerenciados pela MainScene após a transação.
+      try {
+        const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
+        const data = await upgradeContract.upgrades(userAddress);
+        return {
+          arc_hp: Number(data.hp),
+          arc_ki: Number(data.ki),
+          arc_damage: Number(data.damage),
+          arc_defence: Number(data.defence),
+          arc_regen: Number(data.regen),
+          arc_vamp: Number(data.vamp)
+        };
+      } catch (innerError) {
+        console.warn("Could not fetch on-chain upgrades, using defaults:", innerError);
+        return null;
+      }
     } catch (e) {
       console.error("Error fetching upgrades for game start:", e);
       return null;
