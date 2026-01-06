@@ -73,10 +73,17 @@ export default function Home() {
         console.warn("Could not fetch on-chain upgrades:", err);
       }
 
-      // Get Inventory from local storage
-      const saved = localStorage.getItem('player_inventory');
+      // Get Inventory from local storage tied to wallet
+      const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
+      const saved = localStorage.getItem(inventoryKey);
       let inventoryData = saved ? JSON.parse(saved) : { health: 0, ki: 0, immunity: 0, score: 0 };
+      
+      if (!saved) {
+        localStorage.setItem(inventoryKey, JSON.stringify(inventoryData));
+      }
+      
       setInventory(inventoryData);
+      (window as any).walletAddress = userAddress; // Store for game scene usage
 
       return { upgrades: upgradesData, inventory: inventoryData };
     } catch (e) {

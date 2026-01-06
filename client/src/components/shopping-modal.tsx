@@ -86,10 +86,43 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     const fetchInventory = async () => {
-      // Prioritize local storage for instant feedback
-      const savedInventory = localStorage.getItem('player_inventory');
-      if (savedInventory) {
-        setInventory(JSON.parse(savedInventory));
+      if ((window as any).ethereum) {
+        try {
+          const provider = new ethers.BrowserProvider((window as any).ethereum);
+          const signer = await provider.getSigner();
+          const userAddress = await signer.getAddress();
+          
+          // Use wallet address as key for inventory
+          const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
+          const savedInventory = localStorage.getItem(inventoryKey);
+          
+          if (savedInventory) {
+            const parsed = JSON.parse(savedInventory);
+            setInventory(parsed);
+            
+            // Sync with game if running
+            if (window.game) {
+              (window.game as any).playerInventory = parsed;
+              const scene = (window.game as any).scene.getScene('MainScene');
+              if (scene) {
+                scene.events.emit('sync_inventory', parsed);
+              }
+            }
+          } else {
+            // Initialize empty inventory for new wallet
+            const initial = { health: 0, ki: 0, immunity: 0, score: 0 };
+            setInventory(initial);
+            localStorage.setItem(inventoryKey, JSON.stringify(initial));
+          }
+        } catch (error) {
+          console.error("Failed to fetch wallet for inventory:", error);
+        }
+      } else {
+        // Fallback to generic if no wallet
+        const savedInventory = localStorage.getItem('player_inventory');
+        if (savedInventory) {
+          setInventory(JSON.parse(savedInventory));
+        }
       }
     };
     
@@ -147,17 +180,20 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
       console.log("Transaction confirmed!");
       
       // Update local state for immediate feedback
+      const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
+      const currentSaved = localStorage.getItem(inventoryKey);
+      const currentInv = currentSaved ? JSON.parse(currentSaved) : inventory;
+
       const newInventory = {
-        ...inventory,
-        [potion.id]: (inventory[potion.id] || 0) + 1
+        ...currentInv,
+        [potion.id]: (currentInv[potion.id] || 0) + 1
       };
       
       setInventory(newInventory);
-      localStorage.setItem('player_inventory', JSON.stringify(newInventory));
+      localStorage.setItem(inventoryKey, JSON.stringify(newInventory));
       
       if (window.game) {
         (window.game as any).playerInventory = newInventory;
-        // Trigger sync event if game is running a scene that listens
         const scene = (window.game as any).scene.getScene('MainScene');
         if (scene) {
           scene.events.emit('sync_inventory', newInventory);

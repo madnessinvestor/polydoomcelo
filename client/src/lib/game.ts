@@ -209,7 +209,14 @@ class MainScene extends Phaser.Scene {
 
         if (used) {
             this.playerInventory[type]--;
-            localStorage.setItem('player_inventory', JSON.stringify(this.playerInventory));
+            
+            // Persist to wallet-specific local storage
+            const walletAddress = (window as any).walletAddress;
+            const inventoryKey = walletAddress 
+                ? `player_inventory_${walletAddress.toLowerCase()}` 
+                : 'player_inventory';
+            
+            localStorage.setItem(inventoryKey, JSON.stringify(this.playerInventory));
             (this.game as any).playerInventory = this.playerInventory;
             this.updateInventoryHUD();
             this.updateHUD();
