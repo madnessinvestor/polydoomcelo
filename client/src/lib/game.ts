@@ -227,12 +227,37 @@ class MainScene extends Phaser.Scene {
         }
     }
 
+    create() {
+        // ... existing code ...
+        
+        // Listen for inventory sync
+        this.events.on('sync_inventory', (newInventory: Record<string, number>) => {
+            console.log("Game: Received sync_inventory event", newInventory);
+            this.playerInventory = newInventory;
+            this.updateInventoryHUD();
+        });
+
+        // Initial HUD update
+        this.updateInventoryHUD();
+    }
+
     private updateInventoryHUD() {
         if (!this.inventoryHUD) return;
         
         // Ensure we have the latest inventory from window/global
         if ((this.game as any).playerInventory) {
             this.playerInventory = (this.game as any).playerInventory;
+        } else {
+            // Fallback to local storage if global isn't set yet
+            const walletAddress = (window as any).walletAddress;
+            const inventoryKey = walletAddress 
+                ? `player_inventory_${walletAddress.toLowerCase()}` 
+                : 'player_inventory';
+            const saved = localStorage.getItem(inventoryKey);
+            if (saved) {
+                this.playerInventory = JSON.parse(saved);
+                (this.game as any).playerInventory = this.playerInventory;
+            }
         }
 
         const items = [

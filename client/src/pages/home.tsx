@@ -118,20 +118,22 @@ export default function Home() {
         const upgrades = data?.upgrades;
         const inventory = data?.inventory;
         
+        // Ensure data is available before game initialization
+        if (upgrades) (window as any).playerUpgrades = upgrades;
+        if (inventory) (window as any).playerInventory = inventory;
+
         import("@/lib/game").then((mod) => {
           mod.initGame(upgrades || undefined);
           
-          // Ensure data is available to game immediately
-          if (window.game) {
-            if (upgrades) (window.game as any).playerUpgrades = upgrades;
-            if (inventory) (window.game as any).playerInventory = inventory;
-            
-            // Trigger an initial HUD update if the scene is already ready
-            const scene = (window.game as any).scene.getScene('MainScene') as any;
-            if (scene && scene.updateInventoryHUD) {
-              scene.updateInventoryHUD();
+          // Trigger a delayed HUD update to ensure the scene is ready
+          setTimeout(() => {
+            if (window.game) {
+              const scene = (window.game as any).scene.getScene('MainScene') as any;
+              if (scene && scene.updateInventoryHUD) {
+                scene.updateInventoryHUD();
+              }
             }
-          }
+          }, 500);
         });
       });
     }
