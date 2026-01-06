@@ -40,6 +40,7 @@ class MainScene extends Phaser.Scene {
     private maxSimultaneousEnemies: number = 200;
     private waveStartTime: number = 0;
     private bossSpawned: boolean = false;
+    private intervalTimerEvent: Phaser.Time.TimerEvent | null = null;
 
     // Enemy Type Definitions
     private enemyTypes = [
@@ -110,7 +111,7 @@ class MainScene extends Phaser.Scene {
     public applyUpgradesFromGlobal() {
         if ((this.game as any).playerUpgrades) {
             this.playerUpgrades = (this.game as any).playerUpgrades;
-            this.applyUpgrades();
+            this.applyUpgrade();
             this.updateHUD();
         }
     }
@@ -328,7 +329,7 @@ class MainScene extends Phaser.Scene {
         this.levelTitle = this.levelTitles[this.level - 1] || 'Arc Divine';
 
         // CRITICAL: Re-apply on-chain upgrade bonuses to the current level's base stats
-        this.applyUpgrades();
+        this.applyUpgrade();
 
         // Doom Mode specific adjustments
         if (data?.doomMode) {
@@ -1203,6 +1204,9 @@ class MainScene extends Phaser.Scene {
             onComplete: () => flash.destroy()
         });
     }
+
+    update(time: number, delta: number) {
+        if (this.isGameOver) return;
 
         if (this.isInvincible) {
             this.invincibilityTimer -= delta;
@@ -2609,7 +2613,7 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    public applyUpgrade(id: string, level: number) {
+    public saveUpgrade(id: string, level: number) {
         this.purchasedUpgrades[id] = level;
         localStorage.setItem('purchasedUpgrades', JSON.stringify(this.purchasedUpgrades));
         this.updateUpgradeIcons();
@@ -2907,7 +2911,7 @@ class MainScene extends Phaser.Scene {
             this.maxKiarc = stats.ki;
             
             // CRITICAL: Re-apply upgrades to new level base stats
-            this.applyUpgrades();
+            this.applyUpgrade();
             
             // Visual feedback
             this.cameras.main.flash(500, 255, 255, 0);
@@ -3250,8 +3254,20 @@ class MainScene extends Phaser.Scene {
         });
     }
 
-    public applyUpgrade(id: string, level: number) {
-        const category = id.split('_')[1]; // e.g., "hp", "ki", "damage", etc.
+    public applyUpgrade(id?: string, level?: number) {
+        // If no arguments, apply all upgrades from playerUpgrades
+        if (id === undefined || level === undefined) {
+            Object.entries(this.playerUpgrades).forEach(([upgradeId, upgradeLevel]) => {
+                if (upgradeLevel > 0) {
+                    this.applySingleUpgrade(upgradeId, upgradeLevel);
+                }
+            });
+            return;
+        }
+        this.applySingleUpgrade(id, level);
+    }
+
+    private applySingleUpgrade(id: string, level: number) {
         const bonusValues = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.55, 0.7, 0.85, 1.0, 2.0]; // Match UPGRADE_DATA
         const bonus = bonusValues[level] || 0;
 
@@ -3431,6 +3447,14 @@ class StartScene extends Phaser.Scene {
     private startText: Phaser.GameObjects.Text | null = null;
     private upgradesBtn: Phaser.GameObjects.Rectangle | null = null;
     private upgradesText: Phaser.GameObjects.Text | null = null;
+    private masterVolume: number = 1.0;
+    private musicVolume: number = 1.0;
+    private sfxVolume: number = 1.0;
+    private currentMusic: Phaser.Sound.BaseSound | null = null;
+    private maxHealth: number = 300;
+    private health: number = 300;
+    private maxKiarc: number = 100;
+    private intervalTimerEvent: Phaser.Time.TimerEvent | null = null;
 
     constructor() {
         super('StartScene');
