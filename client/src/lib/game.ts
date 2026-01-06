@@ -3002,11 +3002,16 @@ class MainScene extends Phaser.Scene {
         
         // Health Fill
         const healthRatio = Math.max(0, this.health / this.maxHealth);
-        this.kiarcBar.fillStyle(0xff4444, 1);
+        const isLowHealth = healthRatio < 0.1;
+        const hpAlpha = isLowHealth ? (0.6 + Math.sin(this.time.now / 150) * 0.4) : 1;
+        
+        this.kiarcBar.fillStyle(0xff4444, hpAlpha);
         this.kiarcBar.fillRect(hbX, hbY, hbWidth * healthRatio, hbHeight);
         
         // Border
-        this.kiarcBar.lineStyle(2, 0xffffff, 1);
+        const borderColor = isLowHealth ? 0xff0000 : 0xffffff;
+        const borderAlpha = isLowHealth ? (0.5 + Math.sin(this.time.now / 150) * 0.5) : 1;
+        this.kiarcBar.lineStyle(2, borderColor, borderAlpha);
         this.kiarcBar.strokeRect(hbX, hbY, hbWidth, hbHeight);
 
         // HP Text
