@@ -3579,7 +3579,7 @@ class MainScene extends Phaser.Scene {
         this.kiarcBar.fillRect(hbX, hbY, hbWidth, hbHeight);
         
         // Health Fill
-        const healthRatio = Math.max(0, this.health / this.maxHealth);
+        const healthRatio = Math.min(1, Math.max(0, this.health / this.maxHealth));
         const isLowHealth = healthRatio < 0.1;
         const hpAlpha = isLowHealth ? (0.6 + Math.sin(this.time.now / 150) * 0.4) : 1;
         
@@ -3621,7 +3621,7 @@ class MainScene extends Phaser.Scene {
         this.kiarcBar.fillRect(kiX, kiY, kiWidth, kiHeight);
         
         // Ki Fill
-        const kiRatio = Math.max(0, this.kiarc / this.maxKiarc);
+        const kiRatio = Math.min(1, Math.max(0, this.kiarc / this.maxKiarc));
         this.kiarcBar.fillStyle(0xffd700, 1);
         this.kiarcBar.fillRect(kiX, kiY, kiWidth * kiRatio, kiHeight);
         
