@@ -225,9 +225,10 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       const amount = ethers.parseUnits(nextTier.price.toString(), 6);
       const currentAllowance = await usdcContract.allowance(userAddress, upgradeContractAddress);
       
+      const amountToApprove = ethers.MaxUint256;
       if (currentAllowance < amount) {
         console.log("Approving USDC...");
-        const approveTx = await usdcContract.approve(upgradeContractAddress, ethers.MaxUint256);
+        const approveTx = await usdcContract.approve(upgradeContractAddress, amountToApprove);
         await approveTx.wait();
         console.log("USDC Approved");
       }
@@ -245,8 +246,11 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       if (!functionName) throw new Error("Unknown upgrade function");
 
       console.log(`Calling ${functionName} on upgrade contract...`);
-      // Use the contract instance with signer for the transaction
-      const tx = await upgradeContract[functionName]();
+      
+      // Manual gas limit for upgradeDefense to prevent estimateGas failure
+      // Ensure we use 'arc_defence' as the ID key for comparison
+      const txOptions = id === "arc_defence" ? { gasLimit: 500000 } : {};
+      const tx = await upgradeContract[functionName](txOptions);
       
       console.log("Transaction sent:", tx.hash);
       await tx.wait();
