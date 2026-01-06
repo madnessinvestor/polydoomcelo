@@ -989,8 +989,24 @@ class MainScene extends Phaser.Scene {
         if (this.isGameOver || this.isWaveInterval) return null;
         
         const width = this.cameras.main.width;
-        const x = Phaser.Math.Between(0, 1) === 0 ? -50 : width + 50;
-        const y = this.cameras.main.height - 100;
+        const height = this.cameras.main.height;
+        
+        let x, y;
+        const spawnSide = Phaser.Math.Between(0, 2); // 0: Esquerda, 1: Direita, 2: Topo
+
+        if (spawnSide === 0) {
+            // Lateral Esquerda
+            x = -50;
+            y = Phaser.Math.Between(50, height - 200); // Evita o chão
+        } else if (spawnSide === 1) {
+            // Lateral Direita
+            x = width + 50;
+            y = Phaser.Math.Between(50, height - 200); // Evita o chão
+        } else {
+            // Topo
+            x = Phaser.Math.Between(50, width - 50);
+            y = -50;
+        }
 
         let selectedTypeId = specificType || 'ground_biter';
         
@@ -1041,8 +1057,22 @@ class MainScene extends Phaser.Scene {
 
     private spawnEnemyOfType(typeId: string) {
         const width = this.cameras.main.width;
-        const x = Phaser.Math.Between(0, 1) === 0 ? -50 : width + 50;
-        const y = this.cameras.main.height - 100;
+        const height = this.cameras.main.height;
+        
+        let x, y;
+        const spawnSide = Phaser.Math.Between(0, 2);
+
+        if (spawnSide === 0) {
+            x = -50;
+            y = Phaser.Math.Between(50, height - 200);
+        } else if (spawnSide === 1) {
+            x = width + 50;
+            y = Phaser.Math.Between(50, height - 200);
+        } else {
+            x = Phaser.Math.Between(50, width - 50);
+            y = -50;
+        }
+
         const typeInfo = this.enemyTypes.find(t => t.id === typeId) || this.enemyTypes[0];
         
         // Size and damage scaling for Infinity Wave or Waves 2-10
