@@ -2107,11 +2107,23 @@ class MainScene extends Phaser.Scene {
             if (enemy.getData('isDefeated')) return;
             enemy.setData('isDefeated', true);
 
-            // 8. Split Core - Divide em 2 menores
-            if (typeId === 'split_core') {
-                for (let i = 0; i < 2; i++) {
-                    const smallType = { ...this.enemyTypes.find(t => t.id === 'split_core'), scale: 0.6, behavior: 'melee' };
-                    this.createEnemyObject(enemy.x + Phaser.Math.Between(-20, 20), enemy.y, smallType);
+            // 8. Split Core - Divide em 10 menores
+            if (typeId === 'split_core' && enemy.getData('canSplit') !== false) {
+                for (let i = 0; i < 10; i++) {
+                    const smallType = { 
+                        ...this.enemyTypes.find(t => t.id === 'split_core'), 
+                        scale: 0.5, 
+                        behavior: 'melee' 
+                    };
+                    const fragment = this.createEnemyObject(
+                        enemy.x + Phaser.Math.Between(-40, 40), 
+                        enemy.y + Phaser.Math.Between(-40, 40), 
+                        smallType
+                    );
+                    if (fragment) {
+                        fragment.setData('canSplit', false);
+                        fragment.setData('health', 5); // Fragmentos mais frágeis
+                    }
                 }
             }
 
