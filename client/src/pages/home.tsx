@@ -125,15 +125,21 @@ export default function Home() {
         import("@/lib/game").then((mod) => {
           mod.initGame(upgrades || undefined);
           
-          // Trigger a delayed HUD update to ensure the scene is ready
-          setTimeout(() => {
+          // Trigger HUD updates more aggressively
+          const updateHUD = () => {
             if (window.game) {
               const scene = (window.game as any).scene.getScene('MainScene') as any;
               if (scene && scene.updateInventoryHUD) {
                 scene.updateInventoryHUD();
               }
             }
-          }, 500);
+          };
+
+          // Update at multiple intervals to ensure it catches the scene ready state
+          setTimeout(updateHUD, 100);
+          setTimeout(updateHUD, 500);
+          setTimeout(updateHUD, 1000);
+          setTimeout(updateHUD, 2000);
         });
       });
     }

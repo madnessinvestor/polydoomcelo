@@ -228,9 +228,34 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
-        // ... existing code ...
-        
-        // Listen for inventory sync
+        // Handle wallet auto-connect if already connected in browser
+        const autoConnectWallet = async () => {
+            if ((window as any).ethereum) {
+                try {
+                    const provider = new ethers.BrowserProvider((window as any).ethereum);
+                    const accounts = await provider.listAccounts();
+                    if (accounts.length > 0) {
+                        const address = accounts[0].address;
+                        (window as any).walletAddress = address;
+                        console.log("Wallet auto-connected:", address);
+                        
+                        // Load inventory immediately
+                        const inventoryKey = `player_inventory_${address.toLowerCase()}`;
+                        const saved = localStorage.getItem(inventoryKey);
+                        if (saved) {
+                            this.playerInventory = JSON.parse(saved);
+                            (this.game as any).playerInventory = this.playerInventory;
+                            this.updateInventoryHUD();
+                        }
+                    }
+                } catch (err) {
+                    console.error("Auto-connect failed:", err);
+                }
+            }
+        };
+        autoConnectWallet();
+
+        // Listen for inventory sync from React
         this.events.on('sync_inventory', (newInventory: Record<string, number>) => {
             console.log("Game: Received sync_inventory event", newInventory);
             this.playerInventory = newInventory;
