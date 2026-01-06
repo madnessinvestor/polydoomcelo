@@ -310,21 +310,15 @@ class MainScene extends Phaser.Scene {
         
         // Match Upgrade HUD pattern: Left side, vertical
         const START_X = 20;
-        // Position below upgrades (which usually start around y=100-150 and go down)
-        // We'll calculate the bottom of the upgrade icons
-        let startY = 150; 
-        if (this.upgradeIconsContainer) {
-            // Find the lowest point of upgrades
-            startY = 350; // Approximate offset to be below upgrades with ~5 spaces
-        }
+        // Position fixed at y=450 to avoid moving when upgrades change
+        const fixedStartY = 450;
         
         const SPACING = 60;
         const SQUARE_SIZE = 50;
-        const BOTTOM_MARGIN = 100;
 
         items.forEach((item, index) => {
             const x = START_X;
-            const y = startY + (index * SPACING) + BOTTOM_MARGIN;
+            const y = fixedStartY + (index * SPACING);
             const count = this.playerInventory[item.id] || 0;
             
             let graphics = this.inventoryIcons.get(item.id);
