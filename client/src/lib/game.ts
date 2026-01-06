@@ -273,20 +273,24 @@ class MainScene extends Phaser.Scene {
     private updateInventoryHUD() {
         if (!this.inventoryHUD) return;
         
-        // Ensure we have the latest inventory from window/global
-        if ((this.game as any).playerInventory) {
-            this.playerInventory = (this.game as any).playerInventory;
-        } else {
-            // Fallback to local storage if global isn't set yet
-            const walletAddress = (window as any).walletAddress;
-            const inventoryKey = walletAddress 
-                ? `player_inventory_${walletAddress.toLowerCase()}` 
-                : 'player_inventory';
-            const saved = localStorage.getItem(inventoryKey);
-            if (saved) {
+        // Load inventory directly from localStorage using the connected wallet address
+        const walletAddress = (window as any).walletAddress;
+        const inventoryKey = walletAddress 
+            ? `player_inventory_${walletAddress.toLowerCase()}` 
+            : 'player_inventory';
+        
+        const saved = localStorage.getItem(inventoryKey);
+        if (saved) {
+            try {
                 this.playerInventory = JSON.parse(saved);
+                // Also update the global game object for consistency
                 (this.game as any).playerInventory = this.playerInventory;
+            } catch (e) {
+                console.error("Error parsing inventory from localStorage:", e);
             }
+        } else if ((this.game as any).playerInventory) {
+            // Fallback to global if localStorage is empty but global has data
+            this.playerInventory = (this.game as any).playerInventory;
         }
 
         const items = [
