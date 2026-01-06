@@ -5439,15 +5439,27 @@ class DeathScene extends Phaser.Scene {
             console.log('  - Score Final:', this.finalScore);
             console.log('  - Score válido?', this.finalScore > 0);
             
-            if (!this.finalScore || this.finalScore <= 0) {
+            if (this.finalScore === undefined || this.finalScore === null || isNaN(this.finalScore) || this.finalScore <= 0) {
                 console.error('🚫 ERRO: Score inválido antes de submeter!', this.finalScore);
-                alert('❌ Erro crítico: Score inválido. Operação cancelada.');
+                alert('❌ Erro crítico: Score inválido (0 ou NaN). Jogue novamente para pontuar!');
                 closeModal();
                 return;
             }
             
-            closeModal();
-            await this.submitScore(playerName);
+            // Desabilitar botões para evitar cliques duplos
+            confirmBtn.disabled = true;
+            cancelBtn.disabled = true;
+            confirmBtn.innerText = 'SENDING...';
+            
+            try {
+                await this.submitScore(playerName);
+                closeModal();
+            } catch (err) {
+                console.error('Erro no submit:', err);
+                confirmBtn.disabled = false;
+                cancelBtn.disabled = false;
+                confirmBtn.innerText = 'CONFIRM';
+            }
         };
 
         confirmBtn.addEventListener('click', submitWithName);
@@ -5501,7 +5513,7 @@ class DeathScene extends Phaser.Scene {
                     const provider = new ethers.BrowserProvider((window as any).ethereum);
                     const signer = await provider.getSigner();
                     
-                    // ABI simplificado - apenas addScore
+                    // ABI simplificado - apenas submitScore
                     const abi = [
                         {
                             "type": "function",
@@ -5526,7 +5538,6 @@ class DeathScene extends Phaser.Scene {
                     
                     // Enviar transação com gas estimado
                     console.log('📤 Preparando transação...');
-                    let tx;
                     
                     // DEBUG: Verificar se a função existe no contrato
                     console.log('🔍 Verificando contrato...');
@@ -5534,94 +5545,70 @@ class DeathScene extends Phaser.Scene {
                     console.log('  - Função: submitScore');
                     console.log('  - Parâmetros: name=' + playerName + ', score=' + this.finalScore);
                     
-                    try {
-                        // DEBUG: Tentar gerar calldata para ver o que está acontecendo
-                        console.log('🔧 Gerando calldata...');
-                        const populatedTx = await contract.submitScore.populateTransaction(playerName, BigInt(this.finalScore));
-                        console.log('📊 Transação populada:');
-                        console.log('  - To:', populatedTx.to);
-                        console.log('  - Data:', populatedTx.data);
-                        console.log('  - Value:', populatedTx.value);
-                        
-                        if (!populatedTx.data || populatedTx.data === '0x') {
-                            throw new Error('❌ ERRO CRÍTICO: Calldata vazio! A função não está sendo codificada.');
-                        }
-                        
-                        console.log('✅ Calldata gerado com sucesso');
-                        
-                        // Enviar transação diretamente (Write/sendTransaction)
-                        console.log('📤 Enviando transação ao contrato (submitScore)...');
-                        tx = await contract.submitScore(playerName, BigInt(this.finalScore));
-                        console.log('✓ Transação enviada com hash:', tx.hash);
-                    } catch (submitError: any) {
-                        console.error('❌ ERRO AO ENVIAR TRANSAÇÃO:', submitError.message);
-                        throw submitError;
-                    }
+                    // Gerar calldata e enviar de forma mais robusta
+                    console.log('🔧 Enviando transação ao contrato (submitScore)...');
+                    const tx = await contract.submitScore(playerName, BigInt(Math.floor(this.finalScore)));
+                    console.log('✓ Transação enviada com hash:', tx.hash);
                     
                     // Armazenar para histórico
                     (window as any).lastScoreTxHash = tx.hash;
                     (window as any).lastScoreName = playerName;
                     (window as any).lastScoreValue = this.finalScore;
                     
-                    // Aguardar confirmação
+                    // Aguardar confirmação (máximo 60s)
                     console.log('⏳ Aguardando confirmação da transação...');
-                    const receipt = await tx.wait();
+                    const receipt = await tx.wait(1); 
                     
                     console.log('📋 Detalhes do Receipt:');
                     console.log('  - Status:', receipt?.status);
                     console.log('  - Hash:', receipt?.hash);
-                    console.log('  - Block:', receipt?.blockNumber);
-                    console.log('  - Gas utilizado:', receipt?.gasUsed?.toString());
-                    console.log('  - Logs:', receipt?.logs?.length || 0);
                     
                     if (receipt && receipt.status === 1) {
-                        console.log('✓ Transação confirmada!', receipt.transactionHash);
+                        console.log('✓ Transação confirmada!', receipt.hash);
                         console.log('✓ Score registrado com sucesso on-chain!');
                         onChainRegistrationSuccess = true;
                     } else {
                         console.error('❌ Transação REVERTIDA pelo contrato');
-                        console.error('📊 Detalhes da falha:');
-                        console.error('  - Status:', receipt?.status, '(0 = falha)');
-                        console.error('  - Hash:', receipt?.hash);
-                        console.error('  - Possível causa: Validação do contrato ou estado inválido');
                         throw new Error(`Transaction reverted: ${receipt?.hash}`);
                     }
                 } catch (contractError: any) {
-                    console.error('❌ ERRO ao registrar no contrato:', {
-                        message: contractError.message,
-                        code: contractError.code,
-                        details: contractError.reason || contractError.data || 'Sem detalhes'
-                    });
-                    
-                    // Não parar aqui - continuar para registro local
-                    console.log('⚠️ Score não será registrado on-chain, tentando apenas localmente...');
-                    // Não mostramos alerta para não bloquear o fluxo
+                    console.error('❌ ERRO no processo on-chain:', contractError);
+                    // Se o usuário rejeitou, avisamos
+                    if (contractError.code === 'ACTION_REJECTED' || contractError.code === 4001) {
+                        console.log('⚠️ Usuário rejeitou a transação na carteira.');
+                    }
+                    // Não dar throw aqui para permitir o registro local como backup
                 }
             } else {
-                console.warn('⚠️ Wallet não conectada. Score será registrado apenas localmente.');
+                console.warn('⚠️ Wallet não conectada ou provider ausente. Score será registrado apenas localmente.');
             }
 
-            // Registrar na API local como backup
+            // Registrar na API local SEMPRE (como backup ou registro principal)
             console.log('📤 Registrando score na API local...');
-            const response = await fetch('/api/scores', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    playerName: playerName,
-                    score: this.finalScore,
-                    wave: this.finalWave,
-                    enemiesDefeated: 0
-                })
-            });
+            try {
+                const response = await fetch('/api/scores', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        playerName: playerName,
+                        score: Math.floor(this.finalScore),
+                        wave: this.finalWave,
+                        enemiesDefeated: 0
+                    })
+                });
 
-            if (response.ok) {
-                console.log('✓ Score registrado na API local com sucesso!');
-                this.sound.stopAll();
-                // Force full reload of the page to reset everything
-                window.location.reload();
-            } else {
-                console.error('Erro ao registrar na API local');
+                if (response.ok) {
+                    console.log('✓ Score registrado na API local com sucesso!');
+                } else {
+                    console.error('Erro ao registrar na API local:', await response.text());
+                }
+            } catch (apiErr) {
+                console.error('Falha na requisição local:', apiErr);
             }
+
+            // Independentemente de on-chain ou local, resetar o jogo após sucesso local
+            this.sound.stopAll();
+            window.location.reload();
         } catch (error) {
             console.error('❌ ERRO CRÍTICO ao submeter score:', error);
             alert('Erro ao submeter score: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
