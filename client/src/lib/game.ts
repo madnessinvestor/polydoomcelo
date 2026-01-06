@@ -3001,6 +3001,20 @@ class MainScene extends Phaser.Scene {
         this.kiarcBar.lineStyle(2, 0xffffff, 1);
         this.kiarcBar.strokeRect(kiX, kiY, kiWidth, kiHeight);
 
+        // Tooltip container
+        if (!this.tooltipContainer) {
+            this.tooltipContainer = this.add.container(0, 0).setScrollFactor(0).setDepth(2000).setVisible(false);
+            const bg = this.add.graphics();
+            const text = this.add.text(0, 0, '', {
+                fontSize: '12px',
+                color: '#ffffff',
+                backgroundColor: '#000000cc',
+                padding: { x: 8, y: 4 },
+                wordWrap: { width: 200 }
+            });
+            this.tooltipContainer.add([bg, text]);
+        }
+
         // KI Text
         if (!this.kiLabel) {
             this.kiLabel = this.add.text(kiX + 10, kiY + 0, '', { 
@@ -3105,6 +3119,27 @@ class MainScene extends Phaser.Scene {
                 }).setOrigin(0.5);
 
                 container.add([bg, nameText, levelText]);
+                
+                // Add interactive events for tooltip
+                const hitArea = new Phaser.Geom.Rectangle(-15, -15, 30, 30);
+                container.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+                
+                const descriptions: Record<string, string> = {
+                    arc_hp: 'Aumenta sua vida máxima permanentemente.',
+                    arc_ki: 'Aumenta sua reserva de KI permanentemente.',
+                    arc_damage: 'Aumenta o dano de seus ataques.',
+                    arc_defence: 'Reduz o dano recebido de inimigos.',
+                    arc_regen: 'Aumenta a regeneração passiva de vida.',
+                    arc_vamp: 'Cura uma porção do dano causado.'
+                };
+
+                container.on('pointerover', () => {
+                    this.showTooltip(upgradeNames[id], descriptions[id], container.x + this.upgradeIconsContainer!.x, container.y + this.upgradeIconsContainer!.y - 40);
+                });
+                container.on('pointerout', () => {
+                    this.hideTooltip();
+                });
+
                 this.upgradeIconsContainer.add(container);
                 index++;
             }
@@ -3227,6 +3262,30 @@ class MainScene extends Phaser.Scene {
     }
 
     private showTooltip(x: number, y: number, title: string, text: string, duration?: string) {
+        if (!this.tooltipContainer) return;
+        
+        if (this.tooltipHideTimer) {
+            this.tooltipHideTimer.remove();
+            this.tooltipHideTimer = null;
+        }
+
+        const textObj = this.tooltipContainer.list[1] as Phaser.GameObjects.Text;
+        textObj.setText(`${title}\n${text}${duration ? `\nDuração: ${duration}` : ''}`);
+        
+        this.tooltipContainer.setPosition(x, y);
+        this.tooltipContainer.setVisible(true);
+    }
+
+    private hideTooltip() {
+        if (this.tooltipHideTimer) return;
+
+        this.tooltipHideTimer = this.time.delayedCall(5000, () => {
+            if (this.tooltipContainer) {
+                this.tooltipContainer.setVisible(false);
+            }
+            this.tooltipHideTimer = null;
+        });
+    }
         this.tooltipTitle.setText(title);
         const fullText = duration ? `${text}\nDuração: ${duration}` : text;
         this.tooltipText.setText(fullText);
