@@ -6,6 +6,21 @@ import { Badge } from "@/components/ui/badge";
 import { Beaker, Zap, Shield, Star, Loader2 } from "lucide-react";
 import { ethers } from "ethers";
 
+const SHOP_CONTRACT_ADDRESS = "0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a";
+const USDC_ADDRESS = "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"; // Default USDC address for testing, but typically should be configured
+
+const SHOP_ABI = [
+  "function buyHealthPotion() external",
+  "function buyKiPotion() external",
+  "function buyImmunityPotion() external",
+  "function buyScorePotion() external"
+];
+
+const ERC20_ABI = [
+  "function approve(address spender, uint256 amount) external returns (bool)",
+  "function allowance(address owner, address spender) external view returns (uint256)"
+];
+
 interface Potion {
   id: string;
   name: string;
@@ -78,9 +93,55 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
 
   const handleBuy = async (potion: Potion) => {
     try {
+      if (!(window as any).ethereum) {
+        alert("Please connect your wallet!");
+        return;
+      }
+
       setIsBuying(potion.id);
       
-      // Simulating a purchase logic (local for now as no contract was provided for potions)
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+      
+      const shopContract = new ethers.Contract(SHOP_CONTRACT_ADDRESS, SHOP_ABI, signer);
+      const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
+
+      const priceInWei = ethers.parseUnits(potion.price.toString(), 6); // USDC typically has 6 decimals
+      
+      // 1. Check Allowance
+      const allowance = await usdcContract.allowance(userAddress, SHOP_CONTRACT_ADDRESS);
+      if (allowance < priceInWei) {
+        console.log("Approving USDC...");
+        const approveTx = await usdcContract.approve(SHOP_CONTRACT_ADDRESS, ethers.MaxUint256);
+        await approveTx.wait();
+        console.log("USDC Approved!");
+      }
+
+      // 2. Call Contract Function
+      let tx;
+      switch (potion.id) {
+        case "health":
+          tx = await shopContract.buyHealthPotion();
+          break;
+        case "ki":
+          tx = await shopContract.buyKiPotion();
+          break;
+        case "immunity":
+          tx = await shopContract.buyImmunityPotion();
+          break;
+        case "score":
+          tx = await shopContract.buyScorePotion();
+          break;
+        default:
+          throw new Error("Invalid potion type");
+      }
+
+      console.log("Transaction sent:", tx.hash);
+      await tx.wait();
+      console.log("Transaction confirmed!");
+      
+      // Update local state for immediate feedback
       const newInventory = {
         ...inventory,
         [potion.id]: (inventory[potion.id] || 0) + 1
@@ -89,14 +150,14 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
       setInventory(newInventory);
       localStorage.setItem('player_inventory', JSON.stringify(newInventory));
       
-      // Sync with game if running
       if (window.game) {
         (window.game as any).playerInventory = newInventory;
       }
 
-      alert(`${potion.name} purchased!`);
-    } catch (error) {
+      alert(`${potion.name} purchased successfully on-chain!`);
+    } catch (error: any) {
       console.error("Purchase failed:", error);
+      alert(`Transaction failed: ${error.reason || error.message || "Unknown error"}`);
     } finally {
       setIsBuying(null);
     }
