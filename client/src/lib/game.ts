@@ -83,6 +83,9 @@ class MainScene extends Phaser.Scene {
     private enemiesDefeated: number = 0;
     private isSubmittingScore: boolean = false;
 
+    private isDefending: boolean = false;
+    private shieldGraphics: Phaser.GameObjects.Graphics | null = null;
+    
     private async submitScoreOnChain() {
         if (this.isSubmittingScore || this.score <= 0) return;
         
@@ -820,7 +823,7 @@ class MainScene extends Phaser.Scene {
             this.playNextMusic();
         }
 
-        this.keys = this.input.keyboard?.addKeys('Z,X,C,V,B,F,ONE,TWO,THREE,FOUR');
+        this.keys = this.input.keyboard?.addKeys('Z,X,C,V,B,F,D,ONE,TWO,THREE,FOUR');
         this.cursors = this.input.keyboard!.createCursorKeys();
 
         // ESC key for pause
@@ -1625,6 +1628,26 @@ class MainScene extends Phaser.Scene {
 
     update(time: number, delta: number) {
         if (this.isGameOver || this.isPaused) return;
+
+        // Defense mechanism (Key D)
+        if (this.keys.D.isDown) {
+            this.isDefending = true;
+            if (!this.shieldGraphics) {
+                this.shieldGraphics = this.add.graphics().setDepth(this.player.depth + 1);
+            }
+            this.shieldGraphics.clear();
+            this.shieldGraphics.lineStyle(4, 0x4ade80, 0.5);
+            this.shieldGraphics.fillStyle(0x4ade80, 0.2);
+            const shieldRadius = 40;
+            this.shieldGraphics.fillCircle(this.player.x, this.player.y, shieldRadius);
+            this.shieldGraphics.strokeCircle(this.player.x, this.player.y, shieldRadius);
+        } else {
+            this.isDefending = false;
+            if (this.shieldGraphics) {
+                this.shieldGraphics.destroy();
+                this.shieldGraphics = null;
+            }
+        }
 
         if (this.isInvincible) {
             this.invincibilityTimer -= delta;
@@ -3397,7 +3420,7 @@ class MainScene extends Phaser.Scene {
     }
 
     private takeDamage(damage: number) {
-        if (this.isInvincible || this.isGameOver) return;
+        if (this.isInvincible || this.isGameOver || this.isDefending) return;
         
         const finalDamage = damage;
         this.health -= finalDamage;
@@ -3471,7 +3494,7 @@ class MainScene extends Phaser.Scene {
         const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
         body.setVelocity(Math.cos(angle) * 200, Math.sin(angle) * 200);
         this.physics.add.overlap(this.player, projectile, () => {
-            if (!this.isInvincible) {
+            if (!this.isInvincible && !this.isDefending) {
                 const damage = enemy.getData('damage');
                 if (!isNaN(damage)) {
                     this.health = Math.max(0, this.health - damage);
