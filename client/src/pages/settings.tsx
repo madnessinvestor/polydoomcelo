@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft } from "lucide-react";
+import { Settings as SettingsIcon } from "lucide-react";
 import { useUI } from "@/hooks/use-ui";
 
 export default function Settings() {
@@ -60,9 +60,12 @@ export default function Settings() {
   return (
     <div className="fixed inset-0 w-full h-full bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[160] pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
       <Card className="w-full max-w-md bg-slate-900 border-violet-500 pointer-events-auto rounded-none">
-        <CardHeader className="border-b border-violet-500">
+        <CardHeader className="border-b border-violet-500/30 bg-violet-950/20">
           <div className="flex items-center gap-3">
-            <CardTitle className="text-violet-500 text-2xl uppercase font-bold tracking-tighter">Settings</CardTitle>
+            <CardTitle className="text-violet-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
+              <SettingsIcon className="w-8 h-8" />
+              Settings
+            </CardTitle>
           </div>
         </CardHeader>
         <CardContent className="pt-8 space-y-8">
