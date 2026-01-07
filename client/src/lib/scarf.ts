@@ -1,36 +1,40 @@
 import Phaser from 'phaser';
 
+export interface ScarfSegment {
+    x: number;
+    y: number;
+    oldX: number;
+    oldY: number;
+}
+
 export class ScarfComponent {
     private scene: Phaser.Scene;
+    private segments: ScarfSegment[] = [];
+    private numSegments: number = 4;
+    private segmentLength: number = 8;
+    private gravity: number = 0.15;
+    private friction: number = 0.9;
     private graphics: Phaser.GameObjects.Graphics;
     private target: Phaser.Physics.Arcade.Sprite;
     private color: number = 0xffdd00; // Amarelo do player
     private anchorOffsetY: number = -8; // Posição do pescoço
-    
-    // Pontos de controle para a curva de Bezier
-    private tipX: number = 0;
-    private tipY: number = 0;
-    private midX: number = 0;
-    private midY: number = 0;
-    
-    // Velocidade suavizada da ponta
-    private tipVelocityX: number = 0;
-    private tipVelocityY: number = 0;
-    
-    private readonly length: number = 22;
-    private readonly thickness: number = 4;
+    private width: number = 8;
 
     constructor(scene: Phaser.Scene, target: Phaser.Physics.Arcade.Sprite) {
         this.scene = scene;
         this.target = target;
         this.graphics = scene.add.graphics();
         this.graphics.setDepth(11);
-        
-        // Inicializa posições
-        this.tipX = target.x;
-        this.tipY = target.y + this.anchorOffsetY + this.length;
-        this.midX = target.x;
-        this.midY = target.y + this.anchorOffsetY + this.length * 0.5;
+
+        // Initialize segments
+        for (let i = 0; i < this.numSegments; i++) {
+            this.segments.push({
+                x: target.x,
+                y: target.y + this.anchorOffsetY + (i * this.segmentLength),
+                oldX: target.x,
+                oldY: target.y + this.anchorOffsetY + (i * this.segmentLength)
+            });
+        }
     }
 
     update(playerVelocityX: number, playerVelocityY: number) {
@@ -39,62 +43,96 @@ export class ScarfComponent {
             return;
         }
 
-        const startX = this.target.x;
-        const startY = this.target.y + this.anchorOffsetY;
+        // Segmentos 0 e 1 são rígidos e seguem o player
+        const seg0 = this.segments[0];
+        const seg1 = this.segments[1];
 
-        // Física simplificada para a ponta (Inércia + Gravidade + Brisa)
-        const targetTipX = startX - playerVelocityX * 0.15;
-        const targetTipY = startY + (playerVelocityY < 0 ? 10 : 20) - playerVelocityY * 0.1;
+        // Ancoragem rígida
+        seg0.x = this.target.x;
+        seg0.y = this.target.y + this.anchorOffsetY;
         
-        // Brisa sutil
-        const time = this.scene.time.now * 0.003;
-        const breezeX = Math.sin(time) * 2;
-        const breezeY = Math.cos(time * 0.5) * 1;
+        // Segmento 1 também é quase rígido, mas com um leve offset baseado na direção
+        const dirX = playerVelocityX !== 0 ? (playerVelocityX > 0 ? -1 : 1) : 0;
+        seg1.x = seg0.x + dirX * 2;
+        seg1.y = seg0.y + 4;
 
-        // Suavização do movimento da ponta (Damping)
-        this.tipX += (targetTipX + breezeX - this.tipX) * 0.15;
-        this.tipY += (targetTipY + breezeY - this.tipY) * 0.15;
+        // Física apenas nos segmentos finais (2 e 3)
+        for (let i = 2; i < this.numSegments; i++) {
+            const seg = this.segments[i];
+            const vx = (seg.x - seg.oldX) * this.friction;
+            const vy = (seg.y - seg.oldY) * this.friction;
 
-        // Restrição de distância (Mantém o comprimento máximo)
-        const dx = this.tipX - startX;
-        const dy = this.tipY - startY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > this.length) {
-            this.tipX = startX + (dx / dist) * this.length;
-            this.tipY = startY + (dy / dist) * this.length;
+            seg.oldX = seg.x;
+            seg.oldY = seg.y;
+            seg.x += vx;
+            seg.y += vy;
+            seg.y += this.gravity;
+
+            // Brisa sutil quando parado
+            if (Math.abs(playerVelocityX) < 1 && Math.abs(playerVelocityY) < 1) {
+                const time = this.scene.time.now * 0.002;
+                seg.x += Math.sin(time + i) * 0.1;
+            } else {
+                // Inércia na ponta
+                seg.x -= playerVelocityX * 0.04;
+                seg.y -= playerVelocityY * 0.02;
+            }
         }
 
-        // Ponto intermediário semi-rígido (Fica entre o início e a ponta, mas puxado para cima)
-        this.midX = startX + (this.tipX - startX) * 0.3;
-        this.midY = startY + (this.tipY - startY) * 0.2;
+        // Constraints para manter a forma
+        for (let j = 0; j < 5; j++) {
+            for (let i = 0; i < this.numSegments - 1; i++) {
+                const s1 = this.segments[i];
+                const s2 = this.segments[i + 1];
 
-        this.draw(startX, startY);
+                const dx = s2.x - s1.x;
+                const dy = s2.y - s1.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance === 0) continue;
+                
+                const error = distance - this.segmentLength;
+                const offsetX = (dx / distance) * error;
+                const offsetY = (dy / distance) * error;
+
+                // Não movemos os segmentos 0 e 1, eles são âncoras
+                if (i >= 1) {
+                    s2.x -= offsetX;
+                    s2.y -= offsetY;
+                } else {
+                    s2.x -= offsetX;
+                    s2.y -= offsetY;
+                }
+            }
+        }
+
+        this.draw();
     }
 
-    private draw(startX: number, startY: number) {
+    private draw() {
         this.graphics.clear();
-        
-        // Estilo Anime: Curva de Bezier quadrática sólida
-        this.graphics.lineStyle(this.thickness, this.color, 1);
-        
-        const curve = new Phaser.Curves.QuadraticBezier(
-            new Phaser.Math.Vector2(startX, startY),
-            new Phaser.Math.Vector2(this.midX, this.midY),
-            new Phaser.Math.Vector2(this.tipX, this.tipY)
-        );
-
-        // Desenha a curva
-        this.graphics.beginPath();
-        const points = curve.getPoints(12);
-        this.graphics.moveTo(points[0].x, points[0].y);
-        for (let i = 1; i < points.length; i++) {
-            this.graphics.lineTo(points[i].x, points[i].y);
-        }
-        this.graphics.strokePath();
-
-        // Detalhe de "base rígida" (um pequeno arco no pescoço)
         this.graphics.fillStyle(this.color, 1);
-        this.graphics.fillEllipse(startX, startY, this.thickness * 1.5, this.thickness * 0.8);
+        
+        // Desenha como polígonos conectados para manter o estilo pixel art largo
+        for (let i = 0; i < this.numSegments - 1; i++) {
+            const s1 = this.segments[i];
+            const s2 = this.segments[i + 1];
+
+            // Vetor normal para a largura
+            const dx = s2.x - s1.x;
+            const dy = s2.y - s1.y;
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            const nx = -dy / len;
+            const ny = dx / len;
+
+            const w = this.width;
+            
+            this.graphics.fillPoints([
+                new Phaser.Geom.Point(s1.x + nx * (w/2), s1.y + ny * (w/2)),
+                new Phaser.Geom.Point(s1.x - nx * (w/2), s1.y - ny * (w/2)),
+                new Phaser.Geom.Point(s2.x - nx * (w/2), s2.y - ny * (w/2)),
+                new Phaser.Geom.Point(s2.x + nx * (w/2), s2.y + ny * (w/2))
+            ], true);
+        }
     }
 
     destroy() {
