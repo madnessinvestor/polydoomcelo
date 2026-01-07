@@ -2554,73 +2554,71 @@ class MainScene extends Phaser.Scene {
 
     chargeGenkidama() {
         if (!this.isChargingGenkidama) {
-            if (this.kiarc >= 200) {
-                this.kiarc -= 200;
-                this.isChargingGenkidama = true;
-            } else {
-                this.showPickupNotification("Need 200 KI for Arc GenkiDama!");
-                return;
-            }
+            this.isChargingGenkidama = true;
+            this.genkidamaChargeAmount = 0;
+            
+            if (this.genkidamaText) this.genkidamaText.destroy();
+            this.genkidamaText = this.add.text(this.player.x, this.player.y - 30, 'All Arcs, share your power', {
+                fontSize: '14px',
+                color: '#add8e6',
+                fontStyle: 'bold',
+                stroke: '#000',
+                strokeThickness: 3,
+                fontFamily: '"Courier New", Courier, monospace'
+            }).setOrigin(0.5);
+
+            if (this.genkidamaPercentText) this.genkidamaPercentText.destroy();
+            this.genkidamaPercentText = this.add.text(this.player.x, this.player.y - 50, '0%', {
+                fontSize: '18px',
+                color: '#ffffff',
+                fontStyle: 'bold',
+                stroke: '#000',
+                strokeThickness: 4,
+                fontFamily: '"Courier New", Courier, monospace'
+            }).setOrigin(0.5);
         }
-        const kiToConsume = 0; // Removido o consumo contínuo pois agora o custo é fixo na inicialização
-        if (this.kiarc >= kiToConsume) {
+
+        const kiToConsume = 1.0; // Consumo gradual de KI
+        if (this.kiarc >= kiToConsume && this.genkidamaChargeAmount < 200) {
             this.kiarc -= kiToConsume;
-            this.genkidamaChargeAmount += 0.5; // Mantemos o crescimento visual, mas sem custo extra de KI
+            this.genkidamaChargeAmount += kiToConsume;
+            this.updateHUD();
             
             if (!this.genkidama) {
                 this.sfx['genkidama_charge']?.play({ loop: true });
                 this.genkidama = this.add.circle(this.player.x, this.player.y - 100, 10, 0xadd8e6, 0.6);
-                
-                this.genkidamaText = this.add.text(this.player.x, this.player.y - 30, 'All Arcs, share your power', {
-                    fontSize: '14px',
-                    color: '#add8e6',
-                    fontStyle: 'bold',
-                    stroke: '#000',
-                    strokeThickness: 3,
-                    fontFamily: '"Courier New", Courier, monospace'
-                }).setOrigin(0.5);
-
-                this.genkidamaPercentText = this.add.text(this.player.x, this.player.y - 50, '0%', {
-                    fontSize: '18px',
-                    color: '#ffffff',
-                    fontStyle: 'bold',
-                    stroke: '#000',
-                    strokeThickness: 4,
-                    fontFamily: '"Courier New", Courier, monospace'
-                }).setOrigin(0.5);
             }
             
-            // Percentage: 200 KI = 100%
-            const percent = Math.floor((this.genkidamaChargeAmount / 200) * 100);
-            if (this.genkidamaPercentText) {
-                this.genkidamaPercentText.setText(`${percent}%`);
-                this.genkidamaPercentText.setPosition(this.player.x, this.player.y - 60);
-                // Change color if ready
-                if (percent >= 100) {
-                    this.genkidamaPercentText.setColor('#4ade80');
+            if (this.genkidama) {
+                // Percentage: 200 KI = 100%
+                const percent = Math.floor((this.genkidamaChargeAmount / 200) * 100);
+                if (this.genkidamaPercentText) {
+                    this.genkidamaPercentText.setText(`${percent}%`);
+                    this.genkidamaPercentText.setPosition(this.player.x, this.player.y - 60);
+                    if (percent >= 100) this.genkidamaPercentText.setColor('#4ade80');
                 }
-            }
 
-            if (this.genkidamaText) {
-                this.genkidamaText.setPosition(this.player.x, this.player.y - 40);
-            }
-            
-            // Size is proportional to charge
-            const size = 10 + (this.genkidamaChargeAmount * 1.5);
-            this.genkidama.setRadius(size);
-            this.genkidama.setPosition(this.player.x, this.player.y - size - 80);
-            
-            // Charging visual effect
-            if (this.time.now % 100 < 20) {
-                const particle = this.add.circle(this.player.x + Phaser.Math.Between(-50, 50), this.player.y + Phaser.Math.Between(-50, 50), 4, 0xadd8e6, 0.8);
-                this.tweens.add({
-                    targets: particle,
-                    x: this.genkidama.x,
-                    y: this.genkidama.y,
-                    scale: 0.1,
-                    duration: 400,
-                    onComplete: () => particle.destroy()
-                });
+                if (this.genkidamaText) {
+                    this.genkidamaText.setPosition(this.player.x, this.player.y - 40);
+                }
+                
+                // Size is proportional to charge
+                const size = 10 + (this.genkidamaChargeAmount * 1.5);
+                this.genkidama.setRadius(size);
+                this.genkidama.setPosition(this.player.x, this.player.y - size - 80);
+                
+                // Charging visual effect
+                if (this.time.now % 100 < 20) {
+                    const particle = this.add.circle(this.player.x + Phaser.Math.Between(-50, 50), this.player.y + Phaser.Math.Between(-50, 50), 4, 0xadd8e6, 0.8);
+                    this.tweens.add({
+                        targets: particle,
+                        x: this.genkidama.x,
+                        y: this.genkidama.y,
+                        scale: 0.1,
+                        duration: 400,
+                        onComplete: () => particle.destroy()
+                    });
+                }
             }
         }
     }
