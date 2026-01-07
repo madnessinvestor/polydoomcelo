@@ -125,13 +125,15 @@ export class ScarfComponent {
         this.graphics.lineStyle(2, 0xffffff, 0.3); // Brilho leve
         this.graphics.fillStyle(this.color, tieAlpha);
         
-        // Desenha o laço/nó central
-        this.graphics.fillRoundedRect(startX - 4, startY - 2, 8, 4, 2);
+        // Desenha o laço/nó central estendido para o comprimento do personagem
+        // O personagem cresce com o nível, mas baseWidth e playerWidth acompanham o sprite 32x32 padrão
+        const playerWidth = 32;
+        this.graphics.fillRoundedRect(startX - (playerWidth / 2), startY - 3, playerWidth, 6, 3);
         
         // Desenha o contorno que envolve o pescoço
         this.graphics.lineStyle(3, this.color, this.alpha);
-        this.graphics.strokeEllipse(startX, startY, this.baseWidth * 0.7, 5);
-        this.graphics.fillEllipse(startX, startY, this.baseWidth * 0.6, 4);
+        this.graphics.strokeEllipse(startX, startY, playerWidth * 0.5, 6);
+        this.graphics.fillEllipse(startX, startY, playerWidth * 0.4, 4);
 
         // 2. DESENHO DA PARTE TRASEIRA (CAPA)
         this.graphics.setDepth(9); // Voltamos para trás do player para o corpo da capa
