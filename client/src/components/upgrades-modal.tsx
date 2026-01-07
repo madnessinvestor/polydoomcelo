@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Zap, Sword, Shield, Activity, Droplets, Loader2 } from "lucide-react";
 import { ethers } from "ethers";
+import { useUI } from "@/hooks/use-ui";
 
 interface UpgradeTier {
   level: number;
@@ -114,6 +115,7 @@ const UPGRADE_DATA: UpgradeCategory[] = [
 ];
 
 export function UpgradesModal({ onClose }: { onClose: () => void }) {
+  const { isLocked } = useUI();
   const [isUpgrading, setIsUpgrading] = useState<string | null>(null);
   const [purchasedLevels, setPurchasedLevels] = useState<Record<string, number>>({
     arc_hp: 0,
@@ -313,8 +315,8 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl bg-slate-900 border-2 border-green-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
+      <Card className="w-full max-w-4xl bg-slate-900 border-2 border-green-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(34,197,94,0.3)]" onPointerDown={(e) => e.stopPropagation()}>
         <CardHeader className="border-b border-slate-800 relative">
           <div className="flex flex-col items-center justify-center py-2">
             <CardTitle className="text-3xl font-bold text-green-500 uppercase tracking-widest text-center">Upgrades</CardTitle>

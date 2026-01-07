@@ -6,6 +6,7 @@ import { PauseModal } from "@/components/pause-modal";
 import { UpgradesModal } from "@/components/upgrades-modal";
 import { ShoppingModal } from "@/components/shopping-modal";
 import { ethers } from "ethers";
+import { useUI } from "@/hooks/use-ui";
 
 const POTIONS_UI = [
   { id: "health", key: "Q", icon: Beaker, color: "text-red-500", borderColor: "border-red-500/50" },
@@ -30,11 +31,9 @@ declare global {
 }
 
 export default function Home() {
+  const { isLocked, openModal, closeModal, activeModal } = useUI();
   const [isConnected, setIsConnected] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
-  const [isPauseModalOpen, setIsPauseModalOpen] = useState(false);
-  const [isUpgradesOpen, setIsUpgradesOpen] = useState(false);
-  const [isShoppingOpen, setIsShoppingOpen] = useState(false);
   const [inventory, setInventory] = useState<Record<string, number>>({
     health: 0,
     ki: 0,
@@ -93,7 +92,7 @@ export default function Home() {
   };
 
   const handleContinueGame = () => {
-    setIsPauseModalOpen(false);
+    closeModal();
     // Resume game through window reference
     if (window.game?.scene.isActive('MainScene')) {
       const scene = window.game.scene.getScene('MainScene') as any;
@@ -104,7 +103,7 @@ export default function Home() {
   };
 
   const handleExitGame = () => {
-    setIsPauseModalOpen(false);
+    closeModal();
     // Exit game through window reference
     if (window.game?.scene.isActive('MainScene')) {
       const scene = window.game.scene.getScene('MainScene') as any;
@@ -147,11 +146,11 @@ export default function Home() {
     // Set up window functions for pause modal
     (window as any).showPauseModal = () => {
       console.log("React: showPauseModal called");
-      setIsPauseModalOpen(true);
+      openModal("pause");
     };
     (window as any).hidePauseModal = () => {
       console.log("React: hidePauseModal called");
-      setIsPauseModalOpen(false);
+      closeModal();
     };
 
     const handleOpeningMusic = () => {
@@ -164,16 +163,14 @@ export default function Home() {
 
     const triggerUpgrades = () => {
       console.log("React: triggerUpgrades called");
-      setIsPauseModalOpen(false);
-      setIsUpgradesOpen(true);
+      openModal("upgrades");
     };
     (window as any).openUpgradesModal = triggerUpgrades;
     (window as any).showUpgradesModal = triggerUpgrades;
 
     const triggerShopping = () => {
       console.log("React: triggerShopping called");
-      setIsPauseModalOpen(false);
-      setIsShoppingOpen(true);
+      openModal("shopping");
     };
     (window as any).openShoppingModal = triggerShopping;
 
@@ -187,18 +184,18 @@ export default function Home() {
   }, [isConnected]);
 
   return (
-    <div className="min-h-screen w-full bg-black flex flex-col items-center overflow-auto relative">
-      {isPauseModalOpen && (
+    <div className={`min-h-screen w-full bg-black flex flex-col items-center overflow-auto relative ${isLocked ? "pointer-events-none" : ""}`}>
+      {activeModal === "pause" && (
         <PauseModal 
           onContinue={handleContinueGame} 
           onExit={handleExitGame}
         />
       )}
-      {isUpgradesOpen && (
-        <UpgradesModal onClose={() => setIsUpgradesOpen(false)} />
+      {activeModal === "upgrades" && (
+        <UpgradesModal onClose={() => closeModal()} />
       )}
-      {isShoppingOpen && (
-        <ShoppingModal onClose={() => setIsShoppingOpen(false)} />
+      {activeModal === "shopping" && (
+        <ShoppingModal onClose={() => closeModal()} />
       )}
       <div className="w-full flex flex-col items-center">
         {/* Game Container */}

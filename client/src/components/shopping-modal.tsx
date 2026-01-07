@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Beaker, Zap, Shield, Star, Loader2 } from "lucide-react";
 import { ethers } from "ethers";
+import { useUI } from "@/hooks/use-ui";
 
 const SHOP_CONTRACT_ADDRESS = "0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a";
 const USDC_ADDRESS = "0x3600000000000000000000000000000000000000"; // Correct USDC address for Arc Testnet 0x4cef52
@@ -76,6 +77,7 @@ const POTIONS: Potion[] = [
 ];
 
 export function ShoppingModal({ onClose }: { onClose: () => void }) {
+  const { isLocked } = useUI();
   const [isBuying, setIsBuying] = useState<string | null>(null);
   const [inventory, setInventory] = useState<Record<string, number>>({
     health: 0,
@@ -210,8 +212,8 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl bg-slate-900 border-2 border-blue-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
+      <Card className="w-full max-w-4xl bg-slate-900 border-2 border-blue-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(59,130,246,0.3)]" onPointerDown={(e) => e.stopPropagation()}>
         <CardHeader className="border-b border-slate-800 relative">
           <div className="flex flex-col items-center justify-center py-2">
             <CardTitle className="text-3xl font-bold text-blue-500 uppercase tracking-widest text-center">SHOPPING</CardTitle>

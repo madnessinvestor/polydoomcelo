@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { ArrowLeft } from "lucide-react";
+import { useUI } from "@/hooks/use-ui";
 
 declare global {
   interface Window {
@@ -13,11 +14,15 @@ declare global {
 
 export default function Settings() {
   const [, setLocation] = useLocation();
+  const { isLocked, openModal, closeModal, activeModal } = useUI();
   const [masterVolume, setMasterVolume] = useState(100);
   const [musicVolume, setMusicVolume] = useState(100);
   const [sfxVolume, setSfxVolume] = useState(100);
 
   useEffect(() => {
+    // Save state for modal logic
+    openModal("settings");
+    
     // Load saved settings from localStorage
     const savedMaster = localStorage.getItem("masterVolume");
     const savedMusic = localStorage.getItem("musicVolume");
@@ -26,6 +31,10 @@ export default function Settings() {
     if (savedMaster) setMasterVolume(parseInt(savedMaster));
     if (savedMusic) setMusicVolume(parseInt(savedMusic));
     if (savedSfx) setSfxVolume(parseInt(savedSfx));
+
+    return () => {
+      closeModal();
+    };
   }, []);
 
   const handleBackdropClick = (e: React.PointerEvent) => {
@@ -85,11 +94,12 @@ export default function Settings() {
   };
 
   const handleBackToMenu = () => {
+    closeModal();
     setLocation("/");
   };
 
   return (
-    <div className="fixed inset-0 w-full h-full bg-black/70 flex items-center justify-center p-4 pointer-events-none" onPointerDown={handleBackdropClick}>
+    <div className="fixed inset-0 w-full h-full bg-black/70 flex items-center justify-center p-4 z-[200]" onPointerDown={handleBackdropClick}>
       <Card className="w-full max-w-md bg-slate-900 border-amber-400 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
         <CardHeader className="border-b border-amber-400">
           <div className="flex items-center gap-3">

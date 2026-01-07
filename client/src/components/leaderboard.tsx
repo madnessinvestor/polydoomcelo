@@ -3,11 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Score } from "@shared/schema";
+import { useUI } from "@/hooks/use-ui";
+import { useEffect } from "react";
 
 export function Leaderboard() {
+  const { openModal, closeModal } = useUI();
   const { data: scores = [], isLoading } = useQuery<Score[]>({
     queryKey: ["/api/leaderboard"],
   });
+
+  useEffect(() => {
+    openModal("leaderboard");
+    return () => closeModal();
+  }, []);
 
   if (isLoading) {
     return (
