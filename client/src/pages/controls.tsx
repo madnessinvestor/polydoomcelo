@@ -61,65 +61,80 @@ export default function Controls() {
 
         <CardContent className="p-8 space-y-12">
           {/* Main Keyboard Section */}
-          <div className="space-y-8">
+          <div className="space-y-12">
+            {/* Category: Items */}
             <div className="flex flex-col items-center gap-6">
-              <h3 className="text-violet-500/50 font-black uppercase text-xs tracking-[0.3em]">Action Keys</h3>
-              
-              {/* Row 1: Potions */}
+              <h3 className="text-violet-500/50 font-black uppercase text-xs tracking-[0.3em]">Items Keys</h3>
               <div className="flex gap-4">
                 <Key label="Q" action="Heal HP" />
                 <Key label="W" action="Rest. Kiarc" />
                 <Key label="E" action="Immunity" />
                 <Key label="R" action="Score X2" />
-                <div className="w-8" /> {/* spacer */}
-                <Key label="F" action="Interaction" className="opacity-50" />
-              </div>
-
-              {/* Row 2: Combat */}
-              <div className="flex gap-4">
-                <Key label="Z" action="Punch" active />
-                <Key label="X" action="Arcki" active />
-                <Key label="C" action="Kiarc" active />
-                <Key label="V" action="Genkidama" active />
-                <div className="w-8" /> {/* spacer */}
-                <Key label="B" action="Burst" className="opacity-50" />
               </div>
             </div>
-          </div>
 
-          {/* Movement & Navigation Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-violet-500/20 pt-10">
-            {/* Arrows Layout */}
-            <div className="flex flex-col items-center gap-4">
-              <h3 className="text-violet-500/50 font-black uppercase text-xs tracking-[0.3em] mb-2">Movement</h3>
-              <div className="grid grid-cols-3 gap-2">
-                <div />
-                <ArrowKey dir="up" action="Jump" />
-                <div />
-                <ArrowKey dir="left" action="Left" />
-                <ArrowKey dir="down" action="Crouch" />
-                <ArrowKey dir="right" action="Right" />
-              </div>
-              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mt-2">
-                Double Tap Arrows to <span className="text-violet-400">Dash</span>
-              </p>
-            </div>
-
-            {/* Special Utility Keys */}
+            {/* Category: Basic Keys */}
             <div className="flex flex-col items-center gap-6">
-              <h3 className="text-violet-500/50 font-black uppercase text-xs tracking-[0.3em] mb-2">System</h3>
-              <div className="flex gap-8">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-32 h-10 flex items-center justify-center border-2 border-slate-700 bg-slate-800 rounded font-bold text-sm text-slate-400">
-                    SPACE
+              <h3 className="text-violet-500/50 font-black uppercase text-xs tracking-[0.3em]">Basic Keys</h3>
+              <div className="flex flex-col items-center gap-8 w-full max-w-2xl">
+                {/* Movement */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="grid grid-cols-3 gap-2">
+                      <div />
+                      <ArrowKey dir="up" action="Jump" />
+                      <div />
+                      <ArrowKey dir="left" action="Left" />
+                      <ArrowKey dir="down" action="Crouch" />
+                      <ArrowKey dir="right" action="Right" />
+                    </div>
+                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mt-2">
+                      Double Tap Arrows to <span className="text-violet-400">Dash</span>
+                    </p>
                   </div>
-                  <span className="text-[10px] uppercase font-black tracking-tighter text-slate-500">Jump / confirm</span>
+
+                  {/* System & Extra Combat */}
+                  <div className="flex flex-col items-center gap-6">
+                    <div className="flex gap-6">
+                      <Key label="Z" action="Punch" active />
+                      <Key label="X" action="Arcki" active />
+                      <Key label="C" action="Kiarc" active />
+                    </div>
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-16 h-10 flex items-center justify-center border-2 border-slate-700 bg-slate-800 rounded font-bold text-sm text-slate-400">
+                        ESC
+                      </div>
+                      <span className="text-[10px] uppercase font-black tracking-tighter text-slate-500">Pause / Menu</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-16 h-10 flex items-center justify-center border-2 border-slate-700 bg-slate-800 rounded font-bold text-sm text-slate-400">
-                    ESC
+              </div>
+            </div>
+
+            {/* Category: Specials */}
+            <div className="flex flex-col items-center gap-8 bg-violet-950/10 p-8 rounded-lg border border-violet-500/10">
+              <h3 className="text-violet-500 font-black uppercase text-sm tracking-[0.4em]">Specials</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+                <div className="flex flex-col items-center gap-3">
+                  <Key label="V" action="ArcKamehameha" active className="!scale-110" />
+                  <div className="text-center space-y-1">
+                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Hold Key</p>
+                    <p className="text-[11px] text-slate-400 leading-tight">Devastating energy beam. Release to fire when fully charged.</p>
                   </div>
-                  <span className="text-[10px] uppercase font-black tracking-tighter text-slate-500">Pause / Menu</span>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                  <Key label="B" action="ArcGenkiDama" active className="!scale-110" />
+                  <div className="text-center space-y-1">
+                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
+                    <p className="text-[11px] text-slate-400 leading-tight">Gather energy from the universe for a massive spirit bomb.</p>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                  <Key label="F" action="ArcKiExplosion" active className="!scale-110" />
+                  <div className="text-center space-y-1">
+                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
+                    <p className="text-[11px] text-slate-400 leading-tight">Release inner Ki in a powerful radial burst to clear enemies.</p>
+                  </div>
                 </div>
               </div>
             </div>
