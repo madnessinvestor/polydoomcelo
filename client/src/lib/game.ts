@@ -4869,9 +4869,28 @@ class StartScene extends Phaser.Scene {
             shoppingBtn.setFillStyle(0x3b82f6);
         });
 
+        // Controls Button
+        const controlsBtn = this.add.rectangle(width / 2, height / 2 + 370, 200, 40, 0xa855f7);
+        const controlsText = this.add.text(width / 2, height / 2 + 370, 'CONTROLS', {
+            fontSize: '18px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5);
+
+        controlsBtn.setInteractive().on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
+            this.openControlsModal();
+        }).on('pointerover', () => {
+            controlsBtn.setFillStyle(0xc084fc);
+        }).on('pointerout', () => {
+            controlsBtn.setFillStyle(0xa855f7);
+        });
+
         // Settings Button
-        const settingsBtn = this.add.rectangle(width / 2, height / 2 + 370, 200, 40, 0x8b5cf6);
-        const settingsText = this.add.text(width / 2, height / 2 + 370, 'SETTINGS', {
+        const settingsBtn = this.add.rectangle(width / 2, height / 2 + 430, 200, 40, 0x8b5cf6);
+        const settingsText = this.add.text(width / 2, height / 2 + 430, 'SETTINGS', {
             fontSize: '18px',
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
@@ -4973,6 +4992,118 @@ class StartScene extends Phaser.Scene {
                 (originalSound as any)._volumeOverridden = true;
             }
         });
+    }
+
+    private openControlsModal() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+
+        // Dark overlay background
+        const overlay = this.add.rectangle(0, 0, width * 2, height * 2, 0x000000, 0.7).setOrigin(0).setScrollFactor(0).setDepth(200);
+
+        // Modal background
+        const modalBg = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8, 0x0f172a, 1).setScrollFactor(0).setDepth(201);
+        
+        // Border
+        const border = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8);
+        border.setStrokeStyle(3, 0xa855f7).setFillStyle(0x0f172a, 0).setScrollFactor(0).setDepth(202);
+
+        // Title
+        const title = this.add.text(width / 2, height * 0.18, 'GAME CONTROLS', {
+            fontSize: '32px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#fbbf24',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(203);
+
+        // Create HTML content for controls
+        const containerWidth = width * 0.7;
+        const containerHeight = height * 0.6;
+
+        const controlsContainer = document.createElement('div');
+        controlsContainer.style.position = 'absolute';
+        controlsContainer.style.left = '50%';
+        controlsContainer.style.top = '50%';
+        controlsContainer.style.transform = 'translate(-50%, -50%)';
+        controlsContainer.style.width = Math.floor(containerWidth) + 'px';
+        controlsContainer.style.height = Math.floor(containerHeight) + 'px';
+        controlsContainer.style.backgroundColor = 'transparent';
+        controlsContainer.style.zIndex = '204';
+        controlsContainer.style.color = '#fff';
+        controlsContainer.style.fontFamily = 'monospace';
+        controlsContainer.style.overflow = 'auto';
+        controlsContainer.style.padding = '10px';
+
+        controlsContainer.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                <div>
+                    <h3 style="color: #fbbf24; border-bottom: 2px solid #fbbf24; padding-bottom: 5px; margin-bottom: 15px;">BASIC CONTROLS</h3>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>MOVE / JUMP</span>
+                        <span style="color: #fbbf24;">ARROW KEYS</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>PUNCH</span>
+                        <span style="color: #fbbf24;">Z KEY</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>MAGIC KIARC</span>
+                        <span style="color: #fbbf24;">C KEY</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>PAUSE / MENU</span>
+                        <span style="color: #fbbf24;">ESC</span>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color: #fbbf24; border-bottom: 2px solid #fbbf24; padding-bottom: 5px; margin-bottom: 15px;">SPECIAL ABILITIES</h3>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>CHARGE ARCKI</span>
+                        <span style="color: #fbbf24;">X KEY (HOLD)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>ARCKAMEHAMEHA</span>
+                        <span style="color: #fbbf24;">V KEY (HOLD)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>ARCGENKIDAMA</span>
+                        <span style="color: #fbbf24;">B KEY (HOLD)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>EXPLOSION KIARC</span>
+                        <span style="color: #fbbf24;">F KEY</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>USE POTIONS</span>
+                        <span style="color: #fbbf24;">Q, W, E, R</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(controlsContainer);
+
+        // Close button
+        const closeBtn = this.add.rectangle(width / 2, height * 0.85, 150, 50, 0xef4444).setScrollFactor(0).setDepth(205);
+        const closeText = this.add.text(width / 2, height * 0.85, 'CLOSE', {
+            fontSize: '20px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(206);
+
+        closeBtn.setInteractive({ useHandCursor: true }).on('pointerdown', () => {
+            this.sfx['menu_close']?.play();
+            controlsContainer.remove();
+            overlay.destroy();
+            modalBg.destroy();
+            border.destroy();
+            title.destroy();
+            closeBtn.destroy();
+            closeText.destroy();
+        }).on('pointerover', () => closeBtn.setFillStyle(0xdc2626))
+          .on('pointerout', () => closeBtn.setFillStyle(0xef4444));
     }
 
     private openLeaderboardModal() {
