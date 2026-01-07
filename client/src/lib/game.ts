@@ -2689,6 +2689,9 @@ class MainScene extends Phaser.Scene {
         health -= finalDamage;
         enemy.setData('health', health);
 
+        // Mostra o dano causado
+        this.showDamage(enemy.x, enemy.y, Math.round(finalDamage));
+
         // Visual feedback for hitting
         enemy.setTint(0xffffff);
         this.time.delayedCall(100, () => {
