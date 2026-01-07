@@ -1698,7 +1698,7 @@ class MainScene extends Phaser.Scene {
             if (enemy.active) {
                 const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
                 if (dist < impactRadius) {
-                    const damage = 100 * (1 + (this.level - 1) * 0.1);
+                    const damage = 10 + (this.level * 10);
                     const currentHealth = enemy.getData('health') || 0;
                     enemy.setData('health', Math.max(0, currentHealth - damage));
                     enemy.setTint(0xff0000);
