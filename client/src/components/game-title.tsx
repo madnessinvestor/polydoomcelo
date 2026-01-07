@@ -1,6 +1,9 @@
+import { useUI } from "@/hooks/use-ui";
+
 export function GameTitle() {
+  const { isLocked } = useUI();
   return (
-    <div className="flex items-center justify-center w-full h-full">
+    <div className={`flex items-center justify-center w-full h-full ${isLocked ? "pointer-events-none" : ""}`}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         

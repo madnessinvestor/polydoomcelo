@@ -13,7 +13,6 @@ declare global {
 }
 
 export default function Settings() {
-  const [, setLocation] = useLocation();
   const { isLocked, openModal, closeModal, activeModal } = useUI();
   const [masterVolume, setMasterVolume] = useState(100);
   const [musicVolume, setMusicVolume] = useState(100);
@@ -95,7 +94,6 @@ export default function Settings() {
 
   const handleBackToMenu = () => {
     closeModal();
-    setLocation("/");
   };
 
   return (

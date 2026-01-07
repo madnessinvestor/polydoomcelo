@@ -5,8 +5,10 @@ import { ShieldCheck, Loader2, ArrowUpCircle, Beaker, Zap, Shield, Star } from "
 import { PauseModal } from "@/components/pause-modal";
 import { UpgradesModal } from "@/components/upgrades-modal";
 import { ShoppingModal } from "@/components/shopping-modal";
+import { Leaderboard } from "@/components/leaderboard";
 import { ethers } from "ethers";
 import { useUI } from "@/hooks/use-ui";
+import Settings from "@/pages/settings";
 
 const POTIONS_UI = [
   { id: "health", key: "Q", icon: Beaker, color: "text-red-500", borderColor: "border-red-500/50" },
@@ -184,7 +186,7 @@ export default function Home() {
   }, [isConnected]);
 
   return (
-    <div className={`min-h-screen w-full bg-black flex flex-col items-center overflow-auto relative ${isLocked ? "pointer-events-none" : ""}`}>
+    <div className="min-h-screen w-full bg-black flex flex-col items-center overflow-auto relative">
       {activeModal === "pause" && (
         <PauseModal 
           onContinue={handleContinueGame} 
@@ -197,7 +199,29 @@ export default function Home() {
       {activeModal === "shopping" && (
         <ShoppingModal onClose={() => closeModal()} />
       )}
-      <div className="w-full flex flex-col items-center">
+      {activeModal === "leaderboard" && (
+        <Leaderboard />
+      )}
+      {activeModal === "settings" && (
+        <Settings />
+      )}
+      
+      {/* Global UI Lock Overlay */}
+      {isLocked && (
+        <div 
+          className="fixed inset-0 z-[80] bg-transparent pointer-events-auto cursor-default" 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onPointerDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        />
+      )}
+
+      <div className={`w-full flex flex-col items-center transition-opacity duration-300 ${isLocked ? "opacity-50" : "opacity-100"}`}>
         {/* Game Container */}
         <div className="relative">
           <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden relative" style={{ width: '1920px', height: '1080px' }} />
