@@ -1967,7 +1967,7 @@ class MainScene extends Phaser.Scene {
             }
             
             // Verifica impacto com o solo
-            if (this.player.body?.touching.down || this.player.y >= 580) { // 580 é próximo ao chão (600)
+            if (this.player.body?.touching.down) {
                 this.handleMeteorImpact();
             }
             // Efeito visual de rastro (Meteor 1)
