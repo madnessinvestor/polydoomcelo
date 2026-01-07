@@ -120,8 +120,8 @@ export class ScarfComponent {
         // Isso dá a percepção de que está fixada AO REDOR
         this.graphics.setDepth(11); // Forçamos o desenho para frente do player
         
-        // Laço/Nó amarelo (mais opaco para destacar)
-        const tieAlpha = Math.min(this.alpha + 0.2, 1.0);
+        // Laço/Nó amarelo com 25% de transparência (alpha 0.75)
+        const tieAlpha = 0.75;
         this.graphics.lineStyle(2, 0xffffff, 0.3); // Brilho leve
         this.graphics.fillStyle(this.color, tieAlpha);
         
@@ -130,8 +130,8 @@ export class ScarfComponent {
         const playerWidth = 32;
         this.graphics.fillRoundedRect(startX - (playerWidth / 2), startY - 3, playerWidth, 6, 3);
         
-        // Desenha o contorno que envolve o pescoço
-        this.graphics.lineStyle(3, this.color, this.alpha);
+        // Desenha o contorno que envolve o pescoço (também com 0.75 para consistência)
+        this.graphics.lineStyle(3, this.color, tieAlpha);
         this.graphics.strokeEllipse(startX, startY, playerWidth * 0.5, 6);
         this.graphics.fillEllipse(startX, startY, playerWidth * 0.4, 4);
 
