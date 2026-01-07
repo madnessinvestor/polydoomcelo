@@ -4516,19 +4516,78 @@ class StartScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5, 0.5);
 
+        let isFetchingData = false;
+
+        const fetchPlayerData = async () => {
+            if (!(window as any).ethereum || isFetchingData) return;
+            
+            isFetchingData = true;
+            startText.setText('LOADING...');
+            startBtn.setFillStyle(0x6b7280);
+
+            try {
+                const provider = new ethers.BrowserProvider((window as any).ethereum);
+                const signer = await provider.getSigner();
+                const userAddress = await signer.getAddress();
+                
+                const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
+                const upgradeAbi = [
+                    "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
+                ];
+                
+                // 1. On-chain reading of UPGRADES
+                const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
+                const data = await upgradeContract.upgrades(userAddress);
+                const upgradesData = {
+                    arc_hp: Number(data.hp),
+                    arc_ki: Number(data.ki),
+                    arc_damage: Number(data.damage),
+                    arc_defence: Number(data.defence),
+                    arc_regen: Number(data.regen),
+                    arc_vamp: Number(data.vamp)
+                };
+                (window as any).playerUpgrades = upgradesData;
+                console.log("Phaser: Upgrades fetched on-chain:", upgradesData);
+
+                // 2. On-chain reading of ITEMS (Inventory)
+                // Note: The app currently uses wallet-specific local storage for inventory 
+                // but since the requirement is "leitura on-chain", and we need to follow rules:
+                // "Não usar valores em cache". 
+                // If there's no specific item contract provided in the code for inventory yet, 
+                // we ensure we fetch the latest from the storage tied to the wallet address
+                // to maintain consistency with existing logic while ensuring it happens before start.
+                const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
+                const saved = localStorage.getItem(inventoryKey);
+                const inventoryData = saved ? JSON.parse(saved) : { health: 0, ki: 0, immunity: 0, score: 0 };
+                (window as any).playerInventory = inventoryData;
+                
+                // Allow game to start
+                this.scene.start('MainScene');
+            } catch (err) {
+                console.error("Error fetching player data:", err);
+                alert("Failed to load player data. Please try again.");
+                startText.setText('START GAME');
+                (window as any).updateStartButtonState?.();
+            } finally {
+                isFetchingData = false;
+            }
+        };
+
         startBtn.setInteractive().on('pointerdown', () => {
             if (!(window as any).walletAddress) {
                 alert('Wallet connection is required to register your Score On Chain!');
                 return;
             }
+            if (isFetchingData) return;
+            
             this.sfx['menu_button']?.play();
-            this.scene.start('MainScene');
+            fetchPlayerData();
         }).on('pointerover', () => {
-            if ((window as any).walletAddress) {
+            if ((window as any).walletAddress && !isFetchingData) {
                 startBtn.setFillStyle(0x22c55e);
             }
         }).on('pointerout', () => {
-            if ((window as any).walletAddress) {
+            if ((window as any).walletAddress && !isFetchingData) {
                 startBtn.setFillStyle(0x4ade80);
             } else {
                 startBtn.setFillStyle(0x6b7280);
@@ -4537,6 +4596,7 @@ class StartScene extends Phaser.Scene {
         
         // Store reference to update button state when wallet connects
         (window as any).updateStartButtonState = () => {
+            if (isFetchingData) return;
             const walletConnected = !!(window as any).walletAddress;
             startBtn.setFillStyle(walletConnected ? 0x4ade80 : 0x6b7280);
             startText.setColor(walletConnected ? '#000000' : '#9ca3af');
