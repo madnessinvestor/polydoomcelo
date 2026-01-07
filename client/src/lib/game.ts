@@ -1659,16 +1659,21 @@ class MainScene extends Phaser.Scene {
 
     private startArcMeteor() {
         if (this.player.body?.touching.down || this.isMeteorFalling) return;
+        
+        // Consumo de 50 de ki
+        if (this.kiarc < 50) return;
+        this.kiarc -= 50;
+        this.updateHUD();
 
         this.isMeteorFalling = true;
         this.player.setVelocity(0, 0);
         this.sfx['meteor_1']?.play();
 
-        // Breve pausa para carregar
-        this.time.delayedCall(200, () => {
+        // Carregamento de 0.5 segundos (500ms)
+        this.time.delayedCall(500, () => {
             if (this.player.active) {
                 this.player.setVelocityY(4000); // Queda meteórica ainda mais rápida
-                this.player.setData('isFastFalling', true); // Reutiliza lógica de impacto existente se necessário, mas Meteor 2 é específico
+                this.player.setData('isFastFalling', true); 
             }
         });
     }
@@ -1681,8 +1686,8 @@ class MainScene extends Phaser.Scene {
         this.sfx['meteor_2']?.play();
         this.cameras.main.shake(500, 0.04);
 
-        // Explosão visual
-        const explosion = this.add.circle(this.player.x, this.player.y, 10, 0xff4500, 0.8);
+        // Explosão visual amarela
+        const explosion = this.add.circle(this.player.x, this.player.y, 10, 0xffff00, 0.8);
         this.tweens.add({
             targets: explosion,
             radius: 250,
