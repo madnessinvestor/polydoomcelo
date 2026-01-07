@@ -4738,26 +4738,19 @@ class StartScene extends Phaser.Scene {
         logo.setScale(titleScale);
 
         // Helper to create neon buttons
-        const createNeonButton = (x: number, y: number, width: number, height: number, color: number, text: string, fontSize: string, textColor: string, callback: () => void) => {
+        const createNeonButton = (x: number, y: number, w: number, h: number, color: number, text: string, fontSize: string, textColor: string, callback: () => void) => {
             const container = this.add.container(x, y);
-            
-            // Outer glow (neon)
             const glow = this.add.graphics();
             const drawGlow = (thickness: number, alpha: number) => {
                 glow.lineStyle(thickness, color, alpha);
-                glow.strokeRoundedRect(-width/2 - thickness/2, -height/2 - thickness/2, width + thickness, height + thickness, 12 + thickness/2);
+                glow.strokeRoundedRect(-w/2 - thickness/2, -h/2 - thickness/2, w + thickness, h + thickness, 12 + thickness/2);
             };
-            
-            drawGlow(12, 0.1);
-            drawGlow(8, 0.2);
-            drawGlow(4, 0.4);
-            glow.lineStyle(2, color, 1);
-            glow.strokeRoundedRect(-width/2, -height/2, width, height, 10);
-            
-            // Main button rect
-            const btn = this.add.rectangle(0, 0, width, height, color, 0.15);
-            btn.setStrokeStyle(1, color, 0.5);
-            
+            drawGlow(16, 0.1);
+            drawGlow(12, 0.2);
+            drawGlow(8, 0.3);
+            drawGlow(4, 0.5);
+            const btnRect = this.add.rectangle(0, 0, w, h, 0x000000, 0.8);
+            btnRect.setStrokeStyle(2, color, 1);
             const btnText = this.add.text(0, 0, text, {
                 fontSize: fontSize,
                 fontFamily: 'Arial, sans-serif',
@@ -4765,556 +4758,103 @@ class StartScene extends Phaser.Scene {
                 fontStyle: 'bold',
                 align: 'center',
                 stroke: '#000000',
-                strokeThickness: 4,
-                shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, stroke: true, fill: true }
+                strokeThickness: 4
             }).setOrigin(0.5, 0.5);
-
-            container.add([glow, btn, btnText]);
-            
-            btn.setInteractive({ useHandCursor: true })
-                .on('pointerdown', callback)
+            container.add([glow, btnRect, btnText]);
+            btnRect.setInteractive({ useHandCursor: true })
+                .on('pointerdown', () => {
+                    this.tweens.add({ targets: container, scale: 0.95, duration: 50, yoyo: true });
+                    if (this.sfx['button_click']) this.sfx['button_click'].play({ volume: this.sfxVolume });
+                    callback();
+                })
                 .on('pointerover', () => {
-                    this.tweens.add({
-                        targets: btn,
-                        fillAlpha: 0.4,
-                        duration: 200
-                    });
-                    this.tweens.add({
-                        targets: container,
-                        scale: 1.05,
-                        duration: 200,
-                        ease: 'Back.easeOut'
-                    });
+                    this.tweens.add({ targets: container, scale: 1.05, duration: 100 });
+                    btnRect.setFillStyle(color, 0.2);
                 })
                 .on('pointerout', () => {
-                    this.tweens.add({
-                        targets: btn,
-                        fillAlpha: 0.15,
-                        duration: 200
-                    });
-                    this.tweens.add({
-                        targets: container,
-                        scale: 1,
-                        duration: 200,
-                        ease: 'Back.easeOut'
-                    });
+                    this.tweens.add({ targets: container, scale: 1, duration: 100 });
+                    btnRect.setFillStyle(0x000000, 0.8);
                 });
-            
-            return { container, btn, btnText };
+            return { container, btn: btnRect, btnText };
         };
 
-        // Start Button
         const isWalletConnected = !!(window as any).walletAddress;
-        const startBtnColor = isWalletConnected ? 0x4ade80 : 0x6b7280;
-        const startTextColor = isWalletConnected ? '#ffffff' : '#9ca3af';
         
-        let isFetchingData = false;
-        let loadingDots = '';
-        let loadingInterval: Phaser.Time.TimerEvent | null = null;
-
-        const updateLoadingText = (baseText: string) => {
-            if (loadingInterval) loadingInterval.destroy();
-            loadingDots = '';
-            startText.setText(baseText);
-            
-            loadingInterval = this.time.addEvent({
-                delay: 500,
-                callback: () => {
-                    loadingDots = loadingDots.length >= 3 ? '' : loadingDots + '.';
-                    startText.setText(baseText + loadingDots);
-                    
-                    // Simple blink effect
-                    startText.setAlpha(startText.alpha === 1 ? 0.7 : 1);
-                },
-                loop: true
-            });
-        };
-
-        const fetchPlayerData = async () => {
-            if (!(window as any).ethereum || isFetchingData) return;
-            
-            isFetchingData = true;
-            startBtn.setFillStyle(0x6b7280);
-            updateLoadingText('Loading Upgrades');
-
-            try {
-                const provider = new ethers.BrowserProvider((window as any).ethereum);
-                const signer = await provider.getSigner();
-                const userAddress = await signer.getAddress();
-                
-                const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
-                const upgradeAbi = [
-                    "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
-                ];
-                
-                // 1. On-chain reading of UPGRADES
-                const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, provider);
-                const data = await upgradeContract.upgrades(userAddress);
-                const upgradesData = {
-                    arc_hp: Number(data.hp),
-                    arc_ki: Number(data.ki),
-                    arc_damage: Number(data.damage),
-                    arc_defence: Number(data.defence),
-                    arc_regen: Number(data.regen),
-                    arc_vamp: Number(data.vamp)
-                };
-                (window as any).playerUpgrades = upgradesData;
-                
-                // Update to next step
-                updateLoadingText('Loading Items');
-                await new Promise(resolve => setTimeout(resolve, 500)); // Small pause for visibility
-
-                // 2. On-chain reading of ITEMS
-                const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
-                const saved = localStorage.getItem(inventoryKey);
-                const inventoryData = saved ? JSON.parse(saved) : { health: 0, ki: 0, immunity: 0, score: 0 };
-                (window as any).playerInventory = inventoryData;
-                
-                if (loadingInterval) loadingInterval.destroy();
-                startText.setAlpha(1);
-                
-                // Allow game to start only after success total
-                this.scene.start('MainScene');
-            } catch (err) {
-                console.error("Error initializing player data:", err);
-                if (loadingInterval) loadingInterval.destroy();
-                startText.setAlpha(1);
-                alert("Failed to initialize player data. Please check your connection and try again.");
-                startText.setText('START GAME');
-                (window as any).updateStartButtonState?.();
-            } finally {
-                isFetchingData = false;
-            }
-        };
-
-        const startBtnObj = createNeonButton(width / 2, height / 2 + 50, 240, 60, startBtnColor, 'START GAME', '28px', startTextColor, () => {
-            if (!(window as any).walletAddress) {
-                alert('Wallet connection is required to register your Score On Chain!');
-                return;
-            }
-            if (isFetchingData) return;
-            this.sfx['menu_button']?.play();
-            fetchPlayerData();
-        });
-        const startBtn = startBtnObj.btn;
-        const startText = startBtnObj.btnText;
-
-        // Create Footer (Bottom Center)
-        const footerY = this.cameras.main.height - 40;
-        const footerText = this.add.text(this.cameras.main.centerX, footerY - 20, '2026 PolyDoom Arc — Built on Arc Network. All rights reserved.', {
-            fontSize: '14px',
-            color: '#ffffff',
-            fontFamily: 'monospace',
-            stroke: '#000000',
-            strokeThickness: 3,
-            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, stroke: true, fill: true }
-        }).setOrigin(0.5);
-
-        const socialLinks = [
-            { id: 'x', url: 'https://x.com/madnessinvestor', icon: 'x_icon' },
-            { id: 'github', url: 'https://github.com/madnessinvestor', icon: 'github_icon' },
-            { id: 'youtube', url: 'https://www.youtube.com/@madnessinvestor', icon: 'youtube_icon' },
-            { id: 'farcaster', url: 'https://farcaster.xyz/madnessinvestor', icon: 'farcaster_icon' },
-            { id: 'instagram', url: 'https://www.instagram.com/madnessinvestor', icon: 'instagram_icon' },
-            { id: 'telegram', url: 'https://web.telegram.org/k/#@madnessinvestor', icon: 'telegram_icon' },
-            { id: 'discord', url: 'https://discord.com/users/madnessinvestor', icon: 'discord_icon' }
-        ];
-
-        let startX = this.cameras.main.centerX - 210; 
-        socialLinks.forEach((link, index) => {
-            const x = startX + (index * 60);
-            const y = footerY + 10;
-            
-            const bg = this.add.circle(x, y, 20, 0x1e293b).setInteractive({ useHandCursor: true });
-            const icon = this.add.image(x, y, link.icon).setDisplaySize(30, 30);
-            
-            bg.on('pointerover', () => {
-                bg.setFillStyle(0xfbbf24);
-                icon.setTint(0x000000);
-            });
-            bg.on('pointerout', () => {
-                bg.setFillStyle(0x1e293b);
-                icon.clearTint();
-            });
-            bg.on('pointerdown', () => window.open(link.url, '_blank'));
-        });
-
-        // Contracts List (Bottom Right)
-        const contractsX = width - 40;
-        const contractsY = height - 100;
-        
-        this.add.text(contractsX, contractsY, 'Contracts', {
-            fontSize: '18px',
-            fontFamily: 'monospace',
-            color: '#fbbf24',
-            fontStyle: 'bold',
-            align: 'right',
-            stroke: '#000000',
-            strokeThickness: 4,
-            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, stroke: true, fill: true }
-        }).setOrigin(1, 0);
-
-        const contracts = [
-            { addr: '0x6101d4D79C6573c570eAA0eeabff13e663c17c08', url: 'https://testnet.arcscan.app/address/0x6101d4D79C6573c570eAA0eeabff13e663c17c08' },
-            { addr: '0x9b673bDBA9ed06989b1846d4C63468BCE86cf006', url: 'https://testnet.arcscan.app/address/0x9b673bDBA9ed06989b1846d4C63468BCE86cf006' },
-            { addr: '0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a', url: 'https://testnet.arcscan.app/address/0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a' }
-        ];
-
-        contracts.forEach((contract, i) => {
-            const text = this.add.text(contractsX, contractsY + 25 + (i * 20), contract.addr, {
-                fontSize: '14px',
-                fontFamily: 'monospace',
-                color: '#ffffff',
-                align: 'right',
-                stroke: '#000000',
-                strokeThickness: 2,
-                shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 3, fill: true }
-            }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
-
-            text.on('pointerover', () => text.setColor('#fbbf24'));
-            text.on('pointerout', () => text.setColor('#ffffff'));
-            text.on('pointerdown', () => window.open(contract.url, '_blank'));
-        });
-
-        // Store reference to update button state when wallet connects
-        (window as any).updateStartButtonState = () => {
-            if (isFetchingData) return;
-            const walletConnected = !!(window as any).walletAddress;
-            startBtn.setFillStyle(walletConnected ? 0x4ade80 : 0x6b7280);
-            startText.setColor(walletConnected ? '#ffffff' : '#9ca3af');
-        };
-
-        // Wallet Button
-        const walletBtnColor = 0x3b82f6;
-        const walletBtnObj = createNeonButton(width / 2, height / 2 - 30, 320, 60, walletBtnColor, 'CONNECT WALLET', '24px', '#ffffff', () => {
-            this.sfx['menu_button']?.play();
+        // Connect Wallet Button
+        const walletBtnObj = createNeonButton(width / 2, height / 2 - 30, 320, 60, 0x3b82f6, isWalletConnected ? `CONNECTED: ${(window as any).walletAddress.substring(0, 6)}...` : 'CONNECT WALLET', '24px', '#ffffff', () => {
             this.connectWallet();
         });
-        this.walletBtn = walletBtnObj.btn;
+        this.walletBtn = walletBtnObj.btn as any;
         this.walletText = walletBtnObj.btnText;
 
-        // Network Info Display
-        this.networkInfoText = this.add.text(width / 2, height / 2 - 70, '', {
-            fontSize: '18px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#4ade80',
-            fontStyle: 'bold',
-            align: 'center',
-            stroke: '#000000',
-            strokeThickness: 4,
-            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, fill: true }
-        }).setOrigin(0.5, 0.5);
+        // Start Button
+        const startBtnColor = isWalletConnected ? 0x4ade80 : 0x6b7280;
+        const startBtnObj = createNeonButton(width / 2, height / 2 + 50, 240, 60, startBtnColor, 'START GAME', '28px', '#ffffff', async () => {
+            if (!(window as any).walletAddress) {
+                alert('Wallet connection is required!');
+                return;
+            }
+            this.scene.start('MainScene');
+        });
+        this.startBtn = startBtnObj.btn as any;
+        this.startText = startBtnObj.btnText;
 
-        // USDC Balance Display (Top Right)
-        // Criado DENTRO do container do jogo (canvas wrapper) como um elemento Phaser.Text
+        // Menu Buttons Grid
+        const menuY = height / 2 + 130;
+        createNeonButton(width / 2, menuY, 220, 46, 0xec4899, 'UPGRADES', '20px', '#ffffff', () => (window as any).openUpgradesModal?.());
+        createNeonButton(width / 2, menuY + 60, 220, 46, 0x3b82f6, 'SHOPPING', '20px', '#ffffff', () => (window as any).openShoppingModal?.());
+        createNeonButton(width / 2, menuY + 120, 220, 46, 0xfbbf24, 'LEADERBOARD', '20px', '#ffffff', () => (window as any).openLeaderboardModal?.());
+        createNeonButton(width / 2, menuY + 180, 220, 46, 0x8b5cf6, 'HISTORY', '20px', '#ffffff', () => (window as any).openHistoryModal?.());
+        createNeonButton(width / 2, menuY + 240, 220, 46, 0x06b6d4, 'CONTROLS', '20px', '#ffffff', () => (window as any).openControlsModal?.());
+        createNeonButton(width / 2, menuY + 300, 220, 46, 0x64748b, 'SETTINGS', '20px', '#ffffff', () => (window as any).openSettingsModal?.());
+
+        // Wallet Display Logic
+        this.networkInfoText = this.add.text(width / 2, height / 2 - 70, isWalletConnected ? 'Arc Testnet' : '', {
+            fontSize: '18px', color: '#4ade80', fontStyle: 'bold'
+        }).setOrigin(0.5);
+
         this.usdcBalanceText = this.add.text(width - 40, 40, '', {
-            fontSize: '32px',
-            fontFamily: 'monospace',
-            color: '#4ade80',
-            align: 'right',
-            stroke: '#000000',
-            strokeThickness: 5,
-            shadow: { offsetX: 3, offsetY: 3, color: '#000', blur: 6, stroke: true, fill: true }
-        }).setOrigin(1, 0).setAlpha(0.9).setVisible(false).setDepth(10000).setScrollFactor(0);
+            fontSize: '32px', color: '#4ade80', fontFamily: 'monospace'
+        }).setOrigin(1, 0).setVisible(isWalletConnected);
 
-        // Limpa referências antigas para evitar vazamento de memória e garantir renderização única na cena
-        (window as any).updateUSDCBalanceDisplay = null;
-        
-        // Store reference to update USDC balance when wallet connects
-        (window as any).updateUSDCBalanceDisplay = () => {
-            if (this.scene && this.scene.isActive('StartScene')) {
-                this.updateUSDCBalance();
-            }
-        };
+        if (isWalletConnected) this.updateUSDCBalance();
 
-        if ((window as any).walletAddress) {
-            this.updateWalletButtonText(`CONNECTED: ${(window as any).walletAddress.substring(0, 6)}...`);
-            this.updateNetworkDisplay('Arc Testnet');
-            this.updateUSDCBalance();
-        }
+        // Footer and Social
+        const footerY = height - 40;
+        this.add.text(width / 2, footerY - 20, '2026 PolyDoom Arc — Built on Arc Network. All rights reserved.', {
+            fontSize: '14px', color: '#ffffff'
+        }).setOrigin(0.5);
+
+        const socials = [
+            { icon: 'x_icon', url: 'https://x.com/madnessinvestor' },
+            { icon: 'github_icon', url: 'https://github.com/madnessinvestor' },
+            { icon: 'youtube_icon', url: 'https://www.youtube.com/@madnessinvestor' },
+            { icon: 'farcaster_icon', url: 'https://farcaster.xyz/madnessinvestor' },
+            { icon: 'instagram_icon', url: 'https://www.instagram.com/madnessinvestor' },
+            { icon: 'telegram_icon', url: 'https://web.telegram.org/k/#@madnessinvestor' },
+            { icon: 'discord_icon', url: 'https://discord.com/users/madnessinvestor' }
+        ];
+
+        socials.forEach((s, i) => {
+            const sx = (width / 2 - 180) + (i * 60);
+            const sbtn = this.add.circle(sx, footerY + 10, 20, 0x1e293b).setInteractive({ useHandCursor: true });
+            this.add.image(sx, footerY + 10, s.icon).setDisplaySize(30, 30);
+            sbtn.on('pointerdown', () => window.open(s.url, '_blank'));
+        });
 
         // Set up wallet event listeners
         if ((window as any).ethereum) {
             (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
-                console.log('Accounts changed:', accounts);
                 if (accounts.length === 0) {
                     (window as any).walletAddress = null;
                     this.updateWalletButtonText('CONNECT WALLET');
-                    this.updateNetworkDisplay('');
                 } else {
                     (window as any).walletAddress = accounts[0];
-                    this.walletAddress = accounts[0];
                     this.updateWalletButtonText(`CONNECTED: ${accounts[0].substring(0, 6)}...`);
-                    this.updateUSDCBalance();
-                    if ((window as any).updateUSDCBalanceDisplay) {
-                        (window as any).updateUSDCBalanceDisplay();
-                    }
-                }
-                // Update START GAME button state
-                if ((window as any).updateStartButtonState) {
-                    (window as any).updateStartButtonState();
-                }
-            });
-
-            (window as any).ethereum.on('chainChanged', (chainId: string) => {
-                console.log('Chain changed:', chainId);
-                if (chainId === '0x4cef52') {
-                    this.updateNetworkDisplay('Arc Testnet');
-                } else {
-                    this.updateNetworkDisplay('Other Network');
                 }
                 this.updateUSDCBalance();
-                if ((window as any).updateUSDCBalanceDisplay) {
-                    (window as any).updateUSDCBalanceDisplay();
-                }
-            });
-
-            (window as any).ethereum.on('disconnect', () => {
-                console.log('Wallet disconnected');
-                (window as any).walletAddress = null;
-                this.walletAddress = null;
-                this.updateWalletButtonText('CONNECT WALLET');
-                this.updateNetworkDisplay('');
-                if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
-                if ((window as any).updateUSDCBalanceDisplay) {
-                    (window as any).updateUSDCBalanceDisplay();
-                }
-                // Update START GAME button state
-                if ((window as any).updateStartButtonState) {
-                    (window as any).updateStartButtonState();
-                }
             });
         }
-
-        // Leaderboard Button
-        const leaderboardBtnObj = createNeonButton(width / 2, height / 2 + 130, 220, 46, 0xfbbf24, 'LEADERBOARD', '20px', '#ffffff', () => {
-            this.sfx['menu_button']?.play();
-            const win = window as any;
-            if (typeof win.openLeaderboardModal === 'function') {
-                win.openLeaderboardModal();
-            }
-        });
-
-        // History Button
-        const historyBtnObj = createNeonButton(width / 2, height / 2 + 190, 220, 46, 0x8b5cf6, 'HISTORY', '20px', '#ffffff', () => {
-            this.sfx['menu_button']?.play();
-            const win = window as any;
-            if (typeof win.openHistoryModal === 'function') {
-                win.openHistoryModal();
-            }
-        });
-
-        // Upgrades Button (React Component integration)
-        const upgradesBtnObj = createNeonButton(width / 2, height / 2 + 250, 220, 46, 0xec4899, 'UPGRADES', '20px', '#ffffff', () => {
-            this.sfx['menu_button']?.play();
-            const win = window as any;
-            if (typeof win.openUpgradesModal === 'function') {
-                win.openUpgradesModal();
-            }
-        });
-        this.upgradesBtn = upgradesBtnObj.btn;
-        this.upgradesText = upgradesBtnObj.btnText;
-
-        // Limpa referências antigas para evitar vazamento de memória e garantir renderização única na cena
-        (window as any).updateUSDCBalanceDisplay = null;
-        
-        // Store reference to update USDC balance when wallet connects
-        (window as any).updateUSDCBalanceDisplay = () => {
-            if (this.scene && this.scene.isActive('StartScene')) {
-                this.updateUSDCBalance();
-            }
-        };
-
-        if ((window as any).walletAddress) {
-            this.updateWalletButtonText(`CONNECTED: ${(window as any).walletAddress.substring(0, 6)}...`);
-            this.updateNetworkDisplay('Arc Testnet');
-            this.updateUSDCBalance();
-        }
-
-        // Set up wallet event listeners
-        if ((window as any).ethereum) {
-            (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
-                console.log('Accounts changed:', accounts);
-                if (accounts.length === 0) {
-                    (window as any).walletAddress = null;
-                    this.updateWalletButtonText('CONNECT WALLET');
-                    this.updateNetworkDisplay('');
-                } else {
-                    (window as any).walletAddress = accounts[0];
-                    this.walletAddress = accounts[0];
-                    this.updateWalletButtonText(`CONNECTED: ${accounts[0].substring(0, 6)}...`);
-                    this.updateUSDCBalance();
-                    if ((window as any).updateUSDCBalanceDisplay) {
-                        (window as any).updateUSDCBalanceDisplay();
-                    }
-                }
-                // Update START GAME button state
-                if ((window as any).updateStartButtonState) {
-                    (window as any).updateStartButtonState();
-                }
-            });
-
-            (window as any).ethereum.on('chainChanged', (chainId: string) => {
-                console.log('Chain changed:', chainId);
-                if (chainId === '0x4cef52') {
-                    this.updateNetworkDisplay('Arc Testnet');
-                } else {
-                    this.updateNetworkDisplay('Other Network');
-                }
-                this.updateUSDCBalance();
-                if ((window as any).updateUSDCBalanceDisplay) {
-                    (window as any).updateUSDCBalanceDisplay();
-                }
-            });
-
-            (window as any).ethereum.on('disconnect', () => {
-                console.log('Wallet disconnected');
-                (window as any).walletAddress = null;
-                this.walletAddress = null;
-                this.updateWalletButtonText('CONNECT WALLET');
-                this.updateNetworkDisplay('');
-                if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
-                if ((window as any).updateUSDCBalanceDisplay) {
-                    (window as any).updateUSDCBalanceDisplay();
-                }
-                // Update START GAME button state
-                if ((window as any).updateStartButtonState) {
-                    (window as any).updateStartButtonState();
-                }
-            });
-        }
-
-        // Leaderboard Button
-        const leaderboardBtn = this.add.rectangle(width / 2, height / 2 + 130, 200, 40, 0xfbbf24);
-        const leaderboardText = this.add.text(width / 2, height / 2 + 130, 'LEADERBOARD', {
-            fontSize: '18px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#000000',
-            fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
-
-        leaderboardBtn.setInteractive().on('pointerdown', () => {
-            this.sfx['menu_button']?.play();
-            const win = window as any;
-            if (typeof win.openLeaderboardModal === 'function') {
-                win.openLeaderboardModal();
-            }
-        }).on('pointerover', () => {
-            leaderboardBtn.setFillStyle(0xfcd34d);
-        }).on('pointerout', () => {
-            leaderboardBtn.setFillStyle(0xfbbf24);
-        });
-
-        // History Button
-        const historyBtn = this.add.rectangle(width / 2, height / 2 + 190, 200, 40, 0x60a5fa);
-        const historyText = this.add.text(width / 2, height / 2 + 190, 'HISTORY', {
-            fontSize: '18px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#000000',
-            fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
-
-        historyBtn.setInteractive().on('pointerdown', () => {
-            this.sfx['menu_button']?.play();
-            const win = window as any;
-            if (typeof win.openHistoryModal === 'function') {
-                win.openHistoryModal();
-            }
-        }).on('pointerover', () => {
-            historyBtn.setFillStyle(0x3b82f6);
-        }).on('pointerout', () => {
-            historyBtn.setFillStyle(0x60a5fa);
-        });
-
-        // Upgrades Button
-        const upgradesBtn = this.add.rectangle(width / 2, height / 2 + 250, 200, 40, 0x10b981);
-        const upgradesText = this.add.text(width / 2, height / 2 + 250, 'UPGRADES', {
-            fontSize: '18px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#000000',
-            fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
-
-        upgradesBtn.setInteractive().on('pointerdown', () => {
-            this.sfx['menu_button']?.play();
-            const win = window as any;
-            if (typeof win.openUpgradesModal === 'function') {
-                win.openUpgradesModal();
-            }
-        }).on('pointerover', () => {
-            upgradesBtn.setFillStyle(0x34d399);
-        }).on('pointerout', () => {
-            upgradesBtn.setFillStyle(0x10b981);
-        });
-
-        // Shopping Button
-        const shoppingBtn = this.add.rectangle(width / 2, height / 2 + 310, 200, 40, 0x3b82f6);
-        const shoppingText = this.add.text(width / 2, height / 2 + 310, 'SHOPPING', {
-            fontSize: '18px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#000000',
-            fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
-
-        shoppingBtn.setInteractive().on('pointerdown', () => {
-            this.sfx['menu_button']?.play();
-            const win = window as any;
-            if (typeof win.openShoppingModal === 'function') {
-                win.openShoppingModal();
-            }
-        }).on('pointerover', () => {
-            shoppingBtn.setFillStyle(0x60a5fa);
-        }).on('pointerout', () => {
-            shoppingBtn.setFillStyle(0x3b82f6);
-        });
-
-        // Controls Button
-        const controlsBtn = this.add.rectangle(width / 2, height / 2 + 370, 200, 40, 0xa855f7);
-        const controlsText = this.add.text(width / 2, height / 2 + 370, 'CONTROLS', {
-            fontSize: '18px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#000000',
-            fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
-
-        controlsBtn.setInteractive().on('pointerdown', () => {
-            this.sfx['menu_button']?.play();
-            const win = window as any;
-            if (typeof win.openControlsModal === 'function') {
-                win.openControlsModal();
-            }
-        }).on('pointerover', () => {
-            controlsBtn.setFillStyle(0xc084fc);
-        }).on('pointerout', () => {
-            controlsBtn.setFillStyle(0xa855f7);
-        });
-
-        // Settings Button
-        const settingsBtn = this.add.rectangle(width / 2, height / 2 + 430, 200, 40, 0x8b5cf6);
-        const settingsText = this.add.text(width / 2, height / 2 + 430, 'SETTINGS', {
-            fontSize: '18px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#ffffff',
-            fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
-
-        settingsBtn.setInteractive().on('pointerdown', () => {
-            this.sfx['menu_button']?.play();
-            const win = window as any;
-            if (typeof win.openSettingsModal === 'function') {
-                win.openSettingsModal();
-            }
-        }).on('pointerover', () => {
-            settingsBtn.setFillStyle(0xa78bfa);
-        }).on('pointerout', () => {
-            settingsBtn.setFillStyle(0x8b5cf6);
-        });
     }
 
     public setMasterVolume(value: number) {
