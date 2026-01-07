@@ -10,22 +10,22 @@ export interface ScarfSegment {
 export class ScarfComponent {
     private scene: Phaser.Scene;
     private segments: ScarfSegment[] = [];
-    private numSegments: number = 6;
-    private segmentLength: number = 10;
+    private numSegments: number = 8;
+    private segmentLength: number = 8;
     private gravity: number = 0.15;
-    private friction: number = 0.9;
+    private friction: number = 0.92;
     private graphics: Phaser.GameObjects.Graphics;
     private target: Phaser.Physics.Arcade.Sprite;
     private color: number = 0xffdd00; // Amarelo do player
     private anchorOffsetY: number = -6; // Posição do pescoço
-    private baseWidth: number = 18; // Largura da capa no pescoço
-    private tipWidth: number = 36;  // Largura da capa na ponta (aumentada)
+    private baseWidth: number = 20; // Largura da capa no pescoço
+    private tipWidth: number = 38;  // Largura da capa na ponta
 
     constructor(scene: Phaser.Scene, target: Phaser.Physics.Arcade.Sprite) {
         this.scene = scene;
         this.target = target;
         this.graphics = scene.add.graphics();
-        // Coloca a capa ATRÁS do player (player depth é 10, então capa depth 9)
+        // A capa principal fica atrás (depth 9), o detalhe frontal na frente (depth 11)
         this.graphics.setDepth(9);
 
         // Initialize segments
@@ -45,21 +45,13 @@ export class ScarfComponent {
             return;
         }
 
-        // Segmentos 0 e 1 são rígidos e seguem o player
+        // Primeiro segmento é a âncora absoluta
         const seg0 = this.segments[0];
-        const seg1 = this.segments[1];
-
-        // Ancoragem rígida no pescoço
         seg0.x = this.target.x;
         seg0.y = this.target.y + this.anchorOffsetY;
-        
-        // Segmento 1 segue a orientação do movimento
-        const dirX = playerVelocityX !== 0 ? (playerVelocityX > 0 ? -1 : 1) : 0;
-        seg1.x = seg0.x + dirX * 3;
-        seg1.y = seg0.y + 4;
 
-        // Física apenas nos segmentos finais (2 e 3)
-        for (let i = 2; i < this.numSegments; i++) {
+        // Física para os outros segmentos
+        for (let i = 1; i < this.numSegments; i++) {
             const seg = this.segments[i];
             const vx = (seg.x - seg.oldX) * this.friction;
             const vy = (seg.y - seg.oldY) * this.friction;
@@ -70,19 +62,20 @@ export class ScarfComponent {
             seg.y += vy;
             seg.y += this.gravity;
 
-            // Brisa sutil quando parado
+            // Brisa sutil
             if (Math.abs(playerVelocityX) < 1 && Math.abs(playerVelocityY) < 1) {
                 const time = this.scene.time.now * 0.002;
-                seg.x += Math.sin(time + i) * 0.15;
+                seg.x += Math.sin(time + i * 0.5) * 0.1;
             } else {
-                // Inércia na ponta (projeção para trás)
-                seg.x -= playerVelocityX * 0.05;
+                // Inércia baseada no movimento (projeção para trás)
+                seg.x -= playerVelocityX * 0.04;
                 seg.y -= playerVelocityY * 0.02;
             }
         }
 
-        // Constraints para manter a forma
-        for (let j = 0; j < 3; j++) {
+        // Constraints refinadas para evitar "quebra" visual
+        // Usamos mais sub-passos para garantir que os segmentos não se separem
+        for (let j = 0; j < 5; j++) {
             for (let i = 0; i < this.numSegments - 1; i++) {
                 const s1 = this.segments[i];
                 const s2 = this.segments[i + 1];
@@ -96,9 +89,21 @@ export class ScarfComponent {
                 const offsetX = (dx / distance) * error;
                 const offsetY = (dy / distance) * error;
 
-                s2.x -= offsetX;
-                s2.y -= offsetY;
+                // O segmento 0 nunca move. O 1 move menos que os outros para rigidez na base.
+                if (i === 0) {
+                    s2.x -= offsetX;
+                    s2.y -= offsetY;
+                } else {
+                    const ratio = 0.5;
+                    s1.x += offsetX * ratio;
+                    s1.y += offsetY * ratio;
+                    s2.x -= offsetX * (1 - ratio);
+                    s2.y -= offsetY * (1 - ratio);
+                }
             }
+            // Re-ancorar o segmento 0 após o relaxamento das constraints
+            this.segments[0].x = this.target.x;
+            this.segments[0].y = this.target.y + this.anchorOffsetY;
         }
 
         this.draw();
@@ -106,28 +111,36 @@ export class ScarfComponent {
 
     private draw() {
         this.graphics.clear();
-        this.graphics.fillStyle(this.color, 1);
         
-        // Desenha a gola (envolto no pescoço) - Desenha na frente se necessário, 
-        // mas aqui mantemos o estilo da imagem onde a capa sai de trás dos ombros
-        this.graphics.fillEllipse(this.target.x, this.target.y + this.anchorOffsetY, this.baseWidth, 6);
+        const startX = this.target.x;
+        const startY = this.target.y + this.anchorOffsetY;
 
-        // Desenha a capa como uma forma de trapézio pixelado que abre até a ponta
+        // 1. DESENHO DA PARTE FRONTAL (ENVOLVENDO O QUADRADO)
+        // Isso dá a percepção de que está fixada AO REDOR
+        this.graphics.setDepth(11); // Forçamos o desenho para frente do player
+        this.graphics.lineStyle(4, this.color, 1);
+        this.graphics.strokeEllipse(startX, startY, this.baseWidth * 0.8, 6);
+        this.graphics.fillStyle(this.color, 1);
+        this.graphics.fillEllipse(startX, startY, this.baseWidth * 0.7, 5);
+
+        // 2. DESENHO DA CAPA (ATRÁS DO PLAYER)
+        this.graphics.setDepth(9); // Voltamos para trás do player para o corpo da capa
+        
+        // Usamos um desenho de malha contínua para evitar buracos ou quebras
         for (let i = 0; i < this.numSegments - 1; i++) {
             const s1 = this.segments[i];
             const s2 = this.segments[i + 1];
 
-            // Vetor normal para a largura
             const dx = s2.x - s1.x;
             const dy = s2.y - s1.y;
             const len = Math.sqrt(dx * dx + dy * dy) || 1;
             const nx = -dy / len;
             const ny = dx / len;
 
-            // Largura progride da base para a ponta (estilo leque/capa)
             const w1 = this.baseWidth + (this.tipWidth - this.baseWidth) * (i / (this.numSegments - 1));
             const w2 = this.baseWidth + (this.tipWidth - this.baseWidth) * ((i + 1) / (this.numSegments - 1));
             
+            // Desenha trapézios sobrepostos para suavizar a forma
             this.graphics.fillPoints([
                 new Phaser.Geom.Point(s1.x + nx * (w1/2), s1.y + ny * (w1/2)),
                 new Phaser.Geom.Point(s1.x - nx * (w1/2), s1.y - ny * (w1/2)),
