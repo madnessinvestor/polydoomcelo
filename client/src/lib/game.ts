@@ -4431,43 +4431,50 @@ class StartScene extends Phaser.Scene {
         }
     }
 
-    create() {
-        // Auto-connect wallet if possible
-        const checkAutoConnect = async () => {
-            if ((window as any).ethereum) {
-                try {
-                    const accounts = await (window as any).ethereum.request({ method: 'eth_accounts' });
-                    if (accounts.length > 0) {
-                        this.walletAddress = accounts[0];
-                        (window as any).walletAddress = this.walletAddress;
-                        this.updateWalletButtonText(`CONNECTED: ${this.walletAddress?.substring(0, 6)}...`);
-                        this.updateNetworkDisplay('Arc Testnet');
-                        
-                        if ((window as any).updateStartButtonState) {
-                            (window as any).updateStartButtonState();
-                        }
-                        
-                        // Force balance update on auto-connect
-                        this.updateUSDCBalance();
-                    }
-                } catch (err) {
-                    console.error("Auto-connect check failed:", err);
-                }
-            }
-        };
-        checkAutoConnect();
-
-        // Load sounds if not already available (usually preloaded in PreloadScene)
-        if (this.cache.audio.exists('menu_button')) {
-            this.sfx['menu_button'] = this.sound.add('menu_button');
-        }
-        if (this.cache.audio.exists('menu_close')) {
-            this.sfx['menu_close'] = this.sound.add('menu_close');
-        }
-
-
+    private create() {
+        // ... existing code ...
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
+
+        // Leaderboard Button
+        const leaderboardBtn = this.add.rectangle(width * 0.9, height * 0.1, 180, 50, 0x1e293b, 0.8)
+            .setStrokeStyle(2, 0x60a5fa)
+            .setInteractive({ useHandCursor: true });
+        this.add.text(width * 0.9, height * 0.1, 'LEADERBOARD', { fontSize: '18px', color: '#fff' }).setOrigin(0.5);
+        leaderboardBtn.on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
+            (window as any).openLeaderboardModal?.();
+        });
+
+        // Controls Button
+        const controlsBtn = this.add.rectangle(width * 0.9, height * 0.2, 180, 50, 0x1e293b, 0.8)
+            .setStrokeStyle(2, 0xfbbf24)
+            .setInteractive({ useHandCursor: true });
+        this.add.text(width * 0.9, height * 0.2, 'CONTROLS', { fontSize: '18px', color: '#fff' }).setOrigin(0.5);
+        controlsBtn.on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
+            (window as any).openControlsModal?.();
+        });
+
+        // History Button
+        const historyBtn = this.add.rectangle(width * 0.9, height * 0.3, 180, 50, 0x1e293b, 0.8)
+            .setStrokeStyle(2, 0x10b981)
+            .setInteractive({ useHandCursor: true });
+        this.add.text(width * 0.9, height * 0.3, 'HISTORY', { fontSize: '18px', color: '#fff' }).setOrigin(0.5);
+        historyBtn.on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
+            (window as any).openHistoryModal?.();
+        });
+
+        // Settings Button
+        const settingsBtn = this.add.rectangle(width * 0.9, height * 0.4, 180, 50, 0x1e293b, 0.8)
+            .setStrokeStyle(2, 0x8b5cf6)
+            .setInteractive({ useHandCursor: true });
+        this.add.text(width * 0.9, height * 0.4, 'SETTINGS', { fontSize: '18px', color: '#fff' }).setOrigin(0.5);
+        settingsBtn.on('pointerdown', () => {
+            this.sfx['menu_button']?.play();
+            (window as any).openSettingsModal?.();
+        });
 
         // Background
         this.add.rectangle(0, 0, width, height, 0x0a0a20).setOrigin(0).setScrollFactor(0);

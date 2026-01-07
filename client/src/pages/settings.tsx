@@ -1,28 +1,19 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { ArrowLeft } from "lucide-react";
 import { useUI } from "@/hooks/use-ui";
 
-declare global {
-  interface Window {
-    game?: Phaser.Game;
-  }
-}
-
 export default function Settings() {
-  const { isLocked, openModal, closeModal, activeModal } = useUI();
+  const { openModal, closeModal } = useUI();
   const [masterVolume, setMasterVolume] = useState(100);
   const [musicVolume, setMusicVolume] = useState(100);
   const [sfxVolume, setSfxVolume] = useState(100);
 
   useEffect(() => {
-    // Save state for modal logic
     openModal("settings");
     
-    // Load saved settings from localStorage
     const savedMaster = localStorage.getItem("masterVolume");
     const savedMusic = localStorage.getItem("musicVolume");
     const savedSfx = localStorage.getItem("sfxVolume");
@@ -31,146 +22,72 @@ export default function Settings() {
     if (savedMusic) setMusicVolume(parseInt(savedMusic));
     if (savedSfx) setSfxVolume(parseInt(savedSfx));
 
-    return () => {
-      closeModal();
-    };
+    return () => closeModal();
   }, []);
-
-  const handleBackdropClick = (e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleVolumeChange = (e: React.PointerEvent) => {
-    e.stopPropagation();
-  };
 
   const updateVolume = (type: "master" | "music" | "sfx", value: number) => {
     if (type === "master") {
       setMasterVolume(value);
       localStorage.setItem("masterVolume", value.toString());
-      applyMasterVolume(value);
+      applyVolume("setMasterVolume", value);
     } else if (type === "music") {
       setMusicVolume(value);
       localStorage.setItem("musicVolume", value.toString());
-      applyMusicVolume(value);
+      applyVolume("setMusicVolume", value);
     } else {
       setSfxVolume(value);
       localStorage.setItem("sfxVolume", value.toString());
-      applySfxVolume(value);
+      applyVolume("setSfxVolume", value);
     }
   };
 
-  const applyMasterVolume = (volume: number) => {
+  const applyVolume = (fnName: string, volume: number) => {
     if (window.game) {
       window.game.scene.getScenes(true).forEach(scene => {
-        if ((scene as any).setMasterVolume) {
-          (scene as any).setMasterVolume(volume);
+        if ((scene as any)[fnName]) {
+          (scene as any)[fnName](volume);
         }
       });
     }
-  };
-
-  const applyMusicVolume = (volume: number) => {
-    if (window.game) {
-      window.game.scene.getScenes(true).forEach(scene => {
-        if ((scene as any).setMusicVolume) {
-          (scene as any).setMusicVolume(volume);
-        }
-      });
-    }
-  };
-
-  const applySfxVolume = (volume: number) => {
-    if (window.game) {
-      // Update volume in all active scenes
-      window.game.scene.getScenes(true).forEach(scene => {
-        if ((scene as any).setSfxVolume) {
-          (scene as any).setSfxVolume(volume);
-        }
-      });
-    }
-  };
-
-  const handleBackToMenu = () => {
-    closeModal();
   };
 
   return (
-    <div className="fixed inset-0 w-full h-full bg-black/20 backdrop-blur-none flex items-center justify-center p-4 z-[160] pointer-events-auto" onPointerDown={handleBackdropClick}>
-      <Card className="w-full max-w-md bg-slate-900 border-amber-400 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 w-full h-full bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[160] pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
+      <Card className="w-full max-w-md bg-slate-900 border-amber-400 pointer-events-auto">
         <CardHeader className="border-b border-amber-400">
           <div className="flex items-center gap-3">
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleBackToMenu}
-              className="text-amber-400 hover:text-amber-300"
-              data-testid="button-back-to-menu"
-            >
+            <Button size="icon" variant="ghost" onClick={closeModal} className="text-amber-400 hover:text-amber-300">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <CardTitle className="text-amber-400 text-2xl">SETTINGS</CardTitle>
+            <CardTitle className="text-amber-400 text-2xl uppercase font-bold tracking-tighter">Settings</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="pt-8 space-y-8">
-          {/* Master Volume */}
-          <div className="space-y-3" onPointerDown={handleVolumeChange}>
+          <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-white font-semibold">Master Volume</label>
+              <label className="text-white font-bold uppercase text-sm tracking-widest">Master Volume</label>
               <span className="text-amber-400 font-bold text-lg">{masterVolume}%</span>
             </div>
-            <Slider
-              defaultValue={[masterVolume]}
-              onValueChange={(value) => updateVolume("master", value[0])}
-              max={100}
-              min={0}
-              step={1}
-              className="w-full pointer-events-auto"
-              data-testid="slider-master-volume"
-            />
+            <Slider defaultValue={[masterVolume]} onValueChange={(v) => updateVolume("master", v[0])} max={100} min={0} step={1} className="w-full" />
           </div>
 
-          {/* Music Volume */}
-          <div className="space-y-3" onPointerDown={handleVolumeChange}>
+          <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-white font-semibold">Background Music Volume</label>
+              <label className="text-white font-bold uppercase text-sm tracking-widest">Music Volume</label>
               <span className="text-amber-400 font-bold text-lg">{musicVolume}%</span>
             </div>
-            <Slider
-              defaultValue={[musicVolume]}
-              onValueChange={(value) => updateVolume("music", value[0])}
-              max={100}
-              min={0}
-              step={1}
-              className="w-full pointer-events-auto"
-              data-testid="slider-music-volume"
-            />
+            <Slider defaultValue={[musicVolume]} onValueChange={(v) => updateVolume("music", v[0])} max={100} min={0} step={1} className="w-full" />
           </div>
 
-          {/* SFX Volume */}
-          <div className="space-y-3" onPointerDown={handleVolumeChange}>
+          <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-white font-semibold">Effects Volume</label>
+              <label className="text-white font-bold uppercase text-sm tracking-widest">Effects Volume</label>
               <span className="text-amber-400 font-bold text-lg">{sfxVolume}%</span>
             </div>
-            <Slider
-              defaultValue={[sfxVolume]}
-              onValueChange={(value) => updateVolume("sfx", value[0])}
-              max={100}
-              min={0}
-              step={1}
-              className="w-full pointer-events-auto"
-              data-testid="slider-sfx-volume"
-            />
+            <Slider defaultValue={[sfxVolume]} onValueChange={(v) => updateVolume("sfx", v[0])} max={100} min={0} step={1} className="w-full" />
           </div>
 
-          {/* Back Button */}
-          <Button
-            onClick={handleBackToMenu}
-            className="w-full mt-8 bg-amber-400 hover:bg-amber-500 text-black font-bold text-lg py-6"
-            data-testid="button-settings-close"
-          >
+          <Button onClick={closeModal} className="w-full mt-8 bg-amber-400 hover:bg-amber-500 text-black font-extrabold text-lg py-6 uppercase rounded-none">
             Back to Menu
           </Button>
         </CardContent>

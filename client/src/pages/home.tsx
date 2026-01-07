@@ -176,12 +176,40 @@ export default function Home() {
     };
     (window as any).openShoppingModal = triggerShopping;
 
+    const triggerLeaderboard = () => {
+      console.log("React: triggerLeaderboard called");
+      openModal("leaderboard");
+    };
+    (window as any).openLeaderboardModal = triggerLeaderboard;
+
+    const triggerSettings = () => {
+      console.log("React: triggerSettings called");
+      openModal("settings");
+    };
+    (window as any).openSettingsModal = triggerSettings;
+
+    const triggerControls = () => {
+      console.log("React: triggerControls called");
+      openModal("controls");
+    };
+    (window as any).openControlsModal = triggerControls;
+
+    const triggerHistory = () => {
+      console.log("React: triggerHistory called");
+      openModal("history");
+    };
+    (window as any).openHistoryModal = triggerHistory;
+
     return () => {
       delete (window as any).showPauseModal;
       delete (window as any).hidePauseModal;
       delete (window as any).openUpgradesModal;
       delete (window as any).showUpgradesModal;
       delete (window as any).openShoppingModal;
+      delete (window as any).openLeaderboardModal;
+      delete (window as any).openSettingsModal;
+      delete (window as any).openControlsModal;
+      delete (window as any).openHistoryModal;
     };
   }, [isConnected]);
 
@@ -249,6 +277,37 @@ export default function Home() {
       )}
       {activeModal === "settings" && (
         <Settings />
+      )}
+      {activeModal === "controls" && (
+        <div className="fixed inset-0 z-[160] flex items-center justify-center pointer-events-auto">
+          <div className="bg-slate-900 border-4 border-amber-400 p-8 max-w-2xl w-full max-h-[80vh] overflow-auto text-white">
+            <h2 className="text-3xl font-bold text-amber-400 mb-6 border-b-2 border-amber-400 pb-2">GAME CONTROLS</h2>
+            <div className="grid grid-cols-2 gap-8 mb-8">
+              <div>
+                <h3 className="text-amber-400 mb-4 border-b border-amber-400/30">BASIC</h3>
+                <div className="flex justify-between py-2 border-b border-slate-800"><span>MOVEMENT</span><span className="text-amber-400">ARROWS</span></div>
+                <div className="flex justify-between py-2 border-b border-slate-800"><span>JUMP</span><span className="text-amber-400">UP / SPACE</span></div>
+                <div className="flex justify-between py-2 border-b border-slate-800"><span>PUNCH</span><span className="text-amber-400">Z</span></div>
+              </div>
+              <div>
+                <h3 className="text-amber-400 mb-4 border-b border-amber-400/30">SPECIAL</h3>
+                <div className="flex justify-between py-2 border-b border-slate-800"><span>KI CHARGE</span><span className="text-amber-400">X</span></div>
+                <div className="flex justify-between py-2 border-b border-slate-800"><span>MAGIC</span><span className="text-amber-400">C</span></div>
+                <div className="flex justify-between py-2 border-b border-slate-800"><span>SPECIAL</span><span className="text-amber-400">V</span></div>
+              </div>
+            </div>
+            <Button onClick={closeModal} className="w-full bg-amber-400 hover:bg-amber-500 text-black font-bold">CLOSE</Button>
+          </div>
+        </div>
+      )}
+      {activeModal === "history" && (
+        <div className="fixed inset-0 z-[160] flex items-center justify-center pointer-events-auto bg-black/80">
+          <div className="bg-black border-4 border-blue-400 p-4 max-w-4xl w-full flex flex-col items-center">
+            <h2 className="text-2xl font-bold text-blue-400 mb-4 uppercase">Game History</h2>
+            <video src="/attached_assets/gamehistory_1767067604123.mp4" controls className="w-full h-auto mb-4 border-2 border-blue-400/30" />
+            <Button onClick={closeModal} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8">BACK</Button>
+          </div>
+        </div>
       )}
       
       {/* GLOBAL BLOCKER - Higher Z-index than EVERYTHING except modals */}
