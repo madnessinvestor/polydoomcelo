@@ -27,14 +27,14 @@ export default function Controls() {
       ]
     },
     {
-      title: "Combat & Potions",
+      title: "Combat & Arcki",
       items: [
         { label: "Punch Attack", key: "Z" },
-        { label: "Charge Kiarc", key: "X (Hold)" },
-        { label: "Magic Attack", key: "C" },
-        { label: "Special Attack", key: "V" },
+        { label: "Charge Arcki", key: "X (Hold)" },
+        { label: "Magic Kiarc", key: "C" },
+        { label: "Genkidama", key: "V" },
         { label: "Heal HP", key: "Q" },
-        { label: "Restore Ki", key: "W" },
+        { label: "Restore Kiarc", key: "W" },
         { label: "Immunity", key: "E" },
         { label: "Double Score", key: "R" },
       ]
