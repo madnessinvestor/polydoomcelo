@@ -5631,123 +5631,90 @@ class DeathScene extends Phaser.Scene {
 
     private openNameModal() {
         // 🔴 VALIDAÇÃO CRÍTICA: Bloquear se score for inválido
-        console.log('🔓 ABRINDO MODAL DE REGISTRO');
-        console.log('  - Score Final:', this.finalScore);
-        console.log('  - Tipo:', typeof this.finalScore);
-        console.log('  - É válido (> 0)?', this.finalScore > 0);
-        
         if (!this.finalScore || this.finalScore <= 0) {
-            console.error('🚫 BLOQUEADO: Score inválido! Não abrindo wallet.');
-            alert(`❌ Erro: Score inválido (${this.finalScore}). Não é possível registrar.\nReque reiniciar o jogo.`);
-            return; // 🛑 PARAR AQUI - Não abrir wallet se score = 0
+            alert(`❌ Erro: Score inválido (${this.finalScore}). Não é possível registrar.\nRequer reiniciar o jogo.`);
+            return;
         }
-        
-        console.log('✅ Score VÁLIDO, abrindo modal de registro...');
         
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
-        // Dark overlay
+        // Dark overlay background (Matching Settings/Upgrades)
         const overlay = this.add.rectangle(0, 0, width * 2, height * 2, 0x000000, 0.7).setOrigin(0).setScrollFactor(0).setDepth(100);
 
-        // Modal background
-        const modalBg = this.add.rectangle(width / 2, height / 2, 400, 250, 0x0f172a, 1).setScrollFactor(0).setDepth(101);
+        // Modal background (Matching Settings/Upgrades: 0x0f172a)
+        const modalBg = this.add.rectangle(width / 2, height / 2, 400, 300, 0x0f172a, 1).setScrollFactor(0).setDepth(101);
         
         // Border
-        const border = this.add.rectangle(width / 2, height / 2, 400, 250);
+        const border = this.add.rectangle(width / 2, height / 2, 400, 300);
         border.setStrokeStyle(3, 0x4ade80).setFillStyle(0x0f172a, 0).setScrollFactor(0).setDepth(102);
 
         // Title
-        const title = this.add.text(width / 2, height / 2 - 80, 'REGISTER SCORE', {
-            fontSize: '24px',
+        const title = this.add.text(width / 2, height / 2 - 110, 'REGISTER SCORE', {
+            fontSize: '28px',
             fontFamily: 'Arial, sans-serif',
             color: '#4ade80',
             fontStyle: 'bold',
             align: 'center'
         }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(103);
 
-        // Create HTML input container
+        // HTML Input container (Only for the name input)
         const inputContainer = document.createElement('div');
         inputContainer.id = 'score-register-container';
         inputContainer.style.position = 'absolute';
         inputContainer.style.left = '50%';
-        inputContainer.style.top = '50%';
+        inputContainer.style.top = '46%';
         inputContainer.style.transform = 'translate(-50%, -50%)';
-        inputContainer.style.width = '320px';
+        inputContainer.style.width = '300px';
         inputContainer.style.zIndex = '104';
         inputContainer.style.pointerEvents = 'auto';
 
-        // Add CSS
         const style = document.createElement('style');
         style.textContent = `
             #score-register-container input {
                 width: 100%;
                 padding: 12px;
-                font-size: 16px;
+                font-size: 18px;
                 border: 2px solid #4ade80;
                 border-radius: 4px;
                 background: #1a1a2e;
                 color: #fff;
                 box-sizing: border-box;
-                margin-bottom: 15px;
+                text-align: center;
             }
-            
             #score-register-container input:focus {
                 outline: none;
                 border-color: #22c55e;
                 box-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
             }
-            
-            #score-register-container button {
-                width: 100%;
-                padding: 10px;
-                margin-bottom: 8px;
-                font-size: 16px;
-                font-weight: bold;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                transition: background 0.2s;
-            }
-            
-            #confirm-register-btn {
-                background: #4ade80;
-                color: #000;
-            }
-            
-            #confirm-register-btn:hover {
-                background: #22c55e;
-            }
-            
-            #cancel-register-btn {
-                background: #ff6b6b;
-                color: #000;
-            }
-            
-            #cancel-register-btn:hover {
-                background: #ff5252;
-            }
         `;
         document.head.appendChild(style);
 
-        inputContainer.innerHTML = `
-            <div style="text-align: center;">
-                <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="30" style="margin-top: 0;">
-                <button id="confirm-register-btn">CONFIRM</button>
-                <button id="cancel-register-btn">CANCEL</button>
-            </div>
-        `;
-
+        inputContainer.innerHTML = `<input type="text" id="player-name-input" placeholder="Enter your name" maxlength="30">`;
         document.body.appendChild(inputContainer);
 
         const nameInput = document.getElementById('player-name-input') as HTMLInputElement;
-        const confirmBtn = document.getElementById('confirm-register-btn') as HTMLButtonElement;
-        const cancelBtn = document.getElementById('cancel-register-btn') as HTMLButtonElement;
-
-        // Focus on input
         setTimeout(() => nameInput?.focus(), 0);
 
-        const closeModal = (shouldReload: boolean = false) => {
+        // Phaser CONFIRM Button
+        const confirmBtn = this.add.rectangle(width / 2, height / 2 + 40, 200, 50, 0x4ade80).setScrollFactor(0).setDepth(103);
+        const confirmText = this.add.text(width / 2, height / 2 + 40, 'CONFIRM', {
+            fontSize: '20px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(104);
+
+        // Phaser CANCEL Button
+        const cancelBtn = this.add.rectangle(width / 2, height / 2 + 105, 200, 50, 0xff6b6b).setScrollFactor(0).setDepth(103);
+        const cancelText = this.add.text(width / 2, height / 2 + 105, 'CANCEL', {
+            fontSize: '20px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            fontStyle: 'bold'
+        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(104);
+
+        const closeModal = () => {
             if (inputContainer && inputContainer.parentElement) {
                 inputContainer.remove();
             }
@@ -5758,64 +5725,45 @@ class DeathScene extends Phaser.Scene {
             modalBg.destroy();
             border.destroy();
             title.destroy();
-
-            // Ao cancelar, NÃO recarrega a página inteira. 
-            // Apenas remove o modal para que a DeathScene (Game Over) continue visível.
-            if (shouldReload && !inputContainer.parentElement) {
-                 // Esta parte só seria usada se submitScore falhasse criticamente
-                 //this.sound.stopAll();
-                 //window.location.reload();
-            }
+            confirmBtn.destroy();
+            confirmText.destroy();
+            cancelBtn.destroy();
+            cancelText.destroy();
         };
 
         const submitWithName = async () => {
-            if (confirmBtn.disabled) return; // Prevent multiple clicks during processing
+            if (confirmBtn.getData('processing')) return;
 
             const playerName = nameInput.value.trim();
-            
             if (playerName.length < 2) {
                 alert('❌ Name must be at least 2 characters long!');
                 nameInput.focus();
                 return;
             }
             
-            // ✅ VALIDAÇÃO FINAL antes de fechar modal
-            console.log('✅ Confirmando registro:');
-            console.log('  - Nome:', playerName);
-            console.log('  - Score Final:', this.finalScore);
-            console.log('  - Score válido?', this.finalScore > 0);
-            
-            if (this.finalScore === undefined || this.finalScore === null || isNaN(this.finalScore) || this.finalScore <= 0) {
-                console.error('🚫 ERRO: Score inválido antes de submeter!', this.finalScore);
-                alert('❌ Erro crítico: Score inválido (0 ou NaN). Jogue novamente para pontuar!');
-                closeModal(false); 
-                return;
-            }
-            
-            // Desabilitar botões para evitar cliques duplos
-            confirmBtn.disabled = true;
-            cancelBtn.disabled = true;
-            confirmBtn.innerText = 'SENDING...';
+            confirmBtn.setData('processing', true);
+            confirmBtn.setFillStyle(0x666666);
+            confirmText.setText('SENDING...');
             
             try {
                 await this.submitScore(playerName);
-                // The submitScore function already handles cleanup and reload
             } catch (err) {
                 console.error('Erro no submit:', err);
-                confirmBtn.disabled = false;
-                cancelBtn.disabled = false;
-                confirmBtn.innerText = 'CONFIRM';
+                confirmBtn.setData('processing', false);
+                confirmBtn.setFillStyle(0x4ade80);
+                confirmText.setText('CONFIRM');
             }
         };
 
-        confirmBtn.addEventListener('click', submitWithName);
-        nameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                submitWithName();
-            }
+        confirmBtn.setInteractive().on('pointerdown', submitWithName).on('pointerover', () => confirmBtn.setFillStyle(0x22c55e)).on('pointerout', () => {
+            if (!confirmBtn.getData('processing')) confirmBtn.setFillStyle(0x4ade80);
         });
+        
+        cancelBtn.setInteractive().on('pointerdown', () => closeModal()).on('pointerover', () => cancelBtn.setFillStyle(0xff5252)).on('pointerout', () => cancelBtn.setFillStyle(0xff6b6b));
 
-        cancelBtn.addEventListener('click', () => closeModal(false));
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') submitWithName();
+        });
     }
 
     private async submitScore(playerName: string) {
