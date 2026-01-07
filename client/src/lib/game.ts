@@ -5245,27 +5245,37 @@ class StartScene extends Phaser.Scene {
                     <h3 style="color: #fbbf24; border-bottom: 2px solid #fbbf24; padding-bottom: 5px; margin-bottom: 15px;">SPECIAL ABILITIES</h3>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>CHARGE ARCKI</span>
-                        <span style="color: #fbbf24;">X KEY (HOLD)</span>
+                        <div style="text-align: right;">
+                            <span style="color: #fbbf24;">X KEY (HOLD)</span><br/>
+                            <small style="color: #60a5fa;">KI: +REC | CD: 0s</small>
+                        </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>ARCKAMEHAMEHA</span>
                         <div style="text-align: right;">
                             <span style="color: #fbbf24;">V KEY (HOLD/RELEASE)</span><br/>
-                            <small style="color: #60a5fa;">KI: 100 | CD: 2s</small>
+                            <small style="color: #60a5fa;">KI: 100 | CD: 5s</small>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>ARCGENKIDAMA</span>
                         <div style="text-align: right;">
                             <span style="color: #fbbf24;">B KEY (HOLD/RELEASE)</span><br/>
-                            <small style="color: #60a5fa;">KI: 50 | CD: 10s</small>
+                            <small style="color: #60a5fa;">KI: 50 | CD: 30s</small>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>EXPLOSION KIARC</span>
                         <div style="text-align: right;">
                             <span style="color: #fbbf24;">F KEY (PRESS)</span><br/>
-                            <small style="color: #60a5fa;">KI: 30 | CD: 5s</small>
+                            <small style="color: #60a5fa;">KI: 100 | CD: 5s</small>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>MAGIC KIARC</span>
+                        <div style="text-align: right;">
+                            <span style="color: #fbbf24;">C KEY (PRESS)</span><br/>
+                            <small style="color: #60a5fa;">KI: 20 | CD: 0s</small>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
