@@ -5248,15 +5248,24 @@ class StartScene extends Phaser.Scene {
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>ARCKAMEHAMEHA</span>
-                        <span style="color: #fbbf24;">V KEY (HOLD/RELEASE)</span>
+                        <div style="text-align: right;">
+                            <span style="color: #fbbf24;">V KEY (HOLD/RELEASE)</span><br/>
+                            <small style="color: #60a5fa;">KI: 20 | CD: 2s</small>
+                        </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>ARCGENKIDAMA</span>
-                        <span style="color: #fbbf24;">B KEY (HOLD/RELEASE)</span>
+                        <div style="text-align: right;">
+                            <span style="color: #fbbf24;">B KEY (HOLD/RELEASE)</span><br/>
+                            <small style="color: #60a5fa;">KI: 50 | CD: 10s</small>
+                        </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>EXPLOSION KIARC</span>
-                        <span style="color: #fbbf24;">F KEY (PRESS)</span>
+                        <div style="text-align: right;">
+                            <span style="color: #fbbf24;">F KEY (PRESS)</span><br/>
+                            <small style="color: #60a5fa;">KI: 30 | CD: 5s</small>
+                        </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>HP POTION</span>
