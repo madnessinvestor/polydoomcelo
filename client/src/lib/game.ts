@@ -2674,8 +2674,9 @@ class MainScene extends Phaser.Scene {
 
     chargeGenkidama() {
         this.isChargingGenkidama = true;
-        const kiToConsume = 0.5;
-        if (this.kiarc >= kiToConsume) {
+        // Consome 200 de KI no total. Incremento ajustado para refletir o custo total.
+        const kiToConsume = 2.0; 
+        if (this.kiarc >= kiToConsume && this.genkidamaChargeAmount < 200) {
             this.kiarc -= kiToConsume;
             this.genkidamaChargeAmount += kiToConsume;
             
