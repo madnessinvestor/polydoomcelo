@@ -40,7 +40,7 @@ export class ScarfComponent {
     }
 
     update(playerVelocityX: number, playerVelocityY: number) {
-        if (!this.target.visible) {
+        if (!this.target || !this.target.active || !this.target.visible) {
             this.graphics.clear();
             return;
         }
@@ -49,6 +49,8 @@ export class ScarfComponent {
         // Ancorado ao torso superior
         firstSegment.x = this.target.x;
         firstSegment.y = this.target.y + this.anchorOffsetY;
+
+        console.log("Scarf updating at:", firstSegment.x, firstSegment.y); // Log constante para debug
 
         // Verlet integration
         for (let i = 1; i < this.numSegments; i++) {
