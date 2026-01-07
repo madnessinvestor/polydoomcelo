@@ -822,6 +822,25 @@ class MainScene extends Phaser.Scene {
         }
 
         this.keys = this.input.keyboard?.addKeys('Z,X,C,V,B,F,D,ONE,TWO,THREE,FOUR');
+
+        // Initialize SFX
+        const sfxKeys = [
+            'genkidama_charge', 'genkidama_launch', 'kamehameha_charge', 'kamehameha_launch',
+            'charge_ki', 'dash', 'explosion_ki', 'item_pickup', 'punch', 'magic',
+            'menu_button', 'close_button'
+        ];
+        sfxKeys.forEach(key => {
+            if (!this.sound.get(key)) {
+                this.sfx[key] = this.sound.add(key);
+            } else {
+                this.sfx[key] = this.sound.get(key) as Phaser.Sound.BaseSound;
+            }
+            
+            const volume = this.masterVolume * this.sfxVolume;
+            if (this.sfx[key] && (this.sfx[key] as any).setVolume) {
+                (this.sfx[key] as any).setVolume(volume);
+            }
+        });
         this.cursors = this.input.keyboard!.createCursorKeys();
 
         // ESC key for pause
