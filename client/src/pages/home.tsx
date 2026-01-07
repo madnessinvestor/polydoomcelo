@@ -206,33 +206,30 @@ export default function Home() {
         <Settings />
       )}
       
-      {/* Global UI Lock Overlay - Block EVERYTHING except the modals */}
+      {/* GLOBAL BLOCKER - Higher Z-index than EVERYTHING except modals */}
       {isLocked && (
         <div 
-          className="fixed inset-0 z-[145] bg-black/60 backdrop-blur-[4px] pointer-events-auto cursor-default transition-all duration-300" 
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onMouseDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onPointerUp={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          style={{ touchAction: 'none' }}
+          className="fixed inset-0 z-[155] bg-black/60 backdrop-blur-[4px] pointer-events-auto cursor-default" 
+          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onMouseUp={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onPointerUp={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          style={{ touchAction: 'none', userSelect: 'none' }}
         />
       )}
 
-      <div className={`w-full flex flex-col items-center transition-all duration-300 ${isLocked ? "scale-[0.98] blur-[2px] pointer-events-none select-none" : "scale-100 blur-0"}`}>
+      <div className={`w-full flex flex-col items-center transition-all duration-300 ${isLocked ? "scale-[0.98] blur-[2px]" : "scale-100 blur-0"}`}>
         {/* Game Container */}
         <div className="relative">
+          {isLocked && (
+            <div 
+              className="absolute inset-0 z-[2000] bg-transparent cursor-not-allowed" 
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            />
+          )}
           <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden relative" style={{ width: '1920px', height: '1080px' }} />
         </div>
       </div>
