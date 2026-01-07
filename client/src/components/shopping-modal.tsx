@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Beaker, Zap, Shield, Star, Loader2 } from "lucide-react";
+import { Beaker, Zap, Shield, Star, Loader2, ShoppingCart } from "lucide-react";
 import { ethers } from "ethers";
 import { useUI } from "@/hooks/use-ui";
 
@@ -214,10 +214,12 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[160] bg-black/20 backdrop-blur-none flex items-center justify-center p-4 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
       <Card className="w-full max-w-4xl bg-slate-900 border-2 border-blue-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(59,130,246,0.3)]" onPointerDown={(e) => e.stopPropagation()}>
-        <CardHeader className="border-b border-slate-800 relative">
-          <div className="flex flex-col items-center justify-center py-2">
-            <CardTitle className="text-3xl font-bold text-blue-500 uppercase tracking-widest text-center">SHOPPING</CardTitle>
-            <CardDescription className="text-slate-400 mt-1">Buy powerful potions to help your journey</CardDescription>
+        <CardHeader className="border-b border-blue-500/30 bg-blue-950/20 relative">
+          <div className="flex items-center gap-3">
+            <CardTitle className="text-blue-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
+              <ShoppingCart className="w-8 h-8" />
+              Shopping
+            </CardTitle>
           </div>
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
