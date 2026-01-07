@@ -10,6 +10,7 @@ import { ethers } from "ethers";
 import { useUI } from "@/hooks/use-ui";
 import Settings from "@/pages/settings";
 import Controls from "@/pages/controls";
+import backgroundImage from "@assets/Background_Tela_Principal_1767815377331.png";
 
 const POTIONS_UI = [
   { id: "health", key: "Q", icon: Beaker, color: "text-red-500", borderColor: "border-red-500/50" },
@@ -268,7 +269,10 @@ export default function Home() {
   }, [isLocked]);
 
   return (
-    <div className="min-h-screen w-full bg-black flex flex-col items-center overflow-auto relative">
+    <div 
+      className="min-h-screen w-full bg-black flex flex-col items-center overflow-auto relative bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
       {activeModal === "pause" && (
         <PauseModal 
           onContinue={handleContinueGame} 
@@ -315,7 +319,7 @@ export default function Home() {
 
       <div className={`w-full flex flex-col items-center transition-all duration-300 ${isLocked ? "scale-[0.98] blur-[2px]" : "scale-100 blur-0"}`}>
         {/* Game Container */}
-        <div className="relative">
+        <div className="relative mt-8">
           {isLocked && (
             <div 
               className="absolute inset-0 z-[2000] bg-transparent cursor-not-allowed" 
