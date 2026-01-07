@@ -2545,6 +2545,7 @@ class MainScene extends Phaser.Scene {
         const damageMultiplier = stats.mult;
         const kameDamage = stats.kame;
         
+        // Ensure 100 KI consumption
         this.kiarc -= 100;
         this.specialsCooldowns['V'].startTime = this.time.now;
         const beamLength = 2400;
