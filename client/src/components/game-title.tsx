@@ -3,11 +3,11 @@ import { useUI } from "@/hooks/use-ui";
 export function GameTitle() {
   const { isLocked } = useUI();
   return (
-    <div className={`flex items-center justify-center w-full h-full relative`}>
+    <div className="flex items-center justify-center w-full h-full relative">
       {/* Local blocker to ensure even if global fails, title is blocked */}
       {isLocked && (
         <div 
-          className="absolute inset-0 z-[10000] bg-black/20 backdrop-blur-[2px] pointer-events-auto cursor-not-allowed" 
+          className="fixed inset-0 z-[999999] bg-black/40 backdrop-blur-[4px] pointer-events-auto cursor-not-allowed" 
           onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
           onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
           onPointerUp={(e) => { e.preventDefault(); e.stopPropagation(); }}

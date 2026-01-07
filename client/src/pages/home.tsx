@@ -189,18 +189,32 @@ export default function Home() {
     const togglePhaserInput = (enabled: boolean) => {
       if (!window.game) return;
       
-      // Disable/Enable main game input
-      window.game.input.enabled = enabled;
-      
-      // Disable/Enable input for all active scenes
-      if (window.game.scene) {
-        window.game.scene.getScenes(true).forEach(scene => {
-          if (scene.input) {
-            scene.input.enabled = enabled;
-            if (scene.input.keyboard) scene.input.keyboard.enabled = enabled;
-            if (scene.input.mouse) scene.input.mouse.enabled = enabled;
-          }
-        });
+      try {
+        // Bloqueio profundo e total do Phaser
+        (window.game as any).input.enabled = enabled;
+        
+        if ((window.game as any).scene) {
+          (window.game.scene as any).getScenes(true).forEach((scene: any) => {
+            if (scene.input) {
+              scene.input.enabled = enabled;
+              if (scene.input.keyboard) scene.input.keyboard.enabled = enabled;
+              if (scene.input.mouse) scene.input.mouse.enabled = enabled;
+              if (scene.input.activePointer) scene.input.activePointer.enabled = enabled;
+            }
+          });
+        }
+        
+        if (enabled) {
+          (window.game as any).resume();
+          (window.game.input as any).keyboard?.resume();
+          (window.game.input as any).mouse?.resume();
+        } else {
+          (window.game as any).pause();
+          (window.game.input as any).keyboard?.pause();
+          (window.game.input as any).mouse?.pause();
+        }
+      } catch (err) {
+        console.error("Error toggling Phaser input:", err);
       }
     };
 
