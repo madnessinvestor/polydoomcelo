@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Zap, Sword, Shield, Activity, Droplets, Loader2 } from "lucide-react";
+import { Heart, Zap, Sword, Shield, Activity, Droplets, Loader2, TrendingUp } from "lucide-react";
 import { ethers } from "ethers";
 import { useUI } from "@/hooks/use-ui";
 
@@ -317,10 +317,12 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[160] bg-black/20 backdrop-blur-none flex items-center justify-center p-4 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
       <Card className="w-full max-w-4xl bg-slate-900 border-2 border-green-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(34,197,94,0.3)]" onPointerDown={(e) => e.stopPropagation()}>
-        <CardHeader className="border-b border-slate-800 relative">
-          <div className="flex flex-col items-center justify-center py-2">
-            <CardTitle className="text-3xl font-bold text-green-500 uppercase tracking-widest text-center">Upgrades</CardTitle>
-            <CardDescription className="text-slate-400 mt-1">Enhance your character using USDC</CardDescription>
+        <CardHeader className="border-b border-green-500/30 bg-green-950/20 relative">
+          <div className="flex items-center gap-3">
+            <CardTitle className="text-green-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
+              <TrendingUp className="w-8 h-8" />
+              Upgrades
+            </CardTitle>
           </div>
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
