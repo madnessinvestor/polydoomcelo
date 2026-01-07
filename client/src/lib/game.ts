@@ -4616,6 +4616,33 @@ class StartScene extends Phaser.Scene {
             bg.on('pointerdown', () => window.open(link.url, '_blank'));
         });
 
+        // Contracts List (Bottom Right)
+        const contractsX = width - 40;
+        const contractsY = height - 100;
+        
+        this.add.text(contractsX, contractsY, 'Contracts', {
+            fontSize: '16px',
+            fontFamily: 'monospace',
+            color: '#fbbf24',
+            fontStyle: 'bold',
+            align: 'right'
+        }).setOrigin(1, 0);
+
+        const contracts = [
+            '0x6101d4D79C6573c570eAA0eeabff13e663c17c08',
+            '0x9b673bDBA9ed06989b1846d4C63468BCE86cf006',
+            '0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a'
+        ];
+
+        contracts.forEach((addr, i) => {
+            this.add.text(contractsX, contractsY + 25 + (i * 20), addr, {
+                fontSize: '12px',
+                fontFamily: 'monospace',
+                color: '#94a3b8',
+                align: 'right'
+            }).setOrigin(1, 0);
+        });
+
         startBtn.setInteractive().on('pointerdown', () => {
             if (!(window as any).walletAddress) {
                 alert('Wallet connection is required to register your Score On Chain!');
