@@ -4390,28 +4390,27 @@ class StartScene extends Phaser.Scene {
     }
 
     private async updateUSDCBalance() {
-        if (!this.walletAddress && (window as any).ethereum) {
-            try {
-                const provider = new ethers.BrowserProvider((window as any).ethereum);
-                const accounts = await provider.listAccounts();
-                if (accounts.length > 0) {
-                    this.walletAddress = accounts[0].address;
-                    (window as any).walletAddress = this.walletAddress;
-                }
-            } catch (e) {
-                // Silently fail
-            }
-        }
+        // CORREÇÃO OBRIGATÓRIA: 
+        // 1. O elemento é renderizado SOMENTE quando o estado do jogo for a Tela Inicial (StartScene)
+        // 2. Se walletConnected === false, não renderizar nada.
+        const isWalletConnected = !!(window as any).walletAddress;
+        const isStartSceneActive = this.scene.isActive('StartScene');
 
-        if (!this.walletAddress || !(window as any).ethereum) {
-            if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
+        if (!isWalletConnected || !isStartSceneActive) {
+            if (this.usdcBalanceText) {
+                this.usdcBalanceText.setVisible(false);
+            }
             return;
         }
+
+        // Use the global address directly
+        const address = (window as any).walletAddress;
+        if (!address) return;
 
         try {
             const provider = new ethers.BrowserProvider((window as any).ethereum);
             
-            // USDC Contract on Arc Testnet (Confirmed via user message link)
+            // USDC Contract on Arc Testnet
             const usdcAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
             const usdcAbi = [
                 "function balanceOf(address owner) view returns (uint256)",
@@ -4420,27 +4419,27 @@ class StartScene extends Phaser.Scene {
             
             const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, provider);
             
-            // Try to get balance. If it fails, fallback to native
             let formattedBalance = "0.00";
             try {
                 const [balance, decimals] = await Promise.all([
-                    usdcContract.balanceOf(this.walletAddress),
+                    usdcContract.balanceOf(address),
                     usdcContract.decimals().catch(() => 18)
                 ]);
                 formattedBalance = ethers.formatUnits(balance, decimals);
             } catch (contractErr) {
-                console.warn("Contract call failed, trying native balance", contractErr);
-                const balance = await provider.getBalance(this.walletAddress);
+                const balance = await provider.getBalance(address);
                 formattedBalance = ethers.formatEther(balance);
             }
             
-            if (this.usdcBalanceText) {
+            // Re-check conditions before final render inside Phaser container
+            if (this.usdcBalanceText && (window as any).walletAddress && this.scene.isActive('StartScene')) {
                 this.usdcBalanceText.setText(`USDC: ${parseFloat(formattedBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
                 this.usdcBalanceText.setVisible(true);
                 this.usdcBalanceText.setDepth(10000);
+            } else if (this.usdcBalanceText) {
+                this.usdcBalanceText.setVisible(false);
             }
         } catch (err) {
-            console.error("Failed to fetch balance:", err);
             if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
         }
     }
@@ -4572,16 +4571,25 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         // USDC Balance Display (Top Right)
-        this.usdcBalanceText = this.add.text(width - 20, 20, '', {
+        // Criado DENTRO do container do jogo (canvas wrapper) como um elemento Phaser.Text
+        this.usdcBalanceText = this.add.text(width - 40, 40, '', {
             fontSize: '28px',
             fontFamily: 'monospace',
             color: '#4ade80',
             align: 'right',
             stroke: '#000000',
             strokeThickness: 4
-        }).setOrigin(1, 0).setAlpha(0.7).setVisible(false).setDepth(10000);
+        }).setOrigin(1, 0).setAlpha(0.7).setVisible(false).setDepth(10000).setScrollFactor(0);
 
-        console.log("StartScene: USDC Balance text initialized", { width, height });
+        // Limpa referências antigas para evitar vazamento de memória e garantir renderização única na cena
+        (window as any).updateUSDCBalanceDisplay = null;
+        
+        // Store reference to update USDC balance when wallet connects
+        (window as any).updateUSDCBalanceDisplay = () => {
+            if (this.scene && this.scene.isActive('StartScene')) {
+                this.updateUSDCBalance();
+            }
+        };
 
         if ((window as any).walletAddress) {
             this.updateWalletButtonText(`CONNECTED: ${(window as any).walletAddress.substring(0, 6)}...`);
@@ -4602,6 +4610,9 @@ class StartScene extends Phaser.Scene {
                     this.walletAddress = accounts[0];
                     this.updateWalletButtonText(`CONNECTED: ${accounts[0].substring(0, 6)}...`);
                     this.updateUSDCBalance();
+                    if ((window as any).updateUSDCBalanceDisplay) {
+                        (window as any).updateUSDCBalanceDisplay();
+                    }
                 }
                 // Update START GAME button state
                 if ((window as any).updateStartButtonState) {
@@ -4617,6 +4628,9 @@ class StartScene extends Phaser.Scene {
                     this.updateNetworkDisplay('Other Network');
                 }
                 this.updateUSDCBalance();
+                if ((window as any).updateUSDCBalanceDisplay) {
+                    (window as any).updateUSDCBalanceDisplay();
+                }
             });
 
             (window as any).ethereum.on('disconnect', () => {
@@ -4626,6 +4640,9 @@ class StartScene extends Phaser.Scene {
                 this.updateWalletButtonText('CONNECT WALLET');
                 this.updateNetworkDisplay('');
                 if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
+                if ((window as any).updateUSDCBalanceDisplay) {
+                    (window as any).updateUSDCBalanceDisplay();
+                }
                 // Update START GAME button state
                 if ((window as any).updateStartButtonState) {
                     (window as any).updateStartButtonState();
