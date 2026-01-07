@@ -5,34 +5,38 @@ export interface ScarfSegment {
     y: number;
     oldX: number;
     oldY: number;
+    width: number;
 }
 
 export class ScarfComponent {
     private scene: Phaser.Scene;
     private segments: ScarfSegment[] = [];
-    private numSegments: number = 8;
-    private segmentLength: number = 9; // ~24px * 3 / 8 segments = 9px per segment
+    private numSegments: number = 10;
+    private segmentLength: number = 7;
     private gravity: number = 0.15;
     private friction: number = 0.95;
     private graphics: Phaser.GameObjects.Graphics;
     private target: Phaser.Physics.Arcade.Sprite;
     private color: number = 0xffdd00; // Amarelo do player
-    private anchorOffsetY: number = -12; // Topo do player (assumindo sprite 32x32, centro é 0, topo é -16, ligeiramente abaixo é -12)
+    private anchorOffsetY: number = -8; // Posição do pescoço
+    private baseWidth: number = 12;
 
     constructor(scene: Phaser.Scene, target: Phaser.Physics.Arcade.Sprite) {
         this.scene = scene;
         this.target = target;
         this.graphics = scene.add.graphics();
-        // Garantir que o desenho ocorra após o player (player depth é 10, então scarf depth 11)
         this.graphics.setDepth(11);
 
-        // Initialize segments
+        // Initialize segments with tapering width
         for (let i = 0; i < this.numSegments; i++) {
+            // Tapering: 100% width at neck, down to 30% at the tip
+            const widthScale = 1 - (i / (this.numSegments - 1)) * 0.7;
             this.segments.push({
                 x: target.x,
                 y: target.y + this.anchorOffsetY + (i * this.segmentLength),
                 oldX: target.x,
-                oldY: target.y + this.anchorOffsetY + (i * this.segmentLength)
+                oldY: target.y + this.anchorOffsetY + (i * this.segmentLength),
+                width: this.baseWidth * widthScale
             });
         }
     }
@@ -44,7 +48,7 @@ export class ScarfComponent {
         }
 
         const firstSegment = this.segments[0];
-        // Ancorado ao torso superior
+        // Ancorado ao pescoço
         firstSegment.x = this.target.x;
         firstSegment.y = this.target.y + this.anchorOffsetY;
 
@@ -63,18 +67,17 @@ export class ScarfComponent {
             // Brisa / Vento procedural (Idle)
             if (Math.abs(playerVelocityX) < 1 && Math.abs(playerVelocityY) < 1) {
                 const time = this.scene.time.now * 0.002;
-                seg.x += Math.sin(time + i) * 0.15;
-                seg.y += Math.cos(time * 0.5 + i) * 0.08;
+                seg.x += Math.sin(time + i * 0.5) * 0.2;
+                seg.y += Math.cos(time * 0.5 + i * 0.3) * 0.1;
             } else {
-                // Inércia baseada no movimento do player (projeção para trás)
-                // Se playerVelocityX > 0 (movendo para direita), o cachecol deve ir para esquerda (seg.x -= ...)
-                seg.x -= playerVelocityX * 0.05;
-                seg.y -= playerVelocityY * 0.05;
+                // Inércia baseada no movimento do player
+                seg.x -= playerVelocityX * 0.06;
+                seg.y -= playerVelocityY * 0.04;
             }
         }
 
         // Constraints
-        for (let j = 0; j < 3; j++) { // Sub-passos para estabilidade
+        for (let j = 0; j < 3; j++) {
             for (let i = 0; i < this.numSegments - 1; i++) {
                 const seg1 = this.segments[i];
                 const seg2 = this.segments[i + 1];
@@ -99,15 +102,52 @@ export class ScarfComponent {
     private draw() {
         this.graphics.clear();
         
-        // Desenha o cachecol
-        this.graphics.lineStyle(9, this.color, 1); // 3x maior que os 3px anteriores
-        this.graphics.beginPath();
-        this.graphics.moveTo(this.segments[0].x, this.segments[0].y);
+        // Efeito tramado: desenhamos polígonos preenchidos entre os segmentos
+        // para criar uma fita que afunila, em vez de apenas uma linha
+        for (let i = 0; i < this.numSegments - 1; i++) {
+            const s1 = this.segments[i];
+            const s2 = this.segments[i + 1];
 
-        for (let i = 1; i < this.numSegments; i++) {
-            this.graphics.lineTo(this.segments[i].x, this.segments[i].y);
+            // Vetor normal para a largura (perpendicular à direção do segmento)
+            const dx = s2.x - s1.x;
+            const dy = s2.y - s1.y;
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            const nx = -dy / len;
+            const ny = dx / len;
+
+            // Pontos do trapézio para este segmento
+            const p1x = s1.x + nx * (s1.width / 2);
+            const p1y = s1.y + ny * (s1.width / 2);
+            const p2x = s1.x - nx * (s1.width / 2);
+            const p2y = s1.y - ny * (s1.width / 2);
+            
+            const p3x = s2.x - nx * (s2.width / 2);
+            const p3y = s2.y - ny * (s2.width / 2);
+            const p4x = s2.x + nx * (s2.width / 2);
+            const p4y = s2.y + ny * (s2.width / 2);
+
+            // Preenchimento sólido
+            this.graphics.fillStyle(this.color, 1);
+            this.graphics.fillPoints([
+                new Phaser.Geom.Point(p1x, p1y),
+                new Phaser.Geom.Point(p2x, p2y),
+                new Phaser.Geom.Point(p3x, p3y),
+                new Phaser.Geom.Point(p4x, p4y)
+            ], true);
+
+            // "Tramado" sutil - linhas de textura diagonais
+            if (i % 2 === 0) {
+                this.graphics.lineStyle(1, 0x000000, 0.1);
+                this.graphics.lineBetween(p1x, p1y, p3x, p3y);
+                this.graphics.lineBetween(p2x, p2y, p4x, p4y);
+            }
         }
-        this.graphics.strokePath();
+        
+        // Detalhe do "nó" no pescoço (primeiro segmento)
+        this.graphics.lineStyle(2, this.color, 1);
+        this.graphics.strokeCircle(this.segments[0].x, this.segments[0].y, this.baseWidth * 0.6);
+        this.graphics.fillStyle(this.color, 0.8);
+        this.graphics.fillCircle(this.segments[0].x, this.segments[0].y, this.baseWidth * 0.5);
     }
 
     destroy() {
