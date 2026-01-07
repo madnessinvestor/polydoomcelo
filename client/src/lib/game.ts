@@ -27,6 +27,16 @@ class MainScene extends Phaser.Scene {
     private kamehamehaChargeTime: number = 0;
     private kamehamehaText: Phaser.GameObjects.Text | null = null;
     private kamehamehaChargeBar: Phaser.GameObjects.Graphics | null = null;
+    
+    // Cooldown system
+    private specialsCooldowns: Record<string, { duration: number, startTime: number }> = {
+        'V': { duration: 5000, startTime: 0 },
+        'F': { duration: 5000, startTime: 0 },
+        'S': { duration: 5000, startTime: 0 },
+        'B': { duration: 30000, startTime: 0 }
+    };
+    private specialsHUDGraphics: Map<string, Phaser.GameObjects.Graphics> = new Map();
+    private specialsHUDTimers: Map<string, Phaser.GameObjects.Text> = new Map();
 
     // Wave system variables
     private currentWave: number = 1;
@@ -2036,8 +2046,17 @@ class MainScene extends Phaser.Scene {
         });
 
         // ArcMeteor (Key S)
-        if (Phaser.Input.Keyboard.JustDown(this.keys.S) && !this.isMeteorFalling && !this.isDefending) {
+        const canUseS = this.kiarc >= 20 && (this.time.now - this.specialsCooldowns['S'].startTime >= this.specialsCooldowns['S'].duration);
+        if (Phaser.Input.Keyboard.JustDown(this.keys.S) && !this.isMeteorFalling && !this.isDefending && canUseS) {
+            this.specialsCooldowns['S'].startTime = this.time.now;
             this.startArcMeteor();
+        }
+
+        // Handle ArcKiExplosion (Key F)
+        const canUseF = this.kiarc >= 30 && (this.time.now - this.specialsCooldowns['F'].startTime >= this.specialsCooldowns['F'].duration);
+        if (Phaser.Input.Keyboard.JustDown(this.keys.F) && this.kiarc >= 30 && !this.keys.B.isDown && !this.isDefending && canUseF) {
+            this.specialsCooldowns['F'].startTime = this.time.now;
+            this.shootMagic(); 
         }
 
         if (this.isMeteorFalling) {
@@ -2196,7 +2215,7 @@ class MainScene extends Phaser.Scene {
         this.updateHUD();
     }
 
-    handleGroundImpact() {
+    private handleGroundImpact() {
         // Multiplicador de level baseado na solicitação do usuário
         const levelMultipliers: { [key: number]: number } = {
             1: 0.05,
@@ -2256,7 +2275,83 @@ class MainScene extends Phaser.Scene {
         });
     }
 
-    chargeKiarc() {
+    private renderSpecialsCooldowns() {
+        const { width, height } = this.cameras.main;
+        const specials = [
+            { key: 'V', label: 'V', x: width - 260 },
+            { key: 'F', label: 'F', x: width - 200 },
+            { key: 'S', label: 'S', x: width - 140 },
+            { key: 'B', label: 'B', x: width - 80 }
+        ];
+
+        const y = height - 100;
+        const size = 50;
+
+        specials.forEach((special) => {
+            const cdInfo = this.specialsCooldowns[special.key];
+            const elapsed = this.time.now - cdInfo.startTime;
+            const remaining = Math.max(0, cdInfo.duration - elapsed);
+            const progress = remaining / cdInfo.duration;
+
+            let graphics = this.specialsHUDGraphics.get(special.key);
+            if (!graphics) {
+                graphics = this.add.graphics().setScrollFactor(0).setDepth(1002);
+                this.specialsHUDGraphics.set(special.key, graphics);
+            }
+
+            graphics.clear();
+            
+            // Base Icon Square (keeping it simple and clear as requested)
+            graphics.lineStyle(2, 0xa855f7, 0.5);
+            graphics.strokeRect(special.x - size/2, y - size/2, size, size);
+            graphics.fillStyle(0x000000, 0.2);
+            graphics.fillRect(special.x - size/2, y - size/2, size, size);
+
+            if (remaining > 0) {
+                // Circular "clock" overlay
+                graphics.fillStyle(0x000000, 0.5);
+                graphics.beginPath();
+                graphics.moveTo(special.x, y);
+                graphics.arc(special.x, y, size/2, Phaser.Math.DegToRad(-90), Phaser.Math.DegToRad(-90 + 360 * progress), false);
+                graphics.lineTo(special.x, y);
+                graphics.closePath();
+                graphics.fillPath();
+
+                // Timer Text
+                let timerText = this.specialsHUDTimers.get(special.key);
+                if (!timerText) {
+                    timerText = this.add.text(special.x, y, '', {
+                        fontSize: '16px',
+                        fontFamily: 'monospace',
+                        color: '#ffffff',
+                        fontStyle: 'bold',
+                        stroke: '#000000',
+                        strokeThickness: 3
+                    }).setOrigin(0.5).setScrollFactor(0).setDepth(1003);
+                    this.specialsHUDTimers.set(special.key, timerText);
+                }
+                timerText.setText(Math.ceil(remaining / 1000).toString());
+                timerText.setVisible(true);
+            } else {
+                const timerText = this.specialsHUDTimers.get(special.key);
+                if (timerText) timerText.setVisible(false);
+            }
+
+            // Key Label
+            const labelKey = special.key + '_label';
+            if (!this.specialsHUDTimers.has(labelKey)) {
+                const label = this.add.text(special.x - size/2 + 5, y - size/2 + 5, special.label, {
+                    fontSize: '10px',
+                    fontFamily: 'monospace',
+                    color: '#a855f7',
+                    fontStyle: 'bold'
+                }).setScrollFactor(0).setDepth(1003);
+                this.specialsHUDTimers.set(labelKey, label);
+            }
+        });
+    }
+
+    private chargeKiarc() {
         if (this.kiarc < this.maxKiarc) {
             if (this.time.now % 1000 < 20 && !this.sfx['charge_ki']?.isPlaying) {
                 this.sfx['charge_ki']?.play();
@@ -2291,6 +2386,8 @@ class MainScene extends Phaser.Scene {
     }
 
     private startKamehamehaCharge() {
+        if (this.time.now - this.specialsCooldowns['V'].startTime < this.specialsCooldowns['V'].duration) return;
+        this.specialsCooldowns['V'].startTime = this.time.now;
         this.isChargingKamehameha = true;
         this.kamehamehaChargeTime = 0;
         this.player.setVelocity(0, 0);
@@ -2597,6 +2694,8 @@ class MainScene extends Phaser.Scene {
     }
 
     shootGenkidama() {
+        if (this.time.now - this.specialsCooldowns['B'].startTime < this.specialsCooldowns['B'].duration) return;
+        this.specialsCooldowns['B'].startTime = this.time.now;
         if (!this.genkidama) return;
         this.sfx['genkidama_charge']?.stop();
         this.sfx['genkidama_launch']?.play();
@@ -3917,6 +4016,8 @@ class MainScene extends Phaser.Scene {
         if (!this.kiarcBar || !this.cameras?.main) {
             return;
         }
+
+        this.renderSpecialsCooldowns();
 
         const width = this.cameras.main.width;
         const hudScale = Math.max(1, width / 800);
