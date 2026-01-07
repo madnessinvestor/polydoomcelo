@@ -240,16 +240,20 @@ export default function Home() {
                 <h3 className="text-amber-400 font-bold mb-4 text-xl">SPECIAL ABILITIES</h3>
                 <ul className="space-y-2">
                   <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>CHARGE KI</span>
+                    <span>CHARGE ARCKI</span>
                     <span className="text-white">X KEY (HOLD)</span>
                   </li>
                   <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>KAMEHAMEHA</span>
-                    <span className="text-white">X KEY (PRESS)</span>
+                    <span>ARCKAMEHAMEHA</span>
+                    <span className="text-white">V KEY (HOLD AND RELEASE)</span>
                   </li>
                   <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>SPECIAL / GENKIDAMA</span>
-                    <span className="text-white">V KEY</span>
+                    <span>ARCGENKIDAMA</span>
+                    <span className="text-white">B KEY (HOLD AND RELEASE)</span>
+                  </li>
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>EXPLOSION KIARC</span>
+                    <span className="text-white">F KEY (PRESS)</span>
                   </li>
                   <li className="flex justify-between border-b border-slate-800 pb-1">
                     <span>USE POTIONS</span>
