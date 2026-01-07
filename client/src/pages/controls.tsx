@@ -153,7 +153,7 @@ export default function Controls() {
                   <Key label="S" action="ArcMeteor" active className="!scale-110" />
                   <div className="text-center space-y-1">
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
-                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 50 | CD: 5s</p>
+                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 100 | CD: 5s</p>
                     <p className="text-[11px] text-slate-400 leading-tight">Call down a barrage of cosmic meteors to strike multiple foes.</p>
                   </div>
                 </div>
