@@ -231,6 +231,10 @@ export default function Home() {
                     <span>MAGIC KIARC</span>
                     <span className="text-white">C KEY</span>
                   </li>
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>PAUSE / MENU</span>
+                    <span className="text-white">ESC</span>
+                  </li>
                 </ul>
               </CardContent>
             </Card>
@@ -258,10 +262,6 @@ export default function Home() {
                   <li className="flex justify-between border-b border-slate-800 pb-1">
                     <span>USE POTIONS</span>
                     <span className="text-white">Q, W, E, R KEYS</span>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>PAUSE / MENU</span>
-                    <span className="text-white">ESC</span>
                   </li>
                 </ul>
               </CardContent>
