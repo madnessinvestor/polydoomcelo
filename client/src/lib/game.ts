@@ -2232,7 +2232,8 @@ class MainScene extends Phaser.Scene {
         const damageMultiplier = stats.mult;
         const magicDamage = stats.magic;
         
-        this.kiarc -= 20;
+        // Consumo de KI reduzido em 75% (de 20 para 5)
+        this.kiarc -= 5;
         
         // Play magic sound effect with proper volume
         const sound = this.sfx['magic'];
