@@ -4761,7 +4761,10 @@ class StartScene extends Phaser.Scene {
 
         leaderboardBtn.setInteractive().on('pointerdown', () => {
             this.sfx['menu_button']?.play();
-            this.openLeaderboardModal();
+            const win = window as any;
+            if (typeof win.openLeaderboardModal === 'function') {
+                win.openLeaderboardModal();
+            }
         }).on('pointerover', () => {
             leaderboardBtn.setFillStyle(0xfcd34d);
         }).on('pointerout', () => {
@@ -4780,7 +4783,10 @@ class StartScene extends Phaser.Scene {
 
         historyBtn.setInteractive().on('pointerdown', () => {
             this.sfx['menu_button']?.play();
-            this.openHistoryModal();
+            const win = window as any;
+            if (typeof win.openHistoryModal === 'function') {
+                win.openHistoryModal();
+            }
         }).on('pointerover', () => {
             historyBtn.setFillStyle(0x3b82f6);
         }).on('pointerout', () => {
@@ -4798,13 +4804,10 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         upgradesBtn.setInteractive().on('pointerdown', () => {
-            if (this.sfx && this.sfx['menu_button']) {
-                this.sfx['menu_button'].play();
-            }
+            this.sfx['menu_button']?.play();
             const win = window as any;
-            const upgradeFunc = win.openUpgradesModal || win.showUpgradesModal;
-            if (typeof upgradeFunc === 'function') {
-                upgradeFunc();
+            if (typeof win.openUpgradesModal === 'function') {
+                win.openUpgradesModal();
             }
         }).on('pointerover', () => {
             upgradesBtn.setFillStyle(0x34d399);
@@ -4846,7 +4849,10 @@ class StartScene extends Phaser.Scene {
 
         controlsBtn.setInteractive().on('pointerdown', () => {
             this.sfx['menu_button']?.play();
-            this.openControlsModal();
+            const win = window as any;
+            if (typeof win.openControlsModal === 'function') {
+                win.openControlsModal();
+            }
         }).on('pointerover', () => {
             controlsBtn.setFillStyle(0xc084fc);
         }).on('pointerout', () => {
@@ -4865,7 +4871,10 @@ class StartScene extends Phaser.Scene {
 
         settingsBtn.setInteractive().on('pointerdown', () => {
             this.sfx['menu_button']?.play();
-            this.openSettingsModal();
+            const win = window as any;
+            if (typeof win.openSettingsModal === 'function') {
+                win.openSettingsModal();
+            }
         }).on('pointerover', () => {
             settingsBtn.setFillStyle(0x7c3aed);
         }).on('pointerout', () => {
