@@ -192,6 +192,8 @@ class MainScene extends Phaser.Scene {
     ];
     private deathSoundKey = 'death_sound';
     private deathSoundPath = '/attached_assets/Death_(Player)_1767820208727.mp3';
+    private defenseSoundKey = 'defense_sound';
+    private defenseSoundPath = '/attached_assets/Som_Defesa_(player)_1767820303726.mp3';
     private currentMusicIndex: number = 0;
     private currentMusic: Phaser.Sound.BaseSound | null = null;
     private openingMusic: Phaser.Sound.BaseSound | null = null;
@@ -692,6 +694,7 @@ class MainScene extends Phaser.Scene {
         this.load.audio('meteor_1', '/attached_assets/Meteor_1_1767808998910.ogg');
         this.load.audio('meteor_2', '/attached_assets/Meteor_2_1767809001052.ogg');
         this.load.audio(this.deathSoundKey, this.deathSoundPath);
+        this.load.audio(this.defenseSoundKey, this.defenseSoundPath);
     }
 
     create() {
@@ -1787,6 +1790,13 @@ class MainScene extends Phaser.Scene {
         }
 
         // Defense mechanism (Key D)
+        if (Phaser.Input.Keyboard.JustDown(this.keys.D) && !this.isGameOver) {
+            this.isDefending = true;
+            if (this.sound.get(this.defenseSoundKey)) {
+                this.sound.play(this.defenseSoundKey, { volume: this.sfxVolume });
+            }
+        }
+        
         if (this.keys.D.isDown) {
             this.isDefending = true;
             if (!this.shieldGraphics) {
