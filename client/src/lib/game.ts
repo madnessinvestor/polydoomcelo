@@ -5276,8 +5276,8 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(101);
 
         // Create HTML video element
-        const videoWidth = width * 0.7 * 0.75;
-        const videoHeight = height * 0.5 * 0.75;
+        const videoWidth = width * 0.7 * 0.75 * 1.1;
+        const videoHeight = height * 0.5 * 0.75 * 1.1;
         const videoX = width / 2 - videoWidth / 2;
         const videoY = height / 2 - videoHeight / 2;
 
