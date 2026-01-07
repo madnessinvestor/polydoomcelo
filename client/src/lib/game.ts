@@ -4590,15 +4590,12 @@ class StartScene extends Phaser.Scene {
             { id: 'discord', url: 'https://discord.com/users/madnessinvestor', icon: 'discord_icon' }
         ];
 
-        let startX = this.cameras.main.centerX - 210; // (7 icons * 60px) / 2 = 210
+        let startX = this.cameras.main.centerX - 210; 
         socialLinks.forEach((link, index) => {
             const x = startX + (index * 60);
             const y = footerY + 10;
             
-            // Draw a circle background for the icon
             const bg = this.add.circle(x, y, 20, 0x1e293b).setInteractive({ useHandCursor: true });
-            
-            // Add the actual platform icon image
             const icon = this.add.image(x, y, link.icon).setDisplaySize(30, 30);
             
             bg.on('pointerover', () => {
