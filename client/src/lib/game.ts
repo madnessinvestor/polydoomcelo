@@ -142,16 +142,16 @@ class MainScene extends Phaser.Scene {
     
     // Level stats configuration
     private levelStats = [
-        { lvl: 1, hp: 300, ki: 100, mult: 1.0, punch: 10, magic: 10, kame: 30, res: 0.00, score: 0 },
-        { lvl: 2, hp: 420, ki: 140, mult: 1.4, punch: 20, magic: 15, kame: 50, res: 0.03, score: 50 },
-        { lvl: 3, hp: 600, ki: 200, mult: 1.8, punch: 30, magic: 20, kame: 60, res: 0.06, score: 200 },
-        { lvl: 4, hp: 850, ki: 280, mult: 2.2, punch: 40, magic: 25, kame: 80, res: 0.10, score: 500 },
+        { lvl: 1, hp: 300, ki: 100, mult: 1.0, punch: 10, magic: 10, kame: 100, res: 0.00, score: 0 },
+        { lvl: 2, hp: 420, ki: 140, mult: 1.4, punch: 20, magic: 15, kame: 100, res: 0.03, score: 50 },
+        { lvl: 3, hp: 600, ki: 200, mult: 1.8, punch: 30, magic: 20, kame: 100, res: 0.06, score: 200 },
+        { lvl: 4, hp: 850, ki: 280, mult: 2.2, punch: 40, magic: 25, kame: 100, res: 0.10, score: 500 },
         { lvl: 5, hp: 1200, ki: 380, mult: 3.0, punch: 50, magic: 30, kame: 100, res: 0.15, score: 1000 },
-        { lvl: 6, hp: 1700, ki: 520, mult: 3.4, punch: 60, magic: 40, kame: 120, res: 0.20, score: 2000 },
-        { lvl: 7, hp: 2300, ki: 700, mult: 4.0, punch: 70, magic: 45, kame: 140, res: 0.25, score: 4000 },
-        { lvl: 8, hp: 3100, ki: 950, mult: 4.5, punch: 80, magic: 50, kame: 160, res: 0.30, score: 8000 },
-        { lvl: 9, hp: 4000, ki: 1300, mult: 5.0, punch: 100, magic: 100, kame: 200, res: 0.35, score: 20000 },
-        { lvl: 10, hp: 8000, ki: 3000, mult: 6.0, punch: 200, magic: 200, kame: 400, res: 0.40, score: 1000000000 }
+        { lvl: 6, hp: 1700, ki: 520, mult: 3.4, punch: 60, magic: 40, kame: 100, res: 0.20, score: 2000 },
+        { lvl: 7, hp: 2300, ki: 700, mult: 4.0, punch: 70, magic: 45, kame: 100, res: 0.25, score: 4000 },
+        { lvl: 8, hp: 3100, ki: 950, mult: 4.5, punch: 80, magic: 50, kame: 100, res: 0.30, score: 8000 },
+        { lvl: 9, hp: 4000, ki: 1300, mult: 5.0, punch: 100, magic: 100, kame: 100, res: 0.35, score: 20000 },
+        { lvl: 10, hp: 8000, ki: 3000, mult: 6.0, punch: 200, magic: 200, kame: 100, res: 0.40, score: 1000000000 }
     ];
 
     private levelTitles = [
@@ -2097,8 +2097,7 @@ class MainScene extends Phaser.Scene {
             this.shootMagic();
         }
 
-        if (this.keys.V.isDown && this.kiarc >= 100 && !this.keys.B.isDown && !this.isChargingKamehameha && !this.isDefending) {
-            this.kiarc -= 100;
+        if (this.keys.V.isDown && !this.keys.B.isDown && !this.isChargingKamehameha && !this.isDefending) {
             this.startKamehamehaCharge();
         }
 
@@ -2372,6 +2371,14 @@ class MainScene extends Phaser.Scene {
     private finishKamehameha() {
         if (!this.isChargingKamehameha) return;
         this.isChargingKamehameha = false;
+        
+        // Verifica KI no lançamento
+        if (this.kiarc < 100) {
+            this.showPickupNotification("Need 100 KI to launch Arc Kamehameha!");
+            this.cancelKamehameha();
+            return;
+        }
+        this.kiarc -= 100;
         this.sfx['kamehameha_charge']?.stop();
         this.sfx['kamehameha_launch']?.play();
         
