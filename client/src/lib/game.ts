@@ -4737,20 +4737,77 @@ class StartScene extends Phaser.Scene {
         const titleScale = (width * 0.4) / logo.width;
         logo.setScale(titleScale);
 
+        // Helper to create neon buttons
+        const createNeonButton = (x: number, y: number, width: number, height: number, color: number, text: string, fontSize: string, textColor: string, callback: () => void) => {
+            const container = this.add.container(x, y);
+            
+            // Outer glow (neon)
+            const glow = this.add.graphics();
+            const drawGlow = (thickness: number, alpha: number) => {
+                glow.lineStyle(thickness, color, alpha);
+                glow.strokeRoundedRect(-width/2 - thickness/2, -height/2 - thickness/2, width + thickness, height + thickness, 12 + thickness/2);
+            };
+            
+            drawGlow(12, 0.1);
+            drawGlow(8, 0.2);
+            drawGlow(4, 0.4);
+            glow.lineStyle(2, color, 1);
+            glow.strokeRoundedRect(-width/2, -height/2, width, height, 10);
+            
+            // Main button rect
+            const btn = this.add.rectangle(0, 0, width, height, color, 0.15);
+            btn.setStrokeStyle(1, color, 0.5);
+            
+            const btnText = this.add.text(0, 0, text, {
+                fontSize: fontSize,
+                fontFamily: 'Arial, sans-serif',
+                color: textColor,
+                fontStyle: 'bold',
+                align: 'center',
+                stroke: '#000000',
+                strokeThickness: 4,
+                shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, stroke: true, fill: true }
+            }).setOrigin(0.5, 0.5);
+
+            container.add([glow, btn, btnText]);
+            
+            btn.setInteractive({ useHandCursor: true })
+                .on('pointerdown', callback)
+                .on('pointerover', () => {
+                    this.tweens.add({
+                        targets: btn,
+                        fillAlpha: 0.4,
+                        duration: 200
+                    });
+                    this.tweens.add({
+                        targets: container,
+                        scale: 1.05,
+                        duration: 200,
+                        ease: 'Back.easeOut'
+                    });
+                })
+                .on('pointerout', () => {
+                    this.tweens.add({
+                        targets: btn,
+                        fillAlpha: 0.15,
+                        duration: 200
+                    });
+                    this.tweens.add({
+                        targets: container,
+                        scale: 1,
+                        duration: 200,
+                        ease: 'Back.easeOut'
+                    });
+                });
+            
+            return { container, btn, btnText };
+        };
+
         // Start Button
         const isWalletConnected = !!(window as any).walletAddress;
         const startBtnColor = isWalletConnected ? 0x4ade80 : 0x6b7280;
-        const startTextColor = isWalletConnected ? '#000000' : '#9ca3af';
+        const startTextColor = isWalletConnected ? '#ffffff' : '#9ca3af';
         
-        const startBtn = this.add.rectangle(width / 2, height / 2 + 50, 200, 60, startBtnColor);
-        const startText = this.add.text(width / 2, height / 2 + 50, 'START GAME', {
-            fontSize: '24px',
-            fontFamily: 'Arial, sans-serif',
-            color: startTextColor,
-            fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
-
         let isFetchingData = false;
         let loadingDots = '';
         let loadingInterval: Phaser.Time.TimerEvent | null = null;
@@ -4830,12 +4887,27 @@ class StartScene extends Phaser.Scene {
             }
         };
 
+        const startBtnObj = createNeonButton(width / 2, height / 2 + 50, 240, 60, startBtnColor, 'START GAME', '28px', startTextColor, () => {
+            if (!(window as any).walletAddress) {
+                alert('Wallet connection is required to register your Score On Chain!');
+                return;
+            }
+            if (isFetchingData) return;
+            this.sfx['menu_button']?.play();
+            fetchPlayerData();
+        });
+        const startBtn = startBtnObj.btn;
+        const startText = startBtnObj.btnText;
+
         // Create Footer (Bottom Center)
         const footerY = this.cameras.main.height - 40;
         const footerText = this.add.text(this.cameras.main.centerX, footerY - 20, '2026 PolyDoom Arc — Built on Arc Network. All rights reserved.', {
             fontSize: '14px',
-            color: '#94a3b8',
-            fontFamily: 'monospace'
+            color: '#ffffff',
+            fontFamily: 'monospace',
+            stroke: '#000000',
+            strokeThickness: 3,
+            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, stroke: true, fill: true }
         }).setOrigin(0.5);
 
         const socialLinks = [
@@ -4872,11 +4944,14 @@ class StartScene extends Phaser.Scene {
         const contractsY = height - 100;
         
         this.add.text(contractsX, contractsY, 'Contracts', {
-            fontSize: '16px',
+            fontSize: '18px',
             fontFamily: 'monospace',
             color: '#fbbf24',
             fontStyle: 'bold',
-            align: 'right'
+            align: 'right',
+            stroke: '#000000',
+            strokeThickness: 4,
+            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, stroke: true, fill: true }
         }).setOrigin(1, 0);
 
         const contracts = [
@@ -4887,84 +4962,158 @@ class StartScene extends Phaser.Scene {
 
         contracts.forEach((contract, i) => {
             const text = this.add.text(contractsX, contractsY + 25 + (i * 20), contract.addr, {
-                fontSize: '12px',
+                fontSize: '14px',
                 fontFamily: 'monospace',
-                color: '#94a3b8',
-                align: 'right'
+                color: '#ffffff',
+                align: 'right',
+                stroke: '#000000',
+                strokeThickness: 2,
+                shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 3, fill: true }
             }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
 
             text.on('pointerover', () => text.setColor('#fbbf24'));
-            text.on('pointerout', () => text.setColor('#94a3b8'));
+            text.on('pointerout', () => text.setColor('#ffffff'));
             text.on('pointerdown', () => window.open(contract.url, '_blank'));
         });
 
-        startBtn.setInteractive().on('pointerdown', () => {
-            if (!(window as any).walletAddress) {
-                alert('Wallet connection is required to register your Score On Chain!');
-                return;
-            }
-            if (isFetchingData) return;
-            
-            this.sfx['menu_button']?.play();
-            fetchPlayerData();
-        }).on('pointerover', () => {
-            if ((window as any).walletAddress && !isFetchingData) {
-                startBtn.setFillStyle(0x22c55e);
-            }
-        }).on('pointerout', () => {
-            if ((window as any).walletAddress && !isFetchingData) {
-                startBtn.setFillStyle(0x4ade80);
-            } else {
-                startBtn.setFillStyle(0x6b7280);
-            }
-        });
-        
         // Store reference to update button state when wallet connects
         (window as any).updateStartButtonState = () => {
             if (isFetchingData) return;
             const walletConnected = !!(window as any).walletAddress;
             startBtn.setFillStyle(walletConnected ? 0x4ade80 : 0x6b7280);
-            startText.setColor(walletConnected ? '#000000' : '#9ca3af');
+            startText.setColor(walletConnected ? '#ffffff' : '#9ca3af');
         };
 
         // Wallet Button
-        this.walletBtn = this.add.rectangle(width / 2, height / 2 - 30, 300, 60, 0x3b82f6);
-        this.walletText = this.add.text(width / 2, height / 2 - 30, 'CONNECT WALLET', {
-            fontSize: '20px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#ffffff',
-            fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
-
-        this.walletBtn.setInteractive().on('pointerdown', () => {
+        const walletBtnColor = 0x3b82f6;
+        const walletBtnObj = createNeonButton(width / 2, height / 2 - 30, 320, 60, walletBtnColor, 'CONNECT WALLET', '24px', '#ffffff', () => {
             this.sfx['menu_button']?.play();
             this.connectWallet();
-        }).on('pointerover', () => {
-            this.walletBtn?.setFillStyle(0x2563eb);
-        }).on('pointerout', () => {
-            this.walletBtn?.setFillStyle(0x3b82f6);
         });
+        this.walletBtn = walletBtnObj.btn;
+        this.walletText = walletBtnObj.btnText;
 
         // Network Info Display
         this.networkInfoText = this.add.text(width / 2, height / 2 - 70, '', {
-            fontSize: '16px',
+            fontSize: '18px',
             fontFamily: 'Arial, sans-serif',
             color: '#4ade80',
             fontStyle: 'bold',
-            align: 'center'
+            align: 'center',
+            stroke: '#000000',
+            strokeThickness: 4,
+            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, fill: true }
         }).setOrigin(0.5, 0.5);
 
         // USDC Balance Display (Top Right)
         // Criado DENTRO do container do jogo (canvas wrapper) como um elemento Phaser.Text
         this.usdcBalanceText = this.add.text(width - 40, 40, '', {
-            fontSize: '28px',
+            fontSize: '32px',
             fontFamily: 'monospace',
             color: '#4ade80',
             align: 'right',
             stroke: '#000000',
-            strokeThickness: 4
-        }).setOrigin(1, 0).setAlpha(0.7).setVisible(false).setDepth(10000).setScrollFactor(0);
+            strokeThickness: 5,
+            shadow: { offsetX: 3, offsetY: 3, color: '#000', blur: 6, stroke: true, fill: true }
+        }).setOrigin(1, 0).setAlpha(0.9).setVisible(false).setDepth(10000).setScrollFactor(0);
+
+        // Limpa referências antigas para evitar vazamento de memória e garantir renderização única na cena
+        (window as any).updateUSDCBalanceDisplay = null;
+        
+        // Store reference to update USDC balance when wallet connects
+        (window as any).updateUSDCBalanceDisplay = () => {
+            if (this.scene && this.scene.isActive('StartScene')) {
+                this.updateUSDCBalance();
+            }
+        };
+
+        if ((window as any).walletAddress) {
+            this.updateWalletButtonText(`CONNECTED: ${(window as any).walletAddress.substring(0, 6)}...`);
+            this.updateNetworkDisplay('Arc Testnet');
+            this.updateUSDCBalance();
+        }
+
+        // Set up wallet event listeners
+        if ((window as any).ethereum) {
+            (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
+                console.log('Accounts changed:', accounts);
+                if (accounts.length === 0) {
+                    (window as any).walletAddress = null;
+                    this.updateWalletButtonText('CONNECT WALLET');
+                    this.updateNetworkDisplay('');
+                } else {
+                    (window as any).walletAddress = accounts[0];
+                    this.walletAddress = accounts[0];
+                    this.updateWalletButtonText(`CONNECTED: ${accounts[0].substring(0, 6)}...`);
+                    this.updateUSDCBalance();
+                    if ((window as any).updateUSDCBalanceDisplay) {
+                        (window as any).updateUSDCBalanceDisplay();
+                    }
+                }
+                // Update START GAME button state
+                if ((window as any).updateStartButtonState) {
+                    (window as any).updateStartButtonState();
+                }
+            });
+
+            (window as any).ethereum.on('chainChanged', (chainId: string) => {
+                console.log('Chain changed:', chainId);
+                if (chainId === '0x4cef52') {
+                    this.updateNetworkDisplay('Arc Testnet');
+                } else {
+                    this.updateNetworkDisplay('Other Network');
+                }
+                this.updateUSDCBalance();
+                if ((window as any).updateUSDCBalanceDisplay) {
+                    (window as any).updateUSDCBalanceDisplay();
+                }
+            });
+
+            (window as any).ethereum.on('disconnect', () => {
+                console.log('Wallet disconnected');
+                (window as any).walletAddress = null;
+                this.walletAddress = null;
+                this.updateWalletButtonText('CONNECT WALLET');
+                this.updateNetworkDisplay('');
+                if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
+                if ((window as any).updateUSDCBalanceDisplay) {
+                    (window as any).updateUSDCBalanceDisplay();
+                }
+                // Update START GAME button state
+                if ((window as any).updateStartButtonState) {
+                    (window as any).updateStartButtonState();
+                }
+            });
+        }
+
+        // Leaderboard Button
+        const leaderboardBtnObj = createNeonButton(width / 2, height / 2 + 130, 220, 46, 0xfbbf24, 'LEADERBOARD', '20px', '#ffffff', () => {
+            this.sfx['menu_button']?.play();
+            const win = window as any;
+            if (typeof win.openLeaderboardModal === 'function') {
+                win.openLeaderboardModal();
+            }
+        });
+
+        // History Button
+        const historyBtnObj = createNeonButton(width / 2, height / 2 + 190, 220, 46, 0x8b5cf6, 'HISTORY', '20px', '#ffffff', () => {
+            this.sfx['menu_button']?.play();
+            const win = window as any;
+            if (typeof win.openHistoryModal === 'function') {
+                win.openHistoryModal();
+            }
+        });
+
+        // Upgrades Button (React Component integration)
+        const upgradesBtnObj = createNeonButton(width / 2, height / 2 + 250, 220, 46, 0xec4899, 'UPGRADES', '20px', '#ffffff', () => {
+            this.sfx['menu_button']?.play();
+            const win = window as any;
+            if (typeof win.openUpgradesModal === 'function') {
+                win.openUpgradesModal();
+            }
+        });
+        this.upgradesBtn = upgradesBtnObj.btn;
+        this.upgradesText = upgradesBtnObj.btnText;
 
         // Limpa referências antigas para evitar vazamento de memória e garantir renderização única na cena
         (window as any).updateUSDCBalanceDisplay = null;
