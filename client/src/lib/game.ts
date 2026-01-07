@@ -4269,6 +4269,7 @@ class StartScene extends Phaser.Scene {
     private walletBtn: Phaser.GameObjects.Rectangle | null = null;
     private walletText: Phaser.GameObjects.Text | null = null;
     private networkInfoText: Phaser.GameObjects.Text | null = null;
+    private usdcBalanceText: Phaser.GameObjects.Text | null = null;
     private startBtn: Phaser.GameObjects.Rectangle | null = null;
     private startText: Phaser.GameObjects.Text | null = null;
     private upgradesBtn: Phaser.GameObjects.Rectangle | null = null;
@@ -4385,6 +4386,27 @@ class StartScene extends Phaser.Scene {
     private updateNetworkDisplay(network: string) {
         if (this.networkInfoText) {
             this.networkInfoText.setText(network ? `Network: ${network}` : '');
+        }
+    }
+
+    private async updateUSDCBalance() {
+        if (!this.walletAddress || !(window as any).ethereum) {
+            if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
+            return;
+        }
+
+        try {
+            const provider = new ethers.BrowserProvider((window as any).ethereum);
+            const balance = await provider.getBalance(this.walletAddress);
+            const formattedBalance = ethers.formatEther(balance);
+            
+            if (this.usdcBalanceText) {
+                this.usdcBalanceText.setText(`USDC: ${parseFloat(formattedBalance).toFixed(2)}`);
+                this.usdcBalanceText.setVisible(true);
+            }
+        } catch (err) {
+            console.error("Failed to fetch USDC balance:", err);
+            if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
         }
     }
 
@@ -4511,9 +4533,18 @@ class StartScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5, 0.5);
 
+        // USDC Balance Display (Top Right)
+        this.usdcBalanceText = this.add.text(width - 16, 16, '', {
+            fontSize: '18px',
+            fontFamily: 'monospace',
+            color: '#4ade80',
+            align: 'right'
+        }).setOrigin(1, 0).setAlpha(0.7).setVisible(false);
+
         if ((window as any).walletAddress) {
             this.updateWalletButtonText(`CONNECTED: ${(window as any).walletAddress.substring(0, 6)}...`);
             this.updateNetworkDisplay('Arc Testnet');
+            this.updateUSDCBalance();
         }
 
         // Set up wallet event listeners
@@ -4528,6 +4559,7 @@ class StartScene extends Phaser.Scene {
                     (window as any).walletAddress = accounts[0];
                     this.walletAddress = accounts[0];
                     this.updateWalletButtonText(`CONNECTED: ${accounts[0].substring(0, 6)}...`);
+                    this.updateUSDCBalance();
                 }
                 // Update START GAME button state
                 if ((window as any).updateStartButtonState) {
@@ -4542,6 +4574,7 @@ class StartScene extends Phaser.Scene {
                 } else {
                     this.updateNetworkDisplay('Other Network');
                 }
+                this.updateUSDCBalance();
             });
 
             (window as any).ethereum.on('disconnect', () => {
@@ -4550,6 +4583,7 @@ class StartScene extends Phaser.Scene {
                 this.walletAddress = null;
                 this.updateWalletButtonText('CONNECT WALLET');
                 this.updateNetworkDisplay('');
+                if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
                 // Update START GAME button state
                 if ((window as any).updateStartButtonState) {
                     (window as any).updateStartButtonState();
