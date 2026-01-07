@@ -88,7 +88,7 @@ export default function Settings() {
           </div>
 
           <Button onClick={closeModal} className="w-full mt-8 bg-violet-500 hover:bg-violet-600 text-white font-extrabold text-lg py-6 uppercase rounded-none">
-            Back to Menu
+            CLOSE
           </Button>
         </CardContent>
       </Card>
