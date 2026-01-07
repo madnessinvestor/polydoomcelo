@@ -4390,7 +4390,19 @@ class StartScene extends Phaser.Scene {
     }
 
     private async updateUSDCBalance() {
-        console.log("StartScene: updateUSDCBalance called", { wallet: this.walletAddress });
+        if (!this.walletAddress && (window as any).ethereum) {
+            try {
+                const provider = new ethers.BrowserProvider((window as any).ethereum);
+                const accounts = await provider.listAccounts();
+                if (accounts.length > 0) {
+                    this.walletAddress = accounts[0].address;
+                    (window as any).walletAddress = this.walletAddress;
+                }
+            } catch (e) {
+                // Silently fail
+            }
+        }
+
         if (!this.walletAddress || !(window as any).ethereum) {
             if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
             return;
@@ -4399,7 +4411,7 @@ class StartScene extends Phaser.Scene {
         try {
             const provider = new ethers.BrowserProvider((window as any).ethereum);
             
-            // USDC Contract on Arc Testnet
+            // USDC Contract on Arc Testnet (Confirmed via user message link)
             const usdcAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
             const usdcAbi = [
                 "function balanceOf(address owner) view returns (uint256)",
@@ -4407,22 +4419,28 @@ class StartScene extends Phaser.Scene {
             ];
             
             const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, provider);
-            console.log("StartScene: Fetching USDC balance from contract...");
-            const [balance, decimals] = await Promise.all([
-                usdcContract.balanceOf(this.walletAddress),
-                usdcContract.decimals()
-            ]);
             
-            const formattedBalance = ethers.formatUnits(balance, decimals);
-            console.log("StartScene: USDC balance fetched", { formattedBalance });
+            // Try to get balance. If it fails, fallback to native
+            let formattedBalance = "0.00";
+            try {
+                const [balance, decimals] = await Promise.all([
+                    usdcContract.balanceOf(this.walletAddress),
+                    usdcContract.decimals().catch(() => 18)
+                ]);
+                formattedBalance = ethers.formatUnits(balance, decimals);
+            } catch (contractErr) {
+                console.warn("Contract call failed, trying native balance", contractErr);
+                const balance = await provider.getBalance(this.walletAddress);
+                formattedBalance = ethers.formatEther(balance);
+            }
             
             if (this.usdcBalanceText) {
                 this.usdcBalanceText.setText(`USDC: ${parseFloat(formattedBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
                 this.usdcBalanceText.setVisible(true);
-                this.usdcBalanceText.setDepth(2000);
+                this.usdcBalanceText.setDepth(10000);
             }
         } catch (err) {
-            console.error("Failed to fetch USDC balance from contract:", err);
+            console.error("Failed to fetch balance:", err);
             if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
         }
     }
@@ -4442,6 +4460,9 @@ class StartScene extends Phaser.Scene {
                         if ((window as any).updateStartButtonState) {
                             (window as any).updateStartButtonState();
                         }
+                        
+                        // Force balance update on auto-connect
+                        this.updateUSDCBalance();
                     }
                 } catch (err) {
                     console.error("Auto-connect check failed:", err);
@@ -4552,13 +4573,13 @@ class StartScene extends Phaser.Scene {
 
         // USDC Balance Display (Top Right)
         this.usdcBalanceText = this.add.text(width - 20, 20, '', {
-            fontSize: '24px',
+            fontSize: '28px',
             fontFamily: 'monospace',
             color: '#4ade80',
             align: 'right',
             stroke: '#000000',
-            strokeThickness: 3
-        }).setOrigin(1, 0).setAlpha(1.0).setVisible(false).setDepth(2000);
+            strokeThickness: 4
+        }).setOrigin(1, 0).setAlpha(0.7).setVisible(false).setDepth(10000);
 
         console.log("StartScene: USDC Balance text initialized", { width, height });
 
