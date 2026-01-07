@@ -131,6 +131,8 @@ class MainScene extends Phaser.Scene {
     // Power-up states
     private hasPowerBoost: boolean = false;
     private hasScoreBoost: boolean = false;
+    private hasDamageBoost: boolean = false;
+    private damageBoostTimer: number = 0;
     private isInvincible: boolean = false;
     private invincibilityTimer: number = 0;
     private items!: Phaser.Physics.Arcade.Group;
