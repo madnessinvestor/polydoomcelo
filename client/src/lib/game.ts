@@ -1889,7 +1889,7 @@ class MainScene extends Phaser.Scene {
             this.shootMagic();
         }
 
-        if (this.keys.V.isDown && this.kiarc >= (this.maxKiarc * 0.5) && !this.keys.B.isDown && !this.isChargingKamehameha && !this.isDefending) {
+        if (this.keys.V.isDown && this.kiarc >= 100 && !this.keys.B.isDown && !this.isChargingKamehameha && !this.isDefending) {
             this.startKamehamehaCharge();
         }
 
