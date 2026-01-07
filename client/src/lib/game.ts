@@ -4864,7 +4864,7 @@ class StartScene extends Phaser.Scene {
         const settingsText = this.add.text(width / 2, height / 2 + 430, 'SETTINGS', {
             fontSize: '18px',
             fontFamily: 'Arial, sans-serif',
-            color: '#000000',
+            color: '#ffffff',
             fontStyle: 'bold',
             align: 'center'
         }).setOrigin(0.5, 0.5);
@@ -4876,7 +4876,7 @@ class StartScene extends Phaser.Scene {
                 win.openSettingsModal();
             }
         }).on('pointerover', () => {
-            settingsBtn.setFillStyle(0x7c3aed);
+            settingsBtn.setFillStyle(0xa78bfa);
         }).on('pointerout', () => {
             settingsBtn.setFillStyle(0x8b5cf6);
         });
