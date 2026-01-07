@@ -2284,8 +2284,8 @@ class MainScene extends Phaser.Scene {
     private renderSpecialsCooldowns() {
         const { width, height } = this.cameras.main;
         const specials = [
-            { key: 'S', label: 'S', ki: 50 },
-            { key: 'F', label: 'F', ki: 30 },
+            { key: 'S', label: 'S', ki: 100 },
+            { key: 'F', label: 'F', ki: 100 },
             { key: 'V', label: 'V', ki: 100 },
             { key: 'B', label: 'B', ki: 200 }
         ];
