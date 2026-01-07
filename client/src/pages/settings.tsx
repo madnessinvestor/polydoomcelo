@@ -74,7 +74,14 @@ export default function Settings() {
               <label className="text-white font-bold uppercase text-sm tracking-widest">Master Volume</label>
               <span className="text-violet-500 font-bold text-lg">{masterVolume}%</span>
             </div>
-            <Slider value={[masterVolume]} onValueChange={(v) => updateVolume("master", v[0])} max={100} min={0} step={1} className="w-full" />
+            <Slider 
+              value={[masterVolume]} 
+              onValueChange={(v) => updateVolume("master", v[0])} 
+              max={100} 
+              min={0} 
+              step={1} 
+              className="w-full [&_[role=slider]]:bg-violet-500 [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+            />
           </div>
 
           <div className="space-y-3">
@@ -82,7 +89,14 @@ export default function Settings() {
               <label className="text-white font-bold uppercase text-sm tracking-widest">Music Volume</label>
               <span className="text-violet-500 font-bold text-lg">{musicVolume}%</span>
             </div>
-            <Slider value={[musicVolume]} onValueChange={(v) => updateVolume("music", v[0])} max={100} min={0} step={1} className="w-full" />
+            <Slider 
+              value={[musicVolume]} 
+              onValueChange={(v) => updateVolume("music", v[0])} 
+              max={100} 
+              min={0} 
+              step={1} 
+              className="w-full [&_[role=slider]]:bg-violet-500 [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+            />
           </div>
 
           <div className="space-y-3">
@@ -90,7 +104,14 @@ export default function Settings() {
               <label className="text-white font-bold uppercase text-sm tracking-widest">Effects Volume</label>
               <span className="text-violet-500 font-bold text-lg">{sfxVolume}%</span>
             </div>
-            <Slider value={[sfxVolume]} onValueChange={(v) => updateVolume("sfx", v[0])} max={100} min={0} step={1} className="w-full" />
+            <Slider 
+              value={[sfxVolume]} 
+              onValueChange={(v) => updateVolume("sfx", v[0])} 
+              max={100} 
+              min={0} 
+              step={1} 
+              className="w-full [&_[role=slider]]:bg-violet-500 [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+            />
           </div>
         </CardContent>
 
