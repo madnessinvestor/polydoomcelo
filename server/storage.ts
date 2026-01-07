@@ -2,10 +2,13 @@ import { db } from "./db";
 import {
   scores,
   inventory,
+  upgrades,
   type InsertScore,
   type Score,
   type Inventory,
-  type InsertInventory
+  type InsertInventory,
+  type Upgrade,
+  type InsertUpgrade
 } from "@shared/schema";
 import { desc, eq } from "drizzle-orm";
 
@@ -14,6 +17,8 @@ export interface IStorage {
   createScore(score: InsertScore): Promise<Score>;
   getInventory(walletAddress: string): Promise<Inventory | undefined>;
   upsertInventory(insertInventory: InsertInventory): Promise<Inventory>;
+  getUpgrades(walletAddress: string): Promise<Upgrade | undefined>;
+  upsertUpgrades(insertUpgrade: InsertUpgrade): Promise<Upgrade>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -42,6 +47,26 @@ export class DatabaseStorage implements IStorage {
       return updated;
     } else {
       const [created] = await db.insert(inventory).values(insertInventory).returning();
+      return created;
+    }
+  }
+
+  async getUpgrades(walletAddress: string): Promise<Upgrade | undefined> {
+    const [userUpgrades] = await db.select().from(upgrades).where(eq(upgrades.walletAddress, walletAddress));
+    return userUpgrades;
+  }
+
+  async upsertUpgrades(insertUpgrade: InsertUpgrade): Promise<Upgrade> {
+    const [existing] = await db.select().from(upgrades).where(eq(upgrades.walletAddress, insertUpgrade.walletAddress));
+    
+    if (existing) {
+      const [updated] = await db.update(upgrades)
+        .set({ stats: insertUpgrade.stats })
+        .where(eq(upgrades.walletAddress, insertUpgrade.walletAddress))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db.insert(upgrades).values(insertUpgrade).returning();
       return created;
     }
   }

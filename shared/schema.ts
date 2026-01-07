@@ -22,10 +22,24 @@ export const inventory = pgTable("inventory", {
   }),
 });
 
+export const upgrades = pgTable("upgrades", {
+  id: serial("id").primaryKey(),
+  walletAddress: text("wallet_address").notNull().unique(),
+  stats: jsonb("stats").notNull().default({
+    health: 0,
+    damage: 0,
+    speed: 0,
+    ki: 0
+  }),
+});
+
 export const insertScoreSchema = createInsertSchema(scores).omit({ id: true, createdAt: true });
 export const insertInventorySchema = createInsertSchema(inventory).omit({ id: true });
+export const insertUpgradeSchema = createInsertSchema(upgrades).omit({ id: true });
 
 export type Score = typeof scores.$inferSelect;
 export type InsertScore = z.infer<typeof insertScoreSchema>;
 export type Inventory = typeof inventory.$inferSelect;
 export type InsertInventory = z.infer<typeof insertInventorySchema>;
+export type Upgrade = typeof upgrades.$inferSelect;
+export type InsertUpgrade = z.infer<typeof insertUpgradeSchema>;

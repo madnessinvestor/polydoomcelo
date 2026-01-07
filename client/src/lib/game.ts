@@ -4965,11 +4965,32 @@ class StartScene extends Phaser.Scene {
         // Start Button
         const startBtnColor = isWalletConnected ? 0x4ade80 : 0x6b7280;
         const startBtnObj = createNeonButton(width / 2, height / 2 + 50, 240, 60, startBtnColor, 'START GAME', '28px', '#ffffff', async () => {
-            if (!(window as any).walletAddress) {
+            const currentWallet = (window as any).walletAddress;
+            if (!currentWallet) {
                 alert('Wallet connection is required!');
                 return;
             }
-            this.scene.start('MainScene');
+
+            try {
+                // Show loading state if needed
+                startBtnObj.btnText.setText('LOADING...');
+                
+                // Fetch Character State from Backend
+                const response = await fetch(`/api/character-state/${currentWallet}`);
+                if (!response.ok) throw new Error('Failed to load character data');
+                
+                const data = await response.json();
+                
+                // Store in global or scene registry for MainScene access
+                (window as any).characterState = data;
+                
+                console.log('Character state loaded:', data);
+                this.scene.start('MainScene');
+            } catch (err) {
+                console.error('Error starting game:', err);
+                alert('Failed to load game data. Please try again.');
+                startBtnObj.btnText.setText('START GAME');
+            }
         });
         this.startBtn = startBtnObj.btn as any;
         this.startText = startBtnObj.btnText;

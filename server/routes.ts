@@ -75,5 +75,53 @@ export async function registerRoutes(
     }
   });
 
+  // Upgrades endpoints
+  app.get('/api/upgrades/:walletAddress', async (req, res) => {
+    try {
+      const { walletAddress } = req.params;
+      const upg = await storage.getUpgrades(walletAddress);
+      if (!upg) {
+        return res.json({
+          walletAddress,
+          stats: { health: 0, damage: 0, speed: 0, ki: 0 }
+        });
+      }
+      res.json(upg);
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to fetch upgrades' });
+    }
+  });
+
+  app.post('/api/upgrades', async (req, res) => {
+    try {
+      const { walletAddress, stats } = req.body;
+      if (!walletAddress) {
+        return res.status(400).json({ message: 'walletAddress is required' });
+      }
+      const upg = await storage.upsertUpgrades({ walletAddress, stats });
+      res.json(upg);
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to save upgrades' });
+    }
+  });
+
+  // Character State (Combined)
+  app.get('/api/character-state/:walletAddress', async (req, res) => {
+    try {
+      const { walletAddress } = req.params;
+      const [inv, upg] = await Promise.all([
+        storage.getInventory(walletAddress),
+        storage.getUpgrades(walletAddress)
+      ]);
+      
+      res.json({
+        inventory: inv || { walletAddress, potions: { health: 0, ki: 0, immunity: 0, score: 0 } },
+        upgrades: upg || { walletAddress, stats: { health: 0, damage: 0, speed: 0, ki: 0 } }
+      });
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to fetch character state' });
+    }
+  });
+
   return httpServer;
 }
