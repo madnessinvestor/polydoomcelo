@@ -87,7 +87,7 @@ export default function Settings() {
             <Slider value={[sfxVolume]} onValueChange={(v) => updateVolume("sfx", v[0])} max={100} min={0} step={1} className="w-full" />
           </div>
 
-          <Button onClick={closeModal} className="w-full mt-8 bg-violet-500 hover:bg-violet-600 text-white font-extrabold text-lg py-6 uppercase rounded-none">
+          <Button onClick={closeModal} className="w-full mt-8 bg-[#ff6b6b] hover:bg-[#ff5252] text-black font-extrabold text-lg py-6 uppercase rounded-none border-2 border-black">
             CLOSE
           </Button>
         </CardContent>
