@@ -4517,13 +4517,33 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         let isFetchingData = false;
+        let loadingDots = '';
+        let loadingInterval: Phaser.Time.TimerEvent | null = null;
+
+        const updateLoadingText = (baseText: string) => {
+            if (loadingInterval) loadingInterval.destroy();
+            loadingDots = '';
+            startText.setText(baseText);
+            
+            loadingInterval = this.time.addEvent({
+                delay: 500,
+                callback: () => {
+                    loadingDots = loadingDots.length >= 3 ? '' : loadingDots + '.';
+                    startText.setText(baseText + loadingDots);
+                    
+                    // Simple blink effect
+                    startText.setAlpha(startText.alpha === 1 ? 0.7 : 1);
+                },
+                loop: true
+            });
+        };
 
         const fetchPlayerData = async () => {
             if (!(window as any).ethereum || isFetchingData) return;
             
             isFetchingData = true;
-            startText.setText('INITIALIZING_PLAYER');
             startBtn.setFillStyle(0x6b7280);
+            updateLoadingText('Loading Upgrades');
 
             try {
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
@@ -4535,7 +4555,7 @@ class StartScene extends Phaser.Scene {
                     "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
                 ];
                 
-                // 1. On-chain reading of UPGRADES (Identical to UpgradesModal)
+                // 1. On-chain reading of UPGRADES
                 const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, provider);
                 const data = await upgradeContract.upgrades(userAddress);
                 const upgradesData = {
@@ -4547,26 +4567,26 @@ class StartScene extends Phaser.Scene {
                     arc_vamp: Number(data.vamp)
                 };
                 (window as any).playerUpgrades = upgradesData;
-                console.log("Phaser: Upgrades fetched on-chain (Init):", upgradesData);
+                
+                // Update to next step
+                updateLoadingText('Loading Items');
+                await new Promise(resolve => setTimeout(resolve, 500)); // Small pause for visibility
 
-                // 2. On-chain reading of ITEMS (Inventory) (Identical to ShoppingModal logic)
+                // 2. On-chain reading of ITEMS
                 const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
                 const saved = localStorage.getItem(inventoryKey);
                 const inventoryData = saved ? JSON.parse(saved) : { health: 0, ki: 0, immunity: 0, score: 0 };
                 (window as any).playerInventory = inventoryData;
-                console.log("Phaser: Inventory loaded for player (Init):", inventoryData);
                 
-                // Apply updates to current scenes if necessary
-                if (this.scene.isActive('MainScene')) {
-                    const mainScene = this.scene.get('MainScene') as any;
-                    if (mainScene.applyUpgradesFromGlobal) mainScene.applyUpgradesFromGlobal();
-                    if (mainScene.updateInventoryHUD) mainScene.updateInventoryHUD();
-                }
-
+                if (loadingInterval) loadingInterval.destroy();
+                startText.setAlpha(1);
+                
                 // Allow game to start only after success total
                 this.scene.start('MainScene');
             } catch (err) {
                 console.error("Error initializing player data:", err);
+                if (loadingInterval) loadingInterval.destroy();
+                startText.setAlpha(1);
                 alert("Failed to initialize player data. Please check your connection and try again.");
                 startText.setText('START GAME');
                 (window as any).updateStartButtonState?.();
