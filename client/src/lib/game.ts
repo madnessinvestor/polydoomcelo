@@ -3210,7 +3210,7 @@ class MainScene extends Phaser.Scene {
     }
 
     private useKiArcExplosion() {
-        const explosionRadius = 300;
+        const explosionRadius = 500; // Aumentado de 300 para 500 para maior área de impacto
         this.sfx['explosion_ki']?.play();
         
         // Efeito visual da explosão - Amarelo
@@ -3248,14 +3248,14 @@ class MainScene extends Phaser.Scene {
                     // Dano de 70% de um Punch
                     this.hitEnemy(enemy, explosionDamage);
 
-                    // Jogar para longe - Super Knockback
+                    // Jogar para longe - Super Knockback (Aumentado em 200% do que estava: 8000 * 3 = 24000)
                     const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
-                    const knockbackForce = 8000; // Aumentado drasticamente para jogar nos cantos
+                    const knockbackForce = 24000; 
                     enemy.setVelocity(Math.cos(angle) * knockbackForce, Math.sin(angle) * knockbackForce);
                     
                     // Marcar como sendo repelido para não causar dano ao colidir com o player durante o trajeto
                     enemy.setData('isBeingKnockedBack', true);
-                    this.time.delayedCall(800, () => {
+                    this.time.delayedCall(1000, () => {
                         if (enemy.active) {
                             enemy.setData('isBeingKnockedBack', false);
                         }
