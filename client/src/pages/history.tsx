@@ -14,17 +14,17 @@ export default function History() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[160] pointer-events-auto overflow-y-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-4xl bg-slate-950 border-amber-500 border-2 pointer-events-auto rounded-none shadow-2xl shadow-amber-500/20">
-        <CardHeader className="border-b border-amber-500/30 bg-amber-950/20 relative">
+      <Card className="w-full max-w-4xl bg-slate-950 border-blue-500 border-2 pointer-events-auto rounded-none shadow-2xl shadow-blue-500/20">
+        <CardHeader className="border-b border-blue-500/30 bg-blue-950/20 relative">
           <div className="flex items-center gap-3">
-            <CardTitle className="text-amber-400 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
+            <CardTitle className="text-blue-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
               <HistoryIcon className="w-8 h-8" />
               Game History
             </CardTitle>
           </div>
         </CardHeader>
         <CardContent className="p-8 space-y-6">
-          <div className="aspect-video bg-black border-2 border-amber-500/30 overflow-hidden relative group shadow-2xl">
+          <div className="aspect-video bg-black border-2 border-blue-500/30 overflow-hidden relative group shadow-2xl">
             <video 
               src="/attached_assets/gamehistory_1767067604123.mp4" 
               className="w-full h-full object-contain"
