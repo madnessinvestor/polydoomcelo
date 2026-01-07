@@ -1753,7 +1753,15 @@ class MainScene extends Phaser.Scene {
                     
                     if (newHealth <= 0) {
                         this.time.delayedCall(50, () => {
-                            if (enemy.active) this.defeatEnemy(enemy);
+                            if (enemy.active) {
+                                // @ts-ignore
+                                if (typeof this.onEnemyDefeated === 'function') {
+                                    // @ts-ignore
+                                    this.onEnemyDefeated(enemy);
+                                } else {
+                                    enemy.destroy();
+                                }
+                            }
                         });
                     } else {
                         this.time.delayedCall(200, () => {
