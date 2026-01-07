@@ -161,6 +161,11 @@ class MainScene extends Phaser.Scene {
             this.playerUpgrades = (this.game as any).playerUpgrades;
             this.applyUpgrade();
             this.updateHUD();
+        } else if ((window as any).playerUpgrades) {
+            this.playerUpgrades = (window as any).playerUpgrades;
+            (this.game as any).playerUpgrades = this.playerUpgrades;
+            this.applyUpgrade();
+            this.updateHUD();
         }
     }
 

@@ -116,6 +116,7 @@ export default function Home() {
 
   useEffect(() => {
     if (isConnected) {
+      setIsChecking(true);
       fetchUpgradesAndInventory().then(data => {
         const upgrades = data?.upgrades;
         const inventory = data?.inventory;
@@ -126,6 +127,7 @@ export default function Home() {
 
         import("@/lib/game").then((mod) => {
           mod.initGame(upgrades || undefined);
+          setIsChecking(false);
           
           // Trigger HUD updates more aggressively
           const updateHUD = () => {
@@ -133,6 +135,9 @@ export default function Home() {
               const scene = (window.game as any).scene.getScene('MainScene') as any;
               if (scene && scene.updateInventoryHUD) {
                 scene.updateInventoryHUD();
+              }
+              if (scene && scene.applyUpgradesFromGlobal) {
+                scene.applyUpgradesFromGlobal();
               }
             }
           };
@@ -143,6 +148,9 @@ export default function Home() {
           setTimeout(updateHUD, 1000);
           setTimeout(updateHUD, 2000);
         });
+      }).catch(err => {
+        console.error("Failed to load game data:", err);
+        setIsChecking(false);
       });
     }
 
