@@ -190,6 +190,8 @@ class MainScene extends Phaser.Scene {
         '/attached_assets/2_1767069690245.mp3',
         '/attached_assets/3_1767069690247.mp3'
     ];
+    private deathSoundKey = 'death_sound';
+    private deathSoundPath = '/attached_assets/Death_(Player)_1767820208727.mp3';
     private currentMusicIndex: number = 0;
     private currentMusic: Phaser.Sound.BaseSound | null = null;
     private openingMusic: Phaser.Sound.BaseSound | null = null;
@@ -689,6 +691,7 @@ class MainScene extends Phaser.Scene {
         this.load.audio('close_button', '/attached_assets/Close_1767118231095.ogg');
         this.load.audio('meteor_1', '/attached_assets/Meteor_1_1767808998910.ogg');
         this.load.audio('meteor_2', '/attached_assets/Meteor_2_1767809001052.ogg');
+        this.load.audio(this.deathSoundKey, this.deathSoundPath);
     }
 
     create() {
@@ -3546,6 +3549,10 @@ class MainScene extends Phaser.Scene {
 
         if (this.health <= 0) {
             this.isGameOver = true;
+            this.cameras.main.flash(1000, 255, 0, 0);
+            if (this.sound.get(this.deathSoundKey)) {
+                this.sound.play(this.deathSoundKey, { volume: this.sfxVolume });
+            }
         (this as any).gameOver = true;
             this.health = 0;
             this.playerGraphics.clear();
@@ -3656,6 +3663,10 @@ class MainScene extends Phaser.Scene {
         
         if (this.health <= 0) {
             this.isGameOver = true;
+            this.cameras.main.flash(1000, 255, 0, 0);
+            if (this.sound.get(this.deathSoundKey)) {
+                this.sound.play(this.deathSoundKey, { volume: this.sfxVolume });
+            }
             this.submitScoreOnChain(); // Chamada on-chain ao morrer
             this.health = 0;
             this.playerGraphics.clear();
