@@ -1688,9 +1688,9 @@ class MainScene extends Phaser.Scene {
     private startArcMeteor() {
         if (this.player.body?.touching.down || this.isMeteorFalling) return;
         
-        // Consumo de 50 de ki
-        if (this.kiarc < 50) return;
-        this.kiarc -= 50;
+        // Consumo de 100 de ki
+        if (this.kiarc < 100) return;
+        this.kiarc -= 100;
         this.updateHUD();
 
         this.isMeteorFalling = true;
