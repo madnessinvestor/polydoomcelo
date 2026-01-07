@@ -10,14 +10,14 @@ export interface ScarfSegment {
 export class ScarfComponent {
     private scene: Phaser.Scene;
     private segments: ScarfSegment[] = [];
-    private numSegments: number = 6;
-    private segmentLength: number = 4;
+    private numSegments: number = 8;
+    private segmentLength: number = 9; // ~24px * 3 / 8 segments = 9px per segment
     private gravity: number = 0.15;
     private friction: number = 0.95;
     private graphics: Phaser.GameObjects.Graphics;
     private target: Phaser.Physics.Arcade.Sprite;
     private color: number = 0xffdd00; // Amarelo do player
-    private anchorOffsetY: number = 6; // Torso superior
+    private anchorOffsetY: number = -12; // Topo do player (assumindo sprite 32x32, centro é 0, topo é -16, ligeiramente abaixo é -12)
 
     constructor(scene: Phaser.Scene, target: Phaser.Physics.Arcade.Sprite) {
         this.scene = scene;
@@ -25,8 +25,6 @@ export class ScarfComponent {
         this.graphics = scene.add.graphics();
         // Garantir que o desenho ocorra após o player (player depth é 10, então scarf depth 11)
         this.graphics.setDepth(11);
-
-        console.log("ScarfComponent inicializado no player:", target.x, target.y);
 
         // Initialize segments
         for (let i = 0; i < this.numSegments; i++) {
@@ -102,7 +100,7 @@ export class ScarfComponent {
         this.graphics.clear();
         
         // Desenha o cachecol
-        this.graphics.lineStyle(3, this.color, 1);
+        this.graphics.lineStyle(9, this.color, 1); // 3x maior que os 3px anteriores
         this.graphics.beginPath();
         this.graphics.moveTo(this.segments[0].x, this.segments[0].y);
 
