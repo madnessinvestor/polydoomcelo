@@ -10,16 +10,16 @@ export interface ScarfSegment {
 export class ScarfComponent {
     private scene: Phaser.Scene;
     private segments: ScarfSegment[] = [];
-    private numSegments: number = 4;
-    private segmentLength: number = 8;
+    private numSegments: number = 6;
+    private segmentLength: number = 10;
     private gravity: number = 0.15;
     private friction: number = 0.9;
     private graphics: Phaser.GameObjects.Graphics;
     private target: Phaser.Physics.Arcade.Sprite;
     private color: number = 0xffdd00; // Amarelo do player
     private anchorOffsetY: number = -6; // Posição do pescoço
-    private baseWidth: number = 16; // Largura da capa no pescoço
-    private tipWidth: number = 24;  // Largura da capa na ponta
+    private baseWidth: number = 18; // Largura da capa no pescoço
+    private tipWidth: number = 36;  // Largura da capa na ponta (aumentada)
 
     constructor(scene: Phaser.Scene, target: Phaser.Physics.Arcade.Sprite) {
         this.scene = scene;
