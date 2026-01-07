@@ -206,10 +206,10 @@ export default function Home() {
         <Settings />
       )}
       
-      {/* Global UI Lock Overlay */}
+      {/* Global UI Lock Overlay - Block EVERYTHING except the modals */}
       {isLocked && (
         <div 
-          className="fixed inset-0 z-[80] bg-transparent pointer-events-auto cursor-default" 
+          className="fixed inset-0 z-[145] bg-black/60 backdrop-blur-[4px] pointer-events-auto cursor-default transition-all duration-300" 
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -218,10 +218,11 @@ export default function Home() {
             e.preventDefault();
             e.stopPropagation();
           }}
+          style={{ touchAction: 'none' }}
         />
       )}
 
-      <div className={`w-full flex flex-col items-center transition-opacity duration-300 ${isLocked ? "opacity-50" : "opacity-100"}`}>
+      <div className={`w-full flex flex-col items-center transition-all duration-300 ${isLocked ? "scale-[0.98] blur-[2px] pointer-events-none select-none" : "scale-100 blur-0"}`}>
         {/* Game Container */}
         <div className="relative">
           <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden relative" style={{ width: '1920px', height: '1080px' }} />

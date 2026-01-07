@@ -3,7 +3,9 @@ import { useUI } from "@/hooks/use-ui";
 export function GameTitle() {
   const { isLocked } = useUI();
   return (
-    <div className={`flex items-center justify-center w-full h-full ${isLocked ? "pointer-events-none" : ""}`}>
+    <div className={`flex items-center justify-center w-full h-full relative ${isLocked ? "pointer-events-none" : ""}`}>
+      {/* Local blocker to ensure even if global fails, title is blocked */}
+      {isLocked && <div className="absolute inset-0 z-[200] bg-transparent pointer-events-auto" />}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         

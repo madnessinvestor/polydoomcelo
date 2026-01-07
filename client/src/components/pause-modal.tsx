@@ -10,9 +10,9 @@ export function PauseModal({ onContinue, onExit }: PauseModalProps) {
   const { isLocked } = useUI();
   
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center pointer-events-auto">
+    <div className="fixed inset-0 z-[160] flex items-center justify-center pointer-events-auto">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onPointerDown={(e) => e.stopPropagation()} />
       
       {/* Modal */}
       <div className="relative bg-[#0a0a20] border-2 border-slate-700 rounded-lg p-8 w-full max-w-[400px] mx-4 shadow-2xl">
