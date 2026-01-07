@@ -1667,7 +1667,7 @@ class MainScene extends Phaser.Scene {
         // Breve pausa para carregar
         this.time.delayedCall(200, () => {
             if (this.player.active) {
-                this.player.setVelocityY(2000); // Queda meteórica
+                this.player.setVelocityY(4000); // Queda meteórica ainda mais rápida
                 this.player.setData('isFastFalling', true); // Reutiliza lógica de impacto existente se necessário, mas Meteor 2 é específico
             }
         });
@@ -1679,25 +1679,33 @@ class MainScene extends Phaser.Scene {
 
         this.sfx['meteor_1']?.stop();
         this.sfx['meteor_2']?.play();
-        this.cameras.main.shake(300, 0.02);
+        this.cameras.main.shake(500, 0.04);
 
         // Explosão visual
         const explosion = this.add.circle(this.player.x, this.player.y, 10, 0xff4500, 0.8);
         this.tweens.add({
             targets: explosion,
-            radius: 150,
+            radius: 250,
             alpha: 0,
-            duration: 500,
+            duration: 600,
             onComplete: () => explosion.destroy()
         });
 
-        // Dano em área
-        const impactRadius = 150;
+        // Dano em área e Knockback
+        const impactRadius = 250;
         this.enemies.getChildren().forEach(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
             if (enemy.active) {
                 const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
                 if (dist < impactRadius) {
+                    // Knockback: inimigos voam longe
+                    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+                    const force = (impactRadius - dist) * 10;
+                    enemy.setVelocity(
+                        Math.cos(angle) * force,
+                        Math.sin(angle) * force - 800 // Força extra para cima
+                    );
+
                     const damage = 10 + (this.level * 10);
                     const currentHealth = enemy.getData('health') || 0;
                     enemy.setData('health', Math.max(0, currentHealth - damage));
@@ -1949,7 +1957,7 @@ class MainScene extends Phaser.Scene {
         if (this.isMeteorFalling) {
             this.player.setVelocityX(0);
             if (this.player.body) {
-                this.player.setVelocityY(2000);
+                this.player.setVelocityY(4000);
             }
             // Efeito visual de rastro (Meteor 1)
             if (this.time.now % 50 < 20) {
