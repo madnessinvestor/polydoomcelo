@@ -205,52 +205,6 @@ export default function Home() {
         <div className="relative">
           <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden relative" style={{ width: '1920px', height: '1080px' }} />
           
-          <div className="mt-4 flex flex-col items-center gap-4">
-            <div className="text-slate-400 text-sm flex flex-wrap justify-center gap-x-4 gap-y-2 px-4">
-              <div className="flex gap-2">
-                <span className="text-white">Arrow Keys:</span>
-                <span className="text-slate-400">Move / Jump</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="text-white">Double-Click Arrow:</span>
-                <span className="text-slate-400">Dash</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="text-white">Z:</span>
-                <span className="text-slate-400">Punch</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="text-white">X:</span>
-                <span className="text-slate-400">Charge KiArc</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="text-white">C:</span>
-                <span className="text-slate-400">Magic</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="text-white">V:</span>
-                <span className="text-slate-400">ArcKamehameha</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="text-white">B:</span>
-                <span className="text-slate-400">ArcGenkiDama</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="text-white">F:</span>
-                <span className="text-slate-400">Explosion KiArc</span>
-              </div>
-            </div>
-          </div>
-          <div className="fixed bottom-4 right-4 z-50">
-            <a 
-              href="https://testnet.arcscan.app/address/0x9b673bDBA9ed06989b1846d4C63468BCE86cf006" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-[10px] text-slate-500 hover:text-slate-300 transition-colors font-mono"
-            >
-              0x9b673bDBA9ed06989b1846d4C63468BCE86cf006
-            </a>
-          </div>
         </div>
       </div>
     </div>
