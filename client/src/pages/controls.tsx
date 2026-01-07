@@ -137,7 +137,7 @@ export default function Controls() {
                   <Key label="B" action="ArcGenkiDama" active className="!scale-110" />
                   <div className="text-center space-y-1">
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
-                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 50 | CD: 30s</p>
+                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 200 | CD: 30s</p>
                     <p className="text-[11px] text-slate-400 leading-tight">Gather energy from the universe for a massive spirit bomb.</p>
                   </div>
                 </div>
