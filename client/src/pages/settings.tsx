@@ -62,9 +62,6 @@ export default function Settings() {
       <Card className="w-full max-w-md bg-slate-900 border-violet-500 pointer-events-auto rounded-none">
         <CardHeader className="border-b border-violet-500">
           <div className="flex items-center gap-3">
-            <Button size="icon" variant="ghost" onClick={closeModal} className="text-violet-500 hover:text-violet-400">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
             <CardTitle className="text-violet-500 text-2xl uppercase font-bold tracking-tighter">Settings</CardTitle>
           </div>
         </CardHeader>
