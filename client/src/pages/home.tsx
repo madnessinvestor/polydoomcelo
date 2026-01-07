@@ -205,6 +205,64 @@ export default function Home() {
         <div className="relative">
           <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden relative" style={{ width: '1920px', height: '1080px' }} />
           
+          {/* Game Controls Instructions */}
+          <div className="mt-8 mb-12 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 text-slate-300 font-monospace">
+            <Card className="bg-slate-900/50 border-slate-800">
+              <CardContent className="pt-6">
+                <h3 className="text-amber-400 font-bold mb-4 text-xl">CONTROLES BÁSICOS</h3>
+                <ul className="space-y-2">
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>MOVIMENTAÇÃO</span>
+                    <span className="text-white">SETAS / ARROW KEYS</span>
+                  </li>
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>PULO / JUMP</span>
+                    <span className="text-white">SETA CIMA / UP</span>
+                  </li>
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>DASH / ESQUIVA</span>
+                    <span className="text-white">DOUBLE TAP (SETAS)</span>
+                  </li>
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>SOCO / PUNCH</span>
+                    <span className="text-white">TECLA Z</span>
+                  </li>
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>ATAQUE MÁGICO / MAGIC</span>
+                    <span className="text-white">TECLA C</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-900/50 border-slate-800">
+              <CardContent className="pt-6">
+                <h3 className="text-amber-400 font-bold mb-4 text-xl">HABILIDADES ESPECIAIS</h3>
+                <ul className="space-y-2">
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>CARREGAR KI / CHARGE</span>
+                    <span className="text-white">TECLA X (SEGURAR)</span>
+                  </li>
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>KAMEHAMEHA</span>
+                    <span className="text-white">TECLA X (PRESSIONAR)</span>
+                  </li>
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>GENKIDAMA / SPECIAL</span>
+                    <span className="text-white">TECLA V</span>
+                  </li>
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>USAR POÇÕES / POTIONS</span>
+                    <span className="text-white">TECLAS Q, W, E, R</span>
+                  </li>
+                  <li className="flex justify-between border-b border-slate-800 pb-1">
+                    <span>PAUSAR / MENU</span>
+                    <span className="text-white">ESC / P</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
