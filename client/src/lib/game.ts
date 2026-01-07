@@ -1705,12 +1705,13 @@ class MainScene extends Phaser.Scene {
                 if (dist < impactRadius) {
                     // Knockback: inimigos voam longe
                     const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
-                    const force = (impactRadius - dist) * 10;
+                    const force = (impactRadius - dist) * 15; // Aumentado de 10 para 15
                     enemy.setVelocity(
                         Math.cos(angle) * force,
-                        Math.sin(angle) * force - 800 // Força extra para cima
+                        Math.sin(angle) * force - 1000 // Aumentado de -800 para -1000
                     );
 
+                    // Dano de impacto (base 10 + 10 por nível)
                     const damage = 10 + (this.level * 10);
                     const currentHealth = enemy.getData('health') || 0;
                     enemy.setData('health', Math.max(0, currentHealth - damage));
@@ -1963,6 +1964,11 @@ class MainScene extends Phaser.Scene {
             this.player.setVelocityX(0);
             if (this.player.body) {
                 this.player.setVelocityY(4000);
+            }
+            
+            // Verifica impacto com o solo
+            if (this.player.body?.touching.down || this.player.y >= 580) { // 580 é próximo ao chão (600)
+                this.handleMeteorImpact();
             }
             // Efeito visual de rastro (Meteor 1)
             if (this.time.now % 50 < 20) {
