@@ -4595,6 +4595,37 @@ class StartScene extends Phaser.Scene {
             }
         };
 
+        // Create Footer (Bottom Center)
+        const footerY = this.cameras.main.height - 40;
+        const footerText = this.add.text(this.cameras.main.centerX, footerY - 20, '2026 PolyDoom Arc — Built on Arc Network. All rights reserved.', {
+            fontSize: '14px',
+            color: '#94a3b8',
+            fontFamily: 'monospace'
+        }).setOrigin(0.5);
+
+        const socialLinks = [
+            { name: 'X (Twitter)', url: 'https://x.com' },
+            { name: 'GitHub', url: 'https://github.com' },
+            { name: 'YouTube', url: 'https://youtube.com' },
+            { name: 'Farcaster', url: 'https://farcaster.xyz' },
+            { name: 'Instagram', url: 'https://instagram.com' },
+            { name: 'Telegram', url: 'https://t.me' },
+            { name: 'Discord', url: 'https://discord.com' }
+        ];
+
+        let startX = this.cameras.main.centerX - 300;
+        socialLinks.forEach((link, index) => {
+            const linkText = this.add.text(startX + (index * 100), footerY + 10, link.name, {
+                fontSize: '12px',
+                color: '#64748b',
+                fontFamily: 'monospace'
+            }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+            linkText.on('pointerover', () => linkText.setColor('#fbbf24'));
+            linkText.on('pointerout', () => linkText.setColor('#64748b'));
+            linkText.on('pointerdown', () => window.open(link.url, '_blank'));
+        });
+
         startBtn.setInteractive().on('pointerdown', () => {
             if (!(window as any).walletAddress) {
                 alert('Wallet connection is required to register your Score On Chain!');
