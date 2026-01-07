@@ -677,8 +677,6 @@ class MainScene extends Phaser.Scene {
     }
 
     // Sound assets
-    private sfx: { [key: string]: Phaser.Sound.BaseSound } = {};
-
     preload() {
         this.load.spritesheet('criptoide_basic', '/attached_assets/generated_images/pixel_art_criptoide_basic_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('jungle_tiles', '/attached_assets/generated_images/pixel_art_jungle_tileset.png', { frameWidth: 32, frameHeight: 32 });
@@ -709,6 +707,12 @@ class MainScene extends Phaser.Scene {
         this.load.audio('meteor_2', '/attached_assets/Meteor_2_1767809001052.ogg');
         this.load.audio(this.deathSoundKey, this.deathSoundPath);
         this.load.audio(this.defenseSoundKey, this.defenseSoundPath);
+
+        // Load Special Icons
+        this.load.image('icon_V', '/attached_assets/image_1767828341470.png');
+        this.load.image('icon_B', '/attached_assets/image_1767828364520.png');
+        this.load.image('icon_F', '/attached_assets/image_1767828377671.png');
+        this.load.image('icon_S', '/attached_assets/image_1767828391361.png');
     }
 
     create() {
@@ -1690,6 +1694,7 @@ class MainScene extends Phaser.Scene {
         this.updateHUD();
 
         this.isMeteorFalling = true;
+        this.specialsCooldowns['S'].startTime = this.time.now;
         this.player.setVelocity(0, 0);
         this.sfx['meteor_1']?.play();
 
@@ -1725,6 +1730,7 @@ class MainScene extends Phaser.Scene {
     private handleMeteorImpact() {
         if (!this.isMeteorFalling) return;
         this.isMeteorFalling = false;
+        this.specialsCooldowns['S'].startTime = this.time.now;
 
         this.sfx['meteor_1']?.stop();
         this.sfx['meteor_2']?.play();
@@ -2278,21 +2284,26 @@ class MainScene extends Phaser.Scene {
     private renderSpecialsCooldowns() {
         const { width, height } = this.cameras.main;
         const specials = [
-            { key: 'V', label: 'V', x: width - 260 },
-            { key: 'F', label: 'F', x: width - 200 },
-            { key: 'S', label: 'S', x: width - 140 },
-            { key: 'B', label: 'B', x: width - 80 }
+            { key: 'S', label: 'S', ki: 50 },
+            { key: 'F', label: 'F', ki: 30 },
+            { key: 'V', label: 'V', ki: 100 },
+            { key: 'B', label: 'B', ki: 200 }
         ];
 
-        const y = height - 100;
-        const size = 50;
+        const size = 64; // Uniform size for vertical bar
+        const spacing = 12;
+        const totalHeight = (size + spacing) * specials.length - spacing;
+        const startY = (height - totalHeight) / 2; // Centralizado verticalmente
+        const x = width - 50; // Lateral direita
 
-        specials.forEach((special) => {
+        specials.forEach((special, index) => {
+            const y = startY + index * (size + spacing);
             const cdInfo = this.specialsCooldowns[special.key];
             const elapsed = this.time.now - cdInfo.startTime;
             const remaining = Math.max(0, cdInfo.duration - elapsed);
             const progress = remaining / cdInfo.duration;
 
+            // Graphics for border and cooldown overlay
             let graphics = this.specialsHUDGraphics.get(special.key);
             if (!graphics) {
                 graphics = this.add.graphics().setScrollFactor(0).setDepth(1002);
@@ -2301,53 +2312,84 @@ class MainScene extends Phaser.Scene {
 
             graphics.clear();
             
-            // Base Icon Square (keeping it simple and clear as requested)
-            graphics.lineStyle(2, 0xa855f7, 0.5);
-            graphics.strokeRect(special.x - size/2, y - size/2, size, size);
-            graphics.fillStyle(0x000000, 0.2);
-            graphics.fillRect(special.x - size/2, y - size/2, size, size);
+            // Icon Image (Always clear/vibrant as requested)
+            let iconImage = this.specialsHUDTimers.get(special.key + '_icon') as any;
+            if (!iconImage) {
+                iconImage = this.add.image(x, y, 'icon_' + special.key)
+                    .setDisplaySize(size, size)
+                    .setScrollFactor(0)
+                    .setDepth(1001);
+                this.specialsHUDTimers.set(special.key + '_icon', iconImage as any);
+            }
+            iconImage.setPosition(x, y);
+
+            // Vibrant Border
+            graphics.lineStyle(2, 0xffdd00, 1.0);
+            graphics.strokeRect(x - size/2, y - size/2, size, size);
 
             if (remaining > 0) {
-                // Circular "clock" overlay
-                graphics.fillStyle(0x000000, 0.5);
+                // Circular "clock" overlay (filling during cooldown)
+                graphics.fillStyle(0x000000, 0.7);
                 graphics.beginPath();
-                graphics.moveTo(special.x, y);
-                graphics.arc(special.x, y, size/2, Phaser.Math.DegToRad(-90), Phaser.Math.DegToRad(-90 + 360 * progress), false);
-                graphics.lineTo(special.x, y);
+                graphics.moveTo(x, y);
+                // Start at top (-90 deg), sweep based on progress
+                graphics.arc(x, y, size/2, Phaser.Math.DegToRad(-90), Phaser.Math.DegToRad(-90 + 360 * progress), false);
+                graphics.lineTo(x, y);
                 graphics.closePath();
                 graphics.fillPath();
 
-                // Timer Text
+                // Timer Text (Center)
                 let timerText = this.specialsHUDTimers.get(special.key);
                 if (!timerText) {
-                    timerText = this.add.text(special.x, y, '', {
-                        fontSize: '16px',
+                    timerText = this.add.text(x, y, '', {
+                        fontSize: '24px',
                         fontFamily: 'monospace',
                         color: '#ffffff',
                         fontStyle: 'bold',
                         stroke: '#000000',
-                        strokeThickness: 3
+                        strokeThickness: 4
                     }).setOrigin(0.5).setScrollFactor(0).setDepth(1003);
                     this.specialsHUDTimers.set(special.key, timerText);
                 }
                 timerText.setText(Math.ceil(remaining / 1000).toString());
                 timerText.setVisible(true);
+                timerText.setPosition(x, y);
             } else {
                 const timerText = this.specialsHUDTimers.get(special.key);
                 if (timerText) timerText.setVisible(false);
             }
 
-            // Key Label
+            // Key Label (Top Left)
             const labelKey = special.key + '_label';
-            if (!this.specialsHUDTimers.has(labelKey)) {
-                const label = this.add.text(special.x - size/2 + 5, y - size/2 + 5, special.label, {
-                    fontSize: '10px',
+            let label = this.specialsHUDTimers.get(labelKey);
+            if (!label) {
+                label = this.add.text(x - size/2 + 4, y - size/2 + 4, special.label, {
+                    fontSize: '14px',
                     fontFamily: 'monospace',
-                    color: '#a855f7',
-                    fontStyle: 'bold'
-                }).setScrollFactor(0).setDepth(1003);
+                    color: '#ffffff',
+                    fontStyle: 'bold',
+                    stroke: '#000000',
+                    strokeThickness: 3
+                }).setScrollFactor(0).setDepth(1004);
                 this.specialsHUDTimers.set(labelKey, label);
             }
+            label.setPosition(x - size/2 + 4, y - size/2 + 4);
+
+            // KI Cost (Bottom Right)
+            const costKey = special.key + '_cost';
+            let costText = this.specialsHUDTimers.get(costKey);
+            if (!costText) {
+                costText = this.add.text(x + size/2 - 4, y + size/2 - 4, special.ki.toString(), {
+                    fontSize: '12px',
+                    fontFamily: 'monospace',
+                    color: '#4ade80',
+                    fontStyle: 'bold',
+                    stroke: '#000000',
+                    strokeThickness: 2
+                }).setOrigin(1, 1).setScrollFactor(0).setDepth(1004);
+                this.specialsHUDTimers.set(costKey, costText);
+            }
+            costText.setPosition(x + size/2 - 4, y + size/2 - 4);
         });
     }
 
