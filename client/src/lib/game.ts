@@ -231,45 +231,6 @@ class MainScene extends Phaser.Scene {
         this.useInventoryItem(type);
     }
 
-    create() {
-        // Handle wallet auto-connect if already connected in browser
-        const autoConnectWallet = async () => {
-            if ((window as any).ethereum) {
-                try {
-                    const provider = new ethers.BrowserProvider((window as any).ethereum);
-                    const accounts = await provider.listAccounts();
-                    if (accounts.length > 0) {
-                        const address = accounts[0].address;
-                        (window as any).walletAddress = address;
-                        console.log("Wallet auto-connected:", address);
-                        
-                        // Load inventory immediately
-                        const inventoryKey = `player_inventory_${address.toLowerCase()}`;
-                        const saved = localStorage.getItem(inventoryKey);
-                        if (saved) {
-                            this.playerInventory = JSON.parse(saved);
-                            (this.game as any).playerInventory = this.playerInventory;
-                            this.updateInventoryHUD();
-                        }
-                    }
-                } catch (err) {
-                    console.error("Auto-connect failed:", err);
-                }
-            }
-        };
-        autoConnectWallet();
-
-        // Listen for inventory sync from React
-        this.events.on('sync_inventory', (newInventory: Record<string, number>) => {
-            console.log("Game: Received sync_inventory event", newInventory);
-            this.playerInventory = newInventory;
-            this.updateInventoryHUD();
-        });
-
-        // Initial HUD update
-        this.updateInventoryHUD();
-    }
-
     private updateInventoryHUD() {
         // Ensure inventoryHUD container exists
         if (!this.inventoryHUD) {
@@ -3411,7 +3372,26 @@ class MainScene extends Phaser.Scene {
         });
         
         if (this.health <= 0) {
-            this.gameOver();
+            this.isGameOver = true;
+            this.health = 0;
+            this.playerGraphics.clear();
+            this.playerAuraGraphics.clear();
+            this.player.setActive(false);
+            if (this.player.body) {
+                this.player.body.enable = false;
+            }
+            this.createExplosion(this.player.x, this.player.y);
+            
+            this.time.delayedCall(1000, () => {
+                this.scene.switch('DeathScene');
+                this.scene.start('DeathScene', { 
+                    level: this.level,
+                    wave: this.currentWave,
+                    score: this.score,
+                    enemiesDefeated: this.enemiesDefeated,
+                    levelTitle: this.levelTitle
+                });
+            });
         }
     }
 
@@ -4290,7 +4270,13 @@ class StartScene extends Phaser.Scene {
     preload() {
         this.load.image('x_icon', 'attached_assets/stock_images/twitter_x_logo_black_6fd4b9ec.jpg');
         this.load.image('github_icon', 'attached_assets/stock_images/github_logo_black_ic_e57e65f2.jpg');
+    }
 
+    private async connectWallet() {
+        if (this.isWalletConnecting) return;
+        this.isWalletConnecting = true;
+
+        try {
             // Arc Testnet Config
             const arcTestnet = {
                 chainId: '0x4cef52', // 5042002 decimal em hexadecimal
@@ -4952,70 +4938,6 @@ class StartScene extends Phaser.Scene {
                 (originalSound as any)._volumeOverridden = true;
             }
         });
-    }
-
-    public applyUpgrade(id: string, level: number) {
-        // ... existing applyUpgrade ...
-    }
-
-    private usePotion(type: string) {
-        const count = this.playerInventory[type] || 0;
-        if (count <= 0) {
-            this.showPickupNotification('Shopping', `Você não possui ${type} potion!`);
-            return;
-        }
-
-        switch (type) {
-            case 'health':
-                if (this.health >= this.maxHealth) return;
-                this.health = this.maxHealth;
-                this.cameras.main.flash(200, 0, 255, 0, true);
-                this.showPickupNotification('Health Potion', 'Vida restaurada 100%!');
-                break;
-            case 'ki':
-                if (this.kiarc >= this.maxKiarc) return;
-                this.kiarc = this.maxKiarc;
-                this.cameras.main.flash(200, 0, 0, 255, true);
-                this.showPickupNotification('Ki Potion', 'KI restaurado 100%!');
-                break;
-            case 'immunity':
-                this.isInvincible = true;
-                this.invincibilityTimer = 30000;
-                this.addBuff('ArcBarrier', 'Total Immunity', 'Invencibilidade total por 30s!', 30);
-                this.cameras.main.flash(300, 255, 255, 255, true);
-                this.showPickupNotification('Immunity Potion', 'Imunidade por 30 segundos!');
-                break;
-            case 'score':
-                this.hasScoreBoost = true;
-                this.addBuff('ArcScore', 'Double Score', 'Score dobrado por 100s!', 100);
-                this.cameras.main.flash(500, 255, 215, 0, true);
-                this.showPickupNotification('Score Potion', 'Score x2 por 100 segundos!');
-                this.time.delayedCall(100000, () => {
-                    this.hasScoreBoost = false;
-                    this.removeBuff('ArcScore');
-                });
-                break;
-        }
-
-        // Consume potion
-        this.playerInventory[type]--;
-        localStorage.setItem('player_inventory', JSON.stringify(this.playerInventory));
-        this.updateHUD();
-    }
-
-    private addBuff(id: string, title: string, description: string, durationSeconds: number) {
-        this.activeBuffs.set(id, { 
-            title, 
-            description, 
-            duration: durationSeconds, 
-            startTime: this.time.now 
-        });
-        this.updateBuffsUI();
-    }
-
-    private removeBuff(id: string) {
-        this.activeBuffs.delete(id);
-        this.updateBuffsUI();
     }
 
     private openLeaderboardModal() {
