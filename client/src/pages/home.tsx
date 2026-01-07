@@ -190,39 +190,44 @@ export default function Home() {
       if (!window.game) return;
       
       try {
-        // Bloqueio profundo e total do Phaser
-        (window.game as any).input.enabled = enabled;
-        
-        if ((window.game as any).scene) {
-          (window.game.scene as any).getScenes(true).forEach((scene: any) => {
-            if (scene.input) {
-              scene.input.enabled = enabled;
-              if (scene.input.keyboard) scene.input.keyboard.enabled = enabled;
-              if (scene.input.mouse) scene.input.mouse.enabled = enabled;
-              if (scene.input.activePointer) scene.input.activePointer.enabled = enabled;
-            }
-          });
-        }
+        // Bloqueio PROFUNDO e ABSOLUTO: Pausa o motor completamente
+        const game = window.game as any;
         
         if (enabled) {
-          (window.game as any).resume();
-          (window.game.input as any).keyboard?.resume();
-          (window.game.input as any).mouse?.resume();
+          game.input.enabled = true;
+          if (game.scene) {
+            game.scene.getScenes(true).forEach((scene: any) => {
+              if (scene.input) {
+                scene.input.enabled = true;
+                if (scene.input.keyboard) scene.input.keyboard.enabled = true;
+                if (scene.input.mouse) scene.input.mouse.enabled = true;
+              }
+            });
+          }
+          game.resume();
+          // Remove a classe de bloqueio de eventos CSS
+          document.getElementById('game-container')?.classList.remove('pointer-events-none');
         } else {
-          (window.game as any).pause();
-          (window.game.input as any).keyboard?.pause();
-          (window.game.input as any).mouse?.pause();
+          game.input.enabled = false;
+          if (game.scene) {
+            game.scene.getScenes(true).forEach((scene: any) => {
+              if (scene.input) {
+                scene.input.enabled = false;
+                if (scene.input.keyboard) scene.input.keyboard.enabled = false;
+                if (scene.input.mouse) scene.input.mouse.enabled = false;
+              }
+            });
+          }
+          game.pause();
+          // Adiciona bloqueio de eventos CSS no nível do navegador
+          document.getElementById('game-container')?.classList.add('pointer-events-none');
         }
       } catch (err) {
-        console.error("Error toggling Phaser input:", err);
+        console.error("Erro ao alternar input do Phaser:", err);
       }
     };
 
-    if (isLocked) {
-      togglePhaserInput(false);
-    } else {
-      togglePhaserInput(true);
-    }
+    togglePhaserInput(!isLocked);
   }, [isLocked]);
 
   return (

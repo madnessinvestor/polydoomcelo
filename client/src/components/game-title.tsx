@@ -7,11 +7,13 @@ export function GameTitle() {
       {/* Local blocker to ensure even if global fails, title is blocked */}
       {isLocked && (
         <div 
-          className="fixed inset-0 z-[999999] bg-black/40 backdrop-blur-[4px] pointer-events-auto cursor-not-allowed" 
+          className="fixed inset-0 z-[2147483647] bg-black/60 backdrop-blur-[6px] pointer-events-auto cursor-not-allowed" 
           onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onMouseUp={(e) => { e.preventDefault(); e.stopPropagation(); }}
           onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
           onPointerUp={(e) => { e.preventDefault(); e.stopPropagation(); }}
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          style={{ touchAction: 'none', userSelect: 'none' }}
         />
       )}
       <style>{`
