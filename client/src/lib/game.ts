@@ -3235,14 +3235,18 @@ class MainScene extends Phaser.Scene {
         });
 
         // Aplicar dano e knockback em todos os inimigos próximos
+        const stats = this.levelStats[this.level - 1];
+        const punchDamage = stats.punch;
+        const damageMultiplier = stats.mult;
+        const explosionDamage = punchDamage * damageMultiplier * 0.7;
+
         this.enemies.getChildren().forEach((e: any) => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
             if (enemy.active) {
                 const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
                 if (dist <= explosionRadius) {
-                    // Dano de 10
-                    let enemyHealth = enemy.getData('health') || 0;
-                    enemy.setData('health', enemyHealth - 10);
+                    // Dano de 70% de um Punch
+                    this.hitEnemy(enemy, explosionDamage);
 
                     // Jogar para longe
                     const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
@@ -3256,10 +3260,6 @@ class MainScene extends Phaser.Scene {
                             enemy.setData('isBeingKnockedBack', false);
                         }
                     });
-
-                    if (enemy.getData('health') <= 0) {
-                        this.killEnemy(enemy);
-                    }
                 }
             }
         });
