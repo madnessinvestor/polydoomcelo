@@ -142,16 +142,16 @@ class MainScene extends Phaser.Scene {
     
     // Level stats configuration
     private levelStats = [
-        { lvl: 1, hp: 300, ki: 100, mult: 1.0, punch: 10, magic: 10, kame: 100, res: 0.00, score: 0 },
-        { lvl: 2, hp: 420, ki: 140, mult: 1.4, punch: 20, magic: 15, kame: 100, res: 0.03, score: 50 },
-        { lvl: 3, hp: 600, ki: 200, mult: 1.8, punch: 30, magic: 20, kame: 100, res: 0.06, score: 200 },
-        { lvl: 4, hp: 850, ki: 280, mult: 2.2, punch: 40, magic: 25, kame: 100, res: 0.10, score: 500 },
+        { lvl: 1, hp: 300, ki: 100, mult: 1.0, punch: 10, magic: 10, kame: 30, res: 0.00, score: 0 },
+        { lvl: 2, hp: 420, ki: 140, mult: 1.4, punch: 20, magic: 15, kame: 50, res: 0.03, score: 50 },
+        { lvl: 3, hp: 600, ki: 200, mult: 1.8, punch: 30, magic: 20, kame: 60, res: 0.06, score: 200 },
+        { lvl: 4, hp: 850, ki: 280, mult: 2.2, punch: 40, magic: 25, kame: 80, res: 0.10, score: 500 },
         { lvl: 5, hp: 1200, ki: 380, mult: 3.0, punch: 50, magic: 30, kame: 100, res: 0.15, score: 1000 },
-        { lvl: 6, hp: 1700, ki: 520, mult: 3.4, punch: 60, magic: 40, kame: 100, res: 0.20, score: 2000 },
-        { lvl: 7, hp: 2300, ki: 700, mult: 4.0, punch: 70, magic: 45, kame: 100, res: 0.25, score: 4000 },
-        { lvl: 8, hp: 3100, ki: 950, mult: 4.5, punch: 80, magic: 50, kame: 100, res: 0.30, score: 8000 },
-        { lvl: 9, hp: 4000, ki: 1300, mult: 5.0, punch: 100, magic: 100, kame: 100, res: 0.35, score: 20000 },
-        { lvl: 10, hp: 8000, ki: 3000, mult: 6.0, punch: 200, magic: 200, kame: 100, res: 0.40, score: 1000000000 }
+        { lvl: 6, hp: 1700, ki: 520, mult: 3.4, punch: 60, magic: 40, kame: 120, res: 0.20, score: 2000 },
+        { lvl: 7, hp: 2300, ki: 700, mult: 4.0, punch: 70, magic: 45, kame: 140, res: 0.25, score: 4000 },
+        { lvl: 8, hp: 3100, ki: 950, mult: 4.5, punch: 80, magic: 50, kame: 160, res: 0.30, score: 8000 },
+        { lvl: 9, hp: 4000, ki: 1300, mult: 5.0, punch: 100, magic: 100, kame: 200, res: 0.35, score: 20000 },
+        { lvl: 10, hp: 8000, ki: 3000, mult: 6.0, punch: 200, magic: 200, kame: 400, res: 0.40, score: 1000000000 }
     ];
 
     private levelTitles = [
@@ -1672,9 +1672,13 @@ class MainScene extends Phaser.Scene {
     private meteorEffect: Phaser.GameObjects.Graphics | null = null;
 
     private startArcMeteor() {
-        if (this.isMeteorFalling) return;
+        if (this.player.body?.touching.down || this.isMeteorFalling) return;
         
-        // Custo fixo de 100 KI já foi verificado e cobrado no update() antes de chamar esta função
+        // Consumo de 50 de ki
+        if (this.kiarc < 50) return;
+        this.kiarc -= 50;
+        this.updateHUD();
+
         this.isMeteorFalling = true;
         this.player.setVelocity(0, 0);
         this.sfx['meteor_1']?.play();
@@ -1868,8 +1872,6 @@ class MainScene extends Phaser.Scene {
                 this.kiarc -= 100;
                 this.useKiArcExplosion();
                 this.updateHUD();
-            } else {
-                this.showPickupNotification("Need 100 KI for Arc KiExplosion!");
             }
         }
 
@@ -2035,14 +2037,7 @@ class MainScene extends Phaser.Scene {
 
         // ArcMeteor (Key S)
         if (Phaser.Input.Keyboard.JustDown(this.keys.S) && !this.isMeteorFalling && !this.isDefending) {
-            if (this.kiarc >= 100) {
-                // Removemos o check de body?.touching.down para permitir ativação no ar/voando
-                this.kiarc -= 100;
-                this.startArcMeteor();
-                this.updateHUD();
-            } else {
-                this.showPickupNotification("Need 100 KI for Arc Meteor!");
-            }
+            this.startArcMeteor();
         }
 
         if (this.isMeteorFalling) {
@@ -2095,12 +2090,8 @@ class MainScene extends Phaser.Scene {
             this.shootMagic();
         }
 
-        if (this.keys.V.isDown && !this.keys.B.isDown && !this.isChargingKamehameha && !this.isDefending) {
-            if (this.kiarc >= 100) {
-                this.startKamehamehaCharge();
-            } else {
-                this.showPickupNotification("Need 100 KI for Arc Kamehameha!");
-            }
+        if (this.keys.V.isDown && this.kiarc >= 100 && !this.keys.B.isDown && !this.isChargingKamehameha && !this.isDefending) {
+            this.startKamehamehaCharge();
         }
 
         if (this.isChargingKamehameha) {
@@ -2373,18 +2364,6 @@ class MainScene extends Phaser.Scene {
     private finishKamehameha() {
         if (!this.isChargingKamehameha) return;
         this.isChargingKamehameha = false;
-        
-        // Verifica KI no lançamento e impede KI negativo
-        // Antigamente era 50, agora o mínimo obrigatório é 100
-        if (this.kiarc < 100) {
-            this.showPickupNotification("Need at least 100 KI to launch Arc Kamehameha!");
-            this.cancelKamehameha();
-            return;
-        }
-        
-        // Consome exatamente 100 de KI e garante que não fique negativo
-        this.kiarc = Math.max(0, this.kiarc - 100);
-        this.updateHUD();
         this.sfx['kamehameha_charge']?.stop();
         this.sfx['kamehameha_launch']?.play();
         
@@ -2428,7 +2407,7 @@ class MainScene extends Phaser.Scene {
         const damageMultiplier = stats.mult;
         const kameDamage = stats.kame;
         
-        // Custo fixo de 50 KI removido, pois agora gasta 100 fixo no finishKamehameha
+        this.kiarc -= 50;
         const beamLength = 2400;
         const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
         
@@ -2553,72 +2532,66 @@ class MainScene extends Phaser.Scene {
     }
 
     chargeGenkidama() {
-        if (!this.isChargingGenkidama) {
-            this.isChargingGenkidama = true;
-            this.genkidamaChargeAmount = 0;
-            
-            if (this.genkidamaText) this.genkidamaText.destroy();
-            this.genkidamaText = this.add.text(this.player.x, this.player.y - 30, 'All Arcs, share your power', {
-                fontSize: '14px',
-                color: '#add8e6',
-                fontStyle: 'bold',
-                stroke: '#000',
-                strokeThickness: 3,
-                fontFamily: '"Courier New", Courier, monospace'
-            }).setOrigin(0.5);
-
-            if (this.genkidamaPercentText) this.genkidamaPercentText.destroy();
-            this.genkidamaPercentText = this.add.text(this.player.x, this.player.y - 50, '0%', {
-                fontSize: '18px',
-                color: '#ffffff',
-                fontStyle: 'bold',
-                stroke: '#000',
-                strokeThickness: 4,
-                fontFamily: '"Courier New", Courier, monospace'
-            }).setOrigin(0.5);
-        }
-
-        const kiToConsume = 1.0; // Consumo gradual de KI
-        if (this.kiarc >= kiToConsume && this.genkidamaChargeAmount < 200) {
+        this.isChargingGenkidama = true;
+        const kiToConsume = 0.5;
+        if (this.kiarc >= kiToConsume) {
             this.kiarc -= kiToConsume;
             this.genkidamaChargeAmount += kiToConsume;
-            this.updateHUD();
             
             if (!this.genkidama) {
                 this.sfx['genkidama_charge']?.play({ loop: true });
                 this.genkidama = this.add.circle(this.player.x, this.player.y - 100, 10, 0xadd8e6, 0.6);
+                
+                this.genkidamaText = this.add.text(this.player.x, this.player.y - 30, 'All Arcs, share your power', {
+                    fontSize: '14px',
+                    color: '#add8e6',
+                    fontStyle: 'bold',
+                    stroke: '#000',
+                    strokeThickness: 3,
+                    fontFamily: '"Courier New", Courier, monospace'
+                }).setOrigin(0.5);
+
+                this.genkidamaPercentText = this.add.text(this.player.x, this.player.y - 50, '0%', {
+                    fontSize: '18px',
+                    color: '#ffffff',
+                    fontStyle: 'bold',
+                    stroke: '#000',
+                    strokeThickness: 4,
+                    fontFamily: '"Courier New", Courier, monospace'
+                }).setOrigin(0.5);
             }
             
-            if (this.genkidama) {
-                // Percentage: 200 KI = 100%
-                const percent = Math.floor((this.genkidamaChargeAmount / 200) * 100);
-                if (this.genkidamaPercentText) {
-                    this.genkidamaPercentText.setText(`${percent}%`);
-                    this.genkidamaPercentText.setPosition(this.player.x, this.player.y - 60);
-                    if (percent >= 100) this.genkidamaPercentText.setColor('#4ade80');
+            // Percentage: 200 KI = 100%
+            const percent = Math.floor((this.genkidamaChargeAmount / 200) * 100);
+            if (this.genkidamaPercentText) {
+                this.genkidamaPercentText.setText(`${percent}%`);
+                this.genkidamaPercentText.setPosition(this.player.x, this.player.y - 60);
+                // Change color if ready
+                if (percent >= 100) {
+                    this.genkidamaPercentText.setColor('#4ade80');
                 }
+            }
 
-                if (this.genkidamaText) {
-                    this.genkidamaText.setPosition(this.player.x, this.player.y - 40);
-                }
-                
-                // Size is proportional to charge
-                const size = 10 + (this.genkidamaChargeAmount * 1.5);
-                this.genkidama.setRadius(size);
-                this.genkidama.setPosition(this.player.x, this.player.y - size - 80);
-                
-                // Charging visual effect
-                if (this.time.now % 100 < 20) {
-                    const particle = this.add.circle(this.player.x + Phaser.Math.Between(-50, 50), this.player.y + Phaser.Math.Between(-50, 50), 4, 0xadd8e6, 0.8);
-                    this.tweens.add({
-                        targets: particle,
-                        x: this.genkidama.x,
-                        y: this.genkidama.y,
-                        scale: 0.1,
-                        duration: 400,
-                        onComplete: () => particle.destroy()
-                    });
-                }
+            if (this.genkidamaText) {
+                this.genkidamaText.setPosition(this.player.x, this.player.y - 40);
+            }
+            
+            // Size is proportional to charge
+            const size = 10 + (this.genkidamaChargeAmount * 1.5);
+            this.genkidama.setRadius(size);
+            this.genkidama.setPosition(this.player.x, this.player.y - size - 80);
+            
+            // Charging visual effect
+            if (this.time.now % 100 < 20) {
+                const particle = this.add.circle(this.player.x + Phaser.Math.Between(-50, 50), this.player.y + Phaser.Math.Between(-50, 50), 4, 0xadd8e6, 0.8);
+                this.tweens.add({
+                    targets: particle,
+                    x: this.genkidama.x,
+                    y: this.genkidama.y,
+                    scale: 0.1,
+                    duration: 400,
+                    onComplete: () => particle.destroy()
+                });
             }
         }
     }
