@@ -43,13 +43,13 @@ export default function Controls() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[160] pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-lg bg-slate-900 border-[#FF6B6B] pointer-events-auto rounded-none">
-        <CardHeader className="border-b border-[#FF6B6B]">
+      <Card className="w-full max-w-lg bg-slate-900 border-violet-500 pointer-events-auto rounded-none">
+        <CardHeader className="border-b border-violet-500">
           <div className="flex items-center gap-3">
-            <Button size="icon" variant="ghost" onClick={closeModal} className="text-[#FF6B6B] hover:text-[#FF5252]">
+            <Button size="icon" variant="ghost" onClick={closeModal} className="text-violet-500 hover:text-violet-400">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <CardTitle className="text-[#FF6B6B] text-2xl uppercase font-bold tracking-tighter flex items-center gap-2">
+            <CardTitle className="text-violet-500 text-2xl uppercase font-bold tracking-tighter flex items-center gap-2">
               <Keyboard className="w-6 h-6" />
               Controls
             </CardTitle>
@@ -60,7 +60,7 @@ export default function Controls() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {controlGroups.map((group) => (
                 <div key={group.title} className="space-y-4">
-                  <h3 className="text-[#FF6B6B] font-black uppercase text-xs tracking-[0.2em] border-b border-[#FF6B6B]/20 pb-2">
+                  <h3 className="text-violet-500 font-black uppercase text-xs tracking-[0.2em] border-b border-violet-500/20 pb-2">
                     {group.title}
                   </h3>
                   <div className="space-y-3">
