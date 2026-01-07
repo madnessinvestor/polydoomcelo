@@ -2421,6 +2421,7 @@ class MainScene extends Phaser.Scene {
         const stats = this.levelStats[this.level - 1];
         const baseMultiplier = stats.mult;
         const punchDamage = stats.punch;
+        const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
         const punchX = this.player.flipX ? this.player.x - 20 : this.player.x + 20;
         const targets = this.enemies.getChildren().filter(e => {
@@ -2430,7 +2431,7 @@ class MainScene extends Phaser.Scene {
         
         targets.forEach(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
-            this.hitEnemy(enemy, punchDamage * baseMultiplier * damageMultiplier);
+            this.hitEnemy(enemy, punchDamage * baseMultiplier * damageMultiplier * boostMultiplier);
             
             // Efeito visual de soco tipo RPG (pequeno, amarelo, impacto com brilho)
             const flash = this.add.circle(enemy.x, enemy.y, 10, 0xffdd00, 0.4);
@@ -2483,6 +2484,7 @@ class MainScene extends Phaser.Scene {
         const stats = this.levelStats[this.level - 1];
         const damageMultiplier = stats.mult;
         const magicDamage = stats.magic;
+        const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
         // Consumo de KI reduzido em 75% (de 20 para 5)
         this.kiarc -= 5;
@@ -2501,7 +2503,7 @@ class MainScene extends Phaser.Scene {
         
         this.physics.add.overlap(magic, this.enemies, (m, e) => {
             m.destroy();
-            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, magicDamage * damageMultiplier);
+            this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, magicDamage * damageMultiplier * boostMultiplier);
         }, undefined, this);
     }
 
@@ -2588,7 +2590,8 @@ class MainScene extends Phaser.Scene {
         const genki = this.genkidama;
         this.genkidama = null;
         // Damage logic: 10 KI = 2 Damage
-        const damage = (this.genkidamaChargeAmount / 10) * 2;
+        const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
+        const damage = (this.genkidamaChargeAmount / 10) * 2 * boostMultiplier;
         const chargeUsed = this.genkidamaChargeAmount;
         this.genkidamaChargeAmount = 0;
         this.isChargingGenkidama = false;
@@ -2675,7 +2678,7 @@ class MainScene extends Phaser.Scene {
     hitEnemy(enemy: Phaser.Physics.Arcade.Sprite, damage: number) {
         let health = enemy.getData('health') || 1;
         const typeId = enemy.getData('typeId');
-        let finalDamage = this.hasPowerBoost ? damage * 2 : damage;
+        let finalDamage = (this.hasPowerBoost || this.hasDamageBoost) ? damage * 2 : damage;
 
         if (finalDamage > 0 && Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y) < 60) {
             this.sfx['punch']?.play();
@@ -3018,12 +3021,12 @@ class MainScene extends Phaser.Scene {
                 this.showPickupNotification('ArcKI', 'Recupera 100% de Energia (KI).');
                 break;
             case 'ArcPower':
-                this.hasPowerBoost = true;
-                this.addBuff('ArcPower', 'Power Boost', 'Dobra todo o dano do personagem (Soco, Magia e Arcamehameha).', 20);
+                this.hasDamageBoost = true;
+                this.addBuff('ArcPower', 'Damage Boost', 'Dobra todo o dano do personagem (Z, C, V, B, F e S).', 20);
                 this.cameras.main.flash(500, 255, 0, 0, true);
                 this.showPickupNotification('ArcPower', 'Dano Dobrado por 20 segundos!');
                 this.time.delayedCall(20000, () => {
-                    this.hasPowerBoost = false;
+                    this.hasDamageBoost = false;
                     this.removeBuff('ArcPower');
                 });
                 break;
@@ -4550,6 +4553,9 @@ class StartScene extends Phaser.Scene {
     }
 
     preload() {
+        // Background Image
+        this.load.image('start_bg', '/attached_assets/2292fa5c-8f16-44bc-9cf7-12aa132857b2_1767812960236.png');
+
         // Logo
         this.load.image('game_logo', '/attached_assets/8a5b21d5-fa8e-404c-b7a1-4d7acfe803ef_1767786400336.png');
 
@@ -4716,16 +4722,15 @@ class StartScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
-        // Background
-        this.add.rectangle(0, 0, width, height, 0x0a0a20).setOrigin(0).setScrollFactor(0);
+        // New Background Image
+        const bg = this.add.image(width / 2, height / 2, 'start_bg').setOrigin(0.5, 0.5).setScrollFactor(0);
+        const scaleX = width / bg.width;
+        const scaleY = height / bg.height;
+        const scale = Math.max(scaleX, scaleY);
+        bg.setScale(scale);
         
-        // Starfield
-        for (let i = 0; i < 100; i++) {
-            const x = Math.random() * width;
-            const y = Math.random() * height;
-            const size = Math.random() * 2;
-            const star = this.add.circle(x, y, size, 0xffffff, 0.5);
-        }
+        // Add a subtle dark overlay to ensure readability
+        this.add.rectangle(0, 0, width, height, 0x000000, 0.3).setOrigin(0).setScrollFactor(0);
 
         // Title
         const logo = this.add.image(width / 2, height / 3, 'game_logo').setOrigin(0.5, 0.5).setDepth(10);
