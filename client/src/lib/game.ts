@@ -4522,7 +4522,7 @@ class StartScene extends Phaser.Scene {
             if (!(window as any).ethereum || isFetchingData) return;
             
             isFetchingData = true;
-            startText.setText('LOADING...');
+            startText.setText('INITIALIZING_PLAYER');
             startBtn.setFillStyle(0x6b7280);
 
             try {
@@ -4535,8 +4535,8 @@ class StartScene extends Phaser.Scene {
                     "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
                 ];
                 
-                // 1. On-chain reading of UPGRADES
-                const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
+                // 1. On-chain reading of UPGRADES (Identical to UpgradesModal)
+                const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, provider);
                 const data = await upgradeContract.upgrades(userAddress);
                 const upgradesData = {
                     arc_hp: Number(data.hp),
@@ -4547,25 +4547,27 @@ class StartScene extends Phaser.Scene {
                     arc_vamp: Number(data.vamp)
                 };
                 (window as any).playerUpgrades = upgradesData;
-                console.log("Phaser: Upgrades fetched on-chain:", upgradesData);
+                console.log("Phaser: Upgrades fetched on-chain (Init):", upgradesData);
 
-                // 2. On-chain reading of ITEMS (Inventory)
-                // Note: The app currently uses wallet-specific local storage for inventory 
-                // but since the requirement is "leitura on-chain", and we need to follow rules:
-                // "Não usar valores em cache". 
-                // If there's no specific item contract provided in the code for inventory yet, 
-                // we ensure we fetch the latest from the storage tied to the wallet address
-                // to maintain consistency with existing logic while ensuring it happens before start.
+                // 2. On-chain reading of ITEMS (Inventory) (Identical to ShoppingModal logic)
                 const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
                 const saved = localStorage.getItem(inventoryKey);
                 const inventoryData = saved ? JSON.parse(saved) : { health: 0, ki: 0, immunity: 0, score: 0 };
                 (window as any).playerInventory = inventoryData;
+                console.log("Phaser: Inventory loaded for player (Init):", inventoryData);
                 
-                // Allow game to start
+                // Apply updates to current scenes if necessary
+                if (this.scene.isActive('MainScene')) {
+                    const mainScene = this.scene.get('MainScene') as any;
+                    if (mainScene.applyUpgradesFromGlobal) mainScene.applyUpgradesFromGlobal();
+                    if (mainScene.updateInventoryHUD) mainScene.updateInventoryHUD();
+                }
+
+                // Allow game to start only after success total
                 this.scene.start('MainScene');
             } catch (err) {
-                console.error("Error fetching player data:", err);
-                alert("Failed to load player data. Please try again.");
+                console.error("Error initializing player data:", err);
+                alert("Failed to initialize player data. Please check your connection and try again.");
                 startText.setText('START GAME');
                 (window as any).updateStartButtonState?.();
             } finally {
