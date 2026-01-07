@@ -4433,7 +4433,7 @@ class StartScene extends Phaser.Scene {
             
             // Re-check conditions before final render inside Phaser container
             if (this.usdcBalanceText && (window as any).walletAddress && this.scene.isActive('StartScene')) {
-                this.usdcBalanceText.setText(`USDC: ${parseFloat(formattedBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+                this.usdcBalanceText.setText(`MY WALLET USDC: ${parseFloat(formattedBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
                 this.usdcBalanceText.setVisible(true);
                 this.usdcBalanceText.setDepth(10000);
             } else if (this.usdcBalanceText) {
