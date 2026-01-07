@@ -710,31 +710,21 @@ class MainScene extends Phaser.Scene {
         this.health = this.maxHealth;
         this.maxKiarc = baseStats.ki;
         this.kiarc = 0;
+
+        // SINCRONIZAÇÃO CRÍTICA: Carrega upgrades e inventário ANTES de qualquer lógica de jogo
+        const globalUpgrades = (this.game as any).playerUpgrades || (window as any).playerUpgrades;
+        if (globalUpgrades) {
+            this.playerUpgrades = globalUpgrades;
+            (this.game as any).playerUpgrades = globalUpgrades;
+        }
+
+        const globalInventory = (this.game as any).playerInventory || (window as any).playerInventory;
+        if (globalInventory) {
+            this.playerInventory = globalInventory;
+            (this.game as any).playerInventory = globalInventory;
+        }
+
         this.applyUpgradesFromGlobal();
-
-        // Force waveStartTime to current time at the very start of MainScene creation
-        // Phaser's this.time.now is relative to game start, so we sync here
-        this.waveStartTime = this.time.now;
-        console.log("MainScene created, timer reset to:", this.waveStartTime);
-
-        const width = this.cameras.main.width;
-        const height = this.cameras.main.height;
-
-        // Initialize SFX
-        const sfxKeys = [
-            'genkidama_charge', 'genkidama_launch', 'kamehameha_charge', 'kamehameha_launch',
-            'charge_ki', 'dash', 'explosion_ki', 'item_pickup', 'punch', 'magic',
-            'menu_button', 'close_button'
-        ];
-        sfxKeys.forEach(key => {
-            this.sfx[key] = this.sound.add(key);
-            if ((this.sfx[key] as any).setVolume) {
-                (this.sfx[key] as any).setVolume(this.masterVolume * this.sfxVolume);
-            }
-        });
-
-        // Initialize Inventory HUD
-        this.inventoryHUD = this.add.container(0, 0).setScrollFactor(0).setDepth(1000);
         this.updateInventoryHUD();
 
         // Setup Inventory Hotkeys
