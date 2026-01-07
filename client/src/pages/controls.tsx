@@ -129,9 +129,9 @@ export default function Controls() {
           <div className="flex justify-center pt-4">
             <Button 
               onClick={closeModal}
-              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-black px-16 h-14 text-xl uppercase tracking-[0.1em] rounded-none transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,107,107,0.3)] border-2 border-black"
+              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-12 h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg border-2 border-black"
             >
-              Back to Battle
+              CLOSE
             </Button>
           </div>
         </CardContent>
