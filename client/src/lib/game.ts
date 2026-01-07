@@ -4604,13 +4604,13 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         const socialLinks = [
-            { id: 'x', url: 'https://x.com/madnessinvestor' },
-            { id: 'github', url: 'https://github.com/madnessinvestor' },
-            { id: 'youtube', url: 'https://www.youtube.com/@madnessinvestor' },
-            { id: 'farcaster', url: 'https://farcaster.xyz/madnessinvestor' },
-            { id: 'instagram', url: 'https://www.instagram.com/madnessinvestor' },
-            { id: 'telegram', url: 'https://web.telegram.org/k/#@madnessinvestor' },
-            { id: 'discord', url: 'https://discord.com/users/madnessinvestor' }
+            { id: 'x', url: 'https://x.com/madnessinvestor', icon: 'x_icon' },
+            { id: 'github', url: 'https://github.com/madnessinvestor', icon: 'github_icon' },
+            { id: 'youtube', url: 'https://www.youtube.com/@madnessinvestor', icon: 'youtube_icon' },
+            { id: 'farcaster', url: 'https://farcaster.xyz/madnessinvestor', icon: 'farcaster_icon' },
+            { id: 'instagram', url: 'https://www.instagram.com/madnessinvestor', icon: 'instagram_icon' },
+            { id: 'telegram', url: 'https://web.telegram.org/k/#@madnessinvestor', icon: 'telegram_icon' },
+            { id: 'discord', url: 'https://discord.com/users/madnessinvestor', icon: 'discord_icon' }
         ];
 
         let startX = this.cameras.main.centerX - 210; // (7 icons * 60px) / 2 = 210
@@ -4618,33 +4618,21 @@ class StartScene extends Phaser.Scene {
             const x = startX + (index * 60);
             const y = footerY + 10;
             
-            // Draw a simple icon representation using graphics since we can't reliably load stock images
-            const graphics = this.add.graphics();
-            graphics.lineStyle(2, 0x64748b);
-            graphics.strokeRect(x - 15, y - 15, 30, 30);
+            // Draw a circle background for the icon
+            const bg = this.add.circle(x, y, 20, 0x1e293b).setInteractive({ useHandCursor: true });
             
-            // Initial for each social
-            const initial = link.id.charAt(0).toUpperCase();
-            const iconText = this.add.text(x, y, initial, {
-                fontSize: '16px',
-                color: '#64748b',
-                fontFamily: 'monospace',
-                fontStyle: 'bold'
-            }).setOrigin(0.5);
-
-            const hitArea = this.add.rectangle(x, y, 40, 40, 0xffffff, 0).setInteractive({ useHandCursor: true });
-
-            hitArea.on('pointerover', () => {
-                graphics.lineStyle(2, 0xfbbf24);
-                graphics.strokeRect(x - 15, y - 15, 30, 30);
-                iconText.setColor('#fbbf24');
+            // Add the actual platform icon image
+            const icon = this.add.image(x, y, link.icon).setDisplaySize(30, 30);
+            
+            bg.on('pointerover', () => {
+                bg.setFillStyle(0xfbbf24);
+                icon.setTint(0x000000);
             });
-            hitArea.on('pointerout', () => {
-                graphics.lineStyle(2, 0x64748b);
-                graphics.strokeRect(x - 15, y - 15, 30, 30);
-                iconText.setColor('#64748b');
+            bg.on('pointerout', () => {
+                bg.setFillStyle(0x1e293b);
+                icon.clearTint();
             });
-            hitArea.on('pointerdown', () => window.open(link.url, '_blank'));
+            bg.on('pointerdown', () => window.open(link.url, '_blank'));
         });
 
         startBtn.setInteractive().on('pointerdown', () => {
