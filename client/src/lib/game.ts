@@ -3248,9 +3248,9 @@ class MainScene extends Phaser.Scene {
                     // Dano de 70% de um Punch
                     this.hitEnemy(enemy, explosionDamage);
 
-                    // Jogar para longe
+                    // Jogar para longe - Super Knockback
                     const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
-                    const knockbackForce = 3000;
+                    const knockbackForce = 8000; // Aumentado drasticamente para jogar nos cantos
                     enemy.setVelocity(Math.cos(angle) * knockbackForce, Math.sin(angle) * knockbackForce);
                     
                     // Marcar como sendo repelido para não causar dano ao colidir com o player durante o trajeto
