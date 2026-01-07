@@ -214,7 +214,15 @@ export default function Home() {
             e.preventDefault();
             e.stopPropagation();
           }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           onPointerDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onPointerUp={(e) => {
             e.preventDefault();
             e.stopPropagation();
           }}

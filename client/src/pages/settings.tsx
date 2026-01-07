@@ -97,7 +97,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="fixed inset-0 w-full h-full bg-black/70 flex items-center justify-center p-4 z-[200]" onPointerDown={handleBackdropClick}>
+    <div className="fixed inset-0 w-full h-full bg-black/20 backdrop-blur-none flex items-center justify-center p-4 z-[160] pointer-events-auto" onPointerDown={handleBackdropClick}>
       <Card className="w-full max-w-md bg-slate-900 border-amber-400 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
         <CardHeader className="border-b border-amber-400">
           <div className="flex items-center gap-3">

@@ -38,7 +38,7 @@ export function Leaderboard() {
   const sortedScores = [...scores].sort((a, b) => b.score - a.score);
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
+    <div className="fixed inset-0 z-[160] bg-black/20 backdrop-blur-none flex items-center justify-center p-4 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
       <Card className="w-full max-w-4xl bg-slate-900 border-slate-700 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-yellow-400">
