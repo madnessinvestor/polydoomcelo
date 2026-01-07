@@ -200,7 +200,7 @@ export default function Home() {
       {isShoppingOpen && (
         <ShoppingModal onClose={() => setIsShoppingOpen(false)} />
       )}
-      <div className="w-full max-w-4xl flex flex-col h-screen">
+      <div className="w-full max-w-6xl flex flex-col h-screen">
         {/* Game Container */}
         <div className="flex-1 flex flex-col items-center justify-center min-h-0 relative">
           <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden relative" />
