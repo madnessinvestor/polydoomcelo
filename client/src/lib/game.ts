@@ -4269,6 +4269,9 @@ class StartScene extends Phaser.Scene {
     }
 
     preload() {
+        // Logo
+        this.load.image('game_logo', '/attached_assets/8a5b21d5-fa8e-404c-b7a1-4d7acfe803ef_1767786400336.png');
+
         // Social Media Icons
         this.load.image('x_icon', '/attached_assets/social/x.png');
         this.load.image('github_icon', '/attached_assets/social/github.png');
@@ -4478,13 +4481,9 @@ class StartScene extends Phaser.Scene {
         }
 
         // Title
-        const title = this.add.text(width / 2, height / 3, 'POLYDOOM ARC', {
-            fontSize: '72px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#fbbf24',
-            fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5).setDepth(10);
+        const logo = this.add.image(width / 2, height / 3, 'game_logo').setOrigin(0.5, 0.5).setDepth(10);
+        const titleScale = (width * 0.4) / logo.width;
+        logo.setScale(titleScale);
 
         // Start Button
         const isWalletConnected = !!(window as any).walletAddress;
