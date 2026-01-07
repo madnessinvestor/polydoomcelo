@@ -124,7 +124,7 @@ export default function Controls() {
             {/* Category: Specials */}
             <div className="flex flex-col items-center gap-8 bg-violet-950/10 p-8 rounded-lg border border-violet-500/10">
               <h3 className="text-violet-500 font-black uppercase text-sm tracking-[0.4em]">Specials</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
                 <div className="flex flex-col items-center gap-3">
                   <Key label="V" action="ArcKamehameha" active className="!scale-110" />
                   <div className="text-center space-y-1">
@@ -144,6 +144,13 @@ export default function Controls() {
                   <div className="text-center space-y-1">
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
                     <p className="text-[11px] text-slate-400 leading-tight">Release inner Ki in a powerful radial burst to clear enemies.</p>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                  <Key label="S" action="ArcMeteor" active className="!scale-110" />
+                  <div className="text-center space-y-1">
+                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
+                    <p className="text-[11px] text-slate-400 leading-tight">Call down a barrage of cosmic meteors to strike multiple foes.</p>
                   </div>
                 </div>
               </div>
