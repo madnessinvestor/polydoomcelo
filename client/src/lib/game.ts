@@ -1672,13 +1672,9 @@ class MainScene extends Phaser.Scene {
     private meteorEffect: Phaser.GameObjects.Graphics | null = null;
 
     private startArcMeteor() {
-        if (this.player.body?.touching.down || this.isMeteorFalling) return;
+        if (this.isMeteorFalling) return;
         
-        // Consumo de 50 de ki
-        if (this.kiarc < 50) return;
-        this.kiarc -= 50;
-        this.updateHUD();
-
+        // Custo fixo de 100 KI já foi verificado e cobrado no update() antes de chamar esta função
         this.isMeteorFalling = true;
         this.player.setVelocity(0, 0);
         this.sfx['meteor_1']?.play();
@@ -2040,8 +2036,10 @@ class MainScene extends Phaser.Scene {
         // ArcMeteor (Key S)
         if (Phaser.Input.Keyboard.JustDown(this.keys.S) && !this.isMeteorFalling && !this.isDefending) {
             if (this.kiarc >= 100) {
+                // Removemos o check de body?.touching.down para permitir ativação no ar/voando
                 this.kiarc -= 100;
                 this.startArcMeteor();
+                this.updateHUD();
             } else {
                 this.showPickupNotification("Need 100 KI for Arc Meteor!");
             }
