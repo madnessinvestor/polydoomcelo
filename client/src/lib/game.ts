@@ -1624,7 +1624,7 @@ class MainScene extends Phaser.Scene {
     }
 
     update(time: number, delta: number) {
-        if (this.isGameOver) return;
+        if (this.isGameOver || this.isPaused) return;
 
         if (this.isInvincible) {
             this.invincibilityTimer -= delta;
