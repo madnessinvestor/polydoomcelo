@@ -241,20 +241,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col items-center gap-1 opacity-60 mt-8 mb-4 pointer-events-auto">
-            <div className="text-[10px] text-slate-400 font-mono">
-              2026 PolyDoom Arc — Built on Arc Network. All rights reserved.
-            </div>
-            <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[9px] text-slate-500 font-mono">
-              <a href="https://x.com/madnessinvestor" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">X (Twitter)</a>
-              <a href="https://github.com/madnessinvestor" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">GitHub</a>
-              <a href="https://www.youtube.com/@madnessinvestor" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">YouTube</a>
-              <a href="https://farcaster.xyz/madnessinvestor" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">Farcaster</a>
-              <a href="https://www.instagram.com/madnessinvestor" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">Instagram</a>
-              <a href="https://web.telegram.org/k/#@madnessinvestor" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">Telegram</a>
-              <a href="https://discord.com/users/madnessinvestor" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">Discord</a>
-            </div>
-          </div>
           <div className="fixed bottom-4 right-4 z-50">
             <a 
               href="https://testnet.arcscan.app/address/0x9b673bDBA9ed06989b1846d4C63468BCE86cf006" 
