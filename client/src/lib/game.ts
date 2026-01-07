@@ -1638,6 +1638,11 @@ class MainScene extends Phaser.Scene {
     update(time: number, delta: number) {
         if (this.isGameOver || this.isPaused) return;
 
+        // Se estiver defendendo, força a velocidade a zero para ficar parado
+        if (this.isDefending && this.player && this.player.body) {
+            this.player.setVelocity(0, 0);
+        }
+
         // Defense mechanism (Key D)
         if (this.keys.D.isDown) {
             this.isDefending = true;
@@ -3267,7 +3272,31 @@ class MainScene extends Phaser.Scene {
     }
 
     private handlePlayerEnemyCollision(obj1: any, obj2: any) {
-        if (this.isGameOver || this.isWaveInterval || this.isInvincible || this.isDefending) return;
+        if (this.isGameOver || this.isWaveInterval || this.isInvincible) return;
+        
+        // Se estiver defendendo, o escudo bloqueia o dano e treme levemente
+        if (this.isDefending) {
+            this.cameras.main.shake(100, 0.003); // Treme a tela levemente
+            if (this.shieldGraphics) {
+                // Treme o escudo
+                this.tweens.add({
+                    targets: this.shieldGraphics,
+                    x: Phaser.Math.Between(-3, 3),
+                    y: Phaser.Math.Between(-3, 3),
+                    duration: 50,
+                    yoyo: true,
+                    repeat: 1,
+                    onComplete: () => {
+                        if (this.shieldGraphics) {
+                            this.shieldGraphics.x = 0;
+                            this.shieldGraphics.y = 0;
+                        }
+                    }
+                });
+            }
+            return;
+        }
+
         const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
         if (!enemy || !enemy.active) return;
         
