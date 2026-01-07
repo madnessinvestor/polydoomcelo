@@ -10,27 +10,31 @@ export interface ScarfSegment {
 export class ScarfComponent {
     private scene: Phaser.Scene;
     private segments: ScarfSegment[] = [];
-    private numSegments: number = 8;
+    private numSegments: number = 6;
     private segmentLength: number = 4;
     private gravity: number = 0.15;
     private friction: number = 0.95;
     private graphics: Phaser.GameObjects.Graphics;
-    private target: Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Visible;
+    private target: Phaser.Physics.Arcade.Sprite;
     private color: number = 0xffdd00; // Amarelo do player
+    private anchorOffsetY: number = 6; // Torso superior
 
-    constructor(scene: Phaser.Scene, target: Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Visible) {
+    constructor(scene: Phaser.Scene, target: Phaser.Physics.Arcade.Sprite) {
         this.scene = scene;
         this.target = target;
         this.graphics = scene.add.graphics();
-        this.graphics.setDepth(target instanceof Phaser.GameObjects.GameObject ? (target as any).depth - 1 : 5);
+        // Garantir que o desenho ocorra após o player (player depth é 10, então scarf depth 11)
+        this.graphics.setDepth(11);
+
+        console.log("ScarfComponent inicializado no player:", target.x, target.y);
 
         // Initialize segments
         for (let i = 0; i < this.numSegments; i++) {
             this.segments.push({
                 x: target.x,
-                y: target.y,
+                y: target.y + this.anchorOffsetY + (i * this.segmentLength),
                 oldX: target.x,
-                oldY: target.y
+                oldY: target.y + this.anchorOffsetY + (i * this.segmentLength)
             });
         }
     }
@@ -42,9 +46,9 @@ export class ScarfComponent {
         }
 
         const firstSegment = this.segments[0];
-        // Ancorado ao torso superior/pescoço
+        // Ancorado ao torso superior
         firstSegment.x = this.target.x;
-        firstSegment.y = this.target.y - 5;
+        firstSegment.y = this.target.y + this.anchorOffsetY;
 
         // Verlet integration
         for (let i = 1; i < this.numSegments; i++) {
@@ -59,31 +63,35 @@ export class ScarfComponent {
             seg.y += this.gravity;
 
             // Brisa / Vento procedural (Idle)
-            if (playerVelocityX === 0 && playerVelocityY === 0) {
+            if (Math.abs(playerVelocityX) < 1 && Math.abs(playerVelocityY) < 1) {
                 const time = this.scene.time.now * 0.002;
-                seg.x += Math.sin(time + i) * 0.1;
-                seg.y += Math.cos(time * 0.5 + i) * 0.05;
+                seg.x += Math.sin(time + i) * 0.15;
+                seg.y += Math.cos(time * 0.5 + i) * 0.08;
             } else {
-                // Inércia baseada no movimento do player
-                seg.x -= playerVelocityX * 0.02;
-                seg.y -= playerVelocityY * 0.02;
+                // Inércia baseada no movimento do player (projeção para trás)
+                seg.x -= playerVelocityX * 0.03;
+                seg.y -= playerVelocityY * 0.03;
             }
         }
 
         // Constraints
-        for (let i = 0; i < this.numSegments - 1; i++) {
-            const seg1 = this.segments[i];
-            const seg2 = this.segments[i + 1];
+        for (let j = 0; j < 3; j++) { // Sub-passos para estabilidade
+            for (let i = 0; i < this.numSegments - 1; i++) {
+                const seg1 = this.segments[i];
+                const seg2 = this.segments[i + 1];
 
-            const dx = seg2.x - seg1.x;
-            const dy = seg2.y - seg1.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const error = distance - this.segmentLength;
-            const offsetX = (dx / distance) * error;
-            const offsetY = (dy / distance) * error;
+                const dx = seg2.x - seg1.x;
+                const dy = seg2.y - seg1.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance === 0) continue;
+                
+                const error = distance - this.segmentLength;
+                const offsetX = (dx / distance) * error;
+                const offsetY = (dy / distance) * error;
 
-            seg2.x -= offsetX;
-            seg2.y -= offsetY;
+                seg2.x -= offsetX;
+                seg2.y -= offsetY;
+            }
         }
 
         this.draw();
@@ -91,15 +99,22 @@ export class ScarfComponent {
 
     private draw() {
         this.graphics.clear();
-        this.graphics.lineStyle(4, this.color, 1);
+        
+        // Desenha o cachecol
+        this.graphics.lineStyle(3, this.color, 1);
         this.graphics.beginPath();
         this.graphics.moveTo(this.segments[0].x, this.segments[0].y);
 
         for (let i = 1; i < this.numSegments; i++) {
             this.graphics.lineTo(this.segments[i].x, this.segments[i].y);
         }
-
         this.graphics.strokePath();
+
+        // Debug: Renderizar os pontos da chain
+        this.graphics.fillStyle(0xff0000, 1);
+        for (let i = 0; i < this.numSegments; i++) {
+            this.graphics.fillCircle(this.segments[i].x, this.segments[i].y, 1.5);
+        }
     }
 
     destroy() {
