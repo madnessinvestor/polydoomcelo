@@ -2387,7 +2387,6 @@ class MainScene extends Phaser.Scene {
 
     private startKamehamehaCharge() {
         if (this.time.now - this.specialsCooldowns['V'].startTime < this.specialsCooldowns['V'].duration) return;
-        this.specialsCooldowns['V'].startTime = this.time.now;
         this.isChargingKamehameha = true;
         this.kamehamehaChargeTime = 0;
         this.player.setVelocity(0, 0);
@@ -2505,6 +2504,7 @@ class MainScene extends Phaser.Scene {
         const kameDamage = stats.kame;
         
         this.kiarc -= 50;
+        this.specialsCooldowns['V'].startTime = this.time.now;
         const beamLength = 2400;
         const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
         
@@ -2609,6 +2609,7 @@ class MainScene extends Phaser.Scene {
         
         // Consumo de KI reduzido em 75% (de 20 para 5)
         this.kiarc -= 5;
+        this.specialsCooldowns['F'].startTime = this.time.now;
         
         // Play magic sound effect with proper volume
         const sound = this.sfx['magic'];
@@ -2694,11 +2695,10 @@ class MainScene extends Phaser.Scene {
     }
 
     shootGenkidama() {
-        if (this.time.now - this.specialsCooldowns['B'].startTime < this.specialsCooldowns['B'].duration) return;
-        this.specialsCooldowns['B'].startTime = this.time.now;
         if (!this.genkidama) return;
         this.sfx['genkidama_charge']?.stop();
         this.sfx['genkidama_launch']?.play();
+        this.specialsCooldowns['B'].startTime = this.time.now;
         
         // Clean up texts
         if (this.genkidamaText) {
