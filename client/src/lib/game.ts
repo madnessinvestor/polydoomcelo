@@ -1688,6 +1688,7 @@ class MainScene extends Phaser.Scene {
 
         // Explosão visual amarela
         const explosion = this.add.circle(this.player.x, this.player.y, 10, 0xffff00, 0.8);
+        explosion.setDepth(this.player.depth + 1);
         this.tweens.add({
             targets: explosion,
             radius: 250,
@@ -1698,25 +1699,47 @@ class MainScene extends Phaser.Scene {
 
         // Dano em área e Knockback
         const impactRadius = 250;
+        const impactX = this.player.x;
+        const impactY = this.player.y;
+
         this.enemies.getChildren().forEach(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
-            if (enemy.active) {
-                const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
-                if (dist < impactRadius) {
+            if (enemy && enemy.active && enemy.body) {
+                const dist = Phaser.Math.Distance.Between(impactX, impactY, enemy.x, enemy.y);
+                
+                // Debug log para verificar distância e raio
+                // console.log(`Inimigo a ${dist}px. Raio: ${impactRadius}`);
+
+                if (dist <= impactRadius) {
                     // Knockback: inimigos voam longe
-                    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
-                    const force = (impactRadius - dist) * 15; // Aumentado de 10 para 15
+                    const angle = Phaser.Math.Angle.Between(impactX, impactY, enemy.x, enemy.y);
+                    const force = (impactRadius - dist) * 15;
+                    
                     enemy.setVelocity(
                         Math.cos(angle) * force,
-                        Math.sin(angle) * force - 1000 // Aumentado de -800 para -1000
+                        Math.sin(angle) * force - 1000
                     );
 
                     // Dano de impacto (base 10 + 10 por nível)
                     const damage = 10 + (this.level * 10);
                     const currentHealth = enemy.getData('health') || 0;
-                    enemy.setData('health', Math.max(0, currentHealth - damage));
+                    const newHealth = Math.max(0, currentHealth - damage);
+                    
+                    enemy.setData('health', newHealth);
                     enemy.setTint(0xff0000);
-                    this.time.delayedCall(200, () => enemy.active && enemy.clearTint());
+                    
+                    // Mostra o número de dano
+                    this.showDamage(enemy.x, enemy.y, Math.round(damage));
+                    
+                    if (newHealth <= 0) {
+                        this.time.delayedCall(50, () => {
+                            if (enemy.active) this.defeatEnemy(enemy);
+                        });
+                    } else {
+                        this.time.delayedCall(200, () => {
+                            if (enemy.active) enemy.clearTint();
+                        });
+                    }
                 }
             }
         });
