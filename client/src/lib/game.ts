@@ -685,6 +685,8 @@ class MainScene extends Phaser.Scene {
         this.load.audio('magic', '/attached_assets/Magic_1767122074232.mp3');
         this.load.audio('menu_button', '/attached_assets/Som_do_Botão_Start_Game_Leaderboard_e_History_1767106107861.ogg');
         this.load.audio('close_button', '/attached_assets/Close_1767118231095.ogg');
+        this.load.audio('meteor_1', '/attached_assets/Meteor_1_1767808998910.ogg');
+        this.load.audio('meteor_2', '/attached_assets/Meteor_2_1767809001052.ogg');
     }
 
     create() {
@@ -821,13 +823,13 @@ class MainScene extends Phaser.Scene {
             this.playNextMusic();
         }
 
-        this.keys = this.input.keyboard?.addKeys('Z,X,C,V,B,F,D,ONE,TWO,THREE,FOUR');
+        this.keys = this.input.keyboard?.addKeys('Z,X,C,V,B,F,D,S,ONE,TWO,THREE,FOUR');
 
         // Initialize SFX
         const sfxKeys = [
             'genkidama_charge', 'genkidama_launch', 'kamehameha_charge', 'kamehameha_launch',
             'charge_ki', 'dash', 'explosion_ki', 'item_pickup', 'punch', 'magic',
-            'menu_button', 'close_button'
+            'menu_button', 'close_button', 'meteor_1', 'meteor_2'
         ];
         sfxKeys.forEach(key => {
             if (!this.sound.get(key)) {
@@ -1652,6 +1654,60 @@ class MainScene extends Phaser.Scene {
         });
     }
 
+    private isMeteorFalling = false;
+    private meteorEffect: Phaser.GameObjects.Graphics | null = null;
+
+    private startArcMeteor() {
+        if (this.player.body?.touching.down || this.isMeteorFalling) return;
+
+        this.isMeteorFalling = true;
+        this.player.setVelocity(0, 0);
+        this.sfx['meteor_1']?.play();
+
+        // Breve pausa para carregar
+        this.time.delayedCall(200, () => {
+            if (this.player.active) {
+                this.player.setVelocityY(2000); // Queda meteórica
+                this.player.setData('isFastFalling', true); // Reutiliza lógica de impacto existente se necessário, mas Meteor 2 é específico
+            }
+        });
+    }
+
+    private handleMeteorImpact() {
+        if (!this.isMeteorFalling) return;
+        this.isMeteorFalling = false;
+
+        this.sfx['meteor_1']?.stop();
+        this.sfx['meteor_2']?.play();
+        this.cameras.main.shake(300, 0.02);
+
+        // Explosão visual
+        const explosion = this.add.circle(this.player.x, this.player.y, 10, 0xff4500, 0.8);
+        this.tweens.add({
+            targets: explosion,
+            radius: 150,
+            alpha: 0,
+            duration: 500,
+            onComplete: () => explosion.destroy()
+        });
+
+        // Dano em área
+        const impactRadius = 150;
+        this.enemies.getChildren().forEach(e => {
+            const enemy = e as Phaser.Physics.Arcade.Sprite;
+            if (enemy.active) {
+                const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+                if (dist < impactRadius) {
+                    const damage = 100 * (1 + (this.level - 1) * 0.1);
+                    const currentHealth = enemy.getData('health') || 0;
+                    enemy.setData('health', Math.max(0, currentHealth - damage));
+                    enemy.setTint(0xff0000);
+                    this.time.delayedCall(200, () => enemy.active && enemy.clearTint());
+                }
+            }
+        });
+    }
+
     update(time: number, delta: number) {
         if (this.isGameOver || this.isPaused) return;
 
@@ -1885,10 +1941,37 @@ class MainScene extends Phaser.Scene {
             }
         });
 
-        // Ground Impact logic (keep existing functionality but adapt to new movement)
-        if (this.player.body?.touching.down && this.player.getData('isFastFalling')) {
-            this.handleGroundImpact();
-            this.player.setData('isFastFalling', false);
+        // ArcMeteor (Key S)
+        if (Phaser.Input.Keyboard.JustDown(this.keys.S) && !this.isMeteorFalling && !this.isDefending) {
+            this.startArcMeteor();
+        }
+
+        if (this.isMeteorFalling) {
+            this.player.setVelocityX(0);
+            if (this.player.body) {
+                this.player.setVelocityY(2000);
+            }
+            // Efeito visual de rastro (Meteor 1)
+            if (this.time.now % 50 < 20) {
+                const trail = this.add.circle(this.player.x, this.player.y, 15, 0xffa500, 0.6);
+                this.tweens.add({
+                    targets: trail,
+                    alpha: 0,
+                    scale: 0.5,
+                    duration: 200,
+                    onComplete: () => trail.destroy()
+                });
+            }
+        }
+
+        // Ground Impact logic
+        if (this.player.body?.touching.down) {
+            if (this.isMeteorFalling) {
+                this.handleMeteorImpact();
+            } else if (this.player.getData('isFastFalling')) {
+                this.handleGroundImpact();
+                this.player.setData('isFastFalling', false);
+            }
         }
 
         // Handle punching
