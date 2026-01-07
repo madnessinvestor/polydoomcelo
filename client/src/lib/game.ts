@@ -5623,8 +5623,8 @@ export function initGame(upgrades?: Record<string, number>) {
     const config: Phaser.Types.Core.GameConfig = {
         type: Phaser.AUTO,
         parent: 'game-container',
-        width: 1600,
-        height: 1200,
+        width: 1280,
+        height: 720,
         scale: {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH
