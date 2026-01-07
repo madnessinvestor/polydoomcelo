@@ -3258,7 +3258,7 @@ class MainScene extends Phaser.Scene {
     }
 
     private handlePlayerEnemyCollision(obj1: any, obj2: any) {
-        if (this.isGameOver || this.isWaveInterval || this.isInvincible) return;
+        if (this.isGameOver || this.isWaveInterval || this.isInvincible || this.isDefending) return;
         const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
         if (!enemy || !enemy.active) return;
         
@@ -3371,7 +3371,7 @@ class MainScene extends Phaser.Scene {
             onComplete: () => pulse.destroy()
         });
         const dist = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y);
-        if (dist < 100 && !this.isInvincible) {
+        if (dist < 100 && !this.isInvincible && !this.isDefending) {
             this.takeDamage(enemy.getData('damage') * 2);
         }
     }
@@ -3384,7 +3384,7 @@ class MainScene extends Phaser.Scene {
         slash.strokePath();
         this.time.delayedCall(200, () => slash.destroy());
         const dist = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y);
-        if (dist < 150 && !this.isInvincible) {
+        if (dist < 150 && !this.isInvincible && !this.isDefending) {
             this.takeDamage(enemy.getData('damage'));
         }
     }
@@ -3529,7 +3529,7 @@ class MainScene extends Phaser.Scene {
     private enemyExplode(enemy: Phaser.Physics.Arcade.Sprite) {
         this.createExplosion(enemy.x, enemy.y);
         const dist = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y);
-        if (dist < 100 && !this.isInvincible) {
+        if (dist < 100 && !this.isInvincible && !this.isDefending) {
             const damage = enemy.getData('damage');
             if (!isNaN(damage)) {
                 this.health = Math.max(0, this.health - damage * 5);
