@@ -2096,7 +2096,11 @@ class MainScene extends Phaser.Scene {
         }
 
         if (this.keys.V.isDown && !this.keys.B.isDown && !this.isChargingKamehameha && !this.isDefending) {
-            this.startKamehamehaCharge();
+            if (this.kiarc >= 100) {
+                this.startKamehamehaCharge();
+            } else {
+                this.showPickupNotification("Need 100 KI for Arc Kamehameha!");
+            }
         }
 
         if (this.isChargingKamehameha) {
