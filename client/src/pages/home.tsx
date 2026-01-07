@@ -204,69 +204,6 @@ export default function Home() {
         {/* Game Container */}
         <div className="relative">
           <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden relative" style={{ width: '1920px', height: '1080px' }} />
-          
-          {/* Game Controls Instructions */}
-          <div className="mt-8 mb-12 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 text-slate-300 font-monospace">
-            <Card className="bg-slate-900/50 border-slate-800">
-              <CardContent className="pt-6">
-                <h3 className="text-amber-400 font-bold mb-4 text-xl">BASIC CONTROLS</h3>
-                <ul className="space-y-2">
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>MOVEMENT</span>
-                    <span className="text-white">ARROW KEYS</span>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>JUMP</span>
-                    <span className="text-white">UP ARROW</span>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>DASH / EVADE</span>
-                    <span className="text-white">DOUBLE TAP (ARROWS)</span>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>PUNCH</span>
-                    <span className="text-white">Z KEY</span>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>MAGIC KIARC</span>
-                    <span className="text-white">C KEY</span>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>PAUSE / MENU</span>
-                    <span className="text-white">ESC</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-slate-900/50 border-slate-800">
-              <CardContent className="pt-6">
-                <h3 className="text-amber-400 font-bold mb-4 text-xl">SPECIAL ABILITIES</h3>
-                <ul className="space-y-2">
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>CHARGE ARCKI</span>
-                    <span className="text-white">X KEY (HOLD)</span>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>ARCKAMEHAMEHA</span>
-                    <span className="text-white">V KEY (HOLD AND RELEASE)</span>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>ARCGENKIDAMA</span>
-                    <span className="text-white">B KEY (HOLD AND RELEASE)</span>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>EXPLOSION KIARC</span>
-                    <span className="text-white">F KEY (PRESS)</span>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>USE POTIONS</span>
-                    <span className="text-white">Q, W, E, R KEYS</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     </div>

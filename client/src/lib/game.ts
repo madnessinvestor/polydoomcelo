@@ -5040,16 +5040,24 @@ class StartScene extends Phaser.Scene {
                 <div>
                     <h3 style="color: #fbbf24; border-bottom: 2px solid #fbbf24; padding-bottom: 5px; margin-bottom: 15px;">BASIC CONTROLS</h3>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
-                        <span>MOVE / JUMP</span>
+                        <span>MOVEMENT</span>
                         <span style="color: #fbbf24;">ARROW KEYS</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
-                        <span>PUNCH</span>
-                        <span style="color: #fbbf24;">Z KEY</span>
+                        <span>JUMP</span>
+                        <span style="color: #fbbf24;">UP ARROW</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>DASH / EVADE</span>
+                        <span style="color: #fbbf24;">DOUBLE TAP ARROWS</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>PUNCH (RPG STYLE)</span>
+                        <span style="color: #fbbf24;">Z KEY (HOLD)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>MAGIC KIARC</span>
-                        <span style="color: #fbbf24;">C KEY</span>
+                        <span style="color: #fbbf24;">C KEY (PRESS)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>PAUSE / MENU</span>
@@ -5064,19 +5072,31 @@ class StartScene extends Phaser.Scene {
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>ARCKAMEHAMEHA</span>
-                        <span style="color: #fbbf24;">V KEY (HOLD)</span>
+                        <span style="color: #fbbf24;">V KEY (HOLD/RELEASE)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>ARCGENKIDAMA</span>
-                        <span style="color: #fbbf24;">B KEY (HOLD)</span>
+                        <span style="color: #fbbf24;">B KEY (HOLD/RELEASE)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
                         <span>EXPLOSION KIARC</span>
-                        <span style="color: #fbbf24;">F KEY</span>
+                        <span style="color: #fbbf24;">F KEY (PRESS)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
-                        <span>USE POTIONS</span>
-                        <span style="color: #fbbf24;">Q, W, E, R</span>
+                        <span>HP POTION</span>
+                        <span style="color: #fbbf24;">Q KEY</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>KI POTION</span>
+                        <span style="color: #fbbf24;">W KEY</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>INVINCIBILITY</span>
+                        <span style="color: #fbbf24;">E KEY</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
+                        <span>2X SCORE</span>
+                        <span style="color: #fbbf24;">R KEY</span>
                     </div>
                 </div>
             </div>
