@@ -688,6 +688,9 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+
         // Handle wallet auto-connect if already connected in browser
         const autoConnectWallet = async () => {
             if ((window as any).ethereum) {
