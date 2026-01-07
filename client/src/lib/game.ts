@@ -2372,13 +2372,17 @@ class MainScene extends Phaser.Scene {
         if (!this.isChargingKamehameha) return;
         this.isChargingKamehameha = false;
         
-        // Verifica KI no lançamento
+        // Verifica KI no lançamento e impede KI negativo
+        // Antigamente era 50, agora o mínimo obrigatório é 100
         if (this.kiarc < 100) {
-            this.showPickupNotification("Need 100 KI to launch Arc Kamehameha!");
+            this.showPickupNotification("Need at least 100 KI to launch Arc Kamehameha!");
             this.cancelKamehameha();
             return;
         }
-        this.kiarc -= 100;
+        
+        // Consome exatamente 100 de KI e garante que não fique negativo
+        this.kiarc = Math.max(0, this.kiarc - 100);
+        this.updateHUD();
         this.sfx['kamehameha_charge']?.stop();
         this.sfx['kamehameha_launch']?.play();
         
@@ -2422,7 +2426,7 @@ class MainScene extends Phaser.Scene {
         const damageMultiplier = stats.mult;
         const kameDamage = stats.kame;
         
-        this.kiarc -= 50;
+        // Custo fixo de 50 KI removido, pois agora gasta 100 fixo no finishKamehameha
         const beamLength = 2400;
         const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
         
