@@ -270,8 +270,7 @@ export default function Home() {
 
   return (
     <div 
-      className="min-h-screen w-full bg-black flex flex-col items-center overflow-auto relative bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: `url(${backgroundImage})` }}
+      className="min-h-screen w-full bg-black flex flex-col items-center overflow-auto relative"
     >
       {activeModal === "pause" && (
         <PauseModal 

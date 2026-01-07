@@ -4554,7 +4554,7 @@ class StartScene extends Phaser.Scene {
 
     preload() {
         // Background Image
-        this.load.image('start_bg', '/attached_assets/2292fa5c-8f16-44bc-9cf7-12aa132857b2_1767812960236.png');
+        this.load.image('start_bg', '/attached_assets/Background_Tela_Principal_1767815377331.png');
 
         // Logo
         this.load.image('game_logo', '/attached_assets/8a5b21d5-fa8e-404c-b7a1-4d7acfe803ef_1767786400336.png');
