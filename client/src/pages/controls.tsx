@@ -93,10 +93,22 @@ export default function Controls() {
                   {/* System & Extra Combat */}
                   <div className="flex flex-col items-center gap-6">
                     <div className="flex flex-wrap justify-center gap-6">
-                      <Key label="Z" action="Punch" active />
-                      <Key label="X" action="ChargeKiArc" active />
-                      <Key label="C" action="MagicKiaArc" active />
-                      <Key label="D" action="Defense" active />
+                      <div className="flex flex-col items-center gap-3">
+                        <Key label="Z" action="Punch" active />
+                        <span className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-3">
+                        <Key label="X" action="ChargeKiArc" active />
+                        <span className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Hold Key</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-3">
+                        <Key label="C" action="MagicKiaArc" active />
+                        <span className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-3">
+                        <Key label="D" action="Defense" active />
+                        <span className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Hold Key</span>
+                      </div>
                     </div>
                     <div className="flex flex-col items-center gap-2">
                       <div className="w-16 h-10 flex items-center justify-center border-2 border-violet-500/30 bg-violet-950/40 rounded font-bold text-sm text-violet-200">
