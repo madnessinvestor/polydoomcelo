@@ -10,8 +10,8 @@ export interface ScarfSegment {
 export class ScarfComponent {
     private scene: Phaser.Scene;
     private segments: ScarfSegment[] = [];
-    private numSegments: number = 7;
-    private segmentLength: number = 7;
+    private numSegments: number = 6; // Reduzido de 7 para 6 (aprox. 15-20% menor)
+    private segmentLength: number = 6; // Reduzido de 7 para 6
     private gravity: number = 0.15;
     private friction: number = 0.92;
     private graphics: Phaser.GameObjects.Graphics;
@@ -19,7 +19,7 @@ export class ScarfComponent {
     private color: number = 0xffdd00; // Amarelo do player
     private anchorOffsetY: number = -6; // Posição do pescoço
     private baseWidth: number = 16; // Largura da capa no pescoço
-    private tipWidth: number = 30;  // Largura da capa na ponta
+    private tipWidth: number = 28;  // Reduzido levemente
     private alpha: number = 0.7; // 30% mais transparente (1.0 - 0.3)
 
     constructor(scene: Phaser.Scene, target: Phaser.Physics.Arcade.Sprite) {
@@ -119,10 +119,19 @@ export class ScarfComponent {
         // 1. DESENHO DA PARTE FRONTAL (ENVOLVENDO O QUADRADO)
         // Isso dá a percepção de que está fixada AO REDOR
         this.graphics.setDepth(11); // Forçamos o desenho para frente do player
-        this.graphics.lineStyle(4, this.color, this.alpha);
-        this.graphics.strokeEllipse(startX, startY, this.baseWidth * 0.8, 6);
-        this.graphics.fillStyle(this.color, this.alpha);
-        this.graphics.fillEllipse(startX, startY, this.baseWidth * 0.7, 5);
+        
+        // Laço/Nó amarelo (mais opaco para destacar)
+        const tieAlpha = Math.min(this.alpha + 0.2, 1.0);
+        this.graphics.lineStyle(2, 0xffffff, 0.3); // Brilho leve
+        this.graphics.fillStyle(this.color, tieAlpha);
+        
+        // Desenha o laço/nó central
+        this.graphics.fillRoundedRect(startX - 4, startY - 2, 8, 4, 2);
+        
+        // Desenha o contorno que envolve o pescoço
+        this.graphics.lineStyle(3, this.color, this.alpha);
+        this.graphics.strokeEllipse(startX, startY, this.baseWidth * 0.7, 5);
+        this.graphics.fillEllipse(startX, startY, this.baseWidth * 0.6, 4);
 
         // 2. DESENHO DA PARTE TRASEIRA (CAPA)
         this.graphics.setDepth(9); // Voltamos para trás do player para o corpo da capa
