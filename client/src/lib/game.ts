@@ -4629,18 +4629,22 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(1, 0);
 
         const contracts = [
-            '0x6101d4D79C6573c570eAA0eeabff13e663c17c08',
-            '0x9b673bDBA9ed06989b1846d4C63468BCE86cf006',
-            '0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a'
+            { addr: '0x6101d4D79C6573c570eAA0eeabff13e663c17c08', url: 'https://testnet.arcscan.app/address/0x6101d4D79C6573c570eAA0eeabff13e663c17c08' },
+            { addr: '0x9b673bDBA9ed06989b1846d4C63468BCE86cf006', url: 'https://testnet.arcscan.app/address/0x9b673bDBA9ed06989b1846d4C63468BCE86cf006' },
+            { addr: '0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a', url: 'https://testnet.arcscan.app/address/0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a' }
         ];
 
-        contracts.forEach((addr, i) => {
-            this.add.text(contractsX, contractsY + 25 + (i * 20), addr, {
+        contracts.forEach((contract, i) => {
+            const text = this.add.text(contractsX, contractsY + 25 + (i * 20), contract.addr, {
                 fontSize: '12px',
                 fontFamily: 'monospace',
                 color: '#94a3b8',
                 align: 'right'
-            }).setOrigin(1, 0);
+            }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
+
+            text.on('pointerover', () => text.setColor('#fbbf24'));
+            text.on('pointerout', () => text.setColor('#94a3b8'));
+            text.on('pointerdown', () => window.open(contract.url, '_blank'));
         });
 
         startBtn.setInteractive().on('pointerdown', () => {
