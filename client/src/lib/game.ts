@@ -4397,15 +4397,29 @@ class StartScene extends Phaser.Scene {
 
         try {
             const provider = new ethers.BrowserProvider((window as any).ethereum);
-            const balance = await provider.getBalance(this.walletAddress);
-            const formattedBalance = ethers.formatEther(balance);
+            
+            // USDC Contract on Arc Testnet
+            const usdcAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
+            const usdcAbi = [
+                "function balanceOf(address owner) view returns (uint256)",
+                "function decimals() view returns (uint8)"
+            ];
+            
+            const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, provider);
+            const [balance, decimals] = await Promise.all([
+                usdcContract.balanceOf(this.walletAddress),
+                usdcContract.decimals()
+            ]);
+            
+            const formattedBalance = ethers.formatUnits(balance, decimals);
             
             if (this.usdcBalanceText) {
-                this.usdcBalanceText.setText(`USDC: ${parseFloat(formattedBalance).toFixed(2)}`);
+                this.usdcBalanceText.setText(`USDC: ${parseFloat(formattedBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
                 this.usdcBalanceText.setVisible(true);
             }
         } catch (err) {
-            console.error("Failed to fetch USDC balance:", err);
+            console.error("Failed to fetch USDC balance from contract:", err);
+            // Fallback to native balance if contract call fails, or just hide
             if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
         }
     }
