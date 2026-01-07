@@ -3213,8 +3213,8 @@ class MainScene extends Phaser.Scene {
         const explosionRadius = 300;
         this.sfx['explosion_ki']?.play();
         
-        // Efeito visual da explosão
-        const circle = this.add.circle(this.player.x, this.player.y, 10, 0x00ffff, 0.5);
+        // Efeito visual da explosão - Amarelo
+        const circle = this.add.circle(this.player.x, this.player.y, 10, 0xffdd00, 0.5);
         this.tweens.add({
             targets: circle,
             radius: explosionRadius,
@@ -3223,9 +3223,9 @@ class MainScene extends Phaser.Scene {
             onComplete: () => circle.destroy()
         });
 
-        // Flash de luz
+        // Flash de luz - Amarelo claro
         const flash = this.add.graphics();
-        flash.fillStyle(0xffffff, 0.8);
+        flash.fillStyle(0xffffcc, 0.8);
         flash.fillCircle(this.player.x, this.player.y, explosionRadius);
         this.tweens.add({
             targets: flash,
