@@ -828,6 +828,15 @@ class MainScene extends Phaser.Scene {
 
         // ESC key for pause
         this.input.keyboard!.on('keydown-ESC', () => {
+            // Cancel defense before pausing
+            if (this.isDefending) {
+                this.isDefending = false;
+                if (this.shieldGraphics) {
+                    this.shieldGraphics.destroy();
+                    this.shieldGraphics = null;
+                }
+            }
+            
             if (!this.isGameOver && !this.pauseModalOpen) {
                 this.openPauseModal();
             } else if (this.pauseModalOpen && this.isPaused) {
@@ -1689,7 +1698,7 @@ class MainScene extends Phaser.Scene {
         this.checkDoubleClickDash(time);
 
         // KiArc Explosion (Key F)
-        if (Phaser.Input.Keyboard.JustDown(this.keys.F)) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.F) && !this.isDefending) {
             if (this.kiarc >= 100) {
                 this.kiarc -= 100;
                 this.useKiArcExplosion();
@@ -1704,7 +1713,7 @@ class MainScene extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(this.keys.FOUR)) this.usePotion('score');
 
         // Horizontal movement
-        if (!this.isDashing) {
+        if (!this.isDashing && !this.isDefending) {
             if (this.cursors.left.isDown && !this.keys.B.isDown) {
                 this.player.setVelocityX(-currentSpeed);
                 this.player.flipX = true;
@@ -1861,7 +1870,7 @@ class MainScene extends Phaser.Scene {
         }
 
         // Handle punching
-        if (this.keys.Z.isDown && !this.keys.B.isDown) {
+        if (this.keys.Z.isDown && !this.keys.B.isDown && !this.isDefending) {
             if (time > this.punchTimer) {
                 // Can attack while dashing for extra damage
                 this.attack(this.isDashing ? 1.5 : 1.0);
@@ -1869,15 +1878,15 @@ class MainScene extends Phaser.Scene {
             }
         }
         
-        if (this.keys.X.isDown && !this.keys.B.isDown && !this.isChargingKamehameha) {
+        if (this.keys.X.isDown && !this.keys.B.isDown && !this.isChargingKamehameha && !this.isDefending) {
             this.chargeKiarc();
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.keys.C) && this.kiarc >= 20 && !this.keys.B.isDown) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.C) && this.kiarc >= 20 && !this.keys.B.isDown && !this.isDefending) {
             this.shootMagic();
         }
 
-        if (this.keys.V.isDown && this.kiarc >= (this.maxKiarc * 0.5) && !this.keys.B.isDown && !this.isChargingKamehameha) {
+        if (this.keys.V.isDown && this.kiarc >= (this.maxKiarc * 0.5) && !this.keys.B.isDown && !this.isChargingKamehameha && !this.isDefending) {
             this.startKamehamehaCharge();
         }
 
@@ -1886,7 +1895,7 @@ class MainScene extends Phaser.Scene {
         }
 
         // Handle ArcGenkiDama (B Key)
-        if (this.keys.B.isDown) {
+        if (this.keys.B.isDown && !this.isDefending) {
             if (this.kiarc > 0) {
                 this.player.setVelocity(0, 0);
                 if (this.player.body) {
