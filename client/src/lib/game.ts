@@ -5109,7 +5109,7 @@ class StartScene extends Phaser.Scene {
         const closeText = this.add.text(width / 2, height * 0.85, 'CLOSE', {
             fontSize: '20px',
             fontFamily: 'Arial, sans-serif',
-            color: '#ffffff',
+            color: '#000000',
             fontStyle: 'bold'
         }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(206);
 
