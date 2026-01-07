@@ -185,6 +185,32 @@ export default function Home() {
     };
   }, [isConnected]);
 
+  useEffect(() => {
+    const togglePhaserInput = (enabled: boolean) => {
+      if (!window.game) return;
+      
+      // Disable/Enable main game input
+      window.game.input.enabled = enabled;
+      
+      // Disable/Enable input for all active scenes
+      if (window.game.scene) {
+        window.game.scene.getScenes(true).forEach(scene => {
+          if (scene.input) {
+            scene.input.enabled = enabled;
+            if (scene.input.keyboard) scene.input.keyboard.enabled = enabled;
+            if (scene.input.mouse) scene.input.mouse.enabled = enabled;
+          }
+        });
+      }
+    };
+
+    if (isLocked) {
+      togglePhaserInput(false);
+    } else {
+      togglePhaserInput(true);
+    }
+  }, [isLocked]);
+
   return (
     <div className="min-h-screen w-full bg-black flex flex-col items-center overflow-auto relative">
       {activeModal === "pause" && (
