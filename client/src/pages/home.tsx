@@ -228,7 +228,7 @@ export default function Home() {
                     <span className="text-white">Z KEY</span>
                   </li>
                   <li className="flex justify-between border-b border-slate-800 pb-1">
-                    <span>MAGIC ATTACK</span>
+                    <span>MAGIC KIARC</span>
                     <span className="text-white">C KEY</span>
                   </li>
                 </ul>
@@ -261,7 +261,7 @@ export default function Home() {
                   </li>
                   <li className="flex justify-between border-b border-slate-800 pb-1">
                     <span>PAUSE / MENU</span>
-                    <span className="text-white">ESC / P</span>
+                    <span className="text-white">ESC</span>
                   </li>
                 </ul>
               </CardContent>
