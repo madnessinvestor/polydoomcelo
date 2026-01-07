@@ -48,12 +48,9 @@ export default function Controls() {
         <CardHeader className="border-b border-violet-500/30 bg-violet-950/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button size="icon" variant="ghost" onClick={closeModal} className="text-violet-500 hover:text-violet-400 hover:bg-violet-500/10">
-                <ArrowLeft className="w-6 h-6" />
-              </Button>
               <CardTitle className="text-violet-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
                 <KeyboardIcon className="w-8 h-8" />
-                Battle Controls
+                Game Controls
               </CardTitle>
             </div>
           </div>
