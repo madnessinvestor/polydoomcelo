@@ -449,6 +449,8 @@ class MainScene extends Phaser.Scene {
     private pausedTime: number = 0;
     private hpLabel: Phaser.GameObjects.Text | null = null;
 
+    private sfx: { [key: string]: Phaser.Sound.BaseSound } = {};
+
     constructor() {
         super('MainScene');
     }
@@ -837,7 +839,8 @@ class MainScene extends Phaser.Scene {
         const sfxKeys = [
             'genkidama_charge', 'genkidama_launch', 'kamehameha_charge', 'kamehameha_launch',
             'charge_ki', 'dash', 'explosion_ki', 'item_pickup', 'punch', 'magic',
-            'menu_button', 'close_button', 'meteor_1', 'meteor_2'
+            'menu_button', 'close_button', 'meteor_1', 'meteor_2',
+            this.deathSoundKey, this.defenseSoundKey
         ];
         sfxKeys.forEach(key => {
             if (!this.sound.get(key)) {
@@ -1792,8 +1795,8 @@ class MainScene extends Phaser.Scene {
         // Defense mechanism (Key D)
         if (Phaser.Input.Keyboard.JustDown(this.keys.D) && !this.isGameOver) {
             this.isDefending = true;
-            if (this.sound.get(this.defenseSoundKey)) {
-                this.sound.play(this.defenseSoundKey, { volume: this.sfxVolume });
+            if (this.sfx[this.defenseSoundKey]) {
+                this.sfx[this.defenseSoundKey].play({ volume: this.sfxVolume });
             }
         }
         
@@ -3560,8 +3563,8 @@ class MainScene extends Phaser.Scene {
         if (this.health <= 0) {
             this.isGameOver = true;
             this.cameras.main.flash(1000, 255, 0, 0);
-            if (this.sound.get(this.deathSoundKey)) {
-                this.sound.play(this.deathSoundKey, { volume: this.sfxVolume });
+            if (this.sfx[this.deathSoundKey]) {
+                this.sfx[this.deathSoundKey].play({ volume: this.sfxVolume });
             }
         (this as any).gameOver = true;
             this.health = 0;
