@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import { ethers } from 'ethers';
+import { ScarfComponent } from './scarf';
 
 class MainScene extends Phaser.Scene {
     private player!: Phaser.Physics.Arcade.Sprite;
+    private playerScarf!: ScarfComponent;
     private playerGraphics!: Phaser.GameObjects.Graphics;
     private playerAuraGraphics!: Phaser.GameObjects.Graphics;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -777,6 +779,7 @@ class MainScene extends Phaser.Scene {
         }
 
         this.player = this.physics.add.sprite(100, height - 100, 'jungle_tiles', 0);
+        this.playerScarf = new ScarfComponent(this, this.player);
         this.player.setCollideWorldBounds(true);
         this.player.setAlpha(0);
         this.player.setDepth(10);
@@ -1786,6 +1789,11 @@ class MainScene extends Phaser.Scene {
 
     update(time: number, delta: number) {
         if (this.isGameOver || this.isPaused) return;
+
+        // Update scarf
+        if (this.playerScarf) {
+            this.playerScarf.update(this.player.body?.velocity.x || 0, this.player.body?.velocity.y || 0);
+        }
 
         // Se estiver defendendo, força a velocidade a zero para ficar parado
         if (this.isDefending && this.player && this.player.body) {
