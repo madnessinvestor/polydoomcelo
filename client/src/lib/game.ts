@@ -4287,6 +4287,16 @@ class StartScene extends Phaser.Scene {
         super('StartScene');
     }
 
+    preload() {
+        this.load.image('x_icon', 'attached_assets/stock_images/twitter_x_logo_black_6fd4b9ec.jpg');
+        this.load.image('github_icon', 'attached_assets/stock_images/github_logo_black_ic_e57e65f2.jpg');
+        this.load.image('youtube_icon', 'attached_assets/stock_images/youtube_logo_icon_tr_889759a7.jpg');
+        this.load.image('instagram_icon', 'attached_assets/stock_images/instagram_logo_icon__6dd1eb38.jpg');
+        this.load.image('telegram_icon', 'attached_assets/stock_images/telegram_logo_icon_t_41c65737.jpg');
+        this.load.image('discord_icon', 'attached_assets/stock_images/discord_logo_icon_tr_9fa60d50.jpg');
+        this.load.image('farcaster_icon', 'attached_assets/stock_images/farcaster_logo_icon__1994fa3e.jpg');
+    }
+
     private async connectWallet() {
         if (this.isWalletConnecting) return;
         this.isWalletConnecting = true;
