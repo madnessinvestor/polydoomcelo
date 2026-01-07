@@ -4390,6 +4390,7 @@ class StartScene extends Phaser.Scene {
     }
 
     private async updateUSDCBalance() {
+        console.log("StartScene: updateUSDCBalance called", { wallet: this.walletAddress });
         if (!this.walletAddress || !(window as any).ethereum) {
             if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
             return;
@@ -4406,20 +4407,22 @@ class StartScene extends Phaser.Scene {
             ];
             
             const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, provider);
+            console.log("StartScene: Fetching USDC balance from contract...");
             const [balance, decimals] = await Promise.all([
                 usdcContract.balanceOf(this.walletAddress),
                 usdcContract.decimals()
             ]);
             
             const formattedBalance = ethers.formatUnits(balance, decimals);
+            console.log("StartScene: USDC balance fetched", { formattedBalance });
             
             if (this.usdcBalanceText) {
                 this.usdcBalanceText.setText(`USDC: ${parseFloat(formattedBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
                 this.usdcBalanceText.setVisible(true);
+                this.usdcBalanceText.setDepth(2000);
             }
         } catch (err) {
             console.error("Failed to fetch USDC balance from contract:", err);
-            // Fallback to native balance if contract call fails, or just hide
             if (this.usdcBalanceText) this.usdcBalanceText.setVisible(false);
         }
     }
@@ -4477,7 +4480,7 @@ class StartScene extends Phaser.Scene {
             color: '#fbbf24',
             fontStyle: 'bold',
             align: 'center'
-        }).setOrigin(0.5, 0.5);
+        }).setOrigin(0.5, 0.5).setDepth(10);
 
         // Start Button
         const isWalletConnected = !!(window as any).walletAddress;
@@ -4548,12 +4551,16 @@ class StartScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5);
 
         // USDC Balance Display (Top Right)
-        this.usdcBalanceText = this.add.text(width - 16, 16, '', {
-            fontSize: '18px',
+        this.usdcBalanceText = this.add.text(width - 20, 20, '', {
+            fontSize: '24px',
             fontFamily: 'monospace',
             color: '#4ade80',
-            align: 'right'
-        }).setOrigin(1, 0).setAlpha(0.7).setVisible(false);
+            align: 'right',
+            stroke: '#000000',
+            strokeThickness: 3
+        }).setOrigin(1, 0).setAlpha(1.0).setVisible(false).setDepth(2000);
+
+        console.log("StartScene: USDC Balance text initialized", { width, height });
 
         if ((window as any).walletAddress) {
             this.updateWalletButtonText(`CONNECTED: ${(window as any).walletAddress.substring(0, 6)}...`);
