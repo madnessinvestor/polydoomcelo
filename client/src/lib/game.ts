@@ -5768,7 +5768,13 @@ class DeathScene extends Phaser.Scene {
         const submitWithName = async () => {
             if (confirmBtn.disabled) return; // Prevent multiple clicks during processing
 
-            const playerName = nameInput.value.trim() || 'Anonymous';
+            const playerName = nameInput.value.trim();
+            
+            if (playerName.length < 2) {
+                alert('❌ Name must be at least 2 characters long!');
+                nameInput.focus();
+                return;
+            }
             
             // ✅ VALIDAÇÃO FINAL antes de fechar modal
             console.log('✅ Confirmando registro:');
