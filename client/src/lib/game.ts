@@ -81,6 +81,46 @@ class MainScene extends Phaser.Scene {
     private level: number = 1;
     private levelTitle: string = 'Arc Initiate';
     private enemiesDefeated: number = 0;
+    private isSubmittingScore: boolean = false;
+
+    private async submitScoreOnChain() {
+        if (this.isSubmittingScore || this.score <= 0) return;
+        
+        try {
+            this.isSubmittingScore = true;
+            console.log("📡 Iniciando registro de score on-chain...");
+
+            if (!(window as any).ethereum) {
+                console.warn("Wallet não conectada para registro on-chain");
+                return;
+            }
+
+            const provider = new ethers.BrowserProvider((window as any).ethereum);
+            const signer = await provider.getSigner();
+            const userAddress = await signer.getAddress();
+            
+            const contractAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
+            const abi = ["function addScore(string name, uint256 score) public"];
+            const contract = new ethers.Contract(contractAddress, abi, signer);
+
+            // Nome padrão caso não tenhamos um nome customizado
+            const playerName = "Arc Player " + userAddress.substring(0, 6);
+            
+            console.log(`Submetendo: ${playerName} - ${this.score}`);
+            const tx = await contract.addScore(playerName, BigInt(Math.floor(this.score)));
+            console.log("Transação enviada:", tx.hash);
+            
+            this.showPickupNotification("Submitting score to Blockchain...");
+            await tx.wait();
+            console.log("Score registrado com sucesso!");
+            this.showPickupNotification("Score registered on-chain!");
+            
+        } catch (error) {
+            console.error("Erro ao registrar score on-chain:", error);
+        } finally {
+            this.isSubmittingScore = false;
+        }
+    }
     
     // Power-up states and timers
     private activeBuffs: Map<string, { title: string, description: string, duration?: number, startTime?: number }> = new Map();
@@ -3374,6 +3414,7 @@ class MainScene extends Phaser.Scene {
         
         if (this.health <= 0) {
             this.isGameOver = true;
+            this.submitScoreOnChain(); // Chamada on-chain ao morrer
             this.health = 0;
             this.playerGraphics.clear();
             this.playerAuraGraphics.clear();
@@ -4204,6 +4245,7 @@ class MainScene extends Phaser.Scene {
     }
 
     public exitGameFromPause() {
+        this.submitScoreOnChain(); // Chamada on-chain ao sair pelo pause
         this.isGameOver = true;
         (this as any).gameOver = true;
         this.isPaused = false;
