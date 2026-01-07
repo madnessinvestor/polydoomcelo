@@ -5759,9 +5759,12 @@ class DeathScene extends Phaser.Scene {
             border.destroy();
             title.destroy();
 
-            if (shouldReload) {
-                this.sound.stopAll();
-                window.location.reload();
+            // Ao cancelar, NÃO recarrega a página inteira. 
+            // Apenas remove o modal para que a DeathScene (Game Over) continue visível.
+            if (shouldReload && !inputContainer.parentElement) {
+                 // Esta parte só seria usada se submitScore falhasse criticamente
+                 //this.sound.stopAll();
+                 //window.location.reload();
             }
         };
 
@@ -5785,7 +5788,7 @@ class DeathScene extends Phaser.Scene {
             if (this.finalScore === undefined || this.finalScore === null || isNaN(this.finalScore) || this.finalScore <= 0) {
                 console.error('🚫 ERRO: Score inválido antes de submeter!', this.finalScore);
                 alert('❌ Erro crítico: Score inválido (0 ou NaN). Jogue novamente para pontuar!');
-                closeModal(true); // Se o score for inválido, recarrega para evitar bugs
+                closeModal(false); 
                 return;
             }
             
@@ -5812,7 +5815,7 @@ class DeathScene extends Phaser.Scene {
             }
         });
 
-        cancelBtn.addEventListener('click', () => closeModal(true));
+        cancelBtn.addEventListener('click', () => closeModal(false));
     }
 
     private async submitScore(playerName: string) {
