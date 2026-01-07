@@ -79,12 +79,29 @@ const POTIONS: Potion[] = [
 export function ShoppingModal({ onClose }: { onClose: () => void }) {
   const { isLocked } = useUI();
   const [isBuying, setIsBuying] = useState<string | null>(null);
+  const [balance, setBalance] = useState<string>("0.00");
   const [inventory, setInventory] = useState<Record<string, number>>({
     health: 0,
     ki: 0,
     immunity: 0,
     score: 0
   });
+
+  const fetchBalance = async () => {
+    if ((window as any).ethereum) {
+      try {
+        const provider = new ethers.BrowserProvider((window as any).ethereum);
+        const signer = await provider.getSigner();
+        const userAddress = await signer.getAddress();
+        
+        const usdcContract = new ethers.Contract(USDC_ADDRESS, ["function balanceOf(address) view returns (uint256)"], provider);
+        const balanceWei = await usdcContract.balanceOf(userAddress);
+        setBalance(ethers.formatUnits(balanceWei, 6));
+      } catch (error) {
+        console.error("Failed to fetch balance:", error);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchInventory = async () => {
@@ -93,6 +110,8 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
           const provider = new ethers.BrowserProvider((window as any).ethereum);
           const signer = await provider.getSigner();
           const userAddress = await signer.getAddress();
+          
+          await fetchBalance();
           
           // Use wallet address as key for inventory
           const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
@@ -181,6 +200,9 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
       await tx.wait();
       console.log("Transaction confirmed!");
       
+      // Update balance after purchase
+      await fetchBalance();
+      
       // Update local state for immediate feedback
       const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
       const currentSaved = localStorage.getItem(inventoryKey);
@@ -215,11 +237,17 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-[160] bg-black/20 backdrop-blur-none flex items-center justify-center p-4 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
       <Card className="w-full max-w-4xl bg-slate-900 border-2 border-blue-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(59,130,246,0.3)]" onPointerDown={(e) => e.stopPropagation()}>
         <CardHeader className="border-b border-blue-500/30 bg-blue-950/20 relative">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between">
             <CardTitle className="text-blue-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
               <ShoppingCart className="w-8 h-8" />
               Shopping
             </CardTitle>
+            <div className="bg-blue-950/40 border border-blue-500/30 px-4 py-2 rounded-none">
+              <span className="text-blue-400 text-xs font-bold uppercase tracking-wider block opacity-70">My Balance</span>
+              <span className="text-white font-mono text-lg font-black">
+                {balance} <span className="text-blue-500 text-sm">USDC</span>
+              </span>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">

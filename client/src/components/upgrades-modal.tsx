@@ -117,6 +117,7 @@ const UPGRADE_DATA: UpgradeCategory[] = [
 export function UpgradesModal({ onClose }: { onClose: () => void }) {
   const { isLocked } = useUI();
   const [isUpgrading, setIsUpgrading] = useState<string | null>(null);
+  const [balance, setBalance] = useState<string>("0.00");
   const [purchasedLevels, setPurchasedLevels] = useState<Record<string, number>>({
     arc_hp: 0,
     arc_ki: 0,
@@ -126,6 +127,22 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
     arc_vamp: 0,
   });
 
+  const fetchBalance = async () => {
+    if ((window as any).ethereum) {
+      try {
+        const provider = new ethers.BrowserProvider((window as any).ethereum);
+        const signer = await provider.getSigner();
+        const userAddress = await signer.getAddress();
+        const usdcAddress = "0x3600000000000000000000000000000000000000";
+        const usdcContract = new ethers.Contract(usdcAddress, ["function balanceOf(address) view returns (uint256)"], provider);
+        const balanceWei = await usdcContract.balanceOf(userAddress);
+        setBalance(ethers.formatUnits(balanceWei, 6));
+      } catch (error) {
+        console.error("Failed to fetch balance:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     async function fetchOnChainLevels() {
       if (!(window as any).ethereum) return;
@@ -134,6 +151,8 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
         const provider = new ethers.BrowserProvider((window as any).ethereum);
         const signer = await provider.getSigner();
         const userAddress = await signer.getAddress();
+        
+        await fetchBalance();
         
         const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
         const upgradeAbi = [
@@ -270,6 +289,9 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       await tx.wait();
       console.log("Upgrade confirmed!");
 
+      // Update balance after upgrade
+      await fetchBalance();
+
       // Fetch the updated levels from on-chain to ensure consistency
       try {
         const updatedData = await upgradeContract.upgrades(userAddress);
@@ -318,11 +340,17 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-[160] bg-black/20 backdrop-blur-none flex items-center justify-center p-4 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
       <Card className="w-full max-w-4xl bg-slate-900 border-2 border-green-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(34,197,94,0.3)]" onPointerDown={(e) => e.stopPropagation()}>
         <CardHeader className="border-b border-green-500/30 bg-green-950/20 relative">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between">
             <CardTitle className="text-green-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
               <TrendingUp className="w-8 h-8" />
               Upgrades
             </CardTitle>
+            <div className="bg-green-950/40 border border-green-500/30 px-4 py-2 rounded-none">
+              <span className="text-green-400 text-xs font-bold uppercase tracking-wider block opacity-70">My Balance</span>
+              <span className="text-white font-mono text-lg font-black">
+                {balance} <span className="text-green-500 text-sm">USDC</span>
+              </span>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
