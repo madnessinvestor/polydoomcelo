@@ -15,27 +15,28 @@ export default function Controls() {
 
   const controlGroups = [
     {
-      title: "Basic Movement",
+      title: "Movement & Navigation",
       items: [
-        { label: "Move Left", key: "Left Arrow" },
-        { label: "Move Right", key: "Right Arrow" },
-        { label: "Jump", key: "Up / Space" },
-        { label: "Crouch", key: "Down Arrow" },
-        { label: "Dash / Evade", key: "Double Tap Arrows" },
+        { label: "Move Left", key: "← Arrow" },
+        { label: "Move Right", key: "→ Arrow" },
+        { label: "Jump", key: "↑ Arrow / Space" },
+        { label: "Crouch", key: "↓ Arrow" },
+        { label: "Dash Left", key: "Double Tap ←" },
+        { label: "Dash Right", key: "Double Tap →" },
         { label: "Pause / Menu", key: "ESC" },
       ]
     },
     {
-      title: "Combat & Actions",
+      title: "Combat & Potions",
       items: [
-        { label: "Punch", key: "Z" },
-        { label: "Charge Arcki", key: "X (Hold)" },
-        { label: "Magic Kiarc", key: "C" },
+        { label: "Punch Attack", key: "Z" },
+        { label: "Charge Kiarc", key: "X (Hold)" },
+        { label: "Magic Attack", key: "C" },
         { label: "Special Attack", key: "V" },
-        { label: "HP Potion", key: "Q" },
-        { label: "Ki Kiarc Potion", key: "W" },
-        { label: "Immunity Potion", key: "E" },
-        { label: "Score Potion", key: "R" },
+        { label: "Heal HP", key: "Q" },
+        { label: "Restore Ki", key: "W" },
+        { label: "Immunity", key: "E" },
+        { label: "Double Score", key: "R" },
       ]
     }
   ];
