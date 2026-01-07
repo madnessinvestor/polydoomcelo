@@ -5747,7 +5747,7 @@ class DeathScene extends Phaser.Scene {
         // Focus on input
         setTimeout(() => nameInput?.focus(), 0);
 
-        const closeModal = () => {
+        const closeModal = (shouldReload: boolean = false) => {
             if (inputContainer && inputContainer.parentElement) {
                 inputContainer.remove();
             }
@@ -5758,6 +5758,11 @@ class DeathScene extends Phaser.Scene {
             modalBg.destroy();
             border.destroy();
             title.destroy();
+
+            if (shouldReload) {
+                this.sound.stopAll();
+                window.location.reload();
+            }
         };
 
         const submitWithName = async () => {
@@ -5774,7 +5779,7 @@ class DeathScene extends Phaser.Scene {
             if (this.finalScore === undefined || this.finalScore === null || isNaN(this.finalScore) || this.finalScore <= 0) {
                 console.error('🚫 ERRO: Score inválido antes de submeter!', this.finalScore);
                 alert('❌ Erro crítico: Score inválido (0 ou NaN). Jogue novamente para pontuar!');
-                closeModal();
+                closeModal(true); // Se o score for inválido, recarrega para evitar bugs
                 return;
             }
             
@@ -5801,7 +5806,7 @@ class DeathScene extends Phaser.Scene {
             }
         });
 
-        cancelBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', () => closeModal(true));
     }
 
     private async submitScore(playerName: string) {
