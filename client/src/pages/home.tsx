@@ -9,6 +9,7 @@ import { Leaderboard } from "@/components/leaderboard";
 import { ethers } from "ethers";
 import { useUI } from "@/hooks/use-ui";
 import Settings from "@/pages/settings";
+import Controls from "@/pages/controls";
 
 const POTIONS_UI = [
   { id: "health", key: "Q", icon: Beaker, color: "text-red-500", borderColor: "border-red-500/50" },
@@ -279,26 +280,7 @@ export default function Home() {
         <Settings />
       )}
       {activeModal === "controls" && (
-        <div className="fixed inset-0 z-[160] flex items-center justify-center pointer-events-auto">
-          <div className="bg-slate-900 border-4 border-amber-400 p-8 max-w-2xl w-full max-h-[80vh] overflow-auto text-white">
-            <h2 className="text-3xl font-bold text-amber-400 mb-6 border-b-2 border-amber-400 pb-2">GAME CONTROLS</h2>
-            <div className="grid grid-cols-2 gap-8 mb-8">
-              <div>
-                <h3 className="text-amber-400 mb-4 border-b border-amber-400/30">BASIC</h3>
-                <div className="flex justify-between py-2 border-b border-slate-800"><span>MOVEMENT</span><span className="text-amber-400">ARROWS</span></div>
-                <div className="flex justify-between py-2 border-b border-slate-800"><span>JUMP</span><span className="text-amber-400">UP / SPACE</span></div>
-                <div className="flex justify-between py-2 border-b border-slate-800"><span>PUNCH</span><span className="text-amber-400">Z</span></div>
-              </div>
-              <div>
-                <h3 className="text-amber-400 mb-4 border-b border-amber-400/30">SPECIAL</h3>
-                <div className="flex justify-between py-2 border-b border-slate-800"><span>KI CHARGE</span><span className="text-amber-400">X</span></div>
-                <div className="flex justify-between py-2 border-b border-slate-800"><span>MAGIC</span><span className="text-amber-400">C</span></div>
-                <div className="flex justify-between py-2 border-b border-slate-800"><span>SPECIAL</span><span className="text-amber-400">V</span></div>
-              </div>
-            </div>
-            <Button onClick={closeModal} className="w-full bg-amber-400 hover:bg-amber-500 text-black font-bold">CLOSE</Button>
-          </div>
-        </div>
+        <Controls />
       )}
       {activeModal === "history" && (
         <div className="fixed inset-0 z-[160] flex items-center justify-center pointer-events-auto bg-black/80">
