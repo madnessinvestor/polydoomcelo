@@ -2545,7 +2545,7 @@ class MainScene extends Phaser.Scene {
         const damageMultiplier = stats.mult;
         const kameDamage = stats.kame;
         
-        this.kiarc -= 50;
+        this.kiarc -= 100;
         this.specialsCooldowns['V'].startTime = this.time.now;
         const beamLength = 2400;
         const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
@@ -5250,7 +5250,7 @@ class StartScene extends Phaser.Scene {
                         <span>ARCKAMEHAMEHA</span>
                         <div style="text-align: right;">
                             <span style="color: #fbbf24;">V KEY (HOLD/RELEASE)</span><br/>
-                            <small style="color: #60a5fa;">KI: 20 | CD: 2s</small>
+                            <small style="color: #60a5fa;">KI: 100 | CD: 2s</small>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
