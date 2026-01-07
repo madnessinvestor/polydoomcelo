@@ -97,8 +97,8 @@ export default function Controls() {
                   <div className="flex flex-col items-center gap-6">
                     <div className="flex flex-wrap justify-center gap-6">
                       <Key label="Z" action="Punch" active />
-                      <Key label="X" action="Arcki" active />
-                      <Key label="C" action="Kiarc" active />
+                      <Key label="X" action="ChargeKiArc" active />
+                      <Key label="C" action="MagicKiaArc" active />
                       <Key label="D" action="Defense" active />
                     </div>
                     <div className="flex flex-col items-center gap-2">
