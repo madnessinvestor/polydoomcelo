@@ -26,7 +26,7 @@ export class ScarfComponent {
         this.scene = scene;
         this.target = target;
         this.graphics = scene.add.graphics();
-        // A capa principal fica atrás (depth 9), o detalhe frontal na frente (depth 11)
+        // Toda a capa (incluindo laço e corpo) fica atrás do player (depth 9)
         this.graphics.setDepth(9);
 
         // Initialize segments
@@ -116,27 +116,22 @@ export class ScarfComponent {
         const startX = this.target.x;
         const startY = this.target.y + this.anchorOffsetY;
 
-        // 1. DESENHO DA PARTE FRONTAL (ENVOLVENDO O QUADRADO)
-        // Isso dá a percepção de que está fixada AO REDOR
-        this.graphics.setDepth(11); // Forçamos o desenho para frente do player
-        
+        // 1. DESENHO DO LAÇO E PESCOÇO (AGORA ATRÁS)
         // Laço/Nó amarelo com 25% de transparência (alpha 0.75)
         const tieAlpha = 0.75;
         this.graphics.lineStyle(2, 0xffffff, 0.3); // Brilho leve
         this.graphics.fillStyle(this.color, tieAlpha);
         
         // Desenha o laço/nó central estendido para o comprimento do personagem
-        // O personagem cresce com o nível, mas baseWidth e playerWidth acompanham o sprite 32x32 padrão
         const playerWidth = 32;
         this.graphics.fillRoundedRect(startX - (playerWidth / 2), startY - 3, playerWidth, 6, 3);
         
-        // Desenha o contorno que envolve o pescoço (também com 0.75 para consistência)
+        // Desenha o contorno que envolve o pescoço
         this.graphics.lineStyle(3, this.color, tieAlpha);
         this.graphics.strokeEllipse(startX, startY, playerWidth * 0.5, 6);
         this.graphics.fillEllipse(startX, startY, playerWidth * 0.4, 4);
 
-        // 2. DESENHO DA PARTE TRASEIRA (CAPA)
-        this.graphics.setDepth(9); // Voltamos para trás do player para o corpo da capa
+        // 2. DESENHO DA CAPA (TAMBÉM ATRÁS)
         
         // Usamos um desenho de malha contínua para evitar buracos ou quebras
         for (let i = 0; i < this.numSegments - 1; i++) {
