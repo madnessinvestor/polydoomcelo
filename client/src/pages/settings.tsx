@@ -43,6 +43,12 @@ export default function Settings() {
 
   const applyVolume = (fnName: string, volume: number) => {
     if (window.game) {
+      // Direct call to game methods if they exist on the game object
+      if ((window.game as any)[fnName]) {
+        (window.game as any)[fnName](volume);
+      }
+      
+      // Also try to find the method on active scenes
       window.game.scene.getScenes(true).forEach(scene => {
         if ((scene as any)[fnName]) {
           (scene as any)[fnName](volume);
