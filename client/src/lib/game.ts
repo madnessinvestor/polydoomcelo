@@ -1678,6 +1678,26 @@ class MainScene extends Phaser.Scene {
         });
     }
 
+    private showDamage(x: number, y: number, amount: number) {
+        const damageText = this.add.text(x, y - 20, amount.toString(), {
+            fontSize: '24px',
+            color: '#ffff00',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 4,
+            fontFamily: '"Courier New", Courier, monospace'
+        }).setOrigin(0.5);
+
+        this.tweens.add({
+            targets: damageText,
+            y: y - 80,
+            alpha: 0,
+            duration: 800,
+            ease: 'Cubic.out',
+            onComplete: () => damageText.destroy()
+        });
+    }
+
     private handleMeteorImpact() {
         if (!this.isMeteorFalling) return;
         this.isMeteorFalling = false;
