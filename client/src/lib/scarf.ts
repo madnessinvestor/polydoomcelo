@@ -50,8 +50,6 @@ export class ScarfComponent {
         firstSegment.x = this.target.x;
         firstSegment.y = this.target.y + this.anchorOffsetY;
 
-        console.log("Scarf updating at:", firstSegment.x, firstSegment.y); // Log constante para debug
-
         // Verlet integration
         for (let i = 1; i < this.numSegments; i++) {
             const seg = this.segments[i];
@@ -71,8 +69,9 @@ export class ScarfComponent {
                 seg.y += Math.cos(time * 0.5 + i) * 0.08;
             } else {
                 // Inércia baseada no movimento do player (projeção para trás)
-                seg.x -= playerVelocityX * 0.03;
-                seg.y -= playerVelocityY * 0.03;
+                // Se playerVelocityX > 0 (movendo para direita), o cachecol deve ir para esquerda (seg.x -= ...)
+                seg.x -= playerVelocityX * 0.05;
+                seg.y -= playerVelocityY * 0.05;
             }
         }
 
@@ -111,12 +110,6 @@ export class ScarfComponent {
             this.graphics.lineTo(this.segments[i].x, this.segments[i].y);
         }
         this.graphics.strokePath();
-
-        // Debug: Renderizar os pontos da chain
-        this.graphics.fillStyle(0xff0000, 1);
-        for (let i = 0; i < this.numSegments; i++) {
-            this.graphics.fillCircle(this.segments[i].x, this.segments[i].y, 1.5);
-        }
     }
 
     destroy() {
