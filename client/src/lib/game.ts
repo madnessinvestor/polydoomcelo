@@ -1872,6 +1872,8 @@ class MainScene extends Phaser.Scene {
                 this.kiarc -= 100;
                 this.useKiArcExplosion();
                 this.updateHUD();
+            } else {
+                this.showPickupNotification("Need 100 KI for Arc KiExplosion!");
             }
         }
 
@@ -2037,7 +2039,12 @@ class MainScene extends Phaser.Scene {
 
         // ArcMeteor (Key S)
         if (Phaser.Input.Keyboard.JustDown(this.keys.S) && !this.isMeteorFalling && !this.isDefending) {
-            this.startArcMeteor();
+            if (this.kiarc >= 100) {
+                this.kiarc -= 100;
+                this.startArcMeteor();
+            } else {
+                this.showPickupNotification("Need 100 KI for Arc Meteor!");
+            }
         }
 
         if (this.isMeteorFalling) {
@@ -2091,6 +2098,7 @@ class MainScene extends Phaser.Scene {
         }
 
         if (this.keys.V.isDown && this.kiarc >= 100 && !this.keys.B.isDown && !this.isChargingKamehameha && !this.isDefending) {
+            this.kiarc -= 100;
             this.startKamehamehaCharge();
         }
 
@@ -2532,11 +2540,19 @@ class MainScene extends Phaser.Scene {
     }
 
     chargeGenkidama() {
-        this.isChargingGenkidama = true;
-        const kiToConsume = 0.5;
+        if (!this.isChargingGenkidama) {
+            if (this.kiarc >= 200) {
+                this.kiarc -= 200;
+                this.isChargingGenkidama = true;
+            } else {
+                this.showPickupNotification("Need 200 KI for Arc GenkiDama!");
+                return;
+            }
+        }
+        const kiToConsume = 0; // Removido o consumo contínuo pois agora o custo é fixo na inicialização
         if (this.kiarc >= kiToConsume) {
             this.kiarc -= kiToConsume;
-            this.genkidamaChargeAmount += kiToConsume;
+            this.genkidamaChargeAmount += 0.5; // Mantemos o crescimento visual, mas sem custo extra de KI
             
             if (!this.genkidama) {
                 this.sfx['genkidama_charge']?.play({ loop: true });
