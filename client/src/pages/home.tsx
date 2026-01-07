@@ -187,7 +187,7 @@ export default function Home() {
   }, [isConnected]);
 
   return (
-    <div className="min-h-screen w-full bg-black flex items-center justify-center overflow-auto relative">
+    <div className="min-h-screen w-full bg-black flex flex-col items-center overflow-auto relative">
       {isPauseModalOpen && (
         <PauseModal 
           onContinue={handleContinueGame} 
@@ -200,10 +200,10 @@ export default function Home() {
       {isShoppingOpen && (
         <ShoppingModal onClose={() => setIsShoppingOpen(false)} />
       )}
-      <div className="w-full flex flex-col items-center py-8">
+      <div className="w-full flex flex-col items-center">
         {/* Game Container */}
-        <div className="flex flex-col items-center justify-center relative">
-          <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden relative" style={{ width: '1920px', height: '1080px', maxWidth: '95vw', maxHeight: '80vh' }} />
+        <div className="relative">
+          <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden relative" style={{ width: '1920px', height: '1080px' }} />
           
           <div className="mt-4 flex flex-col items-center gap-4">
             <div className="text-slate-400 text-sm flex flex-wrap justify-center gap-x-4 gap-y-2 px-4">
