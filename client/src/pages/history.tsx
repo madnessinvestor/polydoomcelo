@@ -19,7 +19,7 @@ export default function History() {
           <div className="flex items-center gap-3">
             <CardTitle className="text-amber-400 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
               <HistoryIcon className="w-8 h-8" />
-              History
+              Game History
             </CardTitle>
           </div>
         </CardHeader>
