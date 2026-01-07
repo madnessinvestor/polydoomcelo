@@ -5761,6 +5761,8 @@ class DeathScene extends Phaser.Scene {
         };
 
         const submitWithName = async () => {
+            if (confirmBtn.disabled) return; // Prevent multiple clicks during processing
+
             const playerName = nameInput.value.trim() || 'Anonymous';
             
             // ✅ VALIDAÇÃO FINAL antes de fechar modal
@@ -5783,7 +5785,7 @@ class DeathScene extends Phaser.Scene {
             
             try {
                 await this.submitScore(playerName);
-                closeModal();
+                // The submitScore function already handles cleanup and reload
             } catch (err) {
                 console.error('Erro no submit:', err);
                 confirmBtn.disabled = false;
@@ -5914,31 +5916,6 @@ class DeathScene extends Phaser.Scene {
                 }
             } catch (apiErr) {
                 console.error("Falha na requisição local:", apiErr);
-            }
-
-            this.sound.stopAll();
-            window.location.reload();
-            // Registrar na API local SEMPRE (como backup ou registro principal)
-            console.log('📤 Registrando score na API local...');
-            try {
-                const response = await fetch('/api/scores', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        playerName: playerName,
-                        score: Math.floor(this.finalScore),
-                        wave: this.finalWave,
-                        enemiesDefeated: 0
-                    })
-                });
-
-                if (response.ok) {
-                    console.log('✓ Score registrado na API local com sucesso!');
-                } else {
-                    console.error('Erro ao registrar na API local:', await response.text());
-                }
-            } catch (apiErr) {
-                console.error('Falha na requisição local:', apiErr);
             }
 
             // Independentemente de on-chain ou local, resetar o jogo após sucesso local
