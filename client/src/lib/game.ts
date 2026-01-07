@@ -1878,9 +1878,12 @@ class MainScene extends Phaser.Scene {
                 // but the prompt implies direct control "voando para cima ou para baixo"
                 // If we want it to feel like flying, we might want to disable gravity or just let velocity work
             }
-        } else {
+        } else if (this.isDashing) {
             // Apply dash velocity
             this.player.setVelocity(this.dashDirection.x, this.dashDirection.y);
+        } else if (this.isDefending) {
+            // Force zero velocity while defending to override any pending input
+            this.player.setVelocity(0, 0);
         }
 
         // Enemy Pursuit Logic
