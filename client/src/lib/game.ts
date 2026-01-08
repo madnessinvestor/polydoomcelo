@@ -2052,7 +2052,7 @@ class MainScene extends Phaser.Scene {
         });
 
         // ArcMeteor (Key S)
-        const canUseS = this.kiarc >= 20 && (this.time.now - this.specialsCooldowns['S'].startTime >= this.specialsCooldowns['S'].duration);
+        const canUseS = this.kiarc >= 100 && (this.time.now - this.specialsCooldowns['S'].startTime >= this.specialsCooldowns['S'].duration);
         if (Phaser.Input.Keyboard.JustDown(this.keys.S) && !this.isMeteorFalling && !this.isDefending && canUseS) {
             this.specialsCooldowns['S'].startTime = this.time.now;
             this.startArcMeteor();
@@ -2062,7 +2062,7 @@ class MainScene extends Phaser.Scene {
         const canUseF = this.kiarc >= 100 && (this.time.now - this.specialsCooldowns['F'].startTime >= this.specialsCooldowns['F'].duration);
         if (Phaser.Input.Keyboard.JustDown(this.keys.F) && !this.keys.B.isDown && !this.isDefending && canUseF) {
             this.specialsCooldowns['F'].startTime = this.time.now;
-            this.shootMagic(); 
+            this.arcKiExplosion(); 
         }
 
         if (this.isMeteorFalling) {
@@ -2111,7 +2111,7 @@ class MainScene extends Phaser.Scene {
             this.chargeKiarc();
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.keys.C) && this.kiarc >= 20 && !this.keys.B.isDown && !this.isDefending) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.C) && this.kiarc >= 5 && !this.keys.B.isDown && !this.isDefending) {
             this.shootMagic();
         }
 
@@ -2650,9 +2650,8 @@ class MainScene extends Phaser.Scene {
         const magicDamage = stats.magic;
         const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
-        // Consumo de KI aumentado para 100 conforme solicitado para a habilidade ArcKiExplosion
-        this.kiarc -= 100;
-        this.specialsCooldowns['F'].startTime = this.time.now;
+        // MagicKiArc (Key C) uses 5 KI in any level, no cooldown logic here as it's handled in update() or just not used
+        this.kiarc -= 5;
         
         // Play magic sound effect with proper volume
         const sound = this.sfx['magic'];
@@ -2670,6 +2669,38 @@ class MainScene extends Phaser.Scene {
             m.destroy();
             this.hitEnemy(e as Phaser.Physics.Arcade.Sprite, magicDamage * damageMultiplier * boostMultiplier);
         }, undefined, this);
+    }
+
+    arcKiExplosion() {
+        const stats = this.levelStats[this.level - 1];
+        const damageMultiplier = stats.mult;
+        const explosionDamage = stats.magic * 5; // Explosion is much stronger
+        const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
+        
+        this.kiarc -= 100;
+        
+        // Play explosion sound if available or reuse magic
+        this.sfx['magic']?.play();
+        
+        // Visual effect for explosion
+        const explosion = this.add.circle(this.player.x, this.player.y, 150, 0xffdd00, 0.4);
+        this.tweens.add({
+            targets: explosion,
+            scale: 2,
+            alpha: 0,
+            duration: 300,
+            onComplete: () => explosion.destroy()
+        });
+
+        this.cameras.main.shake(200, 0.02);
+
+        // Damage enemies in range
+        this.enemies.getChildren().forEach(e => {
+            const enemy = e as Phaser.Physics.Arcade.Sprite;
+            if (Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y) < 200) {
+                this.hitEnemy(enemy, explosionDamage * damageMultiplier * boostMultiplier);
+            }
+        });
     }
 
     chargeGenkidama() {
@@ -5276,7 +5307,7 @@ class StartScene extends Phaser.Scene {
                         <span>MAGIC KIARC</span>
                         <div style="text-align: right;">
                             <span style="color: #fbbf24;">C KEY (PRESS)</span><br/>
-                            <small style="color: #60a5fa;">KI: 20 | CD: 0s</small>
+                            <small style="color: #60a5fa;">KI: 5 | CD: 0s</small>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
