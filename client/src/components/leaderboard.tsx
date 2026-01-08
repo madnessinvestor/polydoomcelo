@@ -49,7 +49,7 @@ export function Leaderboard() {
     return (
       <Card className="w-full bg-slate-900 border-slate-700">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-yellow-400">
+          <CardTitle className="flex items-center gap-2 text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] animate-pulse">
             <Trophy className="w-5 h-5" />
             Leaderboard
           </CardTitle>
