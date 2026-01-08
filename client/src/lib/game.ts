@@ -1330,23 +1330,29 @@ class MainScene extends Phaser.Scene {
             loop: true
         });
 
-        // Spawn boss after 10 seconds
-        this.time.delayedCall(10000, () => {
-            if (!this.isWaveInterval && !this.isGameOver && !this.bossSpawned) {
-                this.spawnBoss();
-                if (this.currentWave > 10) {
-                    this.time.delayedCall(2000, () => this.spawnBoss());
-                    this.time.delayedCall(4000, () => this.spawnBoss());
+        // Use time.addEvent instead of delayedCall for boss spawn
+        this.time.addEvent({
+            delay: 10000,
+            callback: () => {
+                if (!this.isWaveInterval && !this.isGameOver && !this.bossSpawned) {
+                    this.spawnBoss();
+                    if (this.currentWave > 10) {
+                        this.time.delayedCall(2000, () => this.spawnBoss());
+                        this.time.delayedCall(4000, () => this.spawnBoss());
+                    }
+                    this.bossSpawned = true;
                 }
-                this.bossSpawned = true;
             }
         });
 
         if (this.currentWave >= 9) {
             const delay = this.currentWave === 9 ? 90000 : 45000;
-            this.time.delayedCall(delay, () => {
-                if (!this.isWaveInterval && !this.isGameOver) {
-                    this.spawnEnemyOfType('arc_phantom');
+            this.time.addEvent({
+                delay: delay,
+                callback: () => {
+                    if (!this.isWaveInterval && !this.isGameOver) {
+                        this.spawnEnemyOfType('arc_phantom');
+                    }
                 }
             });
         }
@@ -1618,11 +1624,14 @@ class MainScene extends Phaser.Scene {
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
-        // 30-second interval
-        this.waveTimerEvent = this.time.delayedCall(30000, () => {
-            if (this.isGameOver) return;
-            this.currentWave++;
-            this.startWave();
+        // 30-second interval - use time.addEvent to respect pause
+        this.waveTimerEvent = this.time.addEvent({
+            delay: 30000,
+            callback: () => {
+                if (this.isGameOver) return;
+                this.currentWave++;
+                this.startWave();
+            }
         });
     }
 
@@ -1811,18 +1820,12 @@ class MainScene extends Phaser.Scene {
     update(time: number, delta: number) {
         if (this.isGameOver) return;
 
-        // If paused, we must freeze EVERYTHING.
+        // SE O JOGO ESTIVER PAUSADO, NÃO FAZ NADA
         if (this.isPaused) {
-            // Re-sync with physics and time paused states just in case
-            if (this.physics.world.isPaused === false) this.physics.pause();
-            if (this.time.paused === false) this.time.paused = true;
-            
-            // Ensure HUD reflects the frozen time
-            this.updateHUD();
             return;
         }
 
-        // Timer de Wave/Intervalo (Absolute freeze logic)
+        // Timer de Wave/Intervalo (Apenas quando o jogo está rodando)
         const now = this.time.now;
         const elapsed = Math.max(0, Math.floor((now - this.waveStartTime) / 1000));
         if (!this.isWaveInterval) {
@@ -4166,6 +4169,7 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
+        // Se o jogo estiver pausado, usamos o pausedTime para os timers visuais
         const now = this.isPaused ? this.pausedTime : this.time.now;
         
         // Timer de Wave/Intervalo (UI Update)
@@ -4719,6 +4723,8 @@ class MainScene extends Phaser.Scene {
     }
 
     private openPauseModal() {
+        if (this.isPaused) return;
+        
         this.isPaused = true;
         this.pauseModalOpen = true;
         this.pausedTime = this.time.now;
@@ -4732,7 +4738,7 @@ class MainScene extends Phaser.Scene {
         // Pause all sounds
         this.sound.pauseAll();
         
-        // Pause time and timers
+        // PAUSE THE TIME SYSTEM - This freezes all Events and delayedCalls
         this.time.paused = true;
         
         // Force an immediate HUD update to freeze the visual timers
@@ -4762,40 +4768,30 @@ class MainScene extends Phaser.Scene {
         this.isPaused = false;
         this.pauseModalOpen = false;
         
-        // Adjust wave start time to account for pause duration
         const pauseDuration = this.time.now - this.pausedTime;
         this.waveStartTime += pauseDuration;
 
-        // Adjust spells cooldowns
         for (const key in this.specialsCooldowns) {
             if (this.specialsCooldowns[key].startTime > 0) {
                 this.specialsCooldowns[key].startTime += pauseDuration;
             }
         }
 
-        // Adjust active buffs
         this.activeBuffs.forEach((buff) => {
             if (buff.startTime !== undefined) {
                 buff.startTime += pauseDuration;
             }
         });
         
-        // Resume physics engine
         this.physics.resume();
-        
-        // Resume all tweens
         this.tweens.resumeAll();
-        
-        // Resume all sounds
         this.sound.resumeAll();
         
-        // Resume time and timers
+        // RESUME THE TIME SYSTEM
         this.time.paused = false;
         
-        // Ensure HUD updates immediately after unpausing
         this.updateHUD();
         
-        // Notify React to hide pause modal
         if ((window as any).hidePauseModal) {
             (window as any).hidePauseModal();
         }
