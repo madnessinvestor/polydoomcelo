@@ -2111,6 +2111,7 @@ class MainScene extends Phaser.Scene {
             this.chargeKiarc();
         }
 
+        // MagicKiArc (Key C) - No cooldown
         if (Phaser.Input.Keyboard.JustDown(this.keys.C) && this.kiarc >= 5 && !this.keys.B.isDown && !this.isDefending) {
             this.shootMagic();
         }
@@ -2650,7 +2651,7 @@ class MainScene extends Phaser.Scene {
         const magicDamage = stats.magic;
         const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
-        // MagicKiArc (Key C) uses 5 KI in any level, no cooldown logic here as it's handled in update() or just not used
+        // MagicKiArc (Key C) uses 5 KI in any level
         this.kiarc -= 5;
         
         // Play magic sound effect with proper volume
