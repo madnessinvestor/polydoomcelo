@@ -75,69 +75,48 @@ export function Leaderboard() {
 
   return (
     <div className="fixed inset-0 z-[160] flex items-center justify-center pointer-events-none select-none" onPointerDown={(e) => e.stopPropagation()}>
-      {/* 
-        This component is styled to look like it's part of the Phaser canvas.
-        It uses a pixelated border, specific fonts, and is contained within the same relative space.
-      */}
       <div 
-        className="relative pointer-events-auto bg-[#2c3e50] border-[6px] border-[#34495e] shadow-[0_0_20px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden" 
+        className="relative pointer-events-auto bg-black/80 border-[2px] border-[#4ade80] shadow-[0_0_20px_rgba(74,222,128,0.3)] flex flex-col overflow-hidden" 
         style={{ 
-          width: '800px',
-          height: '500px',
-          maxWidth: '90vw',
-          maxHeight: '80vh',
+          width: 'min(90vw, 85vh * 0.7)',
+          height: '85vh',
           imageRendering: 'pixelated',
-          fontFamily: '"Press Start 2P", system-ui, sans-serif'
+          fontFamily: 'monospace'
         }}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <div className="flex-shrink-0 bg-[#34495e] p-4 flex items-center justify-between border-b-[4px] border-[#2c3e50]">
-          <div className="flex items-center gap-3 text-yellow-400">
-            <Trophy className="w-6 h-6" />
-            <span className="text-lg uppercase tracking-wider font-bold">Leaderboard</span>
-          </div>
-          <Button 
-            onClick={closeModal}
-            variant="ghost" 
-            className="text-red-400 hover:text-red-300 hover:bg-transparent p-0 h-auto"
-          >
-            [X]
-          </Button>
+        <div className="flex-shrink-0 p-[2vh] flex items-center justify-center border-b border-[#4ade80]/30">
+          <h2 className="text-[#4ade80] font-bold tracking-[0.5em] uppercase" style={{ fontSize: '3vh' }}>
+            LEADERBOARD
+          </h2>
         </div>
 
-        <div className="flex-1 overflow-hidden relative bg-[#1a252f]">
+        <div className="flex-1 overflow-hidden relative">
           {sortedScores.length === 0 ? (
-            <div className="absolute inset-0 flex items-center justify-center text-[#95a5a6] text-xs">
-              NO RECORDS FOUND
+            <div className="absolute inset-0 flex items-center justify-center text-[#4ade80]/50 text-[1.5vh] animate-pulse">
+              Loading scores...
             </div>
           ) : (
             <ScrollArea className="h-full w-full">
-              <div className="p-4 space-y-2">
+              <div className="p-[2vh] space-y-[1vh]">
                 {sortedScores.map((score, index) => (
                   <div
                     key={score.id}
-                    className="flex items-center gap-4 p-3 bg-[#2c3e50] border-2 border-[#34495e] hover:border-yellow-500 transition-colors"
-                    data-testid={`leaderboard-entry-${score.id}`}
+                    className="flex items-center justify-between p-[1.5vh] border border-[#4ade80]/20 bg-[#4ade80]/5 hover:bg-[#4ade80]/10 transition-colors"
+                    style={{ fontSize: '1.6vh' }}
                   >
-                    <div className={`w-8 text-center font-bold ${index < 3 ? 'text-yellow-400' : 'text-[#7f8c8d]'}`}>
-                      #{index + 1}
+                    <div className="flex items-center gap-[1.5vw] min-w-0">
+                      <span className="text-[#4ade80]/60 font-mono w-[3vh]">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span className="text-white truncate uppercase font-bold tracking-tight">
+                        {score.playerName}
+                      </span>
                     </div>
-                    <div className="flex-1 flex items-center gap-2">
-                      <span className="text-white text-sm truncate uppercase">{score.playerName}</span>
-                      {index < 3 && <PixelCrown rank={index + 1} />}
-                    </div>
-                    <div className="flex gap-4 text-[10px] text-[#bdc3c7] uppercase">
-                      <div className="text-center">
-                        <div className="text-[#7f8c8d]">ENEMIES</div>
-                        <div className="text-white">{score.enemiesDefeated}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-[#7f8c8d]">WAVE</div>
-                        <div className="text-white">{score.wave}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-[#7f8c8d]">SCORE</div>
-                        <div className="text-yellow-400 font-bold">{score.score.toLocaleString()}</div>
+                    <div className="flex items-center gap-[2vw] text-[#4ade80]">
+                      <div className="flex flex-col items-end">
+                        <span className="text-[1vh] text-[#4ade80]/50 uppercase">Score</span>
+                        <span className="font-mono font-bold">{score.score.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
@@ -147,13 +126,14 @@ export function Leaderboard() {
           )}
         </div>
         
-        <div className="p-4 bg-[#34495e] flex justify-center">
-          <Button 
+        <div className="p-[2vh] flex justify-center border-t border-[#4ade80]/30">
+          <button 
             onClick={closeModal}
-            className="bg-red-500 hover:bg-red-600 text-white border-b-4 border-red-800 rounded-none h-10 px-8 font-bold active:border-b-0 active:translate-y-1 transition-all"
+            className="text-[#4ade80] hover:text-white border border-[#4ade80] px-[3vw] py-[1vh] uppercase font-bold transition-all hover:bg-[#4ade80]/20"
+            style={{ fontSize: '1.4vh' }}
           >
-            RETURN TO GAME
-          </Button>
+            [ Close ]
+          </button>
         </div>
       </div>
     </div>
