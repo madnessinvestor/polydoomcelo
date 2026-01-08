@@ -2062,6 +2062,7 @@ class MainScene extends Phaser.Scene {
         const canUseF = this.kiarc >= 100 && (this.time.now - this.specialsCooldowns['F'].startTime >= this.specialsCooldowns['F'].duration);
         if (Phaser.Input.Keyboard.JustDown(this.keys.F) && !this.keys.B.isDown && !this.isDefending && canUseF) {
             this.specialsCooldowns['F'].startTime = this.time.now;
+            this.updateHUD();
             this.arcKiExplosion(); 
         }
 
