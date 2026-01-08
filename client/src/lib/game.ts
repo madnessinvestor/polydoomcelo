@@ -31,7 +31,7 @@ class MainScene extends Phaser.Scene {
     // Cooldown system
     private specialsCooldowns: Record<string, { duration: number, startTime: number }> = {
         'V': { duration: 5000, startTime: 0 },
-        'F': { duration: 5000, startTime: 0 },
+        'F': { duration: 0, startTime: 0 },
         'S': { duration: 5000, startTime: 0 },
         'B': { duration: 30000, startTime: 0 }
     };
@@ -2059,7 +2059,7 @@ class MainScene extends Phaser.Scene {
         }
 
         // Handle ArcKiExplosion (Key F)
-        const canUseF = this.kiarc >= 100 && (this.time.now - this.specialsCooldowns['F'].startTime >= this.specialsCooldowns['F'].duration);
+        const canUseF = this.kiarc >= 200;
         if (Phaser.Input.Keyboard.JustDown(this.keys.F) && !this.keys.B.isDown && !this.isDefending && canUseF) {
             this.specialsCooldowns['F'].startTime = this.time.now;
             this.updateHUD();
@@ -2296,7 +2296,7 @@ class MainScene extends Phaser.Scene {
         const { width, height } = this.cameras.main;
         const specials = [
             { key: 'S', label: 'S', ki: 100 },
-            { key: 'F', label: 'F', ki: 100 },
+            { key: 'F', label: 'F', ki: 200 },
             { key: 'V', label: 'V', ki: 100 },
             { key: 'B', label: 'B', ki: 200 }
         ];
@@ -2691,7 +2691,7 @@ class MainScene extends Phaser.Scene {
         const explosionDamage = stats.magic * 5; // Explosion is much stronger
         const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
-        this.kiarc -= 100;
+        this.kiarc -= 200;
         
         // Play explosion sound if available or reuse magic
         this.sfx['magic']?.play();
