@@ -4749,14 +4749,14 @@ class MainScene extends Phaser.Scene {
         // Resume the entire scene processing (Must be first to allow time.now to update)
         this.scene.resume();
         
+        // 🔑 Retoma o tempo do Phaser
+        this.time.timeScale = 1;
+        
         // Calcula quanto tempo o jogo ficou pausado
         const pauseDuration = this.time.now - this.pausedTime;
         this.totalPausedTime += pauseDuration;
         
         console.log(`Paused for ${pauseDuration}ms, total paused: ${this.totalPausedTime}ms`);
-        
-        // 🔑 Retoma o tempo do Phaser
-        this.time.timeScale = 1;
         
         // Retoma física e animações
         this.physics.resume();
