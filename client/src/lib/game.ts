@@ -1808,7 +1808,18 @@ class MainScene extends Phaser.Scene {
     }
 
     update(time: number, delta: number) {
-        if (this.isGameOver || this.isPaused) return;
+        if (this.isGameOver) return;
+
+        // If paused, we must freeze EVERYTHING.
+        if (this.isPaused) {
+            // Re-sync with physics and time paused states just in case
+            if (this.physics.world.isPaused === false) this.physics.pause();
+            if (this.time.paused === false) this.time.paused = true;
+            
+            // Ensure HUD reflects the frozen time
+            this.updateHUD();
+            return;
+        }
 
         // Update scarf
         if (this.playerScarf) {
