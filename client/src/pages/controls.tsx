@@ -130,7 +130,6 @@ export default function Controls() {
                   <div className="text-center space-y-1">
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Hold Key</p>
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 100 | CD: 5s</p>
-                    <p className="text-[11px] text-slate-400 leading-tight">Devastating energy beam. Release to fire when fully charged.</p>
                   </div>
                 </div>
                 <div className="flex flex-col items-center gap-3">
@@ -138,7 +137,6 @@ export default function Controls() {
                   <div className="text-center space-y-1">
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 200 | CD: 30s</p>
-                    <p className="text-[11px] text-slate-400 leading-tight">Gather energy from the universe for a massive spirit bomb.</p>
                   </div>
                 </div>
                 <div className="flex flex-col items-center gap-3">
@@ -146,7 +144,6 @@ export default function Controls() {
                   <div className="text-center space-y-1">
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 100 | CD: 0s</p>
-                    <p className="text-[11px] text-slate-400 leading-tight">Release inner Ki in a powerful radial burst to clear enemies.</p>
                   </div>
                 </div>
                 <div className="flex flex-col items-center gap-3">
@@ -154,7 +151,6 @@ export default function Controls() {
                   <div className="text-center space-y-1">
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 100 | CD: 5s</p>
-                    <p className="text-[11px] text-slate-400 leading-tight">Call down a barrage of cosmic meteors to strike multiple foes.</p>
                   </div>
                 </div>
               </div>
