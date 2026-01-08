@@ -5236,24 +5236,49 @@ class StartScene extends Phaser.Scene {
             }
 
             try {
-                // Show loading state if needed
+                // Show loading state
                 startBtnObj.btnText.setText('LOADING...');
                 
-                // Fetch Character State from Backend
+                // Fetch Character State from Backend (Inventory)
                 const response = await fetch(`/api/character-state/${currentWallet}`);
                 if (!response.ok) throw new Error('Failed to load character data');
-                
                 const data = await response.json();
                 
-                // Store in global or scene registry for MainScene access
+                // Store inventory in global for MainScene access
                 (window as any).characterState = data;
+
+                // 📡 ON-CHAIN SYNC: Fetch Upgrades exactly like the UPGRADES button does
+                console.log("📡 Start Game: Sincronizando upgrades on-chain...");
                 
-                console.log('Character state loaded:', data);
+                const provider = new ethers.BrowserProvider((window as any).ethereum);
+                const signer = await provider.getSigner();
+                const userAddress = await signer.getAddress();
+                
+                const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
+                const upgradeAbi = [
+                    "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
+                ];
+                
+                const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
+                const onChainData = await upgradeContract.upgrades(userAddress);
+                
+                const upgradesData = {
+                    arc_hp: Number(onChainData.hp),
+                    arc_ki: Number(onChainData.ki),
+                    arc_damage: Number(onChainData.damage),
+                    arc_defence: Number(onChainData.defence),
+                    arc_regen: Number(onChainData.regen),
+                    arc_vamp: Number(onChainData.vamp)
+                };
+                
+                console.log("✅ Start Game: Upgrades sincronizados:", upgradesData);
+                (window as any).playerUpgrades = upgradesData;
+                
                 this.stopOpeningMusic();
                 this.scene.start('MainScene');
             } catch (err) {
                 console.error('Error starting game:', err);
-                alert('Failed to load game data. Please try again.');
+                alert('Failed to load game data or sync on-chain upgrades. Please try again.');
                 startBtnObj.btnText.setText('START GAME');
             }
         });
