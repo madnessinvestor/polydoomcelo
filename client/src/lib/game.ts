@@ -4810,13 +4810,13 @@ class MainScene extends Phaser.Scene {
     }
 
     public exitGameFromPause() {
-        this.submitScoreOnChain(); // Chamada on-chain ao sair pelo pause
+        console.log("GAME: exitGameFromPause called");
+        this.submitScoreOnChain();
         this.isGameOver = true;
         (this as any).gameOver = true;
         this.isPaused = false;
         this.pauseModalOpen = false;
         
-        // Finalize player state
         if (this.player) {
             this.player.setActive(false);
             if (this.player.body) {
@@ -4824,7 +4824,6 @@ class MainScene extends Phaser.Scene {
             }
         }
         
-        // Stop all timers and systems
         this.physics.pause();
         this.tweens.pauseAll();
         this.sound.stopAll();
@@ -4832,12 +4831,11 @@ class MainScene extends Phaser.Scene {
         if (this.spawnEvent) this.spawnEvent.remove();
         if (this.waveTimerEvent) this.waveTimerEvent.remove();
         
-        // Notify React to hide pause modal before switching scenes
         if ((window as any).hidePauseModal) {
             (window as any).hidePauseModal();
         }
         
-        // Switch to DeathScene with full stats
+        console.log("GAME: Transitioning to DeathScene");
         this.scene.stop('MainScene');
         this.scene.start('DeathScene', { 
             level: this.level,

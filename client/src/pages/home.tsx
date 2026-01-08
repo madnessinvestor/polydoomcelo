@@ -107,11 +107,19 @@ export default function Home() {
   };
 
   const handleExitGame = () => {
+    console.log("REACT: handleExitGame called");
     closeModal();
-    // Exit game through window reference
-    if (window.game?.scene.isActive('MainScene')) {
+    if (window.game) {
+      console.log("REACT: Found window.game, searching for MainScene");
       const scene = window.game.scene.getScene('MainScene') as any;
-      scene?.exitGameFromPause?.();
+      if (scene) {
+        console.log("REACT: Found MainScene, calling exitGameFromPause");
+        scene.exitGameFromPause?.();
+      } else {
+        console.log("REACT: MainScene not found");
+      }
+    } else {
+      console.log("REACT: window.game not found");
     }
   };
 
