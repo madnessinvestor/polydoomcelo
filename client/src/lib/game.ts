@@ -1003,7 +1003,8 @@ class MainScene extends Phaser.Scene {
                 let changed = false;
                 this.activeBuffs.forEach((buff, type) => {
                     if (buff.duration && buff.startTime) {
-                        const elapsed = (this.time.now - buff.startTime) / 1000;
+                        const now = this.isPaused ? this.pausedTime : this.time.now;
+                        const elapsed = (now - buff.startTime) / 1000;
                         if (elapsed >= buff.duration) {
                             this.activeBuffs.delete(type);
                             changed = true;
@@ -1858,7 +1859,7 @@ class MainScene extends Phaser.Scene {
         // Reset timer display - strictly relative to waveStartTime set in create()
         // Ensure we handle the case where waveStartTime might be reset to 0
         const now = this.time.now;
-        const elapsed = Math.max(0, Math.floor((now - this.waveStartTime) / 1000));
+        const elapsed = Math.max(0, Math.floor((this.isPaused ? this.pausedTime : now - this.waveStartTime) / 1000));
         if (!this.isWaveInterval) {
             const mins = Math.floor(elapsed / 60);
             const secs = elapsed % 60;
@@ -2316,7 +2317,8 @@ class MainScene extends Phaser.Scene {
         specials.forEach((special, index) => {
             const y = startY + index * (size + spacing);
             const cdInfo = this.specialsCooldowns[special.key];
-            const elapsed = this.time.now - cdInfo.startTime;
+            const now = this.isPaused ? this.pausedTime : this.time.now;
+            const elapsed = now - cdInfo.startTime;
             const remaining = Math.max(0, cdInfo.duration - elapsed);
             const progress = remaining / cdInfo.duration;
 
