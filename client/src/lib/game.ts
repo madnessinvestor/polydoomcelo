@@ -4838,6 +4838,7 @@ class MainScene extends Phaser.Scene {
         }
         
         // Switch to DeathScene with full stats
+        this.scene.stop('MainScene');
         this.scene.start('DeathScene', { 
             level: this.level,
             wave: this.currentWave,
