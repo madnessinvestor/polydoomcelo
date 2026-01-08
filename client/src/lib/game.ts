@@ -3827,6 +3827,10 @@ class MainScene extends Phaser.Scene {
 
         if (this.health <= 0) {
             this.isGameOver = true;
+            // Disable Phaser keyboard input immediately upon death to allow name entry
+            if (this.input.keyboard) {
+                this.input.keyboard.enabled = false;
+            }
             this.cameras.main.flash(1000, 255, 0, 0);
             if (this.sfx[this.deathSoundKey]) {
                 this.sfx[this.deathSoundKey].play({ volume: this.sfxVolume });
@@ -3947,6 +3951,10 @@ class MainScene extends Phaser.Scene {
         
         if (this.health <= 0) {
             this.isGameOver = true;
+            // Disable Phaser keyboard input immediately upon death to allow name entry
+            if (this.input.keyboard) {
+                this.input.keyboard.enabled = false;
+            }
             this.cameras.main.flash(1000, 255, 0, 0);
             if (this.sound.get(this.deathSoundKey)) {
                 this.sound.play(this.deathSoundKey, { volume: this.sfxVolume });
