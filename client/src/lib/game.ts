@@ -5374,9 +5374,9 @@ class StartScene extends Phaser.Scene {
                     };
 
                     const getCrown = (rank: number) => {
-                        if (rank === 1) return '<span style="color: #ffd700; margin-left: 5px;">👑</span>';
-                        if (rank === 2) return '<span style="color: #c0c0c0; margin-left: 5px;">👑</span>';
-                        if (rank === 3) return '<span style="color: #cd7f32; margin-left: 5px;">👑</span>';
+                        if (rank === 1) return '<span style="color: #ffd700; margin-left: 5px; text-shadow: 0 0 5px #ffd700;">👑</span>'; // Ouro
+                        if (rank === 2) return '<span style="color: #c0c0c0; margin-left: 5px; text-shadow: 0 0 5px #c0c0c0;">👑</span>'; // Prata
+                        if (rank === 3) return '<span style="color: #cd7f32; margin-left: 5px; text-shadow: 0 0 5px #cd7f32;">👑</span>'; // Bronze
                         return '';
                     };
                     
