@@ -4739,6 +4739,8 @@ class MainScene extends Phaser.Scene {
         this.sound.pauseAll();
         
         // This is the key: stop the entire scene processing
+        // We use the scene manager to pause this specific scene
+        this.scene.get(this.scene.key).events.emit('pause');
         this.scene.pause();
         
         // GLOBAL TIME SYSTEM PAUSE
