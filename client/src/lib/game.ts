@@ -2688,7 +2688,8 @@ class MainScene extends Phaser.Scene {
     arcKiExplosion() {
         const stats = this.levelStats[this.level - 1];
         const damageMultiplier = stats.mult;
-        const explosionDamage = stats.magic * 5; // Explosion is much stronger
+        // Dano é 40% do dano do punch (baseado no stats.punch)
+        const explosionDamage = stats.punch * 0.4;
         const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
         this.kiarc = Math.max(0, this.kiarc - 100);
