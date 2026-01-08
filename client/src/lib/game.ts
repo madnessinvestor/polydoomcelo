@@ -5269,7 +5269,7 @@ class StartScene extends Phaser.Scene {
         const lbWidth = 600; // Increased width
         const lbHeight = 850; // Increased height
         const lbX = width - lbWidth / 2 - 50; 
-        const lbY = height / 2;
+        const lbY = height / 2 - 60; // Move up to avoid contracts
 
         const lbBg = this.add.rectangle(lbX, lbY, lbWidth, lbHeight, 0x000000, 0.4).setDepth(5); // More transparent
         lbBg.setStrokeStyle(3, 0x4ade80);
