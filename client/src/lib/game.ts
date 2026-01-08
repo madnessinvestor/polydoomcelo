@@ -4718,6 +4718,20 @@ class MainScene extends Phaser.Scene {
         // Adjust wave start time to account for pause duration
         const pauseDuration = this.time.now - this.pausedTime;
         this.waveStartTime += pauseDuration;
+
+        // Adjust spells cooldowns
+        for (const key in this.specialsCooldowns) {
+            if (this.specialsCooldowns[key].startTime > 0) {
+                this.specialsCooldowns[key].startTime += pauseDuration;
+            }
+        }
+
+        // Adjust active buffs
+        this.activeBuffs.forEach((buff) => {
+            if (buff.startTime !== undefined) {
+                buff.startTime += pauseDuration;
+            }
+        });
         
         // Resume physics engine
         this.physics.resume();
