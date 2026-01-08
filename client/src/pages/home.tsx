@@ -60,6 +60,7 @@ export default function Home() {
   const switchNetwork = async () => {
     if (!(window as any).ethereum) return;
     try {
+      console.log("Attempting to switch to Arc Testnet (0x4cef52)...");
       await (window as any).ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: ARC_TESTNET_CONFIG.chainId }],
@@ -76,6 +77,21 @@ export default function Home() {
         }
       }
       console.error("Error switching to Arc Testnet:", switchError);
+    }
+  };
+
+  const connectWallet = async () => {
+    if (!(window as any).ethereum) {
+      alert("Please install Rabby or MetaMask!");
+      return;
+    }
+    try {
+      console.log("Requesting account connection...");
+      await (window as any).ethereum.request({ method: "eth_requestAccounts" });
+      await switchNetwork();
+      setIsConnected(true);
+    } catch (error) {
+      console.error("Connection failed:", error);
     }
   };
 
