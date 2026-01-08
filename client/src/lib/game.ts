@@ -2692,8 +2692,8 @@ class MainScene extends Phaser.Scene {
         }
         
         const stats = this.levelStats[this.level - 1];
-        const damageMultiplier = stats.mult;
-        // Dano é 20% do dano do punch (baseado no stats.punch)
+        // Dano é exatamente 20% do dano do punch (baseado no stats.punch)
+        // stats.punch já escala com o nível do jogador (ex: 10 no lvl 1, 20 no lvl 2)
         const explosionDamage = stats.punch * 0.2;
         const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
@@ -2718,7 +2718,9 @@ class MainScene extends Phaser.Scene {
         this.enemies.getChildren().forEach(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
             if (Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y) < 200) {
-                this.hitEnemy(enemy, explosionDamage * damageMultiplier * boostMultiplier);
+                // Aplicamos o dano diretamente sem o multiplicador de nível redundante (stats.mult)
+                // O punch base (stats.punch) já tem esse multiplicador embutido nos stats
+                this.hitEnemy(enemy, explosionDamage * boostMultiplier);
             }
         });
     }
