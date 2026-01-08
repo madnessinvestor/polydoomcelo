@@ -22,8 +22,13 @@ export function PauseModal({ onContinue, onExit }: PauseModalProps) {
         </h2>
         
         {/* Message */}
-        <p className="text-center text-slate-300 mb-10 text-lg">
+        <p className="text-center text-slate-300 mb-4 text-lg">
           Do you want to continue or exit the game?
+        </p>
+        
+        {/* Warning about time */}
+        <p className="text-center text-[#fbbf24] mb-10 text-sm font-medium animate-pulse">
+          TIME WILL CONTINUE RUNNING DURING PAUSE
         </p>
         
         {/* Buttons */}
