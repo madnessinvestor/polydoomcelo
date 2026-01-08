@@ -4731,8 +4731,18 @@ class MainScene extends Phaser.Scene {
         this.isPaused = true;
         this.pauseModalOpen = true;
         
-        // Use a more reliable source of time if possible, or ensure Phaser's clock is really stopped
+        // Captura o tempo exato do pause
         this.pausedTime = this.time.now;
+        
+        // Pausa explicitamente o TimerEvent da wave
+        if (this.waveTimerEvent) {
+            this.waveTimerEvent.paused = true;
+        }
+        
+        // Pausa explicitamente o spawnEvent
+        if (this.spawnEvent) {
+            this.spawnEvent.paused = true;
+        }
         
         // PHASER ENGINE PAUSE - Full stop
         this.physics.pause();
@@ -4774,9 +4784,22 @@ class MainScene extends Phaser.Scene {
         this.isPaused = false;
         this.pauseModalOpen = false;
         
-        // Calculate exact duration to compensate
+        // Calcula quanto tempo o jogo ficou pausado
         const pauseDuration = this.time.now - this.pausedTime;
+        
+        // 🔑 AJUSTE CRÍTICO (core da correção)
+        // Compensa o tempo da pausa empurrando o início da wave
         this.waveStartTime += pauseDuration;
+
+        // Retoma o TimerEvent da wave
+        if (this.waveTimerEvent) {
+            this.waveTimerEvent.paused = false;
+        }
+        
+        // Retoma o spawnEvent
+        if (this.spawnEvent) {
+            this.spawnEvent.paused = false;
+        }
 
         for (const key in this.specialsCooldowns) {
             if (this.specialsCooldowns[key].startTime > 0) {
