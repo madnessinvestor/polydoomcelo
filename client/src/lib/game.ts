@@ -2693,8 +2693,8 @@ class MainScene extends Phaser.Scene {
         
         const stats = this.levelStats[this.level - 1];
         const damageMultiplier = stats.mult;
-        // Dano é 40% do dano do punch (baseado no stats.punch)
-        const explosionDamage = stats.punch * 0.4;
+        // Dano é 20% do dano do punch (baseado no stats.punch)
+        const explosionDamage = stats.punch * 0.2;
         const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
         this.kiarc = Math.max(0, this.kiarc - 100);
