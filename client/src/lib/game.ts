@@ -5302,53 +5302,40 @@ class StartScene extends Phaser.Scene {
         lbContentContainer.style.width = divWidth + 'px';
         lbContentContainer.style.height = divHeight + 'px';
         lbContentContainer.style.backgroundColor = 'transparent';
-        lbContentContainer.style.overflow = 'auto';
+        lbContentContainer.style.overflowY = 'auto'; // Force vertical scroll
+        lbContentContainer.style.overflowX = 'hidden';
         lbContentContainer.style.zIndex = '100';
         lbContentContainer.style.color = '#fff';
         lbContentContainer.style.fontFamily = 'monospace';
         lbContentContainer.style.pointerEvents = 'auto';
 
+        // Add a visible scrollbar style for better UX
+        const lbStyle = document.createElement('style');
+        lbStyle.textContent = `
+            #embedded-leaderboard::-webkit-scrollbar {
+                width: 10px !important;
+                display: block !important;
+            }
+            #embedded-leaderboard::-webkit-scrollbar-track {
+                background: rgba(15, 23, 42, 0.8) !important;
+                border-radius: 5px;
+            }
+            #embedded-leaderboard::-webkit-scrollbar-thumb {
+                background: #4ade80 !important;
+                border-radius: 5px;
+                border: 2px solid #0f172a;
+            }
+            #embedded-leaderboard::-webkit-scrollbar-thumb:hover {
+                background: #22c55e !important;
+            }
+        `;
+        document.head.appendChild(lbStyle);
+
         document.body.appendChild(lbContentContainer);
 
         const renderEmbeddedLB = (scores: any[]) => {
             let content = `
-                <style>
-                    #embedded-leaderboard::-webkit-scrollbar {
-                        width: 8px;
-                    }
-                    #embedded-leaderboard::-webkit-scrollbar-track {
-                        background: #0f172a;
-                    }
-                    #embedded-leaderboard::-webkit-scrollbar-thumb {
-                        background: #4ade80;
-                        border-radius: 4px;
-                    }
-                    #embedded-leaderboard::-webkit-scrollbar-thumb:hover {
-                        background: #22c55e;
-                    }
-                    .lb-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        color: #fff;
-                        font-family: 'monospace';
-                        font-size: 12px;
-                    }
-                    .lb-table th {
-                        position: sticky;
-                        top: 0;
-                        background: #0f172a;
-                        padding: 8px 4px;
-                        text-align: left;
-                        color: #4ade80;
-                        border-bottom: 2px solid #4ade80;
-                        z-index: 10;
-                    }
-                    .lb-table td {
-                        padding: 6px 4px;
-                        border-bottom: 1px solid #1e293b;
-                    }
-                </style>
-                <div style="font-size: 14px; font-family: monospace;">
+                <div style="font-size: 14px; font-family: monospace; padding-right: 5px;">
                     <table class="lb-table">
                         <thead>
                             <tr>
@@ -5363,7 +5350,7 @@ class StartScene extends Phaser.Scene {
                         <tbody>
             `;
             
-            if (scores.length === 0) {
+            if (!scores || scores.length === 0) {
                 content += '<tr><td colspan="6" style="text-align:center; padding: 20px;">No scores yet</td></tr>';
             } else {
                 scores.forEach((score, index) => {
@@ -5382,14 +5369,14 @@ class StartScene extends Phaser.Scene {
                     
                     content += `
                         <tr style="font-size: 12px;">
-                            <td style="color: #94a3b8;">${index + 1}</td>
+                            <td style="color: #94a3b8; padding: 10px 4px;">${index + 1}</td>
                             <td style="color: #fff; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px;" title="${score.playerName}">
                                 ${score.playerName}${getCrown(index + 1)}
                             </td>
-                            <td style="color: #60a5fa;">${score.wave || 1}</td>
-                            <td style="color: #f87171;">${score.enemiesDefeated || 0}</td>
-                            <td style="color: #fbbf24;">${formatTime(score.playTime || 0)}</td>
-                            <td style="padding: 8px 4px; text-align: right; color: #4ade80; font-weight: bold;">${Math.floor(score.score)}</td>
+                            <td style="color: #60a5fa; text-align: center;">${score.wave || 1}</td>
+                            <td style="color: #f87171; text-align: center;">${score.enemiesDefeated || 0}</td>
+                            <td style="color: #fbbf24; text-align: center;">${formatTime(score.playTime || 0)}</td>
+                            <td style="padding: 10px 4px; text-align: right; color: #4ade80; font-weight: bold;">${Math.floor(score.score)}</td>
                         </tr>
                     `;
                 });
@@ -5398,21 +5385,35 @@ class StartScene extends Phaser.Scene {
             lbContentContainer.innerHTML = content;
         };
 
-        lbContentContainer.innerHTML = '<p style="text-align: center; color: #4ade80;">Loading...</p>';
+        lbContentContainer.innerHTML = '<p style="text-align: center; color: #4ade80; padding-top: 20px;">Loading scores...</p>';
         
-        import('./leaderboard').then(({ fetchOnChainLeaderboard }) => {
-            fetchOnChainLeaderboard().then(scores => {
-                if (scores) renderEmbeddedLB(scores);
-                else lbContentContainer.innerHTML = '<p style="text-align:center; color: #ef4444;">Error loading scores</p>';
+        const updateLB = () => {
+            import('./leaderboard').then(({ fetchOnChainLeaderboard }) => {
+                fetchOnChainLeaderboard().then(scores => {
+                    if (scores && scores.length > 0) {
+                        renderEmbeddedLB(scores);
+                    } else {
+                        // Se falhar ou estiver vazio, tentar novamente em breve ou mostrar erro
+                        console.warn("Leaderboard retornado vazio, tentando carregar novamente...");
+                    }
+                });
             });
-        });
+        };
 
-        // Cleanup div when scene is destroyed or stopped
+        updateLB();
+        // Refresh every 30 seconds
+        const lbRefreshInterval = setInterval(updateLB, 30000);
+
+        // Cleanup div and style when scene is destroyed or stopped
         this.events.once('shutdown', () => {
+            clearInterval(lbRefreshInterval);
             lbContentContainer.remove();
+            lbStyle.remove();
         });
         this.events.once('destroy', () => {
+            clearInterval(lbRefreshInterval);
             lbContentContainer.remove();
+            lbStyle.remove();
         });
 
         // Wallet Display Logic

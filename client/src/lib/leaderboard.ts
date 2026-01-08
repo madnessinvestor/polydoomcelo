@@ -88,28 +88,35 @@ export const fetchOnChainLeaderboard = async () => {
         }, []);
 
         // Fetch local scores for missing data
+        let localScores: any[] = [];
         try {
             const localResponse = await fetch("/api/leaderboard");
             if (localResponse.ok) {
-                const localScores = await localResponse.json();
-                return unique.sort((a, b) => b.score - a.score).map(s => {
-                    const localMatch = localScores.find((ls: any) => ls.playerName === s.playerName && Math.floor(ls.score) === Math.floor(s.score));
-                    return {
-                        ...s,
-                        wave: localMatch?.wave || 1,
-                        enemiesDefeated: localMatch?.enemiesDefeated || 0,
-                        playTime: localMatch?.playTime || 0
-                    };
-                });
+                localScores = await localResponse.json();
             }
         } catch (e) {}
 
-        return unique.sort((a, b) => b.score - a.score).map(s => ({
-            ...s,
-            enemiesDefeated: 0,
-            wave: 1,
-            playTime: 0
-        }));
+        // Se on-chain falhar totalmente, usar dados locais como fallback principal
+        if (unique.length === 0 && localScores.length > 0) {
+            console.log("⚠️ Usando dados locais como fallback principal do leaderboard");
+            return localScores.sort((a: any, b: any) => b.score - a.score).map((s: any) => ({
+                playerName: s.playerName,
+                score: s.score,
+                wave: s.wave || 1,
+                enemiesDefeated: s.enemiesDefeated || 0,
+                playTime: s.playTime || 0
+            }));
+        }
+
+        return unique.sort((a, b) => b.score - a.score).map(s => {
+            const localMatch = localScores.find((ls: any) => ls.playerName === s.playerName && Math.floor(ls.score) === Math.floor(s.score));
+            return {
+                ...s,
+                wave: localMatch?.wave || 1,
+                enemiesDefeated: localMatch?.enemiesDefeated || 0,
+                playTime: localMatch?.playTime || 0
+            };
+        });
 
     } catch (e) {
         console.error('❌ Erro no Leaderboard:', e);
