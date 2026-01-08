@@ -5047,8 +5047,8 @@ class StartScene extends Phaser.Scene {
             }
             
             if (this.usdcBalanceText && (window as any).walletAddress && this.scene.isActive('StartScene')) {
-                this.usdcBalanceText.setText(`MY WALLET USDC: ${parseFloat(formattedBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
-                this.usdcBalanceText.setVisible(true);
+                this.usdcBalanceText.setText('');
+                this.usdcBalanceText.setVisible(false);
                 this.usdcBalanceText.setDepth(10000);
             } else if (this.usdcBalanceText) {
                 this.usdcBalanceText.setVisible(false);
@@ -5422,7 +5422,7 @@ class StartScene extends Phaser.Scene {
 
         this.usdcBalanceText = this.add.text(width - 40, 40, '', {
             fontSize: '32px', color: '#4ade80', fontFamily: 'monospace'
-        }).setOrigin(1, 0).setVisible(isWalletConnected);
+        }).setOrigin(1, 0).setVisible(false);
 
         if (isWalletConnected) this.updateUSDCBalance();
 
