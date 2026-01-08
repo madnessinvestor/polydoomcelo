@@ -2692,13 +2692,10 @@ class MainScene extends Phaser.Scene {
         }
         
         const stats = this.levelStats[this.level - 1];
-        const baseMultiplier = stats.mult;
-        const punchDamage = stats.punch;
-        const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
-        // O dano do Z (punch) é calculado como: punchDamage * baseMultiplier * boostMultiplier
-        const zDamage = punchDamage * baseMultiplier * boostMultiplier;
-        const explosionDamage = zDamage * 0.2;
+        // O dano do Z (punch) base é stats.punch
+        // Queremos 20% desse valor base.
+        const explosionDamage = stats.punch * 0.2;
         
         this.kiarc = Math.max(0, this.kiarc - 100);
         
@@ -2721,6 +2718,7 @@ class MainScene extends Phaser.Scene {
         this.enemies.getChildren().forEach(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
             if (Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y) < 200) {
+                // Aplicamos o dano sem multiplicadores extras para garantir que seja 20% do Z base
                 this.hitEnemy(enemy, explosionDamage);
             }
         });
