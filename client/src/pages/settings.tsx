@@ -59,10 +59,10 @@ export default function Settings() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[160] pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-md bg-slate-900 border-violet-500 pointer-events-auto rounded-none">
-        <CardHeader className="border-b border-violet-500/30 bg-violet-950/20">
+      <Card className="w-full max-w-md bg-slate-900 border-[#8b5cf6] pointer-events-auto rounded-none">
+        <CardHeader className="border-b border-[#8b5cf6]/30 bg-[#8b5cf6]/20">
           <div className="flex items-center gap-3">
-            <CardTitle className="text-violet-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
+            <CardTitle className="text-[#8b5cf6] text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
               <SettingsIcon className="w-8 h-8" />
               Settings
             </CardTitle>
@@ -72,7 +72,7 @@ export default function Settings() {
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <label className="text-white font-bold uppercase text-sm tracking-widest">Master Volume</label>
-              <span className="text-violet-500 font-bold text-lg">{masterVolume}%</span>
+              <span className="text-[#8b5cf6] font-bold text-lg">{masterVolume}%</span>
             </div>
             <Slider 
               value={[masterVolume]} 
@@ -80,14 +80,14 @@ export default function Settings() {
               max={100} 
               min={0} 
               step={1} 
-              className="w-full [&_[role=slider]]:bg-violet-500 [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+              className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
             />
           </div>
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <label className="text-white font-bold uppercase text-sm tracking-widest">Music Volume</label>
-              <span className="text-violet-500 font-bold text-lg">{musicVolume}%</span>
+              <span className="text-[#8b5cf6] font-bold text-lg">{musicVolume}%</span>
             </div>
             <Slider 
               value={[musicVolume]} 
@@ -95,14 +95,14 @@ export default function Settings() {
               max={100} 
               min={0} 
               step={1} 
-              className="w-full [&_[role=slider]]:bg-violet-500 [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+              className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
             />
           </div>
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <label className="text-white font-bold uppercase text-sm tracking-widest">Effects Volume</label>
-              <span className="text-violet-500 font-bold text-lg">{sfxVolume}%</span>
+              <span className="text-[#8b5cf6] font-bold text-lg">{sfxVolume}%</span>
             </div>
             <Slider 
               value={[sfxVolume]} 
@@ -110,7 +110,7 @@ export default function Settings() {
               max={100} 
               min={0} 
               step={1} 
-              className="w-full [&_[role=slider]]:bg-violet-500 [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+              className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
             />
           </div>
         </CardContent>
