@@ -6131,7 +6131,23 @@ class DeathScene extends Phaser.Scene {
         document.body.appendChild(inputContainer);
 
         const nameInput = document.getElementById('player-name-input') as HTMLInputElement;
-        setTimeout(() => nameInput?.focus(), 0);
+
+        // Force capture of keyboard events to bypass Phaser's event prevention
+        const stopPropagation = (e: KeyboardEvent) => {
+            e.stopPropagation();
+        };
+        nameInput.addEventListener('keydown', stopPropagation, true); // Use capture phase
+        nameInput.addEventListener('keyup', stopPropagation, true);
+        nameInput.addEventListener('keypress', stopPropagation, true);
+
+        // Explicitly handle keys that Phaser might be blocking
+        nameInput.addEventListener('keydown', (e) => {
+            if (['s', 'd', 'f', 'x', 'c', 'v', 'b'].includes(e.key.toLowerCase())) {
+                e.stopPropagation();
+            }
+        }, true);
+
+        setTimeout(() => nameInput?.focus(), 100);
 
         // Phaser CONFIRM Button
         const confirmBtn = this.add.rectangle(width / 2, height / 2 + 40, 200, 50, 0x4ade80).setScrollFactor(0).setDepth(103);
