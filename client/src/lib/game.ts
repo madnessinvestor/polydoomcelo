@@ -4172,7 +4172,7 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        // Se o jogo estiver pausado, usamos o pausedTime para os timers visuais
+        // Fix: Ensure now is exactly pausedTime if paused, preventing even 1ms of drift
         const now = this.isPaused ? this.pausedTime : this.time.now;
         
         // Timer de Wave/Intervalo (UI Update)
@@ -4733,14 +4733,16 @@ class MainScene extends Phaser.Scene {
         this.pauseModalOpen = true;
         this.pausedTime = this.time.now;
         
-        // PAUSE EVERYTHING
+        // PHASER ENGINE PAUSE
         this.physics.pause();
         this.tweens.pauseAll();
         this.sound.pauseAll();
-        this.time.paused = true;
         
-        // INTERRUPT THE LOOP
-        this.game.loop.sleep();
+        // This is the key: stop the entire scene processing
+        this.scene.pause();
+        
+        // GLOBAL TIME SYSTEM PAUSE
+        this.time.paused = true;
         
         // Force an immediate HUD update to freeze the visual timers
         this.updateHUD();
@@ -4785,12 +4787,15 @@ class MainScene extends Phaser.Scene {
             }
         });
         
-        // WAKE UP THE LOOP
-        this.game.loop.wake();
-        
+        // PHASER ENGINE RESUME
         this.physics.resume();
         this.tweens.resumeAll();
         this.sound.resumeAll();
+        
+        // Resume the entire scene processing
+        this.scene.resume();
+        
+        // GLOBAL TIME SYSTEM RESUME
         this.time.paused = false;
         
         this.updateHUD();
