@@ -301,15 +301,22 @@ export default function Home() {
       {activeModal === "controls" && (
         <Controls />
       )}
-      {activeModal === "history" && (
-        <div className="fixed inset-0 z-[160] flex items-center justify-center pointer-events-auto bg-black/80">
-          <div className="bg-black border-4 border-blue-400 p-4 max-w-4xl w-full flex flex-col items-center">
-            <h2 className="text-2xl font-bold text-blue-400 mb-4 uppercase">Game History</h2>
-            <video src="/attached_assets/gamehistory_1767067604123.mp4" controls className="w-full h-auto mb-4 border-2 border-blue-400/30" />
-            <Button onClick={closeModal} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8">BACK</Button>
+        {activeModal === "history" && (
+          <div className="fixed inset-0 z-[160] flex items-center justify-center pointer-events-auto bg-black/80">
+            <div className="bg-slate-950 border-4 border-blue-400 p-4 max-w-4xl w-full flex flex-col items-center shadow-2xl shadow-blue-500/20">
+              <h2 className="text-3xl font-black text-blue-400 mb-6 uppercase tracking-tighter">Game History</h2>
+              <video src="/attached_assets/gamehistory_1767067604123.mp4" controls className="w-full h-auto mb-8 border-2 border-blue-400/30 shadow-2xl" />
+              <div className="flex justify-center w-full border-t border-slate-800 pt-6">
+                <Button 
+                  onClick={closeModal} 
+                  className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-12 h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg"
+                >
+                  CLOSE
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       
       {/* GLOBAL BLOCKER - Higher Z-index than EVERYTHING except modals */}
       {isLocked && (
