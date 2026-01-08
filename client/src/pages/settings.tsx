@@ -59,7 +59,7 @@ export default function Settings() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[160] pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-md bg-slate-900 border-[#8b5cf6] pointer-events-auto rounded-none">
+      <Card className="w-full max-w-md bg-slate-900 border-[#8b5cf6] pointer-events-auto rounded-none shadow-[0_0_15px_rgba(139,92,246,0.5)]">
         <CardHeader className="border-b border-[#8b5cf6]/30 bg-[#8b5cf6]/20">
           <div className="flex items-center gap-3">
             <CardTitle className="text-[#8b5cf6] text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
@@ -118,7 +118,7 @@ export default function Settings() {
         <div className="p-6 border-t border-slate-800 flex justify-center">
           <Button 
             onClick={closeModal}
-            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-12 h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg border-2 border-black"
+            className="bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold px-12 h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(139,92,246,0.6)] border-2 border-[#8b5cf6]"
           >
             CLOSE
           </Button>
