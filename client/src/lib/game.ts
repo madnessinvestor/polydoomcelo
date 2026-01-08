@@ -4811,12 +4811,8 @@ class MainScene extends Phaser.Scene {
 
     public exitGameFromPause() {
         console.log("GAME: exitGameFromPause called");
-        this.submitScoreOnChain();
-        this.isGameOver = true;
-        (this as any).gameOver = true;
-        this.isPaused = false;
-        this.pauseModalOpen = false;
         
+        // Finalize player state safely
         if (this.player) {
             this.player.setActive(false);
             if (this.player.body) {
@@ -4824,27 +4820,38 @@ class MainScene extends Phaser.Scene {
             }
         }
         
+        // Stop all timers and systems to prevent updates while switching
         this.physics.pause();
         this.tweens.pauseAll();
-        this.sound.stopAll();
         
         if (this.spawnEvent) this.spawnEvent.remove();
         if (this.waveTimerEvent) this.waveTimerEvent.remove();
         
+        // Notify React to hide pause modal
         if ((window as any).hidePauseModal) {
             (window as any).hidePauseModal();
         }
         
-        console.log("GAME: Transitioning to DeathScene");
-        this.scene.stop('MainScene');
-        this.scene.start('DeathScene', { 
+        const stats = { 
             level: this.level,
             wave: this.currentWave,
             score: this.score,
             enemiesDefeated: this.enemiesDefeated,
             levelTitle: this.levelTitle,
             fromPause: true
-        });
+        };
+
+        console.log("GAME: Transitioning to DeathScene with stats", stats);
+        
+        // Wake the loop and resume scene so transition can occur, but move to next scene immediately
+        this.game.loop.wake();
+        this.scene.resume();
+        
+        // Perform score submission without blocking the UI
+        this.submitScoreOnChain().catch(e => console.error("Score submission error during exit:", e));
+
+        this.scene.stop('MainScene');
+        this.scene.start('DeathScene', stats);
     }
 }
 
