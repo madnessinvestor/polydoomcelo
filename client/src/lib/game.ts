@@ -5067,7 +5067,7 @@ class StartScene extends Phaser.Scene {
         createNeonButton(width / 2, menuY + 120, 220, 46, 0xfbbf24, 'LEADERBOARD', '20px', '#ffffff', () => (window as any).openLeaderboardModal?.());
         createNeonButton(width / 2, menuY + 180, 220, 46, 0x8b5cf6, 'HISTORY', '20px', '#ffffff', () => (window as any).openHistoryModal?.());
         createNeonButton(width / 2, menuY + 240, 220, 46, 0x06b6d4, 'CONTROLS', '20px', '#ffffff', () => (window as any).openControlsModal?.());
-        createNeonButton(width / 2, menuY + 300, 220, 46, 0x64748b, 'SETTINGS', '20px', '#ffffff', () => (window as any).openSettingsModal?.());
+        createNeonButton(width / 2, menuY + 300, 220, 46, 0x8b5cf6, 'SETTINGS', '20px', '#ffffff', () => (window as any).openSettingsModal?.());
 
         // Wallet Display Logic
         this.networkInfoText = this.add.text(width / 2, height / 2 - 70, isWalletConnected ? 'Arc Testnet' : '', {
