@@ -72,7 +72,7 @@ export function Leaderboard() {
     <div className="fixed inset-0 z-[160] bg-black/20 backdrop-blur-none flex items-center justify-center p-4 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
       <Card className="w-full max-w-5xl h-[85vh] bg-slate-900 border-slate-700 pointer-events-auto flex flex-col" onPointerDown={(e) => e.stopPropagation()}>
         <CardHeader className="flex-shrink-0">
-          <CardTitle className="flex items-center gap-2 text-yellow-400">
+          <CardTitle className="flex items-center gap-2 text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] animate-pulse">
             <Trophy className="w-5 h-5" />
             Leaderboard
           </CardTitle>

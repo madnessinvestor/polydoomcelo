@@ -57,7 +57,7 @@ export default function Leaderboard() {
             <Button size="icon" variant="ghost" onClick={closeModal} className="text-amber-400 hover:text-amber-300">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <CardTitle className="text-amber-400 text-2xl uppercase font-bold tracking-tighter flex items-center gap-2">
+            <CardTitle className="text-green-400 text-2xl uppercase font-bold tracking-tighter flex items-center gap-2 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] animate-pulse">
               <Trophy className="w-6 h-6" />
               Leaderboard
             </CardTitle>
