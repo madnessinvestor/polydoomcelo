@@ -5285,22 +5285,6 @@ class StartScene extends Phaser.Scene {
         const lbContentContainer = document.createElement('div');
         lbContentContainer.id = 'embedded-leaderboard';
         lbContentContainer.style.position = 'absolute';
-        
-        // Calculate position relative to game canvas
-        const canvasObj = this.game.canvas;
-        const canvasRect = canvasObj.getBoundingClientRect();
-        const canvasScaleX = canvasRect.width / width;
-        const canvasScaleY = canvasRect.height / height;
-        
-        const divWidth = (lbWidth - 40) * canvasScaleX;
-        const divHeight = (lbHeight - 120) * canvasScaleY;
-        const divX = canvasRect.left + (lbX - lbWidth/2 + 20) * canvasScaleX;
-        const divY = canvasRect.top + (lbY - lbHeight/2 + 100) * canvasScaleY;
-
-        lbContentContainer.style.left = divX + 'px';
-        lbContentContainer.style.top = divY + 'px';
-        lbContentContainer.style.width = divWidth + 'px';
-        lbContentContainer.style.height = divHeight + 'px';
         lbContentContainer.style.backgroundColor = 'transparent';
         lbContentContainer.style.overflowY = 'auto'; 
         lbContentContainer.style.overflowX = 'hidden';
@@ -5324,11 +5308,41 @@ class StartScene extends Phaser.Scene {
                 border-radius: 3px;
             }
             .lb-table { width: 100%; border-collapse: collapse; font-family: monospace; }
-            .lb-table th { color: #fff; text-align: center; padding: 10px 5px; font-size: 16px; text-transform: uppercase; }
-            .lb-table td { padding: 12px 5px; font-size: 14px; text-align: center; vertical-align: middle; }
+            .lb-table th { color: #fff; text-align: center; padding: 10px 5px; font-size: 1.1em; text-transform: uppercase; }
+            .lb-table td { padding: 12px 5px; font-size: 1em; text-align: center; vertical-align: middle; }
             .lb-row { border-bottom: 1px solid rgba(74, 222, 128, 0.1); }
         `;
         document.head.appendChild(lbStyle);
+        
+        // Calculate position relative to game canvas
+        const updateLBPosition = () => {
+            const canvasRect = this.game.canvas.getBoundingClientRect();
+            const canvasScaleX = canvasRect.width / width;
+            const canvasScaleY = canvasRect.height / height;
+            
+            // Adjust dimensions based on scale but keep proportions
+            const currentLBWidth = lbWidth * canvasScaleX;
+            const currentLBHeight = lbHeight * canvasScaleY;
+            
+            const divWidth = (lbWidth - 40) * canvasScaleX;
+            const divHeight = (lbHeight - 120) * canvasScaleY;
+            const divX = canvasRect.left + (lbX - lbWidth/2 + 20) * canvasScaleX;
+            const divY = canvasRect.top + (lbY - lbHeight/2 + 100) * canvasScaleY;
+
+            lbContentContainer.style.left = divX + 'px';
+            lbContentContainer.style.top = divY + 'px';
+            lbContentContainer.style.width = divWidth + 'px';
+            lbContentContainer.style.height = divHeight + 'px';
+            
+            // Adjust font sizes based on scale
+            const baseFontSize = 14 * Math.min(canvasScaleX, canvasScaleY);
+            lbContentContainer.style.fontSize = `${Math.max(10, baseFontSize)}px`;
+        };
+
+        // Update on window resize and periodically to ensure sync
+        window.addEventListener('resize', updateLBPosition);
+        this.time.addEvent({ delay: 100, callback: updateLBPosition, loop: true });
+        updateLBPosition();
 
         document.body.appendChild(lbContentContainer);
 
