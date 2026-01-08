@@ -10,24 +10,20 @@ import { useEffect } from "react";
 function PixelCrown({ rank }: { rank: number }) {
   if (rank > 3) return null;
 
-  const colors = {
-    1: "#FFD700", // Gold
-    2: "#C0C0C0", // Silver
-    3: "#CD7EF2", // Bronze (Adjusted to look more bronze-ish in the dark theme)
-  };
-
   const bronze = "#CD7F32";
   const color = rank === 1 ? "#FFD700" : rank === 2 ? "#C0C0C0" : bronze;
 
-  // 8x8-ish pixel crown grid
+  // Optimized 8-bit crown design (7x5 pixel grid for better clarity)
+  const grid = [
+    1, 0, 1, 0, 1, // Points
+    1, 1, 1, 1, 1, // Mid
+    1, 1, 1, 1, 1, // Mid
+    1, 1, 1, 1, 1  // Base
+  ];
+
   return (
-    <div className="inline-grid grid-cols-5 gap-0.5 w-5 h-4 ml-2 align-middle">
-      {[
-        0, 1, 0, 1, 0,
-        1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1
-      ].map((pixel, i) => (
+    <div className="inline-grid grid-cols-5 gap-px w-5 h-4 ml-2 align-middle flex-shrink-0">
+      {grid.map((pixel, i) => (
         <div
           key={i}
           className="w-full h-full"
