@@ -2132,16 +2132,12 @@ class MainScene extends Phaser.Scene {
                     (this.player.body as Phaser.Physics.Arcade.Body).setAllowGravity(false);
                 }
                 this.chargeGenkidama();
-            } else if (this.isChargingGenkidama) {
-                // If ki reaches zero, stop charging
-                // Growth stops because kiarc is 0 in chargeGenkidama check, 
-                // but we keep the current dama until released
             }
         } else if (Phaser.Input.Keyboard.JustUp(this.keys.B) && this.isChargingGenkidama) {
             if (this.player.body) {
                 (this.player.body as Phaser.Physics.Arcade.Body).setAllowGravity(true);
             }
-            if (this.genkidamaChargeAmount >= 200) {
+            if (this.genkidamaChargeAmount >= 100) {
                 this.shootGenkidama();
             } else {
                 // Fail to launch if threshold not met
@@ -2706,9 +2702,9 @@ class MainScene extends Phaser.Scene {
 
     chargeGenkidama() {
         this.isChargingGenkidama = true;
-        // Consome 200 de KI no total. Incremento ajustado para refletir o custo total.
-        const kiToConsume = 2.0; 
-        if (this.kiarc >= kiToConsume && this.genkidamaChargeAmount < 200) {
+        // Consome KI do personagem continuamente
+        const kiToConsume = 0.5; // 2x mais lento (antes era 2.0 ou 1.0 dependendo da versão)
+        if (this.kiarc >= kiToConsume) {
             this.kiarc -= kiToConsume;
             this.genkidamaChargeAmount += kiToConsume;
             
@@ -2735,7 +2731,7 @@ class MainScene extends Phaser.Scene {
                 }).setOrigin(0.5);
             }
             
-            // Percentage: 200 KI = 100%
+            // Percentage: 200 KI = 100% (Agora pode passar de 100%)
             const percent = Math.floor((this.genkidamaChargeAmount / 200) * 100);
             if (this.genkidamaPercentText) {
                 this.genkidamaPercentText.setText(`${percent}%`);
