@@ -5266,17 +5266,17 @@ class StartScene extends Phaser.Scene {
         createNeonButton(width / 2, menuY + 240, 220, 46, 0x6b7280, 'SETTINGS', '20px', '#ffffff', () => (window as any).openSettingsModal?.());
 
         // Embedded Leaderboard in StartScene
-        const lbWidth = 450;
-        const lbHeight = 650;
-        const lbX = width - lbWidth / 2 - 100; // Right side area
+        const lbWidth = 600; // Increased width
+        const lbHeight = 850; // Increased height
+        const lbX = width - lbWidth / 2 - 50; 
         const lbY = height / 2;
 
-        const lbBg = this.add.rectangle(lbX, lbY, lbWidth, lbHeight, 0x0f172a, 0.8).setDepth(5);
+        const lbBg = this.add.rectangle(lbX, lbY, lbWidth, lbHeight, 0x000000, 0.4).setDepth(5); // More transparent
         lbBg.setStrokeStyle(3, 0x4ade80);
 
-        this.add.text(lbX, lbY - lbHeight/2 + 30, 'LEADERBOARD', {
-            fontSize: '28px',
-            fontFamily: 'Arial, sans-serif',
+        this.add.text(lbX, lbY - lbHeight/2 + 40, 'LEADERBOARD', {
+            fontSize: '36px',
+            fontFamily: 'monospace',
             color: '#4ade80',
             fontStyle: 'bold'
         }).setOrigin(0.5).setDepth(6);
@@ -5293,16 +5293,16 @@ class StartScene extends Phaser.Scene {
         const canvasScaleY = canvasRect.height / height;
         
         const divWidth = (lbWidth - 40) * canvasScaleX;
-        const divHeight = (lbHeight - 100) * canvasScaleY;
+        const divHeight = (lbHeight - 120) * canvasScaleY;
         const divX = canvasRect.left + (lbX - lbWidth/2 + 20) * canvasScaleX;
-        const divY = canvasRect.top + (lbY - lbHeight/2 + 80) * canvasScaleY;
+        const divY = canvasRect.top + (lbY - lbHeight/2 + 100) * canvasScaleY;
 
         lbContentContainer.style.left = divX + 'px';
         lbContentContainer.style.top = divY + 'px';
         lbContentContainer.style.width = divWidth + 'px';
         lbContentContainer.style.height = divHeight + 'px';
         lbContentContainer.style.backgroundColor = 'transparent';
-        lbContentContainer.style.overflowY = 'auto'; // Force vertical scroll
+        lbContentContainer.style.overflowY = 'auto'; 
         lbContentContainer.style.overflowX = 'hidden';
         lbContentContainer.style.zIndex = '100';
         lbContentContainer.style.color = '#fff';
@@ -5313,21 +5313,20 @@ class StartScene extends Phaser.Scene {
         const lbStyle = document.createElement('style');
         lbStyle.textContent = `
             #embedded-leaderboard::-webkit-scrollbar {
-                width: 10px !important;
+                width: 6px !important;
                 display: block !important;
             }
             #embedded-leaderboard::-webkit-scrollbar-track {
-                background: rgba(15, 23, 42, 0.8) !important;
-                border-radius: 5px;
+                background: rgba(0, 0, 0, 0.2) !important;
             }
             #embedded-leaderboard::-webkit-scrollbar-thumb {
                 background: #4ade80 !important;
-                border-radius: 5px;
-                border: 2px solid #0f172a;
+                border-radius: 3px;
             }
-            #embedded-leaderboard::-webkit-scrollbar-thumb:hover {
-                background: #22c55e !important;
-            }
+            .lb-table { width: 100%; border-collapse: collapse; font-family: monospace; }
+            .lb-table th { color: #fff; text-align: center; padding: 10px 5px; font-size: 16px; text-transform: uppercase; }
+            .lb-table td { padding: 12px 5px; font-size: 14px; text-align: center; vertical-align: middle; }
+            .lb-row { border-bottom: 1px solid rgba(74, 222, 128, 0.1); }
         `;
         document.head.appendChild(lbStyle);
 
@@ -5335,12 +5334,12 @@ class StartScene extends Phaser.Scene {
 
         const renderEmbeddedLB = (scores: any[]) => {
             let content = `
-                <div style="font-size: 14px; font-family: monospace; padding-right: 5px;">
+                <div style="font-family: monospace;">
                     <table class="lb-table">
                         <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>PLAYER</th>
+                            <tr style="border-bottom: 2px solid rgba(74, 222, 128, 0.3);">
+                                <th style="text-align: left; width: 30px;">#</th>
+                                <th style="text-align: left;">PLAYER</th>
                                 <th>WAVE</th>
                                 <th>ENEMIES</th>
                                 <th>TIME</th>
@@ -5351,7 +5350,7 @@ class StartScene extends Phaser.Scene {
             `;
             
             if (!scores || scores.length === 0) {
-                content += '<tr><td colspan="6" style="text-align:center; padding: 20px;">No scores yet</td></tr>';
+                content += '<tr><td colspan="6" style="text-align:center; padding: 40px; color: #4ade80;">Searching scores...</td></tr>';
             } else {
                 scores.forEach((score, index) => {
                     const formatTime = (s: number) => {
@@ -5368,15 +5367,15 @@ class StartScene extends Phaser.Scene {
                     };
                     
                     content += `
-                        <tr style="font-size: 12px;">
-                            <td style="color: #94a3b8; padding: 10px 4px;">${index + 1}</td>
-                            <td style="color: #fff; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px;" title="${score.playerName}">
+                        <tr class="lb-row">
+                            <td style="color: #94a3b8; text-align: left;">${index + 1}</td>
+                            <td style="color: #fff; font-weight: bold; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;" title="${score.playerName}">
                                 ${score.playerName}${getCrown(index + 1)}
                             </td>
-                            <td style="color: #60a5fa; text-align: center;">${score.wave || 1}</td>
-                            <td style="color: #f87171; text-align: center;">${score.enemiesDefeated || 0}</td>
-                            <td style="color: #fbbf24; text-align: center;">${formatTime(score.playTime || 0)}</td>
-                            <td style="padding: 10px 4px; text-align: right; color: #4ade80; font-weight: bold;">${Math.floor(score.score)}</td>
+                            <td style="color: #60a5fa;">${score.wave || 1}</td>
+                            <td style="color: #f87171;">${score.enemiesDefeated || 0}</td>
+                            <td style="color: #fbbf24;">${formatTime(score.playTime || 0)}</td>
+                            <td style="text-align: right; color: #4ade80; font-weight: bold; font-size: 16px;">${Math.floor(score.score).toLocaleString()}</td>
                         </tr>
                     `;
                 });
