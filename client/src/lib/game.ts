@@ -4704,6 +4704,10 @@ class MainScene extends Phaser.Scene {
         // Marca o momento exato do pause
         this.pausedTime = this.time.now;
         
+        // Pausar eventos de timer específicos
+        if (this.waveTimerEvent) this.waveTimerEvent.paused = true;
+        if (this.spawnEvent) this.spawnEvent.paused = true;
+        
         // Notify React to show pause modal
         if ((window as any).showPauseModal) {
             (window as any).showPauseModal();
@@ -4755,6 +4759,13 @@ class MainScene extends Phaser.Scene {
         // Calcula quanto tempo o jogo ficou pausado
         const pauseDuration = this.time.now - this.pausedTime;
         this.totalPausedTime += pauseDuration;
+        
+        // Ajustar waveStartTime para compensar a pausa (O SEGREDO)
+        this.waveStartTime += pauseDuration;
+        
+        // Retomar eventos de timer específicos
+        if (this.waveTimerEvent) this.waveTimerEvent.paused = false;
+        if (this.spawnEvent) this.spawnEvent.paused = false;
         
         console.log(`Paused for ${pauseDuration}ms, total paused: ${this.totalPausedTime}ms`);
         
