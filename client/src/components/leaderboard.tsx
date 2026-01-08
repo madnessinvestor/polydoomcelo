@@ -39,8 +39,8 @@ export function Leaderboard() {
 
   return (
     <div className="fixed inset-0 z-[160] bg-black/20 backdrop-blur-none flex items-center justify-center p-4 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-4xl bg-slate-900 border-2 border-yellow-500 pointer-events-auto rounded-none shadow-[0_0_20px_rgba(234,179,8,0.5)]" onPointerDown={(e) => e.stopPropagation()}>
-        <CardHeader className="border-b border-yellow-500/30 bg-yellow-950/20 shadow-[inset_0_0_15px_rgba(234,179,8,0.2)]">
+      <Card className="w-full max-w-4xl bg-slate-900 border-slate-700 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
+        <CardHeader>
           <CardTitle className="flex items-center gap-2 text-yellow-400">
             <Trophy className="w-5 h-5" />
             Leaderboard
