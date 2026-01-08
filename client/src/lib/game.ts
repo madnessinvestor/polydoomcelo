@@ -688,7 +688,10 @@ class MainScene extends Phaser.Scene {
         this.load.audio('music_3', this.musicTracks[3]);
 
         // Load Opening Music
-        this.load.audio('opening_music', '/attached_assets/Abertura_1767113066246.mp3');
+        this.load.audio('opening_music', [
+            '/attached_assets/Open_1767879401695.ogg',
+            '/attached_assets/Open_1767879213418.mp3'
+        ]);
 
         // Load SFX
         this.load.audio('genkidama_charge', '/attached_assets/ArcGenkiDama_(Carregando)_1767105766842.mp3');
