@@ -3121,7 +3121,7 @@ class MainScene extends Phaser.Scene {
 
                     this.enemiesDefeated++;
                     this.cameras.main.shake(100, 0.005);
-                    this.createExplosion(enemy.x, enemy.y);
+                    this.createExplosion(enemy.x, enemy.y, enemy.getData('isBoss'));
                     enemy.destroy();
                     this.scoreText.setText(`Enemies: ${this.score.toLocaleString()} | LVL: ${this.level} (${this.levelTitle})`);
                 }
@@ -3146,7 +3146,7 @@ class MainScene extends Phaser.Scene {
     }
 
     // Mega Man style explosion effect
-    private createExplosion(x: number, y: number) {
+    private createExplosion(x: number, y: number, isBoss: boolean = false) {
         const colors = [0xffffff, 0xffdd00, 0x60a5fa];
         const particles = 12;
 
@@ -3170,8 +3170,13 @@ class MainScene extends Phaser.Scene {
             });
         }
 
-        // Screen flash
-        this.cameras.main.flash(500, 255, 255, 255);
+        // Screen flash logic: Green for Bosses, None for Normal Enemies, White for Game Over
+        if (isBoss) {
+            this.cameras.main.flash(500, 0, 255, 0); // Green for Boss
+        } else if (this.isGameOver) {
+            this.cameras.main.flash(500, 255, 255, 255); // White for Game Over
+        }
+        
         const shakeIntensity = this.level >= 10 ? 0.025 : 0.05;
         this.cameras.main.shake(500, shakeIntensity);
 
