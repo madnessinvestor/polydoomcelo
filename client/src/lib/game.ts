@@ -2691,7 +2691,7 @@ class MainScene extends Phaser.Scene {
         const explosionDamage = stats.magic * 5; // Explosion is much stronger
         const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
-        this.kiarc -= 200;
+        this.kiarc = Math.max(0, this.kiarc - 200);
         
         // Play explosion sound if available or reuse magic
         this.sfx['magic']?.play();
