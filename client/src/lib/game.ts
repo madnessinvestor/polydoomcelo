@@ -3838,13 +3838,19 @@ class MainScene extends Phaser.Scene {
             
             // Ir para tela de morte
             this.time.delayedCall(1000, () => {
-                this.scene.switch('DeathScene');
+                const totalTime = Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000);
+                const playerName = (window as any).walletAddress 
+                    ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
+                    : "Arc Player";
+
+                this.scene.stop('MainScene');
                 this.scene.start('DeathScene', { 
                     level: this.level,
                     wave: this.currentWave,
                     score: this.score,
                     enemiesDefeated: this.enemiesDefeated,
-                    levelTitle: this.levelTitle
+                    playTime: totalTime,
+                    playerName: playerName
                 });
             });
         }
@@ -4825,12 +4831,18 @@ class MainScene extends Phaser.Scene {
             (window as any).hidePauseModal();
         }
         
+        const totalTime = Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000);
+        const playerName = (window as any).walletAddress 
+            ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
+            : "Arc Player";
+
         const stats = { 
             level: this.level,
             wave: this.currentWave,
             score: this.score,
             enemiesDefeated: this.enemiesDefeated,
-            levelTitle: this.levelTitle,
+            playTime: totalTime,
+            playerName: playerName,
             fromPause: true
         };
 
@@ -4840,9 +4852,6 @@ class MainScene extends Phaser.Scene {
         this.game.loop.wake();
         this.scene.resume();
         
-        // Perform score submission without blocking the UI
-        this.submitScoreOnChain().catch(e => console.error("Score submission error during exit:", e));
-
         this.scene.stop('MainScene');
         this.scene.start('DeathScene', stats);
     }
@@ -5949,6 +5958,9 @@ class DeathScene extends Phaser.Scene {
     private finalScore: number = 0;
     private finalLevel: number = 1;
     private finalWave: number = 1;
+    private enemiesDefeated: number = 0;
+    private playTime: number = 0;
+    private playerName: string = "";
 
     constructor() {
         super('DeathScene');
@@ -5958,6 +5970,11 @@ class DeathScene extends Phaser.Scene {
         this.finalScore = data.score || 0;
         this.finalLevel = data.level || 1;
         this.finalWave = data.wave || 1;
+        this.enemiesDefeated = data.enemiesDefeated || 0;
+        this.playTime = data.playTime || 0;
+        this.playerName = data.playerName || ((window as any).walletAddress 
+            ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
+            : "Arc Player");
     }
 
     create() {
@@ -5968,84 +5985,72 @@ class DeathScene extends Phaser.Scene {
         this.add.rectangle(0, 0, width, height, 0x0a0a20).setOrigin(0).setScrollFactor(0);
 
         // Game Over Title
-        this.add.text(width / 2, height / 4, 'GAME OVER', {
-            fontSize: '64px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#ff6b6b',
-            fontStyle: 'bold',
+        this.add.text(width / 2, height / 5, 'GAME OVER', {
+            fontSize: '84px',
+            fontFamily: 'Arial Black',
+            color: '#ff0000',
+            stroke: '#000',
+            strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5, 0.5);
 
-        // Stats
-        const statsY = height / 3;
-        this.add.text(width / 2, statsY, `Final Score: ${this.finalScore}`, {
-            fontSize: '28px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#fbbf24',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
+        const formatTime = (seconds: number) => {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        };
 
-        this.add.text(width / 2, statsY + 50, `Level: ${this.finalLevel} | Wave: ${this.finalWave}`, {
-            fontSize: '24px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#60a5fa',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
+        // Stats Container
+        const statsBox = this.add.rectangle(width / 2, height / 2, 600, 400, 0x1e293b, 0.8);
+        statsBox.setStrokeStyle(4, 0x3b82f6);
+
+        const statsText = this.add.text(width / 2, height / 2, 
+            `PLAYER: ${this.playerName}\n\n` +
+            `SCORE: ${Math.floor(this.finalScore)}\n` +
+            `WAVE: ${this.finalWave}\n` +
+            `ENEMIES: ${this.enemiesDefeated}\n` +
+            `TIME: ${formatTime(this.playTime)}`, {
+            fontSize: '32px',
+            fontFamily: 'monospace',
+            color: '#4ade80',
+            align: 'center',
+            lineSpacing: 10
+        }).setOrigin(0.5);
 
         // Register Score Button
-        const registerBtn = this.add.rectangle(width / 2, height / 2 + 50, 220, 60, 0x4ade80);
-        const registerText = this.add.text(width / 2, height / 2 + 50, 'REGISTER SCORE', {
-            fontSize: '20px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#000000',
+        const registerBtn = this.add.rectangle(width / 2, height / 2 + 250, 300, 70, 0x4ade80);
+        const registerText = this.add.text(width / 2, height / 2 + 250, 'REGISTER SCORE', {
+            fontSize: '24px',
             fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
+            color: '#000000'
+        }).setOrigin(0.5);
 
         // Validar se o score é válido antes de permitir registro
         const isScoreValid = this.finalScore && this.finalScore > 0;
-        const registerBtnColor = isScoreValid ? 0x4ade80 : 0x6b7280;
-        const registerTextColor = isScoreValid ? '#000000' : '#9ca3af';
-        
-        registerBtn.setFillStyle(registerBtnColor);
-        registerText.setColor(registerTextColor);
         
         if (isScoreValid) {
-            registerBtn.setInteractive().on('pointerdown', () => {
-                console.log('=== INICIANDO REGISTRO DE SCORE ===');
-                console.log('Score Final a ser registrado:', this.finalScore);
-                console.log('Tipo de Score:', typeof this.finalScore);
-                console.log('Score > 0?', this.finalScore > 0);
-                this.openNameModal();
-            }).on('pointerover', () => {
-                registerBtn.setFillStyle(0x22c55e);
-            }).on('pointerout', () => {
-                registerBtn.setFillStyle(0x4ade80);
-            });
+            registerBtn.setInteractive({ useHandCursor: true })
+                .on('pointerdown', () => this.openNameModal())
+                .on('pointerover', () => registerBtn.setFillStyle(0x22c55e))
+                .on('pointerout', () => registerBtn.setFillStyle(0x4ade80));
         } else {
-            // Mostrar score inválido
-            registerText.setText(`REGISTER SCORE\n(Score: ${this.finalScore || 0})`);
+            registerBtn.setFillStyle(0x6b7280);
+            registerText.setColor(0x9ca3af);
+            registerText.setText(`SCORE: ${Math.floor(this.finalScore)}`);
         }
 
-        // No Register Score Button
-        const noRegisterBtn = this.add.rectangle(width / 2, height / 2 + 130, 220, 60, 0xff6b6b);
-        const noRegisterText = this.add.text(width / 2, height / 2 + 130, 'NO REGISTER SCORE', {
-            fontSize: '18px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#000000',
+        // Main Menu Button
+        const menuBtn = this.add.rectangle(width / 2, height / 2 + 340, 300, 70, 0x3b82f6);
+        const menuText = this.add.text(width / 2, height / 2 + 340, 'MAIN MENU', {
+            fontSize: '24px',
             fontStyle: 'bold',
-            align: 'center'
-        }).setOrigin(0.5, 0.5);
+            color: '#ffffff'
+        }).setOrigin(0.5);
 
-        noRegisterBtn.setInteractive().on('pointerdown', () => {
-            this.sound.stopAll();
-            // Force full reload of the page to reset everything
-            window.location.reload();
-        }).on('pointerover', () => {
-            noRegisterBtn.setFillStyle(0xff5252);
-        }).on('pointerout', () => {
-            noRegisterBtn.setFillStyle(0xff6b6b);
-        });
+        menuBtn.setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => window.location.reload())
+            .on('pointerover', () => menuBtn.setFillStyle(0x2563eb))
+            .on('pointerout', () => menuBtn.setFillStyle(0x3b82f6));
     }
 
     private openNameModal() {
@@ -6279,7 +6284,6 @@ class DeathScene extends Phaser.Scene {
             // Registrar na API local SEMPRE
             console.log('📤 Registrando score na API local...');
             try {
-                const totalPlayTime = Math.floor((this.time.now - (this as any).gameStartTime - (this as any).totalPausedTime) / 1000);
                 const response = await fetch("/api/scores", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -6287,8 +6291,8 @@ class DeathScene extends Phaser.Scene {
                         playerName: playerName,
                         score: Math.floor(this.finalScore),
                         wave: this.finalWave,
-                        enemiesDefeated: (this as any).enemiesDefeated || 0,
-                        playTime: totalPlayTime
+                        enemiesDefeated: this.enemiesDefeated || 0,
+                        playTime: this.playTime || 0
                     })
                 });
 
