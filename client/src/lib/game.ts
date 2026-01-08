@@ -1351,7 +1351,7 @@ class MainScene extends Phaser.Scene {
         if (this.spawnEvent) this.spawnEvent.destroy();
         
         // Spawn as fast as possible, spawnBatch handles the 200 limit
-        const calculatedDelay = 100; 
+        const calculatedDelay = 140; 
         
         console.log(`Wave ${this.currentWave}: Spawning ${this.totalEnemiesInWave} enemies (Max 200 on screen)`);
 
