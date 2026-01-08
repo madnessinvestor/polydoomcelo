@@ -397,19 +397,16 @@ export default function Home() {
         {isChecking && (
           <div className="fixed inset-0 z-[3000] bg-black flex flex-col items-center justify-center">
             <div className="relative w-64 h-64 mb-8">
-              <Loader2 className="w-full h-full text-blue-500 animate-spin opacity-20" />
+              <Loader2 className="w-full h-full text-[#4ade80] animate-spin opacity-20" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-blue-400 font-black text-4xl animate-pulse tracking-tighter italic">
+                <div className="text-[#4ade80] font-black text-4xl animate-pulse tracking-tighter italic">
                   LOADING
                 </div>
               </div>
             </div>
             <div className="space-y-2 text-center">
-              <p className="text-blue-400/60 font-bold uppercase tracking-[0.3em] text-sm animate-pulse">
-                Synchronizing on-chain upgrades...
-              </p>
-              <p className="text-blue-400/40 font-bold uppercase tracking-[0.2em] text-xs">
-                Verifying inventory items
+              <p className="text-[#4ade80]/60 font-bold uppercase tracking-[0.3em] text-sm animate-pulse">
+                Reading on-chain data...
               </p>
             </div>
           </div>
