@@ -5661,7 +5661,7 @@ class StartScene extends Phaser.Scene {
         }
 
         // Close button
-        const closeBtn = this.add.rectangle(width / 2, height * 0.82, 150, 50, 0xff6b6b).setScrollFactor(0).setDepth(103);
+        const closeBtn = this.add.rectangle(width / 2, height * 0.82, 150, 50, 0xff0000).setScrollFactor(0).setDepth(103);
         const closeText = this.add.text(width / 2, height * 0.82, 'CLOSE', {
             fontSize: '20px',
             fontFamily: 'Arial, sans-serif',
@@ -5688,9 +5688,9 @@ class StartScene extends Phaser.Scene {
         closeBtn.setInteractive().on('pointerdown', () => {
             closeModal();
         }).on('pointerover', () => {
-            closeBtn.setFillStyle(0xff5252);
+            closeBtn.setFillStyle(0xcc0000);
         }).on('pointerout', () => {
-            closeBtn.setFillStyle(0xff6b6b);
+            closeBtn.setFillStyle(0xff0000);
         });
     }
 
