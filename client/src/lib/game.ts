@@ -4738,8 +4738,8 @@ class MainScene extends Phaser.Scene {
         // Pause all sounds
         this.sound.pauseAll();
         
-        // PAUSE THE TIME SYSTEM - This freezes all Events and delayedCalls
-        this.time.paused = true;
+        // PHASER PAUSE
+        this.scene.pause();
         
         // Force an immediate HUD update to freeze the visual timers
         this.updateHUD();
@@ -4787,8 +4787,8 @@ class MainScene extends Phaser.Scene {
         this.tweens.resumeAll();
         this.sound.resumeAll();
         
-        // RESUME THE TIME SYSTEM
-        this.time.paused = false;
+        // PHASER RESUME
+        this.scene.resume();
         
         this.updateHUD();
         
