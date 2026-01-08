@@ -91,57 +91,63 @@ export function Leaderboard() {
           </h2>
         </div>
 
-        <div className="flex-1 overflow-hidden relative">
-          <ScrollArea className="h-full w-full">
-            <div className="p-[2vh] space-y-[0.5vh]">
-              {/* Header */}
-              <div 
-                className="flex items-center p-[1vh] border-b border-[#4ade80]/30 text-[#4ade80]/50 font-bold uppercase sticky top-0 bg-black/40 backdrop-blur-sm z-10"
-                style={{ fontSize: '1.2vh' }}
-              >
-                <div className="w-[10%] text-center">#</div>
-                <div className="w-[35%]">Player</div>
-                <div className="w-[15%] text-center">Wave</div>
-                <div className="w-[15%] text-center">Enemies</div>
-                <div className="w-[15%] text-center">Time</div>
-                <div className="w-[10%] text-right">Score</div>
-              </div>
+        <div className="flex-1 overflow-hidden relative flex flex-col">
+          {/* Header - Fixed Outside ScrollArea */}
+          <div 
+            className="flex items-center p-[1vh] border-b border-[#4ade80]/30 text-[#4ade80]/50 font-bold uppercase bg-black/40 backdrop-blur-sm z-10 shrink-0"
+            style={{ fontSize: '1.2vh' }}
+          >
+            <div className="w-[10%] text-center">#</div>
+            <div className="w-[35%]">Player</div>
+            <div className="w-[15%] text-center">Wave</div>
+            <div className="w-[15%] text-center">Enemies</div>
+            <div className="w-[15%] text-center">Time</div>
+            <div className="w-[10%] text-right">Score</div>
+          </div>
 
+          <ScrollArea className="flex-1 w-full">
+            <div className="p-[2vh] pt-0 space-y-[0.5vh]">
               {/* Rows */}
-              {sortedScores.map((score, index) => (
-                <div
-                  key={score.id}
-                  className="flex items-center p-[1vh] border-b border-[#4ade80]/10 bg-[#4ade80]/5 hover:bg-[#4ade80]/10 transition-colors"
-                  style={{ fontSize: '1.4vh' }}
-                >
-                  <div className="w-[10%] flex items-center justify-center shrink-0">
-                    {index < 3 ? (
-                      <PixelCrown rank={index + 1} />
-                    ) : (
-                      <span className="text-[#4ade80]/60 font-mono">
-                        {index + 1}
-                      </span>
-                    )}
-                  </div>
-                  <div className="w-[35%] truncate pr-2">
-                    <span className="text-white uppercase font-bold tracking-tight truncate block">
-                      {score.playerName}
-                    </span>
-                  </div>
-                  <div className="w-[15%] text-center text-[#4ade80] font-mono">
-                    {score.wave}
-                  </div>
-                  <div className="w-[15%] text-center text-[#4ade80] font-mono">
-                    {score.enemiesDefeated}
-                  </div>
-                  <div className="w-[15%] text-center text-[#4ade80] font-mono tabular-nums">
-                    {Math.floor(score.playTime / 60)}:{(score.playTime % 60).toString().padStart(2, '0')}
-                  </div>
-                  <div className="w-[10%] text-right text-yellow-400 font-bold font-mono">
-                    {score.score.toLocaleString()}
-                  </div>
+              {sortedScores.length === 0 ? (
+                <div className="py-[10vh] text-center text-[#4ade80]/30 italic" style={{ fontSize: '1.4vh' }}>
+                  No records yet...
                 </div>
-              ))}
+              ) : (
+                sortedScores.map((score, index) => (
+                  <div
+                    key={score.id}
+                    className="flex items-center p-[1vh] border-b border-[#4ade80]/10 bg-[#4ade80]/5 hover:bg-[#4ade80]/10 transition-colors"
+                    style={{ fontSize: '1.4vh' }}
+                  >
+                    <div className="w-[10%] flex items-center justify-center shrink-0">
+                      {index < 3 ? (
+                        <PixelCrown rank={index + 1} />
+                      ) : (
+                        <span className="text-[#4ade80]/60 font-mono">
+                          {index + 1}
+                        </span>
+                      )}
+                    </div>
+                    <div className="w-[35%] truncate pr-2">
+                      <span className="text-white uppercase font-bold tracking-tight truncate block">
+                        {score.playerName}
+                      </span>
+                    </div>
+                    <div className="w-[15%] text-center text-[#4ade80] font-mono">
+                      {score.wave}
+                    </div>
+                    <div className="w-[15%] text-center text-[#4ade80] font-mono">
+                      {score.enemiesDefeated}
+                    </div>
+                    <div className="w-[15%] text-center text-[#4ade80] font-mono tabular-nums">
+                      {Math.floor(score.playTime / 60)}:{(score.playTime % 60).toString().padStart(2, '0')}
+                    </div>
+                    <div className="w-[10%] text-right text-yellow-400 font-bold font-mono">
+                      {score.score.toLocaleString()}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </ScrollArea>
         </div>
