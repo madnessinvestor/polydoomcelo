@@ -5047,8 +5047,8 @@ class StartScene extends Phaser.Scene {
             }
             
             if (this.usdcBalanceText && (window as any).walletAddress && this.scene.isActive('StartScene')) {
-                this.usdcBalanceText.setText('');
-                this.usdcBalanceText.setVisible(false);
+                this.usdcBalanceText.setText(`MY WALLET USDC: ${parseFloat(formattedBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+                this.usdcBalanceText.setVisible(true);
                 this.usdcBalanceText.setDepth(10000);
             } else if (this.usdcBalanceText) {
                 this.usdcBalanceText.setVisible(false);
@@ -5285,6 +5285,22 @@ class StartScene extends Phaser.Scene {
         const lbContentContainer = document.createElement('div');
         lbContentContainer.id = 'embedded-leaderboard';
         lbContentContainer.style.position = 'absolute';
+        
+        // Calculate position relative to game canvas
+        const canvasObj = this.game.canvas;
+        const canvasRect = canvasObj.getBoundingClientRect();
+        const canvasScaleX = canvasRect.width / width;
+        const canvasScaleY = canvasRect.height / height;
+        
+        const divWidth = (lbWidth - 40) * canvasScaleX;
+        const divHeight = (lbHeight - 120) * canvasScaleY;
+        const divX = canvasRect.left + (lbX - lbWidth/2 + 20) * canvasScaleX;
+        const divY = canvasRect.top + (lbY - lbHeight/2 + 100) * canvasScaleY;
+
+        lbContentContainer.style.left = divX + 'px';
+        lbContentContainer.style.top = divY + 'px';
+        lbContentContainer.style.width = divWidth + 'px';
+        lbContentContainer.style.height = divHeight + 'px';
         lbContentContainer.style.backgroundColor = 'transparent';
         lbContentContainer.style.overflowY = 'auto'; 
         lbContentContainer.style.overflowX = 'hidden';
@@ -5308,41 +5324,11 @@ class StartScene extends Phaser.Scene {
                 border-radius: 3px;
             }
             .lb-table { width: 100%; border-collapse: collapse; font-family: monospace; }
-            .lb-table th { color: #fff; text-align: center; padding: 10px 5px; font-size: 1.1em; text-transform: uppercase; }
-            .lb-table td { padding: 12px 5px; font-size: 1em; text-align: center; vertical-align: middle; }
+            .lb-table th { color: #fff; text-align: center; padding: 10px 5px; font-size: 16px; text-transform: uppercase; }
+            .lb-table td { padding: 12px 5px; font-size: 14px; text-align: center; vertical-align: middle; }
             .lb-row { border-bottom: 1px solid rgba(74, 222, 128, 0.1); }
         `;
         document.head.appendChild(lbStyle);
-        
-        // Calculate position relative to game canvas
-        const updateLBPosition = () => {
-            const canvasRect = this.game.canvas.getBoundingClientRect();
-            const canvasScaleX = canvasRect.width / width;
-            const canvasScaleY = canvasRect.height / height;
-            
-            // Adjust dimensions based on scale but keep proportions
-            const currentLBWidth = lbWidth * canvasScaleX;
-            const currentLBHeight = lbHeight * canvasScaleY;
-            
-            const divWidth = (lbWidth - 40) * canvasScaleX;
-            const divHeight = (lbHeight - 120) * canvasScaleY;
-            const divX = canvasRect.left + (lbX - lbWidth/2 + 20) * canvasScaleX;
-            const divY = canvasRect.top + (lbY - lbHeight/2 + 100) * canvasScaleY;
-
-            lbContentContainer.style.left = divX + 'px';
-            lbContentContainer.style.top = divY + 'px';
-            lbContentContainer.style.width = divWidth + 'px';
-            lbContentContainer.style.height = divHeight + 'px';
-            
-            // Adjust font sizes based on scale
-            const baseFontSize = 14 * Math.min(canvasScaleX, canvasScaleY);
-            lbContentContainer.style.fontSize = `${Math.max(10, baseFontSize)}px`;
-        };
-
-        // Update on window resize and periodically to ensure sync
-        window.addEventListener('resize', updateLBPosition);
-        this.time.addEvent({ delay: 100, callback: updateLBPosition, loop: true });
-        updateLBPosition();
 
         document.body.appendChild(lbContentContainer);
 
@@ -5374,9 +5360,9 @@ class StartScene extends Phaser.Scene {
                     };
 
                     const getCrown = (rank: number) => {
-                        if (rank === 1) return '<span style="color: #FFD700; margin-left: 5px; filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.8)); font-size: 1.2em;">👑</span>'; // Gold
-                        if (rank === 2) return '<span style="color: #C0C0C0; margin-left: 5px; filter: drop-shadow(0 0 2px rgba(192, 192, 192, 0.8)); font-size: 1.1em;">👑</span>'; // Silver
-                        if (rank === 3) return '<span style="color: #CD7F32; margin-left: 5px; filter: drop-shadow(0 0 2px rgba(205, 127, 50, 0.8)); font-size: 1em;">👑</span>'; // Bronze
+                        if (rank === 1) return '<span style="color: #ffd700; margin-left: 5px;">👑</span>';
+                        if (rank === 2) return '<span style="color: #c0c0c0; margin-left: 5px;">👑</span>';
+                        if (rank === 3) return '<span style="color: #cd7f32; margin-left: 5px;">👑</span>';
                         return '';
                     };
                     
@@ -5436,7 +5422,7 @@ class StartScene extends Phaser.Scene {
 
         this.usdcBalanceText = this.add.text(width - 40, 40, '', {
             fontSize: '32px', color: '#4ade80', fontFamily: 'monospace'
-        }).setOrigin(1, 0).setVisible(false);
+        }).setOrigin(1, 0).setVisible(isWalletConnected);
 
         if (isWalletConnected) this.updateUSDCBalance();
 
