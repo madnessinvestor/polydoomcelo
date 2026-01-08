@@ -687,7 +687,7 @@ class MainScene extends Phaser.Scene {
         this.load.audio('music_2', this.musicTracks[2]);
         this.load.audio('music_3', this.musicTracks[3]);
 
-        // Load Opening Music
+        // Load Opening Music - Tentar carregar como MP3 e OGG
         this.load.audio('opening_music', [
             '/attached_assets/Open_1767879401695.ogg',
             '/attached_assets/Open_1767879213418.mp3'
@@ -4410,13 +4410,29 @@ class MainScene extends Phaser.Scene {
     }
 
     private playOpeningMusic() {
+        console.log("Tentando reproduzir música de abertura...");
+        // Verifica se a música já está tocando para não sobrepor
         if (this.openingMusic && this.openingMusic.isPlaying) {
+            console.log("Música já está tocando.");
             return;
         }
         
-        this.openingMusic = this.sound.add('opening_music', { loop: true });
-        (this.openingMusic as any).setVolume(0.7 * this.musicVolume);
-        this.openingMusic.play();
+        // Se já existe mas está pausada, apenas resuma
+        if (this.openingMusic && this.openingMusic.isPaused) {
+            console.log("Resumindo música pausada.");
+            this.openingMusic.resume();
+            return;
+        }
+
+        try {
+            this.openingMusic = this.sound.add('opening_music', { loop: true });
+            const vol = 0.7 * (this.masterVolume || 1.0) * (this.musicVolume || 1.0);
+            (this.openingMusic as any).setVolume(vol);
+            this.openingMusic.play();
+            console.log("Música de abertura iniciada com volume:", vol);
+        } catch (err) {
+            console.error("Erro ao reproduzir música de abertura:", err);
+        }
     }
 
     public stopOpeningMusic() {
@@ -4802,6 +4818,12 @@ class StartScene extends Phaser.Scene {
         // Logo
         this.load.image('game_logo', '/attached_assets/8a5b21d5-fa8e-404c-b7a1-4d7acfe803ef_1767786400336.png');
 
+        // Opening Music
+        this.load.audio('opening_music', [
+            '/attached_assets/Open_1767879401695.ogg',
+            '/attached_assets/Open_1767879213418.mp3'
+        ]);
+
         // Social Media Icons
         this.load.image('x_icon', '/attached_assets/social/x.png');
         this.load.image('github_icon', '/attached_assets/social/github.png');
@@ -4907,9 +4929,6 @@ class StartScene extends Phaser.Scene {
     }
 
     private async updateUSDCBalance() {
-        // CORREÇÃO OBRIGATÓRIA: 
-        // 1. O elemento é renderizado SOMENTE quando o estado do jogo for a Tela Inicial (StartScene)
-        // 2. Se walletConnected === false, não renderizar nada.
         const isWalletConnected = !!(window as any).walletAddress;
         const isStartSceneActive = this.scene.isActive('StartScene');
 
@@ -4920,14 +4939,11 @@ class StartScene extends Phaser.Scene {
             return;
         }
 
-        // Use the global address directly
         const address = (window as any).walletAddress;
         if (!address) return;
 
         try {
             const provider = new ethers.BrowserProvider((window as any).ethereum);
-            
-            // USDC Contract on Arc Testnet
             const usdcAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
             const usdcAbi = [
                 "function balanceOf(address owner) view returns (uint256)",
@@ -4948,7 +4964,6 @@ class StartScene extends Phaser.Scene {
                 formattedBalance = ethers.formatEther(balance);
             }
             
-            // Re-check conditions before final render inside Phaser container
             if (this.usdcBalanceText && (window as any).walletAddress && this.scene.isActive('StartScene')) {
                 this.usdcBalanceText.setText(`MY WALLET USDC: ${parseFloat(formattedBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
                 this.usdcBalanceText.setVisible(true);
@@ -4961,9 +4976,69 @@ class StartScene extends Phaser.Scene {
         }
     }
 
+    private playOpeningMusic() {
+        console.log("Tentando reproduzir música de abertura na StartScene...");
+        
+        // Load volume settings from localStorage
+        this.masterVolume = (parseInt(localStorage.getItem('masterVolume') || '100')) / 100;
+        this.musicVolume = (parseInt(localStorage.getItem('musicVolume') || '100')) / 100;
+        
+        if (this.openingMusic && this.openingMusic.isPlaying) {
+            return;
+        }
+        
+        if (this.openingMusic && this.openingMusic.isPaused) {
+            this.openingMusic.resume();
+            return;
+        }
+
+        try {
+            let sound = this.sound.get('opening_music');
+            if (!sound) {
+                sound = this.sound.add('opening_music', { loop: true });
+            }
+            this.openingMusic = sound;
+            const vol = 0.7 * this.masterVolume * this.musicVolume;
+            (this.openingMusic as any).setVolume(vol);
+            this.openingMusic.play();
+            console.log("Música de abertura iniciada na StartScene com volume:", vol);
+        } catch (err) {
+            console.error("Erro ao reproduzir música de abertura na StartScene:", err);
+        }
+    }
+
+    public stopOpeningMusic() {
+        if (this.openingMusic) {
+            this.openingMusic.stop();
+            this.openingMusic = null;
+        }
+    }
+
+    public pauseOpeningMusic() {
+        if (this.openingMusic && this.openingMusic.isPlaying) {
+            this.openingMusic.pause();
+        }
+    }
+
+    public resumeOpeningMusic() {
+        if (this.openingMusic && this.openingMusic.isPaused) {
+            this.openingMusic.resume();
+        }
+    }
+
     private create() {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
+
+        this.playOpeningMusic();
+
+        // Add input listener to resume audio context if suspended (browser requirement)
+        this.input.on('pointerdown', () => {
+            if (this.sound.context.state === 'suspended') {
+                this.sound.context.resume();
+            }
+            this.playOpeningMusic();
+        });
 
         // New Background Image
         const bg = this.add.image(width / 2, height / 2, 'start_bg').setOrigin(0.5, 0.5).setScrollFactor(0);
@@ -5089,6 +5164,7 @@ class StartScene extends Phaser.Scene {
                 (window as any).characterState = data;
                 
                 console.log('Character state loaded:', data);
+                this.stopOpeningMusic();
                 this.scene.start('MainScene');
             } catch (err) {
                 console.error('Error starting game:', err);
