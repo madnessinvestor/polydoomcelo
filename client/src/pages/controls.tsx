@@ -145,7 +145,7 @@ export default function Controls() {
                   <Key label="F" action="ArcKiExplosion" active className="!scale-110" />
                   <div className="text-center space-y-1">
                     <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
-                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 200 | CD: 0s</p>
+                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 100 | CD: 0s</p>
                     <p className="text-[11px] text-slate-400 leading-tight">Release inner Ki in a powerful radial burst to clear enemies.</p>
                   </div>
                 </div>
