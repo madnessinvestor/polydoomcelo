@@ -5062,11 +5062,11 @@ class StartScene extends Phaser.Scene {
 
         // Menu Buttons Grid
         const menuY = height / 2 + 130;
-        createNeonButton(width / 2, menuY, 220, 46, 0xec4899, 'UPGRADES', '20px', '#ffffff', () => (window as any).openUpgradesModal?.());
+        createNeonButton(width / 2, menuY, 220, 46, 0xef4444, 'UPGRADES', '20px', '#ffffff', () => (window as any).openUpgradesModal?.());
         createNeonButton(width / 2, menuY + 60, 220, 46, 0x3b82f6, 'SHOPPING', '20px', '#ffffff', () => (window as any).openShoppingModal?.());
         createNeonButton(width / 2, menuY + 120, 220, 46, 0xfbbf24, 'LEADERBOARD', '20px', '#ffffff', () => (window as any).openLeaderboardModal?.());
-        createNeonButton(width / 2, menuY + 180, 220, 46, 0x8b5cf6, 'HISTORY', '20px', '#ffffff', () => (window as any).openHistoryModal?.());
-        createNeonButton(width / 2, menuY + 240, 220, 46, 0x06b6d4, 'CONTROLS', '20px', '#ffffff', () => (window as any).openControlsModal?.());
+        createNeonButton(width / 2, menuY + 180, 220, 46, 0x3b82f6, 'HISTORY', '20px', '#ffffff', () => (window as any).openHistoryModal?.());
+        createNeonButton(width / 2, menuY + 240, 220, 46, 0x3b82f6, 'CONTROLS', '20px', '#ffffff', () => (window as any).openControlsModal?.());
         createNeonButton(width / 2, menuY + 300, 220, 46, 0x8b5cf6, 'SETTINGS', '20px', '#ffffff', () => (window as any).openSettingsModal?.());
 
         // Wallet Display Logic
