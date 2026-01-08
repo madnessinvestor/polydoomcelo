@@ -63,7 +63,13 @@ export function Leaderboard() {
                     ArcUser
                   </div>
                   <div className="w-20 text-center font-bold text-yellow-400">
+                    Enemies
+                  </div>
+                  <div className="w-20 text-center font-bold text-yellow-400">
                     Wave
+                  </div>
+                  <div className="w-20 text-center font-bold text-yellow-400 text-sm">
+                    Time
                   </div>
                   <div className="w-24 text-right font-bold text-yellow-400">
                     Score
@@ -81,11 +87,17 @@ export function Leaderboard() {
                       <div className="flex-shrink-0 w-12 text-center font-bold text-slate-400 text-sm">
                         {index + 1}
                       </div>
-                      <div className="flex-1 text-white">
+                      <div className="flex-1 text-white truncate">
                         {score.playerName}
                       </div>
                       <div className="w-20 text-center text-slate-300">
+                        {score.enemiesDefeated}
+                      </div>
+                      <div className="w-20 text-center text-slate-300">
                         {score.wave}
+                      </div>
+                      <div className="w-20 text-center text-slate-300 text-sm">
+                        {Math.floor(score.playTime / 60)}:{(score.playTime % 60).toString().padStart(2, '0')}
                       </div>
                       <div className="w-24 text-right font-bold text-yellow-400 text-lg">
                         {score.score.toLocaleString()}
