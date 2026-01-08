@@ -456,9 +456,12 @@ class MainScene extends Phaser.Scene {
         arc_vamp: 0
     };
 
+    // 🔒 SISTEMA DE PAUSA - Variáveis obrigatórias
+    private isGamePaused: boolean = false;
     private isPaused: boolean = false;
     private pauseModalOpen: boolean = false;
     private pausedTime: number = 0;
+    private totalPausedTime: number = 0;
     private hpLabel: Phaser.GameObjects.Text | null = null;
 
     private sfx: { [key: string]: Phaser.Sound.BaseSound } = {};
@@ -1818,14 +1821,17 @@ class MainScene extends Phaser.Scene {
     }
 
     update(time: number, delta: number) {
+        // ⚠️ BLOQUEIA waves, intervalos, spawn e HUD durante pausa
+        if (this.isGamePaused) {
+            return;
+        }
+        
         if (this.isGameOver) return;
 
-        // 🔒 CÁLCULO DE TEMPO COM SUPORTE À PAUSA
-        // Usa pausedTime quando pausado para congelar o timer visualmente
-        const now = (this.isPaused || this.pauseModalOpen) ? this.pausedTime : this.time.now;
-        const elapsed = Math.max(0, Math.floor((now - this.waveStartTime) / 1000));
+        // ⏱️ Timer de Wave/Intervalo (subtraindo tempo total pausado)
+        const elapsed = Math.max(0, Math.floor((this.time.now - this.waveStartTime - this.totalPausedTime) / 1000));
         
-        // Atualização visual do timer no HUD (sempre executa para mostrar valor congelado)
+        // Atualização visual do timer no HUD
         if (!this.isWaveInterval) {
             const mins = Math.floor(elapsed / 60);
             const secs = elapsed % 60;
@@ -1835,11 +1841,6 @@ class MainScene extends Phaser.Scene {
             const mins = Math.floor(timeLeft / 60);
             const secs = timeLeft % 60;
             this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
-        }
-        
-        // ⚠️ PAUSA TOTAL - Nada além da atualização visual deve executar
-        if (this.isPaused || this.pauseModalOpen) {
-            return;
         }
 
         // Update scarf
@@ -2348,8 +2349,8 @@ class MainScene extends Phaser.Scene {
             { key: 'B', label: 'B', ki: 200 }
         ];
 
-        // Use a persistent 'now' value that is frozen during pause
-        const now = (this.isPaused || this.pauseModalOpen) ? this.pausedTime : this.time.now;
+        // ⏱️ Calcula cooldowns subtraindo tempo pausado
+        const now = this.time.now - this.totalPausedTime;
 
         const size = 64; // Uniform size for vertical bar
         const spacing = 12;
@@ -4171,11 +4172,8 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        // Use tempo congelado durante a pausa - CRÍTICO para não avançar cronômetro/cooldowns
-        const now = (this.isPaused || this.pauseModalOpen) ? this.pausedTime : this.time.now;
-        
-        // Timer de Wave/Intervalo (UI Update)
-        const elapsed = Math.max(0, Math.floor((now - this.waveStartTime) / 1000));
+        // ⏱️ Timer de Wave/Intervalo (subtraindo tempo total pausado)
+        const elapsed = Math.max(0, Math.floor((this.time.now - this.waveStartTime - this.totalPausedTime) / 1000));
         if (this.timerText) {
             if (!this.isWaveInterval) {
                 const mins = Math.floor(elapsed / 60);
@@ -4725,32 +4723,23 @@ class MainScene extends Phaser.Scene {
     }
 
     private openPauseModal() {
-        if (this.isPaused) return;
+        if (this.isGamePaused) return;
         
         console.log("PAUSING GAME...");
+        this.isGamePaused = true;
         this.isPaused = true;
         this.pauseModalOpen = true;
         
-        // Captura o tempo exato do pause
+        // Marca o momento exato do pause
         this.pausedTime = this.time.now;
         
-        // Pausa explicitamente o TimerEvent da wave
-        if (this.waveTimerEvent) {
-            this.waveTimerEvent.paused = true;
-        }
+        // 🔑 Pausa TODOS os TimerEvents do Phaser
+        this.time.timeScale = 0;
         
-        // Pausa explicitamente o spawnEvent
-        if (this.spawnEvent) {
-            this.spawnEvent.paused = true;
-        }
-        
-        // PHASER ENGINE PAUSE - Full stop
+        // Pausa física e animações
         this.physics.pause();
         this.tweens.pauseAll();
         this.sound.pauseAll();
-        
-        // Pause timers explicitly - CRÍTICO para parar todos os time.addEvent
-        this.time.paused = true;
         
         // Pause the scene completely
         this.scene.pause();
@@ -4779,49 +4768,29 @@ class MainScene extends Phaser.Scene {
     }
 
     private closePauseModal() {
+        if (!this.isGamePaused) return;
+        
         console.log("RESUMING GAME...");
+        this.isGamePaused = false;
         this.isPaused = false;
         this.pauseModalOpen = false;
         
         // Calcula quanto tempo o jogo ficou pausado
         const pauseDuration = this.time.now - this.pausedTime;
+        this.totalPausedTime += pauseDuration;
         
-        // 🔑 AJUSTE CRÍTICO (core da correção)
-        // Compensa o tempo da pausa empurrando o início da wave
-        this.waveStartTime += pauseDuration;
-
-        // Retoma o TimerEvent da wave
-        if (this.waveTimerEvent) {
-            this.waveTimerEvent.paused = false;
-        }
+        console.log(`Paused for ${pauseDuration}ms, total paused: ${this.totalPausedTime}ms`);
         
-        // Retoma o spawnEvent
-        if (this.spawnEvent) {
-            this.spawnEvent.paused = false;
-        }
-
-        for (const key in this.specialsCooldowns) {
-            if (this.specialsCooldowns[key].startTime > 0) {
-                this.specialsCooldowns[key].startTime += pauseDuration;
-            }
-        }
-
-        this.activeBuffs.forEach((buff) => {
-            if (buff.startTime !== undefined) {
-                buff.startTime += pauseDuration;
-            }
-        });
+        // 🔑 Retoma o tempo do Phaser
+        this.time.timeScale = 1;
         
-        // PHASER ENGINE RESUME
+        // Retoma física e animações
         this.physics.resume();
         this.tweens.resumeAll();
         this.sound.resumeAll();
         
         // Resume the entire scene processing
         this.scene.resume();
-        
-        // GLOBAL TIME SYSTEM RESUME
-        this.time.paused = false;
         
         this.updateHUD();
         
