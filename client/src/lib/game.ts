@@ -5374,9 +5374,13 @@ class StartScene extends Phaser.Scene {
                     };
 
                     const getCrown = (rank: number) => {
-                        if (rank === 1) return '<span style="color: #FFD700; margin-left: 5px; filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.8)); font-size: 1.2em;">👑</span>'; // Gold
-                        if (rank === 2) return '<span style="color: #C0C0C0; margin-left: 5px; filter: drop-shadow(0 0 2px rgba(192, 192, 192, 0.8)); font-size: 1.1em;">👑</span>'; // Silver
-                        if (rank === 3) return '<span style="color: #CD7F32; margin-left: 5px; filter: drop-shadow(0 0 2px rgba(205, 127, 50, 0.8)); font-size: 1em;">👑</span>'; // Bronze
+                        const crownSVG = (color: string, shadow: string) => `
+                            <svg width="20" height="16" viewBox="0 0 20 16" style="display: inline-block; vertical-align: middle; margin-left: 5px; filter: drop-shadow(0 0 3px ${shadow});">
+                                <path d="M2 14h16V8h-2V6h-2v2h-2V4h-4v4h-2V6H6v2H4v6h-2zM4 12V10h2v2H4zm4-2v2H6V10h2zm4 0v2h-2V10h2zm4 0v2h-2V10h2z" fill="${color}" shape-rendering="crispEdges"/>
+                            </svg>`;
+                        if (rank === 1) return crownSVG('#FFD700', 'rgba(255, 215, 0, 0.6)'); // Ouro
+                        if (rank === 2) return crownSVG('#C0C0C0', 'rgba(192, 192, 192, 0.6)'); // Prata
+                        if (rank === 3) return crownSVG('#CD7F32', 'rgba(205, 127, 50, 0.6)'); // Bronze
                         return '';
                     };
                     
