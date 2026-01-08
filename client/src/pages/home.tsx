@@ -303,10 +303,10 @@ export default function Home() {
       )}
       {activeModal === "history" && (
         <div className="fixed inset-0 z-[160] flex items-center justify-center pointer-events-auto bg-black/80">
-          <div className="bg-black border-4 border-blue-400 p-4 max-w-4xl w-full flex flex-col items-center">
-            <h2 className="text-2xl font-bold text-blue-400 mb-4 uppercase">Game History</h2>
-            <video src="/attached_assets/gamehistory_1767067604123.mp4" controls className="w-full h-auto mb-4 border-2 border-blue-400/30" />
-            <Button onClick={closeModal} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8">BACK</Button>
+          <div className="bg-black border-4 border-cyan-400 p-4 max-w-4xl w-full flex flex-col items-center shadow-[0_0_30px_rgba(34,211,238,0.5)]">
+            <h2 className="text-2xl font-bold text-cyan-400 mb-4 uppercase">Game History</h2>
+            <video src="/attached_assets/gamehistory_1767067604123.mp4" controls className="w-full h-auto mb-4 border-2 border-cyan-400/30" />
+            <Button onClick={closeModal} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-8 shadow-[0_0_15px_rgba(6,182,212,0.5)] border-2 border-cyan-400">BACK</Button>
           </div>
         </div>
       )}
