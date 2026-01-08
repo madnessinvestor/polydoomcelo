@@ -5261,10 +5261,89 @@ class StartScene extends Phaser.Scene {
         const menuY = height / 2 + 130;
         createNeonButton(width / 2, menuY, 220, 46, 0x6b7280, 'UPGRADES', '20px', '#ffffff', () => (window as any).openUpgradesModal?.());
         createNeonButton(width / 2, menuY + 60, 220, 46, 0x6b7280, 'SHOPPING', '20px', '#ffffff', () => (window as any).openShoppingModal?.());
-        createNeonButton(width / 2, menuY + 120, 220, 46, 0x6b7280, 'LEADERBOARD', '20px', '#ffffff', () => (window as any).openLeaderboardModal?.());
-        createNeonButton(width / 2, menuY + 180, 220, 46, 0x6b7280, 'HISTORY', '20px', '#ffffff', () => (window as any).openHistoryModal?.());
-        createNeonButton(width / 2, menuY + 240, 220, 46, 0x6b7280, 'CONTROLS', '20px', '#ffffff', () => (window as any).openControlsModal?.());
-        createNeonButton(width / 2, menuY + 300, 220, 46, 0x6b7280, 'SETTINGS', '20px', '#ffffff', () => (window as any).openSettingsModal?.());
+        createNeonButton(width / 2, menuY + 120, 220, 46, 0x6b7280, 'HISTORY', '20px', '#ffffff', () => (window as any).openHistoryModal?.());
+        createNeonButton(width / 2, menuY + 180, 220, 46, 0x6b7280, 'CONTROLS', '20px', '#ffffff', () => (window as any).openControlsModal?.());
+        createNeonButton(width / 2, menuY + 240, 220, 46, 0x6b7280, 'SETTINGS', '20px', '#ffffff', () => (window as any).openSettingsModal?.());
+
+        // Embedded Leaderboard in StartScene
+        const lbWidth = 450;
+        const lbHeight = 650;
+        const lbX = width - lbWidth / 2 - 100; // Right side area
+        const lbY = height / 2;
+
+        const lbBg = this.add.rectangle(lbX, lbY, lbWidth, lbHeight, 0x0f172a, 0.8).setDepth(5);
+        lbBg.setStrokeStyle(3, 0x4ade80);
+
+        this.add.text(lbX, lbY - lbHeight/2 + 30, 'LEADERBOARD', {
+            fontSize: '28px',
+            fontFamily: 'Arial, sans-serif',
+            color: '#4ade80',
+            fontStyle: 'bold'
+        }).setOrigin(0.5).setDepth(6);
+
+        // Leaderboard Content Container
+        const lbContentContainer = document.createElement('div');
+        lbContentContainer.id = 'embedded-leaderboard';
+        lbContentContainer.style.position = 'absolute';
+        
+        // Calculate position relative to game canvas
+        const canvasObj = this.game.canvas;
+        const canvasRect = canvasObj.getBoundingClientRect();
+        const canvasScaleX = canvasRect.width / width;
+        const canvasScaleY = canvasRect.height / height;
+        
+        const divWidth = (lbWidth - 40) * canvasScaleX;
+        const divHeight = (lbHeight - 100) * canvasScaleY;
+        const divX = canvasRect.left + (lbX - lbWidth/2 + 20) * canvasScaleX;
+        const divY = canvasRect.top + (lbY - lbHeight/2 + 80) * canvasScaleY;
+
+        lbContentContainer.style.left = divX + 'px';
+        lbContentContainer.style.top = divY + 'px';
+        lbContentContainer.style.width = divWidth + 'px';
+        lbContentContainer.style.height = divHeight + 'px';
+        lbContentContainer.style.backgroundColor = 'transparent';
+        lbContentContainer.style.overflow = 'auto';
+        lbContentContainer.style.zIndex = '100';
+        lbContentContainer.style.color = '#fff';
+        lbContentContainer.style.fontFamily = 'monospace';
+        lbContentContainer.style.pointerEvents = 'auto';
+
+        document.body.appendChild(lbContentContainer);
+
+        const renderEmbeddedLB = (scores: any[]) => {
+            let content = '<div style="font-size: 14px;">';
+            if (scores.length === 0) {
+                content += '<p style="text-align:center;">No scores yet</p>';
+            } else {
+                scores.forEach((score, index) => {
+                    content += `
+                        <div style="border-bottom: 1px solid #1e293b; padding: 8px 0; display: flex; justify-content: space-between;">
+                            <span>#${index + 1} ${score.playerName.substring(0, 12)}</span>
+                            <span style="color: #4ade80; font-weight: bold;">${Math.floor(score.score)}</span>
+                        </div>
+                    `;
+                });
+            }
+            content += '</div>';
+            lbContentContainer.innerHTML = content;
+        };
+
+        lbContentContainer.innerHTML = '<p style="text-align: center; color: #4ade80;">Loading...</p>';
+        
+        import('./leaderboard').then(({ fetchOnChainLeaderboard }) => {
+            fetchOnChainLeaderboard().then(scores => {
+                if (scores) renderEmbeddedLB(scores);
+                else lbContentContainer.innerHTML = '<p style="text-align:center; color: #ef4444;">Error loading scores</p>';
+            });
+        });
+
+        // Cleanup div when scene is destroyed or stopped
+        this.events.once('shutdown', () => {
+            lbContentContainer.remove();
+        });
+        this.events.once('destroy', () => {
+            lbContentContainer.remove();
+        });
 
         // Wallet Display Logic
         this.networkInfoText = this.add.text(width / 2, height / 2 - 70, isWalletConnected ? 'Arc Testnet' : '', {
@@ -5294,7 +5373,7 @@ class StartScene extends Phaser.Scene {
         ];
 
         socials.forEach((s, i) => {
-            const sx = (width / 2 - 180) + (i * 60);
+            const sx = (width / 2 - 180) + (i * 60) - 200; // Shifted left to clear leaderboard
             const sbtn = this.add.circle(sx, footerY + 10, 20, 0x1e293b).setInteractive({ useHandCursor: true });
             this.add.image(sx, footerY + 10, s.icon).setDisplaySize(30, 30);
             sbtn.on('pointerdown', () => window.open(s.url, '_blank'));
@@ -5305,7 +5384,7 @@ class StartScene extends Phaser.Scene {
         const contractsY = height - 120;
         const contractFontSize = '14px';
 
-        this.add.text(contractsX, contractsY, 'CONTRACTS', {
+        this.add.text(contractsX, contractsY + 80, 'CONTRACTS', { // Lowered to not overlap
             fontSize: '18px',
             color: '#fbbf24',
             fontStyle: 'bold',
@@ -5319,7 +5398,7 @@ class StartScene extends Phaser.Scene {
         ];
 
         contracts.forEach((c, idx) => {
-            const yPos = contractsY + 30 + (idx * 25);
+            const yPos = contractsY + 110 + (idx * 25); // Lowered
             const text = this.add.text(contractsX, yPos, `${c.label}: ${c.addr.substring(0, 6)}...${c.addr.substring(c.addr.length - 4)}`, {
                 fontSize: contractFontSize,
                 color: '#4ade80',
