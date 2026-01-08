@@ -1820,9 +1820,9 @@ class MainScene extends Phaser.Scene {
     update(time: number, delta: number) {
         if (this.isGameOver) return;
 
-        // Se o jogo estiver pausado, garantimos que nada ocorra
-        if (this.isPaused) {
-            this.updateHUD(); // Força a HUD a usar o pausedTime
+        // Se o jogo estiver pausado, garantimos que absolutamente nada ocorra
+        if (this.isPaused || this.pauseModalOpen) {
+            // Não chamamos updateHUD aqui para evitar qualquer flutuação visual
             return;
         }
 
@@ -2348,8 +2348,8 @@ class MainScene extends Phaser.Scene {
             { key: 'B', label: 'B', ki: 200 }
         ];
 
-        // Ensure F is in HUD maps if missing (though they are initialized in constructor/create)
-        // But the main issue is likely the image loading or the key not being processed correctly in the loop if the icon isn't loaded.
+        // Use a persistent 'now' value that is frozen during pause
+        const now = (this.isPaused || this.pauseModalOpen) ? this.pausedTime : this.time.now;
 
         const size = 64; // Uniform size for vertical bar
         const spacing = 12;
@@ -2360,7 +2360,6 @@ class MainScene extends Phaser.Scene {
         specials.forEach((special, index) => {
             const y = startY + index * (size + spacing);
             const cdInfo = this.specialsCooldowns[special.key];
-            const now = this.isPaused ? this.pausedTime : this.time.now;
             const elapsed = now - cdInfo.startTime;
             const remaining = Math.max(0, cdInfo.duration - elapsed);
             const progress = remaining / cdInfo.duration;
@@ -4172,8 +4171,8 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        // Fix: Ensure now is exactly pausedTime if paused, preventing even 1ms of drift
-        const now = this.isPaused ? this.pausedTime : this.time.now;
+        // Use a persistent 'now' value that is frozen during pause
+        const now = (this.isPaused || this.pauseModalOpen) ? this.pausedTime : this.time.now;
         
         // Timer de Wave/Intervalo (UI Update)
         const elapsed = Math.max(0, Math.floor((now - this.waveStartTime) / 1000));
@@ -4731,22 +4730,23 @@ class MainScene extends Phaser.Scene {
         console.log("PAUSING GAME...");
         this.isPaused = true;
         this.pauseModalOpen = true;
+        
+        // Use a more reliable source of time if possible, or ensure Phaser's clock is really stopped
         this.pausedTime = this.time.now;
         
-        // PHASER ENGINE PAUSE
+        // PHASER ENGINE PAUSE - Full stop
         this.physics.pause();
         this.tweens.pauseAll();
         this.sound.pauseAll();
         
-        // This is the key: stop the entire scene processing
-        // We use the scene manager to pause this specific scene
-        this.scene.get(this.scene.key).events.emit('pause');
-        this.scene.pause();
-        
-        // GLOBAL TIME SYSTEM PAUSE
+        // Pause timers explicitly
         this.time.paused = true;
         
-        // Force an immediate HUD update to freeze the visual timers
+        // Pause the scene and the whole game loop if possible
+        this.scene.pause();
+        this.game.loop.sleep();
+        
+        // Force an immediate HUD update to freeze the visual timers at this exact moment
         this.updateHUD();
         
         // Notify React to show pause modal
@@ -4774,6 +4774,7 @@ class MainScene extends Phaser.Scene {
         this.isPaused = false;
         this.pauseModalOpen = false;
         
+        // Calculate exact duration to compensate
         const pauseDuration = this.time.now - this.pausedTime;
         this.waveStartTime += pauseDuration;
 
@@ -4790,6 +4791,7 @@ class MainScene extends Phaser.Scene {
         });
         
         // PHASER ENGINE RESUME
+        this.game.loop.wake();
         this.physics.resume();
         this.tweens.resumeAll();
         this.sound.resumeAll();
