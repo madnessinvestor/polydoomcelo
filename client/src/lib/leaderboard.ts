@@ -87,9 +87,28 @@ export const fetchOnChainLeaderboard = async () => {
             return acc;
         }, []);
 
+        // Fetch local scores for missing data
+        try {
+            const localResponse = await fetch("/api/leaderboard");
+            if (localResponse.ok) {
+                const localScores = await localResponse.json();
+                return unique.sort((a, b) => b.score - a.score).map(s => {
+                    const localMatch = localScores.find((ls: any) => ls.playerName === s.playerName && Math.floor(ls.score) === Math.floor(s.score));
+                    return {
+                        ...s,
+                        wave: localMatch?.wave || 1,
+                        enemiesDefeated: localMatch?.enemiesDefeated || 0,
+                        playTime: localMatch?.playTime || 0
+                    };
+                });
+            }
+        } catch (e) {}
+
         return unique.sort((a, b) => b.score - a.score).map(s => ({
             ...s,
-            enemiesDefeated: 0
+            enemiesDefeated: 0,
+            wave: 1,
+            playTime: 0
         }));
 
     } catch (e) {

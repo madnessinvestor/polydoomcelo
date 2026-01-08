@@ -5311,20 +5311,81 @@ class StartScene extends Phaser.Scene {
         document.body.appendChild(lbContentContainer);
 
         const renderEmbeddedLB = (scores: any[]) => {
-            let content = '<div style="font-size: 14px;">';
+            let content = `
+                <style>
+                    #embedded-leaderboard::-webkit-scrollbar {
+                        width: 8px;
+                    }
+                    #embedded-leaderboard::-webkit-scrollbar-track {
+                        background: #0f172a;
+                    }
+                    #embedded-leaderboard::-webkit-scrollbar-thumb {
+                        background: #4ade80;
+                        border-radius: 4px;
+                    }
+                    #embedded-leaderboard::-webkit-scrollbar-thumb:hover {
+                        background: #22c55e;
+                    }
+                    .lb-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        color: #fff;
+                        font-family: 'monospace';
+                        font-size: 12px;
+                    }
+                    .lb-table th {
+                        position: sticky;
+                        top: 0;
+                        background: #0f172a;
+                        padding: 8px 4px;
+                        text-align: left;
+                        color: #4ade80;
+                        border-bottom: 2px solid #4ade80;
+                        z-index: 10;
+                    }
+                    .lb-table td {
+                        padding: 6px 4px;
+                        border-bottom: 1px solid #1e293b;
+                    }
+                </style>
+                <div style="font-size: 14px; font-family: monospace;">
+                    <table class="lb-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>PLAYER</th>
+                                <th>WAVE</th>
+                                <th>ENEMIES</th>
+                                <th>TIME</th>
+                                <th style="text-align: right;">SCORE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
             if (scores.length === 0) {
-                content += '<p style="text-align:center;">No scores yet</p>';
+                content += '<tr><td colspan="6" style="text-align:center; padding: 20px;">No scores yet</td></tr>';
             } else {
                 scores.forEach((score, index) => {
+                    const formatTime = (s: number) => {
+                        const mins = Math.floor(s / 60);
+                        const secs = s % 60;
+                        return `${mins}:${secs.toString().padStart(2, '0')}`;
+                    };
+                    
                     content += `
-                        <div style="border-bottom: 1px solid #1e293b; padding: 8px 0; display: flex; justify-content: space-between;">
-                            <span>#${index + 1} ${score.playerName.substring(0, 12)}</span>
-                            <span style="color: #4ade80; font-weight: bold;">${Math.floor(score.score)}</span>
-                        </div>
+                        <tr style="font-size: 12px;">
+                            <td style="color: #94a3b8;">${index + 1}</td>
+                            <td style="color: #fff; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px;" title="${score.playerName}">${score.playerName}</td>
+                            <td style="color: #60a5fa;">${score.wave || 1}</td>
+                            <td style="color: #f87171;">${score.enemiesDefeated || 0}</td>
+                            <td style="color: #fbbf24;">${formatTime(score.playTime || 0)}</td>
+                            <td style="padding: 8px 4px; text-align: right; color: #4ade80; font-weight: bold;">${Math.floor(score.score)}</td>
+                        </tr>
                     `;
                 });
             }
-            content += '</div>';
+            content += '</tbody></table></div>';
             lbContentContainer.innerHTML = content;
         };
 
