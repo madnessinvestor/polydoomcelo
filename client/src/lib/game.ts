@@ -262,7 +262,7 @@ class MainScene extends Phaser.Scene {
                     title: 'Score Potion',
                     description: '2x Score Multiplier',
                     duration: 100000,
-                    startTime: this.time.now
+                    startTime: this.time.now - this.totalPausedTime
                 });
                 used = true;
                 this.showPickupNotification("2x Score Active (100s)!");
@@ -1009,7 +1009,7 @@ class MainScene extends Phaser.Scene {
                 let changed = false;
                 this.activeBuffs.forEach((buff, type) => {
                     if (buff.duration && buff.startTime) {
-                        const now = this.isPaused ? this.pausedTime : this.time.now;
+                        const now = (this.isGamePaused || this.isPaused) ? this.pausedTime - this.totalPausedTime : this.time.now - this.totalPausedTime;
                         const elapsed = (now - buff.startTime) / 1000;
                         if (elapsed >= buff.duration) {
                             this.activeBuffs.delete(type);
@@ -1827,14 +1827,15 @@ class MainScene extends Phaser.Scene {
 
     update(time: number, delta: number) {
         // ⚠️ BLOQUEIA waves, intervalos, spawn e HUD durante pausa
-        if (this.isGamePaused) {
+        if (this.isGamePaused || this.isPaused) {
             return;
         }
         
         if (this.isGameOver) return;
 
         // ⏱️ Timer Global da Partida (subtraindo tempo total pausado)
-        const gameElapsed = Math.max(0, Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000));
+        const nowForTimer = (this.isGamePaused || this.isPaused) ? this.pausedTime : this.time.now;
+        const gameElapsed = Math.max(0, Math.floor((nowForTimer - this.gameStartTime - this.totalPausedTime) / 1000));
         
         // Atualização visual do timer no HUD (sempre crescente)
         const mins = Math.floor(gameElapsed / 60);
@@ -2325,7 +2326,7 @@ class MainScene extends Phaser.Scene {
         ];
 
         // ⏱️ Calcula cooldowns subtraindo tempo pausado
-        const now = this.time.now - this.totalPausedTime;
+        const now = (this.isGamePaused || this.isPaused) ? this.pausedTime - this.totalPausedTime : this.time.now - this.totalPausedTime;
 
         const size = 64; // Uniform size for vertical bar
         const spacing = 12;
@@ -3331,7 +3332,8 @@ class MainScene extends Phaser.Scene {
             icon.on('pointerover', (pointer: Phaser.Input.Pointer) => {
                 let durationText = '';
                 if (buff.duration && buff.startTime) {
-                    const elapsed = (this.time.now - buff.startTime) / 1000;
+                    const now = (this.isGamePaused || this.isPaused) ? this.pausedTime - this.totalPausedTime : this.time.now - this.totalPausedTime;
+                    const elapsed = (now - buff.startTime) / 1000;
                     const remaining = Math.max(0, buff.duration - elapsed);
                     durationText = remaining > 0 ? `${Math.ceil(remaining)}s` : 'Match';
                 }
@@ -3352,7 +3354,7 @@ class MainScene extends Phaser.Scene {
             title,
             description,
             duration,
-            startTime: duration ? this.time.now : undefined
+            startTime: duration ? (this.time.now - this.totalPausedTime) : undefined
         });
         this.updateBuffIcons();
     }
@@ -4148,7 +4150,8 @@ class MainScene extends Phaser.Scene {
         }
 
         // ⏱️ Timer Global da Partida (subtraindo tempo total pausado)
-        const gameElapsed = Math.max(0, Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000));
+        const nowForTimer = (this.isGamePaused || this.isPaused) ? this.pausedTime : this.time.now;
+        const gameElapsed = Math.max(0, Math.floor((nowForTimer - this.gameStartTime - this.totalPausedTime) / 1000));
         if (this.timerText) {
             const mins = Math.floor(gameElapsed / 60);
             const secs = gameElapsed % 60;
