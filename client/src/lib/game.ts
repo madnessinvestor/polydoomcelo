@@ -5428,7 +5428,7 @@ class StartScene extends Phaser.Scene {
         if (isWalletConnected) this.updateUSDCBalance();
 
         // Footer and Social
-        const footerY = height - 40;
+        const footerY = height - 60;
         this.add.text(width / 2, footerY - 20, '2026 PolyDoom Arc — Built on Arc Network. All rights reserved.', {
             fontSize: '14px', color: '#ffffff'
         }).setOrigin(0.5);
@@ -5444,19 +5444,21 @@ class StartScene extends Phaser.Scene {
         ];
 
         socials.forEach((s, i) => {
-            const sx = (width / 2 - 180) + (i * 60) - 200; // Shifted left to clear leaderboard
-            const sbtn = this.add.circle(sx, footerY + 10, 20, 0x1e293b).setInteractive({ useHandCursor: true });
-            this.add.image(sx, footerY + 10, s.icon).setDisplaySize(30, 30);
+            const spacing = 50;
+            const totalWidth = (socials.length - 1) * spacing;
+            const sx = (width / 2 - totalWidth / 2) + (i * spacing);
+            const sbtn = this.add.circle(sx, footerY + 20, 18, 0x1e293b).setInteractive({ useHandCursor: true });
+            this.add.image(sx, footerY + 20, s.icon).setDisplaySize(24, 24);
             sbtn.on('pointerdown', () => window.open(s.url, '_blank'));
         });
 
         // Contracts List
-        const contractsX = width - 20;
-        const contractsY = height - 120;
+        const contractsX = width - 40;
+        const contractsY = 150; // Move up to be visible on the main screen area
         const contractFontSize = '14px';
 
-        this.add.text(contractsX, contractsY + 80, 'CONTRACTS', { // Lowered to not overlap
-            fontSize: '18px',
+        this.add.text(contractsX, contractsY, 'CONTRACTS', {
+            fontSize: '20px',
             color: '#fbbf24',
             fontStyle: 'bold',
             fontFamily: 'monospace'
@@ -5469,7 +5471,7 @@ class StartScene extends Phaser.Scene {
         ];
 
         contracts.forEach((c, idx) => {
-            const yPos = contractsY + 110 + (idx * 25); // Lowered
+            const yPos = contractsY + 35 + (idx * 30);
             const text = this.add.text(contractsX, yPos, `${c.label}: ${c.addr.substring(0, 6)}...${c.addr.substring(c.addr.length - 4)}`, {
                 fontSize: contractFontSize,
                 color: '#4ade80',
