@@ -1817,14 +1817,14 @@ class MainScene extends Phaser.Scene {
         }
 
         // Defense mechanism (Key D)
-        if (Phaser.Input.Keyboard.JustDown(this.keys.D) && !this.isGameOver && !this.isChargingGenkidama) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.D) && !this.isGameOver && !this.isChargingGenkidama && !this.isChargingKamehameha) {
             this.isDefending = true;
             if (this.sfx[this.defenseSoundKey]) {
                 this.sfx[this.defenseSoundKey].play({ volume: this.sfxVolume });
             }
         }
         
-        if (this.keys.D.isDown && !this.isChargingGenkidama) {
+        if (this.keys.D.isDown && !this.isChargingGenkidama && !this.isChargingKamehameha) {
             this.isDefending = true;
             if (!this.shieldGraphics) {
                 this.shieldGraphics = this.add.graphics().setDepth(this.player.depth + 1);
