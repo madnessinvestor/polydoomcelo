@@ -4977,6 +4977,42 @@ class StartScene extends Phaser.Scene {
         const titleScale = (width * 0.4) / logo.width;
         logo.setScale(titleScale);
 
+        // Pulsing effect
+        this.tweens.add({
+            targets: logo,
+            scale: titleScale * 1.05,
+            duration: 3000,
+            yoyo: true,
+            loop: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Particle effect around the logo
+        const particles = this.add.particles(0, 0, 'flare', {
+            speed: { min: 20, max: 50 },
+            scale: { start: 0.1, end: 0 },
+            alpha: { start: 0.5, end: 0 },
+            lifespan: 1500,
+            blendMode: 'ADD',
+            frequency: 50,
+            emitZone: {
+                type: 'edge',
+                source: new Phaser.Geom.Rectangle(-logo.displayWidth / 2, -logo.displayHeight / 2, logo.displayWidth, logo.displayHeight),
+                quantity: 40
+            }
+        });
+        
+        const logoContainer = this.add.container(logo.x, logo.y);
+        logoContainer.add(particles);
+        logoContainer.setDepth(9);
+        
+        // Sync particles position with pulsing logo
+        this.events.on('update', () => {
+            if (logo.active) {
+                logoContainer.setScale(logo.scale);
+            }
+        });
+
         // Helper to create neon buttons
         const createNeonButton = (x: number, y: number, w: number, h: number, color: number, text: string, fontSize: string, textColor: string, callback: () => void) => {
             const container = this.add.container(x, y);
