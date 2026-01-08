@@ -1822,6 +1822,20 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
+        // Timer de Wave/Intervalo (Absolute freeze logic)
+        const now = this.time.now;
+        const elapsed = Math.max(0, Math.floor((now - this.waveStartTime) / 1000));
+        if (!this.isWaveInterval) {
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+        } else {
+            const timeLeft = Math.max(0, 30 - elapsed);
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+        }
+
         // Update scarf
         if (this.playerScarf) {
             this.playerScarf.update(this.player.body?.velocity.x || 0, this.player.body?.velocity.y || 0);
@@ -1868,8 +1882,8 @@ class MainScene extends Phaser.Scene {
         
         const currentSpeed = this.getPlayerSpeed(this.level);
 
-        // Reset timer display - strictly relative to waveStartTime set in create()
-        // Ensure we handle the case where waveStartTime might be reset to 0
+        // Reset timer display - removed from here and moved to top of update() to ensure it respects pause
+        /*
         const now = this.time.now;
         const elapsed = Math.max(0, Math.floor((this.isPaused ? this.pausedTime - this.waveStartTime : now - this.waveStartTime) / 1000));
         if (!this.isWaveInterval) {
@@ -1888,6 +1902,12 @@ class MainScene extends Phaser.Scene {
             const mins = Math.floor(timeLeft / 60);
             const secs = timeLeft % 60;
             this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+        }
+        */
+
+        // Wave conclusion check
+        if (!this.isWaveInterval && this.enemiesSpawnedInWave >= this.totalEnemiesInWave && this.enemies.countActive(true) === 0) {
+            this.startInterval();
         }
 
         // Handle dash
@@ -4144,6 +4164,23 @@ class MainScene extends Phaser.Scene {
     private updateHUD() {
         if (!this.kiarcBar || !this.cameras?.main) {
             return;
+        }
+
+        const now = this.isPaused ? this.pausedTime : this.time.now;
+        
+        // Timer de Wave/Intervalo (UI Update)
+        const elapsed = Math.max(0, Math.floor((now - this.waveStartTime) / 1000));
+        if (this.timerText) {
+            if (!this.isWaveInterval) {
+                const mins = Math.floor(elapsed / 60);
+                const secs = elapsed % 60;
+                this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+            } else {
+                const timeLeft = Math.max(0, 30 - elapsed);
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+            }
         }
 
         this.renderSpecialsCooldowns();
