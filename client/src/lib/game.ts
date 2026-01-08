@@ -5316,13 +5316,11 @@ class StartScene extends Phaser.Scene {
         
         // Calculate position relative to game canvas
         const updateLBPosition = () => {
-            const canvasRect = this.game.canvas.getBoundingClientRect();
+            const canvasObj = this.game.canvas;
+            if (!canvasObj) return;
+            const canvasRect = canvasObj.getBoundingClientRect();
             const canvasScaleX = canvasRect.width / width;
             const canvasScaleY = canvasRect.height / height;
-            
-            // Adjust dimensions based on scale but keep proportions
-            const currentLBWidth = lbWidth * canvasScaleX;
-            const currentLBHeight = lbHeight * canvasScaleY;
             
             const divWidth = (lbWidth - 40) * canvasScaleX;
             const divHeight = (lbHeight - 120) * canvasScaleY;
@@ -5334,7 +5332,6 @@ class StartScene extends Phaser.Scene {
             lbContentContainer.style.width = divWidth + 'px';
             lbContentContainer.style.height = divHeight + 'px';
             
-            // Adjust font sizes based on scale
             const baseFontSize = 14 * Math.min(canvasScaleX, canvasScaleY);
             lbContentContainer.style.fontSize = `${Math.max(10, baseFontSize)}px`;
         };
