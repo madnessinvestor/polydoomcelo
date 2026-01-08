@@ -51,6 +51,7 @@ class MainScene extends Phaser.Scene {
     private totalEnemiesBeforeWave: number = 0;
     private maxSimultaneousEnemies: number = 200;
     private waveStartTime: number = 0;
+    private gameStartTime: number = 0; // Timer global da partida
     private bossSpawned: boolean = false;
     private intervalTimerEvent: Phaser.Time.TimerEvent | null = null;
 
@@ -621,7 +622,8 @@ class MainScene extends Phaser.Scene {
 
         // Reset timer tracking specifically
         // We will set this in create() using this.time.now
-        this.waveStartTime = 0; 
+        this.waveStartTime = 0;
+        this.gameStartTime = 0; // Reset global game timer 
 
         // Apply permanent upgrades if provided via scene data or global game object
         if (data?.upgrades) {
@@ -948,7 +950,7 @@ class MainScene extends Phaser.Scene {
             strokeThickness: 6
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
 
-        this.timerText = this.add.text(width - 16, 16 + fontSize + 10, '01:00', { 
+        this.timerText = this.add.text(width - 16, 16 + fontSize + 10, '00:00', { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
             fontStyle: 'bold', 
@@ -1036,6 +1038,9 @@ class MainScene extends Phaser.Scene {
             loop: true
         });
 
+        // Inicializar timer global da partida
+        this.gameStartTime = this.time.now;
+        
         this.startWave();
     }
 
@@ -1828,20 +1833,13 @@ class MainScene extends Phaser.Scene {
         
         if (this.isGameOver) return;
 
-        // ⏱️ Timer de Wave/Intervalo (subtraindo tempo total pausado)
-        const elapsed = Math.max(0, Math.floor((this.time.now - this.waveStartTime - this.totalPausedTime) / 1000));
+        // ⏱️ Timer Global da Partida (subtraindo tempo total pausado)
+        const gameElapsed = Math.max(0, Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000));
         
-        // Atualização visual do timer no HUD
-        if (!this.isWaveInterval) {
-            const mins = Math.floor(elapsed / 60);
-            const secs = elapsed % 60;
-            this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
-        } else {
-            const timeLeft = Math.max(0, 30 - elapsed);
-            const mins = Math.floor(timeLeft / 60);
-            const secs = timeLeft % 60;
-            this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
-        }
+        // Atualização visual do timer no HUD (sempre crescente)
+        const mins = Math.floor(gameElapsed / 60);
+        const secs = gameElapsed % 60;
+        this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
 
         // Update scarf
         if (this.playerScarf) {
@@ -1888,29 +1886,6 @@ class MainScene extends Phaser.Scene {
         }
         
         const currentSpeed = this.getPlayerSpeed(this.level);
-
-        // Reset timer display - removed from here and moved to top of update() to ensure it respects pause
-        /*
-        const now = this.time.now;
-        const elapsed = Math.max(0, Math.floor((this.isPaused ? this.pausedTime - this.waveStartTime : now - this.waveStartTime) / 1000));
-        if (!this.isWaveInterval) {
-            const mins = Math.floor(elapsed / 60);
-            const secs = elapsed % 60;
-            this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
-
-            // Wave conclusion: No duration limit, just check if all enemies are defeated
-            // Spawning should have ended (handled in spawnBatch)
-            if (this.enemiesSpawnedInWave >= this.totalEnemiesInWave && this.enemies.countActive(true) === 0 && !this.isWaveInterval) {
-                this.startInterval();
-            }
-        } else {
-            // Countdown for the interval
-            const timeLeft = Math.max(0, 30 - elapsed);
-            const mins = Math.floor(timeLeft / 60);
-            const secs = timeLeft % 60;
-            this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
-        }
-        */
 
         // Wave conclusion check
         if (!this.isWaveInterval && this.enemiesSpawnedInWave >= this.totalEnemiesInWave && this.enemies.countActive(true) === 0) {
@@ -4172,19 +4147,12 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        // ⏱️ Timer de Wave/Intervalo (subtraindo tempo total pausado)
-        const elapsed = Math.max(0, Math.floor((this.time.now - this.waveStartTime - this.totalPausedTime) / 1000));
+        // ⏱️ Timer Global da Partida (subtraindo tempo total pausado)
+        const gameElapsed = Math.max(0, Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000));
         if (this.timerText) {
-            if (!this.isWaveInterval) {
-                const mins = Math.floor(elapsed / 60);
-                const secs = elapsed % 60;
-                this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
-            } else {
-                const timeLeft = Math.max(0, 30 - elapsed);
-                const mins = Math.floor(timeLeft / 60);
-                const secs = timeLeft % 60;
-                this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
-            }
+            const mins = Math.floor(gameElapsed / 60);
+            const secs = gameElapsed % 60;
+            this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
         }
 
         this.renderSpecialsCooldowns();
