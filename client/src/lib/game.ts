@@ -1690,7 +1690,7 @@ class MainScene extends Phaser.Scene {
         
         // Consumo de 100 de ki
         if (this.kiarc < 100) return;
-        this.kiarc -= 100;
+        this.kiarc = Math.max(0, this.kiarc - 100);
         this.updateHUD();
 
         this.isMeteorFalling = true;
@@ -1885,7 +1885,7 @@ class MainScene extends Phaser.Scene {
         // KiArc Explosion (Key F)
         if (Phaser.Input.Keyboard.JustDown(this.keys.F) && !this.isDefending) {
             if (this.kiarc >= 100) {
-                this.kiarc -= 100;
+                this.kiarc = Math.max(0, this.kiarc - 100);
                 this.useKiArcExplosion();
                 this.updateHUD();
             }
@@ -2560,7 +2560,7 @@ class MainScene extends Phaser.Scene {
         const kameDamage = stats.kame;
         
         // Ensure 100 KI consumption
-        this.kiarc -= 100;
+        this.kiarc = Math.max(0, this.kiarc - 100);
         this.specialsCooldowns['V'].startTime = this.time.now;
         const beamLength = 2400;
         const beamX = this.player.x + (this.player.flipX ? -(beamLength / 2) : (beamLength / 2));
@@ -2665,7 +2665,7 @@ class MainScene extends Phaser.Scene {
         const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
         // MagicKiArc (Key C) uses 5 KI in any level
-        this.kiarc -= 5;
+        this.kiarc = Math.max(0, this.kiarc - 5);
         
         // Play magic sound effect with proper volume
         const sound = this.sfx['magic'];
@@ -2728,7 +2728,7 @@ class MainScene extends Phaser.Scene {
         // Consome KI do personagem continuamente
         const kiToConsume = 0.5; // 2x mais lento (antes era 2.0 ou 1.0 dependendo da versão)
         if (this.kiarc >= kiToConsume) {
-            this.kiarc -= kiToConsume;
+            this.kiarc = Math.max(0, this.kiarc - kiToConsume);
             this.genkidamaChargeAmount += kiToConsume;
             
             if (!this.genkidama) {
