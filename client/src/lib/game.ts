@@ -6139,6 +6139,11 @@ class DeathScene extends Phaser.Scene {
         }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(104);
 
         const closeModal = () => {
+            // Re-enable Phaser keyboard input
+            if (this.input.keyboard) {
+                this.input.keyboard.enabled = true;
+            }
+
             if (inputContainer && inputContainer.parentElement) {
                 inputContainer.remove();
             }
@@ -6154,6 +6159,11 @@ class DeathScene extends Phaser.Scene {
             cancelBtn.destroy();
             cancelText.destroy();
         };
+
+        // Disable Phaser keyboard input while typing in the HTML field
+        if (this.input.keyboard) {
+            this.input.keyboard.enabled = false;
+        }
 
         const submitWithName = async () => {
             if (confirmBtn.getData('processing')) return;
