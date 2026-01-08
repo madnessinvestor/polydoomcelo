@@ -7,6 +7,37 @@ import type { Score } from "@shared/schema";
 import { useUI } from "@/hooks/use-ui";
 import { useEffect } from "react";
 
+function PixelCrown({ rank }: { rank: number }) {
+  if (rank > 3) return null;
+
+  const colors = {
+    1: "#FFD700", // Gold
+    2: "#C0C0C0", // Silver
+    3: "#CD7EF2", // Bronze (Adjusted to look more bronze-ish in the dark theme)
+  };
+
+  const bronze = "#CD7F32";
+  const color = rank === 1 ? "#FFD700" : rank === 2 ? "#C0C0C0" : bronze;
+
+  // 8x8-ish pixel crown grid
+  return (
+    <div className="inline-grid grid-cols-5 gap-0.5 w-5 h-4 ml-2 align-middle">
+      {[
+        0, 1, 0, 1, 0,
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1
+      ].map((pixel, i) => (
+        <div
+          key={i}
+          className="w-full h-full"
+          style={{ backgroundColor: pixel ? color : 'transparent' }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function Leaderboard() {
   const { openModal, closeModal } = useUI();
   const { data: scores = [], isLoading } = useQuery<Score[]>({
@@ -87,8 +118,9 @@ export function Leaderboard() {
                       <div className="flex-shrink-0 w-16 text-center font-bold text-slate-400 text-base">
                         {index + 1}
                       </div>
-                      <div className="flex-1 text-white truncate text-base font-medium">
+                      <div className="flex-1 text-white truncate text-base font-medium flex items-center">
                         {score.playerName}
+                        <PixelCrown rank={index + 1} />
                       </div>
                       <div className="w-24 text-center text-slate-300 text-base">
                         {score.enemiesDefeated}

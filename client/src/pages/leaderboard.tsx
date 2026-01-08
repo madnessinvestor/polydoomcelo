@@ -6,6 +6,30 @@ import { ArrowLeft, Trophy } from "lucide-react";
 import { useUI } from "@/hooks/use-ui";
 import { useQuery } from "@tanstack/react-query";
 
+function PixelCrown({ rank }: { rank: number }) {
+  if (rank > 3) return null;
+
+  const bronze = "#CD7F32";
+  const color = rank === 1 ? "#FFD700" : rank === 2 ? "#C0C0C0" : bronze;
+
+  return (
+    <div className="inline-grid grid-cols-5 gap-0.5 w-5 h-4 ml-2 align-middle">
+      {[
+        0, 1, 0, 1, 0,
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1
+      ].map((pixel, i) => (
+        <div
+          key={i}
+          className="w-full h-full"
+          style={{ backgroundColor: pixel ? color : 'transparent' }}
+        />
+      ))}
+    </div>
+  );
+}
+
 interface Score {
   id: number;
   playerName: string;
@@ -56,7 +80,10 @@ export default function Leaderboard() {
                         #{index + 1}
                       </span>
                       <div>
-                        <div className="text-white text-lg font-bold uppercase tracking-tight">{score.playerName}</div>
+                        <div className="text-white text-lg font-bold uppercase tracking-tight flex items-center">
+                          {score.playerName}
+                          <PixelCrown rank={index + 1} />
+                        </div>
                         <div className="text-sm text-slate-400 uppercase">{score.enemiesDefeated} enemies defeated</div>
                       </div>
                     </div>
