@@ -45,6 +45,59 @@ export default function Home() {
     score: 0
   });
 
+  const ARC_TESTNET_CONFIG = {
+    chainId: "0x4cef52", // Updated to 0x4cef52 based on actual network ID seen in logs
+    chainName: "Arc Testnet",
+    nativeCurrency: {
+      name: "ARC",
+      symbol: "ARC",
+      decimals: 18
+    },
+    rpcUrls: ["https://rpc.testnet.arc.io"], // Updated RPC URL
+    blockExplorerUrls: ["https://explorer.testnet.arc.io"]
+  };
+
+  const switchNetwork = async () => {
+    if (!(window as any).ethereum) return;
+    try {
+      await (window as any).ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: ARC_TESTNET_CONFIG.chainId }],
+      });
+    } catch (switchError: any) {
+      if (switchError.code === 4902) {
+        try {
+          await (window as any).ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [ARC_TESTNET_CONFIG],
+          });
+        } catch (addError) {
+          console.error("Error adding Arc Testnet:", addError);
+        }
+      }
+      console.error("Error switching to Arc Testnet:", switchError);
+    }
+  };
+
+  useEffect(() => {
+    const handleChainChanged = (chainId: string) => {
+      if (chainId !== ARC_TESTNET_CONFIG.chainId) {
+        switchNetwork();
+      }
+    };
+
+    if ((window as any).ethereum) {
+      (window as any).ethereum.request({ method: 'eth_chainId' }).then(handleChainChanged);
+      (window as any).ethereum.on('chainChanged', handleChainChanged);
+    }
+
+    return () => {
+      if ((window as any).ethereum?.removeListener) {
+        (window as any).ethereum.removeListener('chainChanged', handleChainChanged);
+      }
+    };
+  }, []);
+
   const fetchUpgradesAndInventory = async () => {
     if (!(window as any).ethereum) return null;
     try {
