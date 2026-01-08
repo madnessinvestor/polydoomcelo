@@ -8,6 +8,7 @@ export const scores = pgTable("scores", {
   score: integer("score").notNull(),
   wave: integer("wave").notNull().default(1),
   enemiesDefeated: integer("enemies_defeated").notNull(),
+  playTime: integer("play_time").notNull().default(0), // Time in seconds
   createdAt: timestamp("created_at").defaultNow(),
 });
 

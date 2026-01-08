@@ -120,12 +120,33 @@ class MainScene extends Phaser.Scene {
             const contract = new ethers.Contract(contractAddress, abi, signer);
 
             // Nome padrão caso não tenhamos um nome customizado
-            const playerName = "Arc Player " + userAddress.substring(0, 6);
+            const playerName = (window as any).walletAddress 
+                ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
+                : "Arc Player";
             
+            const totalPlayTime = Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000);
+
             console.log(`Submetendo: ${playerName} - ${this.score}`);
             const tx = await contract.addScore(playerName, BigInt(Math.floor(this.score)));
             console.log("Transação enviada:", tx.hash);
             
+            // Also save to backend leaderboard
+            try {
+                await fetch('/api/scores', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        playerName,
+                        score: Math.floor(this.score),
+                        wave: this.currentWave,
+                        enemiesDefeated: this.enemiesDefeated,
+                        playTime: totalPlayTime
+                    })
+                });
+            } catch (apiErr) {
+                console.warn("Failed to sync score with backend:", apiErr);
+            }
+
             this.showPickupNotification("Submitting score to Blockchain...");
             await tx.wait();
             console.log("Score registrado com sucesso!");
@@ -6258,6 +6279,7 @@ class DeathScene extends Phaser.Scene {
             // Registrar na API local SEMPRE
             console.log('📤 Registrando score na API local...');
             try {
+                const totalPlayTime = Math.floor((this.time.now - (this as any).gameStartTime - (this as any).totalPausedTime) / 1000);
                 const response = await fetch("/api/scores", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -6265,7 +6287,8 @@ class DeathScene extends Phaser.Scene {
                         playerName: playerName,
                         score: Math.floor(this.finalScore),
                         wave: this.finalWave,
-                        enemiesDefeated: 0
+                        enemiesDefeated: (this as any).enemiesDefeated || 0,
+                        playTime: totalPlayTime
                     })
                 });
 
