@@ -4893,9 +4893,7 @@ class StartScene extends Phaser.Scene {
                 (window as any).networkName = 'Arc Testnet';
                 
                 // Update START GAME button state
-                if ((window as any).updateStartButtonState) {
-                    (window as any).updateStartButtonState();
-                }
+                this.updateStartButtonState();
                 
                 if (this.scene.isActive('MainScene')) {
                     const mainScene = this.scene.get('MainScene') as any;
@@ -4922,9 +4920,39 @@ class StartScene extends Phaser.Scene {
         }
     }
 
-    private updateNetworkDisplay(network: string) {
-        if (this.networkInfoText) {
-            this.networkInfoText.setText(network ? `Network: ${network}` : '');
+    private updateStartButtonState() {
+        const isWalletConnected = !!(window as any).walletAddress;
+        if (this.startBtn && this.startText) {
+            const color = isWalletConnected ? 0x4ade80 : 0x6b7280;
+            const btnRect = this.startBtn as any;
+            btnRect.setStrokeStyle(2, color, 1);
+            
+            // Update glow color if possible (assuming container structure from createNeonButton)
+            const container = btnRect.parentContainer;
+            if (container) {
+                const glow = container.list[0] as Phaser.GameObjects.Graphics;
+                if (glow && glow.clear) {
+                    glow.clear();
+                    const drawGlow = (thickness: number, alpha: number) => {
+                        glow.lineStyle(thickness, color, alpha);
+                        glow.strokeRoundedRect(-240/2 - thickness/2, -60/2 - thickness/2, 240 + thickness, 60 + thickness, 12 + thickness/2);
+                    };
+                    drawGlow(16, 0.1);
+                    drawGlow(12, 0.2);
+                    drawGlow(8, 0.3);
+                    drawGlow(4, 0.5);
+                }
+            }
+
+            if (isWalletConnected) {
+                btnRect.setInteractive({ useHandCursor: true });
+                btnRect.setAlpha(1);
+                this.startText.setAlpha(1);
+            } else {
+                btnRect.disableInteractive();
+                btnRect.setAlpha(0.5);
+                this.startText.setAlpha(0.5);
+            }
         }
     }
 
@@ -5175,6 +5203,9 @@ class StartScene extends Phaser.Scene {
         this.startBtn = startBtnObj.btn as any;
         this.startText = startBtnObj.btnText;
 
+        // Initialize button state
+        this.updateStartButtonState();
+
         // Menu Buttons Grid
         const menuY = height / 2 + 130;
         createNeonButton(width / 2, menuY, 220, 46, 0x6b7280, 'UPGRADES', '20px', '#ffffff', () => (window as any).openUpgradesModal?.());
@@ -5260,6 +5291,7 @@ class StartScene extends Phaser.Scene {
                     this.updateWalletButtonText(`CONNECTED: ${accounts[0].substring(0, 6)}...`);
                 }
                 this.updateUSDCBalance();
+                this.updateStartButtonState();
             });
         }
     }
