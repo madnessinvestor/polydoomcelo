@@ -1818,18 +1818,14 @@ class MainScene extends Phaser.Scene {
     }
 
     update(time: number, delta: number) {
-        // PAUSA TOTAL - Nada deve executar se estiver pausado
-        if (this.isPaused || this.pauseModalOpen) {
-            return;
-        }
-        
         if (this.isGameOver) return;
 
-        // Timer de Wave/Intervalo (Somente quando NÃO está pausado)
-        const now = this.time.now;
+        // 🔒 CÁLCULO DE TEMPO COM SUPORTE À PAUSA
+        // Usa pausedTime quando pausado para congelar o timer visualmente
+        const now = (this.isPaused || this.pauseModalOpen) ? this.pausedTime : this.time.now;
         const elapsed = Math.max(0, Math.floor((now - this.waveStartTime) / 1000));
         
-        // Atualização visual do timer no HUD
+        // Atualização visual do timer no HUD (sempre executa para mostrar valor congelado)
         if (!this.isWaveInterval) {
             const mins = Math.floor(elapsed / 60);
             const secs = elapsed % 60;
@@ -1839,6 +1835,11 @@ class MainScene extends Phaser.Scene {
             const mins = Math.floor(timeLeft / 60);
             const secs = timeLeft % 60;
             this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+        }
+        
+        // ⚠️ PAUSA TOTAL - Nada além da atualização visual deve executar
+        if (this.isPaused || this.pauseModalOpen) {
+            return;
         }
 
         // Update scarf
