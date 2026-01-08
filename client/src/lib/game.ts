@@ -5372,11 +5372,20 @@ class StartScene extends Phaser.Scene {
                         const secs = s % 60;
                         return `${mins}:${secs.toString().padStart(2, '0')}`;
                     };
+
+                    const getCrown = (rank: number) => {
+                        if (rank === 1) return '<span style="color: #ffd700; margin-left: 5px;">👑</span>';
+                        if (rank === 2) return '<span style="color: #c0c0c0; margin-left: 5px;">👑</span>';
+                        if (rank === 3) return '<span style="color: #cd7f32; margin-left: 5px;">👑</span>';
+                        return '';
+                    };
                     
                     content += `
                         <tr style="font-size: 12px;">
                             <td style="color: #94a3b8;">${index + 1}</td>
-                            <td style="color: #fff; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px;" title="${score.playerName}">${score.playerName}</td>
+                            <td style="color: #fff; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px;" title="${score.playerName}">
+                                ${score.playerName}${getCrown(index + 1)}
+                            </td>
                             <td style="color: #60a5fa;">${score.wave || 1}</td>
                             <td style="color: #f87171;">${score.enemiesDefeated || 0}</td>
                             <td style="color: #fbbf24;">${formatTime(score.playTime || 0)}</td>
