@@ -2686,6 +2686,11 @@ class MainScene extends Phaser.Scene {
     }
 
     arcKiExplosion() {
+        // Prevent usage while charging Genkidama or Kamehameha
+        if (this.isChargingGenkidama || this.isChargingKamehameha) {
+            return;
+        }
+        
         const stats = this.levelStats[this.level - 1];
         const damageMultiplier = stats.mult;
         // Dano é 40% do dano do punch (baseado no stats.punch)
