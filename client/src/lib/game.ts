@@ -5287,20 +5287,31 @@ class StartScene extends Phaser.Scene {
         lbContentContainer.style.position = 'absolute';
         
         // Calculate position relative to game canvas
-        const canvasObj = this.game.canvas;
-        const canvasRect = canvasObj.getBoundingClientRect();
-        const canvasScaleX = canvasRect.width / width;
-        const canvasScaleY = canvasRect.height / height;
-        
-        const divWidth = (lbWidth - 40) * canvasScaleX;
-        const divHeight = (lbHeight - 120) * canvasScaleY;
-        const divX = canvasRect.left + (lbX - lbWidth/2 + 20) * canvasScaleX;
-        const divY = canvasRect.top + (lbY - lbHeight/2 + 100) * canvasScaleY;
+        const updateLBPosition = () => {
+            const canvasObj = this.game.canvas;
+            const canvasRect = canvasObj.getBoundingClientRect();
+            
+            // The game is 1920x1080. We need to scale lbWidth/lbHeight accordingly
+            const scaleX = canvasRect.width / 1920;
+            const scaleY = canvasRect.height / 1080;
+            
+            const divWidth = (lbWidth - 40) * scaleX;
+            const divHeight = (lbHeight - 120) * scaleY;
+            const divX = canvasRect.left + (lbX - lbWidth/2 + 20) * scaleX;
+            const divY = canvasRect.top + (lbY - lbHeight/2 + 100) * scaleY;
 
-        lbContentContainer.style.left = divX + 'px';
-        lbContentContainer.style.top = divY + 'px';
-        lbContentContainer.style.width = divWidth + 'px';
-        lbContentContainer.style.height = divHeight + 'px';
+            lbContentContainer.style.left = divX + 'px';
+            lbContentContainer.style.top = divY + 'px';
+            lbContentContainer.style.width = divWidth + 'px';
+            lbContentContainer.style.height = divHeight + 'px';
+            
+            // Scale content based on zoom/resize
+            lbContentContainer.style.fontSize = (14 * scaleY) + 'px';
+        };
+
+        updateLBPosition();
+        window.addEventListener('resize', updateLBPosition);
+        
         lbContentContainer.style.backgroundColor = 'transparent';
         lbContentContainer.style.overflowY = 'auto'; 
         lbContentContainer.style.overflowX = 'hidden';
@@ -5324,9 +5335,30 @@ class StartScene extends Phaser.Scene {
                 border-radius: 3px;
             }
             .lb-table { width: 100%; border-collapse: collapse; font-family: monospace; }
-            .lb-table th { color: #fff; text-align: center; padding: 10px 5px; font-size: 16px; text-transform: uppercase; }
-            .lb-table td { padding: 12px 5px; font-size: 14px; text-align: center; vertical-align: middle; }
+            .lb-table th { 
+                color: #4ade80; 
+                text-align: center; 
+                padding: 10px 5px; 
+                font-size: 1.1em; 
+                text-transform: uppercase; 
+                position: sticky; 
+                top: 0; 
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10;
+                border-bottom: 2px solid rgba(74, 222, 128, 0.3);
+            }
+            .lb-table td { padding: 12px 5px; font-size: 1em; text-align: center; vertical-align: middle; }
             .lb-row { border-bottom: 1px solid rgba(74, 222, 128, 0.1); }
+            .pixel-crown {
+                display: inline-grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 1px;
+                width: 1.5em;
+                height: 1.2em;
+                image-rendering: pixelated;
+                margin-left: 5px;
+                vertical-align: middle;
+            }
         `;
         document.head.appendChild(lbStyle);
 
@@ -5337,7 +5369,7 @@ class StartScene extends Phaser.Scene {
                 <div style="font-family: monospace;">
                     <table class="lb-table">
                         <thead>
-                            <tr style="border-bottom: 2px solid rgba(74, 222, 128, 0.3);">
+                            <tr>
                                 <th style="text-align: left; width: 30px;">#</th>
                                 <th style="text-align: left;">PLAYER</th>
                                 <th>WAVE</th>
@@ -5359,23 +5391,33 @@ class StartScene extends Phaser.Scene {
                         return `${mins}:${secs.toString().padStart(2, '0')}`;
                     };
 
-                    const getCrown = (rank: number) => {
-                        if (rank === 1) return '<span style="color: #ffd700; margin-left: 5px;">👑</span>';
-                        if (rank === 2) return '<span style="color: #c0c0c0; margin-left: 5px;">👑</span>';
-                        if (rank === 3) return '<span style="color: #cd7f32; margin-left: 5px;">👑</span>';
-                        return '';
+                    const getCrownHtml = (rank: number) => {
+                        if (rank > 3) return '';
+                        const colors = { 1: '#FFD700', 2: '#C0C0C0', 3: '#CD7F32' };
+                        const color = colors[rank as keyof typeof colors];
+                        const pattern = [
+                            1, 0, 1, 0, 1,
+                            1, 1, 1, 1, 1,
+                            1, 1, 1, 1, 1,
+                            1, 1, 1, 1, 1
+                        ];
+                        let crownDivs = '';
+                        pattern.forEach(p => {
+                            crownDivs += `<div style="background-color: ${p ? color : 'transparent'};"></div>`;
+                        });
+                        return `<div class="pixel-crown">${crownDivs}</div>`;
                     };
                     
                     content += `
                         <tr class="lb-row">
                             <td style="color: #94a3b8; text-align: left;">${index + 1}</td>
                             <td style="color: #fff; font-weight: bold; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;" title="${score.playerName}">
-                                ${score.playerName}${getCrown(index + 1)}
+                                ${score.playerName}${getCrownHtml(index + 1)}
                             </td>
                             <td style="color: #60a5fa;">${score.wave || 1}</td>
                             <td style="color: #f87171;">${score.enemiesDefeated || 0}</td>
                             <td style="color: #fbbf24;">${formatTime(score.playTime || 0)}</td>
-                            <td style="text-align: right; color: #4ade80; font-weight: bold; font-size: 16px;">${Math.floor(score.score).toLocaleString()}</td>
+                            <td style="text-align: right; color: #4ade80; font-weight: bold; font-size: 1.1em;">${Math.floor(score.score).toLocaleString()}</td>
                         </tr>
                     `;
                 });
@@ -5406,11 +5448,13 @@ class StartScene extends Phaser.Scene {
         // Cleanup div and style when scene is destroyed or stopped
         this.events.once('shutdown', () => {
             clearInterval(lbRefreshInterval);
+            window.removeEventListener('resize', updateLBPosition);
             lbContentContainer.remove();
             lbStyle.remove();
         });
         this.events.once('destroy', () => {
             clearInterval(lbRefreshInterval);
+            window.removeEventListener('resize', updateLBPosition);
             lbContentContainer.remove();
             lbStyle.remove();
         });
