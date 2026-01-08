@@ -5339,20 +5339,6 @@ class StartScene extends Phaser.Scene {
             lbContentContainer.style.fontSize = `${Math.max(10, baseFontSize)}px`;
         };
 
-        // Initial fetch and 30s refresh timer
-        const refreshLB = async () => {
-            try {
-                const response = await fetch('/api/scores');
-                const data = await response.json();
-                renderEmbeddedLB(data);
-            } catch (err) {
-                console.error("Error fetching leaderboard:", err);
-            }
-        };
-
-        refreshLB();
-        this.time.addEvent({ delay: 30000, callback: refreshLB, loop: true });
-
         // Update on window resize and periodically to ensure sync
         window.addEventListener('resize', updateLBPosition);
         this.time.addEvent({ delay: 100, callback: updateLBPosition, loop: true });
@@ -5392,8 +5378,8 @@ class StartScene extends Phaser.Scene {
                             <svg width="20" height="16" viewBox="0 0 20 16" style="display: inline-block; vertical-align: middle; margin-left: 5px; filter: drop-shadow(0 0 3px ${shadow});">
                                 <path d="M2 14h16V8h-2V6h-2v2h-2V4h-4v4h-2V6H6v2H4v6h-2zM4 12V10h2v2H4zm4-2v2H6V10h2zm4 0v2h-2V10h2zm4 0v2h-2V10h2z" fill="${color}" shape-rendering="crispEdges"/>
                             </svg>`;
-                        if (rank === 1) return crownSVG('#FFD700', 'rgba(255, 215, 0, 0.6)'); // Gold
-                        if (rank === 2) return crownSVG('#C0C0C0', 'rgba(192, 192, 192, 0.6)'); // Silver
+                        if (rank === 1) return crownSVG('#FFD700', 'rgba(255, 215, 0, 0.6)'); // Ouro
+                        if (rank === 2) return crownSVG('#C0C0C0', 'rgba(192, 192, 192, 0.6)'); // Prata
                         if (rank === 3) return crownSVG('#CD7F32', 'rgba(205, 127, 50, 0.6)'); // Bronze
                         return '';
                     };
@@ -5415,6 +5401,10 @@ class StartScene extends Phaser.Scene {
             content += '</tbody></table></div>';
             lbContentContainer.innerHTML = content;
         };
+
+        lbContentContainer.innerHTML = '<p style="text-align: center; color: #4ade80; padding-top: 20px;">Loading scores...</p>';
+        
+        const updateLB = () => {
             import('./leaderboard').then(({ fetchOnChainLeaderboard }) => {
                 fetchOnChainLeaderboard().then(scores => {
                     if (scores && scores.length > 0) {
