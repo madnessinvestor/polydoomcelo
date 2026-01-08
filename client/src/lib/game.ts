@@ -2126,18 +2126,31 @@ class MainScene extends Phaser.Scene {
 
         // Handle ArcGenkiDama (B Key)
         if (this.keys.B.isDown && !this.isDefending) {
-            if (this.kiarc > 0) {
-                this.player.setVelocity(0, 0);
-                if (this.player.body) {
-                    (this.player.body as Phaser.Physics.Arcade.Body).setAllowGravity(false);
+            // Check if cooldown is active
+            const now = this.time.now;
+            const cooldown = this.specialsCooldowns['B'];
+            const timeElapsed = now - cooldown.startTime;
+            
+            if (timeElapsed >= cooldown.duration) {
+                if (this.kiarc > 0) {
+                    this.player.setVelocity(0, 0);
+                    if (this.player.body) {
+                        (this.player.body as Phaser.Physics.Arcade.Body).setAllowGravity(false);
+                    }
+                    this.chargeGenkidama();
                 }
-                this.chargeGenkidama();
+            } else {
+                // Optional: visual feedback that it's on cooldown
+                if (!this.isChargingGenkidama && this.time.now % 1000 < 20) {
+                    const remaining = Math.ceil((cooldown.duration - timeElapsed) / 1000);
+                    this.showPickupNotification(`Genkidama Cooldown: ${remaining}s`);
+                }
             }
         } else if (Phaser.Input.Keyboard.JustUp(this.keys.B) && this.isChargingGenkidama) {
             if (this.player.body) {
                 (this.player.body as Phaser.Physics.Arcade.Body).setAllowGravity(true);
             }
-            if (this.genkidamaChargeAmount >= 100) {
+            if (this.genkidamaChargeAmount >= 200) {
                 this.shootGenkidama();
             } else {
                 // Fail to launch if threshold not met
