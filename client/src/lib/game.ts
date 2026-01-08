@@ -4678,20 +4678,8 @@ class MainScene extends Phaser.Scene {
         // Pause all sounds
         this.sound.pauseAll();
         
-        // Pause wave timer events
-        if (this.waveTimerEvent) {
-            this.waveTimerEvent.paused = true;
-        }
-        if (this.spawnEvent) {
-            this.spawnEvent.paused = true;
-        }
-        if (this.intervalTimerEvent) {
-            this.intervalTimerEvent.paused = true;
-        }
-        
-        // Store the elapsed time to adjust wave start time when resuming
-        const elapsedBeforePause = this.time.now - this.waveStartTime;
-        (window as any).elapsedBeforePause = elapsedBeforePause;
+        // Pause time and timers
+        this.time.paused = true;
         
         // Notify React to show pause modal
         if ((window as any).showPauseModal) {
@@ -4744,16 +4732,8 @@ class MainScene extends Phaser.Scene {
         // Resume all sounds
         this.sound.resumeAll();
         
-        // Resume wave timer events
-        if (this.waveTimerEvent) {
-            this.waveTimerEvent.paused = false;
-        }
-        if (this.spawnEvent) {
-            this.spawnEvent.paused = false;
-        }
-        if (this.intervalTimerEvent) {
-            this.intervalTimerEvent.paused = false;
-        }
+        // Resume time and timers
+        this.time.paused = false;
         
         // Notify React to hide pause modal
         if ((window as any).hidePauseModal) {
