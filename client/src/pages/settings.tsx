@@ -118,7 +118,7 @@ export default function Settings() {
         <div className="p-6 border-t border-slate-800 flex justify-center">
           <Button 
             onClick={closeModal}
-            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-12 h-12 text-lg uppercase tracking-wider rounded-none shadow-lg border-none"
+            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-12 h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg"
           >
             CLOSE
           </Button>
