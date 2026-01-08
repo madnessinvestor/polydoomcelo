@@ -1820,14 +1820,17 @@ class MainScene extends Phaser.Scene {
     update(time: number, delta: number) {
         if (this.isGameOver) return;
 
-        // SE O JOGO ESTIVER PAUSADO, NÃO FAZ NADA
+        // Se o jogo estiver pausado, garantimos que nada ocorra
         if (this.isPaused) {
+            this.updateHUD(); // Força a HUD a usar o pausedTime
             return;
         }
 
-        // Timer de Wave/Intervalo (Apenas quando o jogo está rodando)
+        // Timer de Wave/Intervalo (Somente quando NÃO está pausado)
         const now = this.time.now;
         const elapsed = Math.max(0, Math.floor((now - this.waveStartTime) / 1000));
+        
+        // Atualização visual do timer no HUD
         if (!this.isWaveInterval) {
             const mins = Math.floor(elapsed / 60);
             const secs = elapsed % 60;
@@ -4730,12 +4733,14 @@ class MainScene extends Phaser.Scene {
         this.pauseModalOpen = true;
         this.pausedTime = this.time.now;
         
-        // COMPLETELY STOP PHASER ENGINE
-        this.game.loop.pause();
+        // PAUSE EVERYTHING
         this.physics.pause();
         this.tweens.pauseAll();
         this.sound.pauseAll();
         this.time.paused = true;
+        
+        // INTERRUPT THE LOOP
+        this.game.loop.sleep();
         
         // Force an immediate HUD update to freeze the visual timers
         this.updateHUD();
@@ -4780,7 +4785,9 @@ class MainScene extends Phaser.Scene {
             }
         });
         
-        this.game.loop.resume();
+        // WAKE UP THE LOOP
+        this.game.loop.wake();
+        
         this.physics.resume();
         this.tweens.resumeAll();
         this.sound.resumeAll();
