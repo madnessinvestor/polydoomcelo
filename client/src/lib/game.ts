@@ -698,6 +698,7 @@ class MainScene extends Phaser.Scene {
         this.load.audio('genkidama_launch', '/attached_assets/ArcGenkiDama_(Lançando)_1767105766844.mp3');
         this.load.audio('kamehameha_charge', '/attached_assets/ArcKamehameha_(Carregando)_1767105836583.mp3');
         this.load.audio('kamehameha_launch', '/attached_assets/ArcKamehameha_(Lançando)_1767105839121.mp3');
+        this.load.audio('charge_ki_new', '/attached_assets/Charge-KiArc_1767881300691.ogg');
         this.load.audio('charge_ki', '/attached_assets/Charge_KiArc_1767105879554.mp3');
         this.load.audio('dash', '/attached_assets/Dash_1767105889490.mp3');
         this.load.audio('explosion_ki', '/attached_assets/Explosion_KiArc_1767105910641.mp3');
@@ -858,7 +859,7 @@ class MainScene extends Phaser.Scene {
         // Initialize SFX
         const sfxKeys = [
             'genkidama_charge', 'genkidama_launch', 'kamehameha_charge', 'kamehameha_launch',
-            'charge_ki', 'dash', 'explosion_ki', 'item_pickup', 'punch', 'magic',
+            'charge_ki', 'charge_ki_new', 'dash', 'explosion_ki', 'item_pickup', 'punch', 'magic',
             'menu_button', 'close_button', 'meteor_1', 'meteor_2',
             this.deathSoundKey, this.defenseSoundKey
         ];
@@ -2125,6 +2126,11 @@ class MainScene extends Phaser.Scene {
         
         if (this.keys.X.isDown && !this.keys.B.isDown && !this.isChargingKamehameha && !this.isDefending) {
             this.chargeKiarc();
+        } else {
+            // Stop charging sound if X is released
+            if (this.sfx['charge_ki_new']?.isPlaying) {
+                this.sfx['charge_ki_new'].stop();
+            }
         }
 
         // MagicKiArc (Key C) - No cooldown
@@ -2425,8 +2431,8 @@ class MainScene extends Phaser.Scene {
 
     private chargeKiarc() {
         if (this.kiarc < this.maxKiarc) {
-            if (this.time.now % 1000 < 20 && !this.sfx['charge_ki']?.isPlaying) {
-                this.sfx['charge_ki']?.play();
+            if (!this.sfx['charge_ki_new']?.isPlaying) {
+                this.sfx['charge_ki_new']?.play({ loop: true, volume: this.sfxVolume });
             }
             this.kiarc = Math.min(this.maxKiarc, this.kiarc + 0.5);
             this.player.setTint(0xffffff); // Flash white when charging
