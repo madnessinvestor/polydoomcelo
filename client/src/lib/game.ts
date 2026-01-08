@@ -3240,19 +3240,19 @@ class MainScene extends Phaser.Scene {
                 // Recupera 50% do HP, sem aumentar o limite máximo
                 this.health = Math.min(this.maxHealth, this.health + this.maxHealth * 0.5);
                 this.cameras.main.flash(200, 0, 255, 0, true);
-                this.showPickupNotification('ArcHP', 'Recupera 50% de Vida.');
+                this.showPickupNotification('ArcHP', 'Restores 50% Health.');
                 break;
             case 'ArcKI':
                 // Recupera 100% do KI, sem aumentar o limite máximo
                 this.kiarc = this.maxKiarc;
                 this.cameras.main.flash(200, 0, 0, 255, true);
-                this.showPickupNotification('ArcKI', 'Recupera 100% de Energia (KI).');
+                this.showPickupNotification('ArcKI', 'Restores 100% Energy (KI).');
                 break;
             case 'ArcPower':
                 this.hasDamageBoost = true;
-                this.addBuff('ArcPower', 'Damage Boost', 'Dobra todo o dano do personagem (Z, C, V, B, F e S).', 20);
+                this.addBuff('ArcPower', 'Damage Boost', 'Doubles all character damage (Z, C, V, B, F and S).', 20);
                 this.cameras.main.flash(500, 255, 0, 0, true);
-                this.showPickupNotification('ArcPower', 'Dano Dobrado por 20 segundos!');
+                this.showPickupNotification('ArcPower', 'Double Damage for 20 seconds!');
                 this.time.delayedCall(20000, () => {
                     this.hasDamageBoost = false;
                     this.removeBuff('ArcPower');
@@ -3260,9 +3260,9 @@ class MainScene extends Phaser.Scene {
                 break;
             case 'ArcScore':
                 this.hasScoreBoost = true;
-                this.addBuff('ArcScore', 'Score Boost', 'Dobra todo o score ganho de inimigos e chefes.', 20);
+                this.addBuff('ArcScore', 'Score Boost', 'Doubles all score gained from enemies and bosses.', 20);
                 this.cameras.main.flash(500, 255, 215, 0, true);
-                this.showPickupNotification('ArcScore', 'Pontuação Dobrada por 20 segundos!');
+                this.showPickupNotification('ArcScore', 'Double Score for 20 seconds!');
                 this.time.delayedCall(20000, () => {
                     this.hasScoreBoost = false;
                     this.removeBuff('ArcScore');
@@ -3271,9 +3271,9 @@ class MainScene extends Phaser.Scene {
             case 'ArcBarrier':
                 this.isInvincible = true;
                 this.invincibilityTimer = 20000; // 20 seconds
-                this.addBuff('ArcBarrier', 'Invencibilidade', 'Personagem fica invencível e não recebe dano.', 20);
+                this.addBuff('ArcBarrier', 'Invincibility', 'Character becomes invincible and takes no damage.', 20);
                 this.cameras.main.flash(300, 255, 0, 255, true);
-                this.showPickupNotification('ArcBarrier', 'Invencibilidade por 20 segundos!');
+                this.showPickupNotification('ArcBarrier', 'Invincibility for 20 seconds!');
                 this.time.delayedCall(20000, () => {
                     this.isInvincible = false;
                     this.removeBuff('ArcBarrier');
@@ -3313,7 +3313,7 @@ class MainScene extends Phaser.Scene {
                 if (buff.duration && buff.startTime) {
                     const elapsed = (this.time.now - buff.startTime) / 1000;
                     const remaining = Math.max(0, buff.duration - elapsed);
-                    durationText = remaining > 0 ? `${Math.ceil(remaining)}s` : 'Partida';
+                    durationText = remaining > 0 ? `${Math.ceil(remaining)}s` : 'Match';
                 }
                 this.showTooltip(pointer.x, pointer.y, buff.title, buff.description, durationText);
             });
@@ -4332,12 +4332,12 @@ class MainScene extends Phaser.Scene {
                 container.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
                 
                 const descriptions: Record<string, string> = {
-                    arc_hp: 'Aumenta sua vida máxima permanentemente.',
-                    arc_ki: 'Aumenta sua reserva de KI permanentemente.',
-                    arc_damage: 'Aumenta o dano de seus ataques.',
-                    arc_defence: 'Reduz o dano recebido de inimigos.',
-                    arc_regen: 'Aumenta a regeneração passiva de vida.',
-                    arc_vamp: 'Cura uma porção do dano causado.'
+                    arc_hp: 'Permanently increases your maximum health.',
+                    arc_ki: 'Permanently increases your KI capacity.',
+                    arc_damage: 'Increases the damage of your attacks.',
+                    arc_defence: 'Reduces damage received from enemies.',
+                    arc_regen: 'Increases passive health regeneration.',
+                    arc_vamp: 'Heals a portion of damage dealt.'
                 };
 
                 container.on('pointerover', () => {
@@ -4358,9 +4358,9 @@ class MainScene extends Phaser.Scene {
         this.buffIconsContainer.removeAll(true);
         
         const activeBuffs = [];
-        if (this.hasPowerBoost) activeBuffs.push({ type: 'ArcPower', title: 'Arc Power Boost', text: 'Dobra todo o dano do personagem (Soco, Magia e Arcamehameha).', duration: 'Partida' });
-        if (this.hasScoreBoost) activeBuffs.push({ type: 'ArcScore', title: 'Arc Score Boost', text: 'Dobra todo o score ganho de inimigos e chefes.', duration: 'Partida' });
-        if (this.isInvincible) activeBuffs.push({ type: 'ArcBarrier', title: 'Arc Barrier', text: 'Personagem fica invencível e não recebe dano.', duration: `${Math.ceil(this.invincibilityTimer / 1000)}s` });
+        if (this.hasPowerBoost) activeBuffs.push({ type: 'ArcPower', title: 'Arc Power Boost', text: 'Doubles all character damage (Punch, Magic and Arcamehameha).', duration: 'Match' });
+        if (this.hasScoreBoost) activeBuffs.push({ type: 'ArcScore', title: 'Arc Score Boost', text: 'Doubles all score gained from enemies and bosses.', duration: 'Match' });
+        if (this.isInvincible) activeBuffs.push({ type: 'ArcBarrier', title: 'Arc Barrier', text: 'Character becomes invincible and takes no damage.', duration: `${Math.ceil(this.invincibilityTimer / 1000)}s` });
 
         activeBuffs.forEach((buff, index) => {
             const x = index * 45;
@@ -4493,7 +4493,7 @@ class MainScene extends Phaser.Scene {
         }
 
         const textObj = this.tooltipContainer.list[1] as Phaser.GameObjects.Text;
-        textObj.setText(`${title}\n${text}${duration ? `\nDuração: ${duration}` : ''}`);
+        textObj.setText(`${title}\n${text}${duration ? `\nDuration: ${duration}` : ''}`);
         
         this.tooltipContainer.setPosition(x, y);
         this.tooltipContainer.setVisible(true);
@@ -4853,7 +4853,7 @@ class StartScene extends Phaser.Scene {
             };
 
             try {
-                console.log('Solicitando conexão de conta...');
+                console.log('Requesting account connection...');
                 const accounts = await (window as any).ethereum.request({
                     method: 'eth_requestAccounts',
                     params: [],
@@ -4863,22 +4863,22 @@ class StartScene extends Phaser.Scene {
                 
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
 
-                console.log('Tentando trocar para a rede Arc Testnet (0x4cef52)...');
+                console.log('Attempting to switch to Arc Testnet (0x4cef52)...');
                 try {
                     await (window as any).ethereum.request({
                         method: 'wallet_switchEthereumChain',
                         params: [{ chainId: '0x4cef52' }],
                     });
                 } catch (switchError: any) {
-                    console.log('Troca de rede falhou, erro:', switchError.code || switchError.message);
+                    console.log('Network switch failed, error:', switchError.code || switchError.message);
                     
-                    // Verificação robusta de erro de chain não encontrada
+                    // Robust check for chain not found error
                     const isMissing = switchError.code === 4902 || 
                                     (switchError.data && switchError.data.originalError && switchError.data.originalError.code === 4902) ||
                                     (switchError.message && (switchError.message.toLowerCase().includes('unrecognized') || switchError.message.toLowerCase().includes('not been added')));
 
                     if (isMissing) {
-                        console.log('Adicionando a rede Arc Testnet na carteira...');
+                        console.log('Adding Arc Testnet to wallet...');
                         await (window as any).ethereum.request({
                             method: 'wallet_addEthereumChain',
                             params: [arcTestnet],
@@ -4888,7 +4888,7 @@ class StartScene extends Phaser.Scene {
                     }
                 }
 
-                this.updateWalletButtonText(`CONECTADO: ${this.walletAddress?.substring(0, 6)}...`);
+                this.updateWalletButtonText(`CONNECTED: ${this.walletAddress?.substring(0, 6)}...`);
                 this.updateNetworkDisplay('Arc Testnet');
                 (window as any).networkName = 'Arc Testnet';
                 
@@ -4902,12 +4902,9 @@ class StartScene extends Phaser.Scene {
                     mainScene.updateWalletHUD?.();
                 }
             } catch (error: any) {
-                console.error('Erro detalhado na conexão:', error);
-                alert(`Erro ao conectar: ${error.message || 'Erro desconhecido'}`);
-                this.updateWalletButtonText('CONNECT WALLET');
-                this.updateNetworkDisplay('');
-            } finally {
+                console.error('Outer connection error:', error);
                 this.isWalletConnecting = false;
+                this.updateWalletButtonText('CONNECT WALLET');
             }
         } catch (error: any) {
             console.error('Outer connection error:', error);

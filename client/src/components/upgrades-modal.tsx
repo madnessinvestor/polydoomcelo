@@ -190,7 +190,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
   const handleUpgrade = async (id: string) => {
     const currentLevel = purchasedLevels[id];
     
-    // Bloquear botão quando defence >= 10
+    // Block button when defense >= 10
     if (currentLevel >= 10) return;
 
     const nextTier = UPGRADE_DATA.find(u => u.id === id)?.tiers[currentLevel];
@@ -233,26 +233,26 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, signer);
       const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
 
-      // Verificação específica para ArcDefence
+      // Specific check for ArcDefence
       if (id === "arc_defence") {
-        // Ler sempre upgrades(userAddress).defence como fonte da verdade
-        // Calcular o preço usando defencePrices[defence]
+        // Always read upgrades(userAddress).defence as source of truth
+        // Calculate price using defencePrices[defence]
         try {
           const onChainData = await upgradeContract.upgrades(userAddress);
           const currentOnChainDefence = Number(onChainData.defence);
           
           if (currentOnChainDefence >= 10) {
-            throw new Error("Nível máximo de defesa atingido on-chain.");
+            throw new Error("Maximum defense level reached on-chain.");
           }
 
           const price = await upgradeContract.defencePrices(currentOnChainDefence);
           if (price === BigInt(0)) {
-            throw new Error(`Nível de defesa ${currentOnChainDefence + 1} não disponível (defencePrices[${currentOnChainDefence}] == 0).`);
+            throw new Error(`Defense level ${currentOnChainDefence + 1} not available (defencePrices[${currentOnChainDefence}] == 0).`);
           }
           
-          console.log(`Validado on-chain: Nível Atual ${currentOnChainDefence}, Preço ${price.toString()}`);
+          console.log(`Validated on-chain: Current Level ${currentOnChainDefence}, Price ${price.toString()}`);
         } catch (e: any) {
-          throw new Error("Erro de validação on-chain (ArcDefence): " + (e.reason || e.message));
+          throw new Error("On-chain validation error (ArcDefence): " + (e.reason || e.message));
         }
       }
       

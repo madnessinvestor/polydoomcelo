@@ -118,8 +118,8 @@ export default function Home() {
   useEffect(() => {
     if (isConnected) {
       setIsChecking(true);
-      // Simulando o carregamento dos upgrades e shopping ao iniciar
-      console.log("Iniciando carregamento obrigatório de dados...");
+      // Simulating loading of upgrades and shopping at start
+      console.log("Starting mandatory data loading...");
       
       fetchUpgradesAndInventory().then(data => {
         const upgrades = data?.upgrades;
@@ -132,10 +132,10 @@ export default function Home() {
         import("@/lib/game").then((mod) => {
           mod.initGame(upgrades || undefined);
           
-          // Pequeno delay para garantir que o Phaser carregou as texturas/sons básicos
+          // Small delay to ensure Phaser loaded basic textures/sounds
           setTimeout(() => {
             setIsChecking(false);
-            console.log("Carregamento concluído, iniciando jogo.");
+            console.log("Loading complete, starting game.");
           }, 1500);
           
           // Trigger HUD updates more aggressively
@@ -265,7 +265,7 @@ export default function Home() {
             });
           }
           game.pause();
-          // Adiciona bloqueio de eventos CSS no nível do navegador
+          // Adds CSS event blocking at the browser level
           document.getElementById('game-container')?.classList.add('pointer-events-none');
         }
       } catch (err) {
