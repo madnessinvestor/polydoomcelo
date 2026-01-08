@@ -4725,21 +4725,17 @@ class MainScene extends Phaser.Scene {
     private openPauseModal() {
         if (this.isPaused) return;
         
+        console.log("PAUSING GAME...");
         this.isPaused = true;
         this.pauseModalOpen = true;
         this.pausedTime = this.time.now;
         
-        // Pause physics engine
+        // COMPLETELY STOP PHASER ENGINE
+        this.game.loop.pause();
         this.physics.pause();
-        
-        // Pause all tweens
         this.tweens.pauseAll();
-        
-        // Pause all sounds
         this.sound.pauseAll();
-        
-        // PHASER PAUSE
-        this.scene.pause();
+        this.time.paused = true;
         
         // Force an immediate HUD update to freeze the visual timers
         this.updateHUD();
@@ -4765,6 +4761,7 @@ class MainScene extends Phaser.Scene {
     }
 
     private closePauseModal() {
+        console.log("RESUMING GAME...");
         this.isPaused = false;
         this.pauseModalOpen = false;
         
@@ -4783,12 +4780,11 @@ class MainScene extends Phaser.Scene {
             }
         });
         
+        this.game.loop.resume();
         this.physics.resume();
         this.tweens.resumeAll();
         this.sound.resumeAll();
-        
-        // PHASER RESUME
-        this.scene.resume();
+        this.time.paused = false;
         
         this.updateHUD();
         
