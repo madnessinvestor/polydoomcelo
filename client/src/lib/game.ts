@@ -2300,6 +2300,9 @@ class MainScene extends Phaser.Scene {
             { key: 'B', label: 'B', ki: 200 }
         ];
 
+        // Ensure F is in HUD maps if missing (though they are initialized in constructor/create)
+        // But the main issue is likely the image loading or the key not being processed correctly in the loop if the icon isn't loaded.
+
         const size = 64; // Uniform size for vertical bar
         const spacing = 12;
         const totalHeight = (size + spacing) * specials.length - spacing;
