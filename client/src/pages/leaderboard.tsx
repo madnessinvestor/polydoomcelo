@@ -27,8 +27,8 @@ export default function Leaderboard() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[160] pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-md bg-slate-900 border-amber-400 pointer-events-auto">
-        <CardHeader className="border-b border-amber-400">
+      <Card className="w-full max-w-5xl h-[85vh] bg-slate-900 border-amber-400 pointer-events-auto flex flex-col">
+        <CardHeader className="border-b border-amber-400 flex-shrink-0">
           <div className="flex items-center gap-3">
             <Button size="icon" variant="ghost" onClick={closeModal} className="text-amber-400 hover:text-amber-300">
               <ArrowLeft className="w-5 h-5" />
@@ -39,8 +39,8 @@ export default function Leaderboard() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="pt-6">
-          <ScrollArea className="h-[400px] pr-4">
+        <CardContent className="pt-6 flex-1 overflow-hidden flex flex-col">
+          <ScrollArea className="flex-1 pr-4">
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
                 <span className="text-amber-400 animate-pulse font-bold tracking-widest uppercase">Loading...</span>
@@ -50,25 +50,27 @@ export default function Leaderboard() {
             ) : (
               <div className="space-y-4">
                 {scores?.map((score, index) => (
-                  <div key={score.id} className="flex items-center justify-between p-3 border-b border-slate-800 last:border-0">
-                    <div className="flex items-center gap-4">
-                      <span className={`text-xl font-black ${index < 3 ? 'text-amber-400' : 'text-slate-500'}`}>
+                  <div key={score.id} className="flex items-center justify-between p-4 border-b border-slate-800 last:border-0 hover:bg-slate-800/30 transition-colors">
+                    <div className="flex items-center gap-6">
+                      <span className={`text-2xl font-black min-w-[3rem] text-center ${index < 3 ? 'text-amber-400' : 'text-slate-500'}`}>
                         #{index + 1}
                       </span>
                       <div>
-                        <div className="text-white font-bold uppercase tracking-tight">{score.playerName}</div>
-                        <div className="text-xs text-slate-400 uppercase">{score.enemiesDefeated} enemies defeated</div>
+                        <div className="text-white text-lg font-bold uppercase tracking-tight">{score.playerName}</div>
+                        <div className="text-sm text-slate-400 uppercase">{score.enemiesDefeated} enemies defeated</div>
                       </div>
                     </div>
-                    <div className="text-amber-400 font-black text-xl tabular-nums">{score.score}</div>
+                    <div className="text-amber-400 font-black text-2xl tabular-nums">{score.score.toLocaleString()}</div>
                   </div>
                 ))}
               </div>
             )}
           </ScrollArea>
-          <Button onClick={closeModal} className="w-full mt-6 bg-amber-400 hover:bg-amber-500 text-black font-extrabold text-lg py-6 uppercase rounded-none">
-            Back to Menu
-          </Button>
+          <div className="mt-6 flex-shrink-0">
+            <Button onClick={closeModal} className="w-full bg-amber-400 hover:bg-amber-500 text-black font-extrabold text-xl py-8 uppercase rounded-none shadow-xl">
+              Back to Menu
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
