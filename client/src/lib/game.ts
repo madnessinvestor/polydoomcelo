@@ -1834,7 +1834,7 @@ class MainScene extends Phaser.Scene {
         if (this.isGameOver) return;
 
         // ⏱️ Timer Global da Partida (subtraindo tempo total pausado)
-        const nowForTimer = (this.isGamePaused || this.isPaused) ? this.pausedTime : this.time.now;
+        const nowForTimer = this.isPaused ? this.pausedTime : this.time.now;
         const gameElapsed = Math.max(0, Math.floor((nowForTimer - this.gameStartTime - this.totalPausedTime) / 1000));
         
         // Atualização visual do timer no HUD (sempre crescente)
@@ -2326,7 +2326,7 @@ class MainScene extends Phaser.Scene {
         ];
 
         // ⏱️ Calcula cooldowns subtraindo tempo pausado
-        const now = (this.isGamePaused || this.isPaused) ? this.pausedTime - this.totalPausedTime : this.time.now - this.totalPausedTime;
+        const now = this.isPaused ? this.pausedTime - this.totalPausedTime : this.time.now - this.totalPausedTime;
 
         const size = 64; // Uniform size for vertical bar
         const spacing = 12;
@@ -4150,7 +4150,7 @@ class MainScene extends Phaser.Scene {
         }
 
         // ⏱️ Timer Global da Partida (subtraindo tempo total pausado)
-        const nowForTimer = (this.isGamePaused || this.isPaused) ? this.pausedTime : this.time.now;
+        const nowForTimer = this.isPaused ? this.pausedTime : this.time.now;
         const gameElapsed = Math.max(0, Math.floor((nowForTimer - this.gameStartTime - this.totalPausedTime) / 1000));
         if (this.timerText) {
             const mins = Math.floor(gameElapsed / 60);
@@ -4704,6 +4704,11 @@ class MainScene extends Phaser.Scene {
         // Marca o momento exato do pause
         this.pausedTime = this.time.now;
         
+        // Notify React to show pause modal
+        if ((window as any).showPauseModal) {
+            (window as any).showPauseModal();
+        }
+        
         // 🔑 Pausa TODOS os TimerEvents do Phaser
         this.time.timeScale = 0;
         
@@ -4712,16 +4717,11 @@ class MainScene extends Phaser.Scene {
         this.tweens.pauseAll();
         this.sound.pauseAll();
         
-        // Pause the scene completely
-        this.scene.pause();
-        
-        // Force an immediate HUD update to freeze the visual timers at this exact moment
+        // Freeze the visual timers at this exact moment BEFORE pausing scene
         this.updateHUD();
         
-        // Notify React to show pause modal
-        if ((window as any).showPauseModal) {
-            (window as any).showPauseModal();
-        }
+        // Pause the scene completely (Must be last)
+        this.scene.pause();
     }
 
     private openUpgradesModal() {
