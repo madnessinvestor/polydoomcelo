@@ -5454,11 +5454,11 @@ class StartScene extends Phaser.Scene {
 
         // Contracts List
         const contractsX = width - 40;
-        const contractsY = 150; // Move up to be visible on the main screen area
+        const contractsY = height - 120; // Move back to bottom right area
         const contractFontSize = '14px';
 
         this.add.text(contractsX, contractsY, 'CONTRACTS', {
-            fontSize: '20px',
+            fontSize: '18px',
             color: '#fbbf24',
             fontStyle: 'bold',
             fontFamily: 'monospace'
@@ -5471,7 +5471,7 @@ class StartScene extends Phaser.Scene {
         ];
 
         contracts.forEach((c, idx) => {
-            const yPos = contractsY + 35 + (idx * 30);
+            const yPos = contractsY + 30 + (idx * 25);
             const text = this.add.text(contractsX, yPos, `${c.label}: ${c.addr.substring(0, 6)}...${c.addr.substring(c.addr.length - 4)}`, {
                 fontSize: contractFontSize,
                 color: '#4ade80',
