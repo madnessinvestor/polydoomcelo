@@ -1338,7 +1338,11 @@ class MainScene extends Phaser.Scene {
         this.waveStartTime = this.time.now;
         
         const config = this.getWaveConfig(this.currentWave) as any;
-        this.totalEnemiesInWave = config?.total || (100 + (this.currentWave - 1) * 50);
+        if (this.currentWave > 10) {
+            this.totalEnemiesInWave = 1100 + (this.currentWave - 10) * 100;
+        } else {
+            this.totalEnemiesInWave = config?.total || (100 + (this.currentWave - 1) * 50);
+        }
 
         const waveName = this.currentWave > 10 ? `INFINITY WAVE ${this.currentWave}` : `WAVE: ${this.currentWave}`;
         this.waveText.setText(waveName);
