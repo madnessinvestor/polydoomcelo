@@ -1859,7 +1859,7 @@ class MainScene extends Phaser.Scene {
         // Reset timer display - strictly relative to waveStartTime set in create()
         // Ensure we handle the case where waveStartTime might be reset to 0
         const now = this.time.now;
-        const elapsed = Math.max(0, Math.floor((this.isPaused ? this.pausedTime : now - this.waveStartTime) / 1000));
+        const elapsed = Math.max(0, Math.floor((this.isPaused ? this.pausedTime - this.waveStartTime : now - this.waveStartTime) / 1000));
         if (!this.isWaveInterval) {
             const mins = Math.floor(elapsed / 60);
             const secs = elapsed % 60;
@@ -4681,6 +4681,9 @@ class MainScene extends Phaser.Scene {
         // Pause time and timers
         this.time.paused = true;
         
+        // Force an immediate HUD update to freeze the visual timers
+        this.updateHUD();
+        
         // Notify React to show pause modal
         if ((window as any).showPauseModal) {
             (window as any).showPauseModal();
@@ -4734,6 +4737,9 @@ class MainScene extends Phaser.Scene {
         
         // Resume time and timers
         this.time.paused = false;
+        
+        // Ensure HUD updates immediately after unpausing
+        this.updateHUD();
         
         // Notify React to hide pause modal
         if ((window as any).hidePauseModal) {
