@@ -74,95 +74,83 @@ export function Leaderboard() {
   const sortedScores = [...scores].sort((a, b) => b.score - a.score);
 
   return (
-    <div className="fixed inset-0 z-[160] bg-black/20 backdrop-blur-none flex items-center justify-center pointer-events-auto" style={{ padding: '0.5rem' }} onPointerDown={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-sm flex items-center justify-center pointer-events-auto" style={{ padding: '2vh' }} onPointerDown={(e) => e.stopPropagation()}>
       <Card 
-        className="relative w-full bg-slate-900 border-slate-700 pointer-events-auto flex flex-col overflow-hidden origin-center transition-transform" 
+        className="relative w-full bg-slate-900 border-slate-700 pointer-events-auto flex flex-col overflow-hidden shadow-2xl" 
         style={{ 
-          maxWidth: '80rem',
-          maxHeight: '90vh',
+          maxWidth: '90vw',
           height: '85vh',
           boxSizing: 'border-box',
-          transform: 'scale(0.9)'
+          borderRadius: '1rem',
+          borderWidth: '2px'
         }}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <CardHeader className="flex-shrink-0 relative" style={{ padding: '0.75rem' }}>
-          <CardTitle className="flex items-center text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] animate-pulse" style={{ gap: '0.5rem', fontSize: 'clamp(1rem, 2vw, 1.5rem)' }}>
-            <Trophy style={{ width: '1.25em', height: '1.25em' }} />
-            <span>Leaderboard</span>
+        <CardHeader className="flex-shrink-0 relative border-b border-slate-800" style={{ padding: '1.5vh 2vw' }}>
+          <CardTitle className="flex items-center text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]" style={{ gap: '1vw', fontSize: 'clamp(1.2rem, 2.5vh, 2rem)' }}>
+            <Trophy style={{ width: '1.5em', height: '1.5em' }} />
+            <span className="font-black tracking-tighter uppercase">Leaderboard Global</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-1 relative" style={{ overflow: 'hidden', padding: 0 }}>
           {sortedScores.length === 0 ? (
-            <div className="text-slate-400 text-center" style={{ padding: '2rem 0', fontSize: 'clamp(0.875rem, 1.5vw, 1rem)' }}>
+            <div className="text-slate-400 text-center flex items-center justify-center h-full" style={{ fontSize: 'clamp(1rem, 2vh, 1.25rem)' }}>
               Nenhum score registrado ainda
             </div>
           ) : (
-            <ScrollArea className="h-full w-full relative" style={{ overflow: 'hidden' }}>
-              <div className="w-full relative" style={{ minWidth: '37.5rem', boxSizing: 'border-box' }}>
+            <ScrollArea className="h-full w-full relative">
+              <div className="w-full relative" style={{ minWidth: '600px', boxSizing: 'border-box' }}>
                 {/* Header */}
                 <div 
-                  className="grid items-center bg-slate-800 sticky top-0 z-10 border-b border-slate-700 relative"
+                  className="grid items-center bg-slate-800/90 sticky top-0 z-10 border-b border-slate-700 backdrop-blur-md"
                   style={{
-                    gridTemplateColumns: 'minmax(2.5rem, 4rem) minmax(8rem, 1fr) minmax(4rem, 6rem) minmax(4rem, 6rem) minmax(4rem, 6rem) minmax(5rem, 8rem)',
-                    gap: 'clamp(0.5rem, 1vw, 1rem)',
-                    padding: 'clamp(0.5rem, 1vw, 1rem) clamp(0.75rem, 1.5vw, 1.5rem)',
-                    fontSize: 'clamp(0.75rem, 1vw, 0.875rem)',
+                    gridTemplateColumns: '5% 1fr 12% 10% 12% 15%',
+                    gap: '1vw',
+                    padding: '1.5vh 2vw',
+                    fontSize: 'clamp(0.7rem, 1.5vh, 1rem)',
                     boxSizing: 'border-box'
                   }}
                 >
-                  <div className="text-center font-bold text-yellow-400 relative">
-                    #
-                  </div>
-                  <div className="font-bold text-white relative">
-                    ArcUser
-                  </div>
-                  <div className="text-center font-bold text-yellow-400 relative">
-                    Enemies
-                  </div>
-                  <div className="text-center font-bold text-yellow-400 relative">
-                    Wave
-                  </div>
-                  <div className="text-center font-bold text-yellow-400 relative">
-                    Time
-                  </div>
-                  <div className="text-right font-bold text-yellow-400 relative">
-                    Score
-                  </div>
+                  <div className="text-center font-bold text-yellow-400 uppercase tracking-widest">#</div>
+                  <div className="font-bold text-white uppercase tracking-widest">Jogador</div>
+                  <div className="text-center font-bold text-yellow-400 uppercase tracking-widest">Inimigos</div>
+                  <div className="text-center font-bold text-yellow-400 uppercase tracking-widest">Onda</div>
+                  <div className="text-center font-bold text-yellow-400 uppercase tracking-widest">Tempo</div>
+                  <div className="text-right font-bold text-yellow-400 uppercase tracking-widest">Pontuação</div>
                 </div>
 
                 {/* Rows */}
-                <div className="relative" style={{ padding: '0 clamp(0.25rem, 0.5vw, 0.5rem)' }}>
+                <div className="relative">
                   {sortedScores.map((score, index) => (
                     <div
                       key={score.id}
-                      className="grid items-center border-b border-slate-800 hover:bg-slate-800/50 transition-colors relative"
+                      className="grid items-center border-b border-slate-800/50 hover:bg-slate-800/30 transition-all duration-200"
                       style={{
-                        gridTemplateColumns: 'minmax(2.5rem, 4rem) minmax(8rem, 1fr) minmax(4rem, 6rem) minmax(4rem, 6rem) minmax(4rem, 6rem) minmax(5rem, 8rem)',
-                        gap: 'clamp(0.5rem, 1vw, 1rem)',
-                        padding: 'clamp(0.5rem, 1vw, 1rem) clamp(0.5rem, 1vw, 1rem)',
-                        fontSize: 'clamp(0.75rem, 1vw, 0.875rem)',
+                        gridTemplateColumns: '5% 1fr 12% 10% 12% 15%',
+                        gap: '1vw',
+                        padding: '1.2vh 2vw',
+                        fontSize: 'clamp(0.8rem, 1.8vh, 1.1rem)',
                         boxSizing: 'border-box'
                       }}
                       data-testid={`leaderboard-entry-${score.id}`}
                     >
-                      <div className="text-center font-bold text-slate-400 relative">
+                      <div className={`text-center font-black ${index < 3 ? 'text-yellow-400 scale-110' : 'text-slate-500'}`}>
                         {index + 1}
                       </div>
-                      <div className="text-white truncate font-medium flex items-center relative">
+                      <div className="text-white truncate font-semibold flex items-center gap-2">
                         <span className="truncate">{score.playerName}</span>
                         <PixelCrown rank={index + 1} />
                       </div>
-                      <div className="text-center text-slate-300 relative">
+                      <div className="text-center text-slate-300 font-medium">
                         {score.enemiesDefeated}
                       </div>
-                      <div className="text-center text-slate-300 relative">
+                      <div className="text-center text-slate-300 font-medium">
                         {score.wave}
                       </div>
-                      <div className="text-center text-slate-300 tabular-nums relative">
+                      <div className="text-center text-slate-300 tabular-nums">
                         {Math.floor(score.playTime / 60)}:{(score.playTime % 60).toString().padStart(2, '0')}
                       </div>
-                      <div className="text-right font-bold text-yellow-400 tabular-nums relative" style={{ fontSize: 'clamp(0.875rem, 1.25vw, 1.25rem)' }}>
+                      <div className="text-right font-black text-yellow-400 tabular-nums" style={{ fontSize: 'clamp(1rem, 2.2vh, 1.4rem)' }}>
                         {score.score.toLocaleString()}
                       </div>
                     </div>
@@ -173,19 +161,20 @@ export function Leaderboard() {
           )}
         </CardContent>
         <div 
-          className="border-t border-slate-800 flex justify-center flex-shrink-0 relative"
-          style={{ padding: 'clamp(0.75rem, 1.5vw, 1.5rem)', boxSizing: 'border-box' }}
+          className="border-t border-slate-800 flex justify-center flex-shrink-0 bg-slate-900/50 backdrop-blur-sm"
+          style={{ padding: '2vh', boxSizing: 'border-box' }}
         >
           <Button 
             onClick={closeModal}
-            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold uppercase tracking-wider rounded-none shadow-lg"
+            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-black uppercase tracking-widest rounded-none shadow-[0_4px_0_0_#c0392b] active:translate-y-1 active:shadow-none transition-all"
             style={{ 
-              padding: '0 clamp(1.5rem, 3vw, 3rem)',
-              height: 'clamp(2.5rem, 3vw, 3rem)',
-              fontSize: 'clamp(0.875rem, 1vw, 1rem)'
+              padding: '0 4vw',
+              height: '6vh',
+              minHeight: '40px',
+              fontSize: 'clamp(0.9rem, 2vh, 1.2rem)'
             }}
           >
-            Close
+            Fechar
           </Button>
         </div>
       </Card>
