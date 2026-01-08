@@ -5398,9 +5398,16 @@ class StartScene extends Phaser.Scene {
                         return '';
                     };
                     
+                    const getRankColor = (rank: number) => {
+                        if (rank === 1) return '#FFD700';
+                        if (rank === 2) return '#C0C0C0';
+                        if (rank === 3) return '#CD7F32';
+                        return '#4ade80';
+                    };
+                    
                     content += `
                         <tr class="lb-row">
-                            <td style="color: #94a3b8; text-align: left;">${index + 1}</td>
+                            <td style="color: ${getRankColor(index + 1)}; text-align: left; font-weight: bold;">${index + 1}</td>
                             <td style="color: #fff; font-weight: bold; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;" title="${score.playerName}">
                                 ${score.playerName}${getCrown(index + 1)}
                             </td>
