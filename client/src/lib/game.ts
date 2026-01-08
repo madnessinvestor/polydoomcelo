@@ -2059,8 +2059,8 @@ class MainScene extends Phaser.Scene {
         }
 
         // Handle ArcKiExplosion (Key F)
-        const canUseF = this.kiarc >= 30 && (this.time.now - this.specialsCooldowns['F'].startTime >= this.specialsCooldowns['F'].duration);
-        if (Phaser.Input.Keyboard.JustDown(this.keys.F) && this.kiarc >= 30 && !this.keys.B.isDown && !this.isDefending && canUseF) {
+        const canUseF = this.kiarc >= 100 && (this.time.now - this.specialsCooldowns['F'].startTime >= this.specialsCooldowns['F'].duration);
+        if (Phaser.Input.Keyboard.JustDown(this.keys.F) && !this.keys.B.isDown && !this.isDefending && canUseF) {
             this.specialsCooldowns['F'].startTime = this.time.now;
             this.shootMagic(); 
         }
@@ -2650,8 +2650,8 @@ class MainScene extends Phaser.Scene {
         const magicDamage = stats.magic;
         const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
         
-        // Consumo de KI reduzido em 75% (de 20 para 5)
-        this.kiarc -= 5;
+        // Consumo de KI aumentado para 100 conforme solicitado para a habilidade ArcKiExplosion
+        this.kiarc -= 100;
         this.specialsCooldowns['F'].startTime = this.time.now;
         
         // Play magic sound effect with proper volume
