@@ -2718,7 +2718,7 @@ class MainScene extends Phaser.Scene {
             sound.play();
         }
         
-        const magic = this.add.circle(this.player.x, this.player.y, 15, 0xffdd00);
+        const magic = this.add.circle(this.player.x, this.player.y, 15, 0xffdd00, 0.8);
         this.physics.add.existing(magic);
         const body = magic.body as Phaser.Physics.Arcade.Body;
         body.setAllowGravity(false);
