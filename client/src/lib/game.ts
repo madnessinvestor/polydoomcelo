@@ -2693,12 +2693,15 @@ class MainScene extends Phaser.Scene {
         
         const stats = this.levelStats[this.level - 1];
         
-        // FORÇANDO O DANO PARA SER EXATAMENTE 20% DO PUNCH
-        // O dano do Z (punch) é calculado no hitEnemy como: (stats.punch * stats.mult * boostMultiplier)
-        // Então para a explosão ser 20% do Z, precisamos incluir o mult aqui também se não estivermos usando o valor final
-        const baseMultiplier = stats.mult;
-        const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
-        const explosionDamage = (stats.punch * baseMultiplier * boostMultiplier) * 0.2;
+        // O soco (Z) no hitEnemy é: damage * stats.mult * boostMultiplier
+        // Para a explosão ser exatamente 20% do Z, o dano passado para hitEnemy
+        // deve ser (stats.punch * 0.2) porque o hitEnemy já vai multiplicar por stats.mult e boostMultiplier
+        // ATENÇÃO: Verificamos se há algum multiplicador oculto. 
+        // O stats.punch no lvl 1 é 10. stats.mult é 1.0. 
+        // explosionDamage = 10 * 0.2 = 2.
+        // hitEnemy(enemy, 2) resultará em finalDamage = 2 (ou 4 com boost).
+        // 2 é exatamente 20% de 10.
+        const explosionDamage = stats.punch * 0.2;
         
         this.kiarc = Math.max(0, this.kiarc - 100);
         
@@ -2721,7 +2724,7 @@ class MainScene extends Phaser.Scene {
         this.enemies.getChildren().forEach(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
             if (Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y) < 200) {
-                // Passamos o valor FINAL já calculado como 20% do Z total
+                // Passamos o valor que, ao entrar no hitEnemy, manterá a proporção de 20% do Punch (Z)
                 this.hitEnemy(enemy, explosionDamage);
             }
         });
@@ -3468,15 +3471,20 @@ class MainScene extends Phaser.Scene {
         const stats = this.levelStats[this.level - 1];
         const punchDamage = stats.punch;
         const damageMultiplier = stats.mult;
-        const explosionDamage = punchDamage * damageMultiplier * 0.7;
+        const boostMultiplier = this.hasDamageBoost ? 2.0 : 1.0;
+        
+        // FORÇANDO DANO DE 20% DO Z (PUNCH)
+        // O dano do Z é (stats.punch * stats.mult * boostMultiplier)
+        const zDamage = punchDamage * damageMultiplier * boostMultiplier;
+        const explosionDamage = zDamage * 0.2;
 
         this.enemies.getChildren().forEach((e: any) => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
             if (enemy.active) {
                 const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
                 if (dist <= explosionRadius) {
-                    // Dano de 70% de um Punch
-                    this.hitEnemy(enemy, explosionDamage);
+                    // Dano de 20% de um Punch
+                    this.hitEnemy(enemy, explosionDamage / (damageMultiplier * boostMultiplier));
 
                     // Jogar para longe - Super Knockback (Aumentado em 200% do que estava: 8000 * 3 = 24000)
                     const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, enemy.x, enemy.y);
