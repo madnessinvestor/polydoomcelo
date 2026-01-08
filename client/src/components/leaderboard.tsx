@@ -74,110 +74,88 @@ export function Leaderboard() {
   const sortedScores = [...scores].sort((a, b) => b.score - a.score);
 
   return (
-    <div className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-sm flex items-center justify-center pointer-events-auto" style={{ padding: '2vh' }} onPointerDown={(e) => e.stopPropagation()}>
-      <Card 
-        className="relative w-full bg-slate-900 border-slate-700 pointer-events-auto flex flex-col overflow-hidden shadow-2xl" 
+    <div className="fixed inset-0 z-[160] flex items-center justify-center pointer-events-none select-none" onPointerDown={(e) => e.stopPropagation()}>
+      {/* 
+        This component is styled to look like it's part of the Phaser canvas.
+        It uses a pixelated border, specific fonts, and is contained within the same relative space.
+      */}
+      <div 
+        className="relative pointer-events-auto bg-[#2c3e50] border-[6px] border-[#34495e] shadow-[0_0_20px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden" 
         style={{ 
+          width: '800px',
+          height: '500px',
           maxWidth: '90vw',
-          height: '85vh',
-          boxSizing: 'border-box',
-          borderRadius: '1rem',
-          borderWidth: '2px'
+          maxHeight: '80vh',
+          imageRendering: 'pixelated',
+          fontFamily: '"Press Start 2P", system-ui, sans-serif'
         }}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <CardHeader className="flex-shrink-0 relative border-b border-slate-800" style={{ padding: '1.5vh 2vw' }}>
-          <CardTitle className="flex items-center text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]" style={{ gap: '1vw', fontSize: 'clamp(1.2rem, 2.5vh, 2rem)' }}>
-            <Trophy style={{ width: '1.5em', height: '1.5em' }} />
-            <span className="font-black tracking-tighter uppercase">Leaderboard Global</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex-1 relative" style={{ overflow: 'hidden', padding: 0 }}>
+        <div className="flex-shrink-0 bg-[#34495e] p-4 flex items-center justify-between border-b-[4px] border-[#2c3e50]">
+          <div className="flex items-center gap-3 text-yellow-400">
+            <Trophy className="w-6 h-6" />
+            <span className="text-lg uppercase tracking-wider font-bold">Leaderboard</span>
+          </div>
+          <Button 
+            onClick={closeModal}
+            variant="ghost" 
+            className="text-red-400 hover:text-red-300 hover:bg-transparent p-0 h-auto"
+          >
+            [X]
+          </Button>
+        </div>
+
+        <div className="flex-1 overflow-hidden relative bg-[#1a252f]">
           {sortedScores.length === 0 ? (
-            <div className="text-slate-400 text-center flex items-center justify-center h-full" style={{ fontSize: 'clamp(1rem, 2vh, 1.25rem)' }}>
-              Nenhum score registrado ainda
+            <div className="absolute inset-0 flex items-center justify-center text-[#95a5a6] text-xs">
+              NO RECORDS FOUND
             </div>
           ) : (
-            <ScrollArea className="h-full w-full relative">
-              <div className="w-full relative" style={{ minWidth: '600px', boxSizing: 'border-box' }}>
-                {/* Header */}
-                <div 
-                  className="grid items-center bg-slate-800/90 sticky top-0 z-10 border-b border-slate-700 backdrop-blur-md"
-                  style={{
-                    gridTemplateColumns: '5% 1fr 12% 10% 12% 15%',
-                    gap: '1vw',
-                    padding: '1.5vh 2vw',
-                    fontSize: 'clamp(0.7rem, 1.5vh, 1rem)',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <div className="text-center font-bold text-yellow-400 uppercase tracking-widest">#</div>
-                  <div className="font-bold text-white uppercase tracking-widest">Jogador</div>
-                  <div className="text-center font-bold text-yellow-400 uppercase tracking-widest">Inimigos</div>
-                  <div className="text-center font-bold text-yellow-400 uppercase tracking-widest">Onda</div>
-                  <div className="text-center font-bold text-yellow-400 uppercase tracking-widest">Tempo</div>
-                  <div className="text-right font-bold text-yellow-400 uppercase tracking-widest">Pontuação</div>
-                </div>
-
-                {/* Rows */}
-                <div className="relative">
-                  {sortedScores.map((score, index) => (
-                    <div
-                      key={score.id}
-                      className="grid items-center border-b border-slate-800/50 hover:bg-slate-800/30 transition-all duration-200"
-                      style={{
-                        gridTemplateColumns: '5% 1fr 12% 10% 12% 15%',
-                        gap: '1vw',
-                        padding: '1.2vh 2vw',
-                        fontSize: 'clamp(0.8rem, 1.8vh, 1.1rem)',
-                        boxSizing: 'border-box'
-                      }}
-                      data-testid={`leaderboard-entry-${score.id}`}
-                    >
-                      <div className={`text-center font-black ${index < 3 ? 'text-yellow-400 scale-110' : 'text-slate-500'}`}>
-                        {index + 1}
+            <ScrollArea className="h-full w-full">
+              <div className="p-4 space-y-2">
+                {sortedScores.map((score, index) => (
+                  <div
+                    key={score.id}
+                    className="flex items-center gap-4 p-3 bg-[#2c3e50] border-2 border-[#34495e] hover:border-yellow-500 transition-colors"
+                    data-testid={`leaderboard-entry-${score.id}`}
+                  >
+                    <div className={`w-8 text-center font-bold ${index < 3 ? 'text-yellow-400' : 'text-[#7f8c8d]'}`}>
+                      #{index + 1}
+                    </div>
+                    <div className="flex-1 flex items-center gap-2">
+                      <span className="text-white text-sm truncate uppercase">{score.playerName}</span>
+                      {index < 3 && <PixelCrown rank={index + 1} />}
+                    </div>
+                    <div className="flex gap-4 text-[10px] text-[#bdc3c7] uppercase">
+                      <div className="text-center">
+                        <div className="text-[#7f8c8d]">ENEMIES</div>
+                        <div className="text-white">{score.enemiesDefeated}</div>
                       </div>
-                      <div className="text-white truncate font-semibold flex items-center gap-2">
-                        <span className="truncate">{score.playerName}</span>
-                        <PixelCrown rank={index + 1} />
+                      <div className="text-center">
+                        <div className="text-[#7f8c8d]">WAVE</div>
+                        <div className="text-white">{score.wave}</div>
                       </div>
-                      <div className="text-center text-slate-300 font-medium">
-                        {score.enemiesDefeated}
-                      </div>
-                      <div className="text-center text-slate-300 font-medium">
-                        {score.wave}
-                      </div>
-                      <div className="text-center text-slate-300 tabular-nums">
-                        {Math.floor(score.playTime / 60)}:{(score.playTime % 60).toString().padStart(2, '0')}
-                      </div>
-                      <div className="text-right font-black text-yellow-400 tabular-nums" style={{ fontSize: 'clamp(1rem, 2.2vh, 1.4rem)' }}>
-                        {score.score.toLocaleString()}
+                      <div className="text-center">
+                        <div className="text-[#7f8c8d]">SCORE</div>
+                        <div className="text-yellow-400 font-bold">{score.score.toLocaleString()}</div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             </ScrollArea>
           )}
-        </CardContent>
-        <div 
-          className="border-t border-slate-800 flex justify-center flex-shrink-0 bg-slate-900/50 backdrop-blur-sm"
-          style={{ padding: '2vh', boxSizing: 'border-box' }}
-        >
+        </div>
+        
+        <div className="p-4 bg-[#34495e] flex justify-center">
           <Button 
             onClick={closeModal}
-            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-black uppercase tracking-widest rounded-none shadow-[0_4px_0_0_#c0392b] active:translate-y-1 active:shadow-none transition-all"
-            style={{ 
-              padding: '0 4vw',
-              height: '6vh',
-              minHeight: '40px',
-              fontSize: 'clamp(0.9rem, 2vh, 1.2rem)'
-            }}
+            className="bg-red-500 hover:bg-red-600 text-white border-b-4 border-red-800 rounded-none h-10 px-8 font-bold active:border-b-0 active:translate-y-1 transition-all"
           >
-            Fechar
+            RETURN TO GAME
           </Button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
