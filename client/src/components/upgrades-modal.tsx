@@ -373,7 +373,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-bold text-lg truncate">{upgrade.name}</h3>
+                            <h3 className="font-bold text-lg truncate uppercase">{upgrade.name}</h3>
                             <div className="flex flex-col items-end">
                               <Badge variant="secondary" className="bg-slate-700 text-green-500 rounded-none">
                                 Current: Lv {currentLevel}/10

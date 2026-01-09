@@ -267,7 +267,7 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-bold text-xl truncate">{potion.name}</h3>
+                            <h3 className="font-bold text-xl truncate uppercase">{potion.name}</h3>
                             <Badge variant="secondary" className="bg-blue-900/30 text-blue-400 rounded-none border-blue-500/30">
                               Owned: {count}
                             </Badge>
