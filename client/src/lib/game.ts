@@ -2400,32 +2400,33 @@ class MainScene extends Phaser.Scene {
             let keyText = this.specialsHUDTimers.get('basic_key_' + basic.key);
             if (!keyText) {
                 keyText = this.add.text(x, y, basic.key, {
-                    fontSize: '28px',
+                    fontSize: '36px',
                     fontFamily: 'monospace',
                     color: '#ffffff',
                     fontStyle: 'bold',
                     stroke: '#000000',
-                    strokeThickness: 4
+                    strokeThickness: 8
                 }).setOrigin(0.5).setScrollFactor(0).setDepth(1003);
                 this.specialsHUDTimers.set('basic_key_' + basic.key, keyText);
             }
-            keyText.setAlpha(0.8); // 20% more transparent
+            keyText.setAlpha(1.0);
             keyText.setPosition(x, y);
 
             // Action Label (Bottom)
             let actionText = this.specialsHUDTimers.get('basic_action_' + basic.key);
             if (!actionText) {
-                actionText = this.add.text(x, y + size/2 - 8, basic.action, {
-                    fontSize: '10px',
+                actionText = this.add.text(x, y + size/2 - 6, basic.action, {
+                    fontSize: '12px',
                     fontFamily: 'monospace',
-                    color: '#aaaaaa',
+                    color: '#ffffff',
+                    fontStyle: 'bold',
                     stroke: '#000000',
-                    strokeThickness: 2
+                    strokeThickness: 4
                 }).setOrigin(0.5, 1).setScrollFactor(0).setDepth(1004);
                 this.specialsHUDTimers.set('basic_action_' + basic.key, actionText);
             }
-            actionText.setAlpha(0.8); // 20% more transparent
-            actionText.setPosition(x, y + size/2 - 8);
+            actionText.setAlpha(1.0);
+            actionText.setPosition(x, y + size/2 - 6);
         });
     }
 
@@ -2500,17 +2501,17 @@ class MainScene extends Phaser.Scene {
                 let timerText = this.specialsHUDTimers.get(special.key);
                 if (!timerText) {
                     timerText = this.add.text(x, y, '', {
-                        fontSize: '24px',
+                        fontSize: '32px',
                         fontFamily: 'monospace',
                         color: '#ffffff',
                         fontStyle: 'bold',
                         stroke: '#000000',
-                        strokeThickness: 4
+                        strokeThickness: 8
                     }).setOrigin(0.5).setScrollFactor(0).setDepth(1003);
                     this.specialsHUDTimers.set(special.key, timerText);
                 }
                 timerText.setText(Math.ceil(remaining / 1000).toString());
-                timerText.setAlpha(0.8); // 20% more transparent
+                timerText.setAlpha(1.0);
                 timerText.setVisible(true);
                 timerText.setPosition(x, y);
             } else {
@@ -2523,16 +2524,16 @@ class MainScene extends Phaser.Scene {
             let label = this.specialsHUDTimers.get(labelKey);
             if (!label) {
                 label = this.add.text(x - size/2 + 4, y - size/2 + 4, special.label, {
-                    fontSize: '14px',
+                    fontSize: '18px',
                     fontFamily: 'monospace',
                     color: '#ffffff',
                     fontStyle: 'bold',
                     stroke: '#000000',
-                    strokeThickness: 3
+                    strokeThickness: 5
                 }).setScrollFactor(0).setDepth(1004);
                 this.specialsHUDTimers.set(labelKey, label);
             }
-            label.setAlpha(0.8); // 20% more transparent
+            label.setAlpha(1.0);
             label.setPosition(x - size/2 + 4, y - size/2 + 4);
 
             // KI Cost (Bottom Right)
@@ -2540,16 +2541,16 @@ class MainScene extends Phaser.Scene {
             let costText = this.specialsHUDTimers.get(costKey);
             if (!costText) {
                 costText = this.add.text(x + size/2 - 4, y + size/2 - 4, special.ki.toString(), {
-                    fontSize: '12px',
+                    fontSize: '16px',
                     fontFamily: 'monospace',
                     color: '#4ade80',
                     fontStyle: 'bold',
                     stroke: '#000000',
-                    strokeThickness: 2
+                    strokeThickness: 4
                 }).setOrigin(1, 1).setScrollFactor(0).setDepth(1004);
                 this.specialsHUDTimers.set(costKey, costText);
             }
-            costText.setAlpha(0.8); // 20% more transparent
+            costText.setAlpha(1.0);
             costText.setPosition(x + size/2 - 4, y + size/2 - 4);
         });
     }
