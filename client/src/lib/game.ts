@@ -1405,6 +1405,9 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
+        const config = this.getWaveConfig(this.currentWave) as any;
+        const calculatedDelay = 200; // Deve ser o mesmo valor usado em startWave
+
         // Spawn logic: Respeitar a duração definida na configuração da onda
         const spawnDuration = config?.duration || (this.currentWave >= 7 ? 70000 : 60000);
         const enemiesPerSecond = this.totalEnemiesInWave / (spawnDuration / 1000);
