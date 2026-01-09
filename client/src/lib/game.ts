@@ -2362,6 +2362,72 @@ class MainScene extends Phaser.Scene {
         });
     }
 
+    private renderBasicsControls() {
+        const { width, height } = this.cameras.main;
+        const basics = [
+            { key: 'Z', label: 'Z', action: 'Punch' },
+            { key: 'X', label: 'X', action: 'Kick' },
+            { key: 'C', label: 'C', action: 'Charge Ki' },
+            { key: 'D', label: 'D', action: 'Defense' }
+        ];
+
+        const size = 64;
+        const spacing = 12;
+        const specialsCount = 4;
+        const specialsHeight = (size + spacing) * specialsCount - spacing;
+        const startYSpecials = (height - specialsHeight) / 2;
+        
+        // Basics appear ABOVE specials
+        const basicsHeight = (size + spacing) * basics.length - spacing;
+        const startYBasics = startYSpecials - basicsHeight - (spacing * 2);
+        const x = width - 50;
+
+        basics.forEach((basic, index) => {
+            const y = startYBasics + index * (size + spacing);
+            
+            // Background/Border
+            let graphics = this.specialsHUDGraphics.get('basic_' + basic.key);
+            if (!graphics) {
+                graphics = this.add.graphics().setScrollFactor(0).setDepth(1002);
+                this.specialsHUDGraphics.set('basic_' + basic.key, graphics);
+            }
+            graphics.clear();
+            graphics.lineStyle(2, 0x4ade80, 0.8);
+            graphics.fillStyle(0x000000, 0.4);
+            graphics.strokeRect(x - size/2, y - size/2, size, size);
+            graphics.fillRect(x - size/2, y - size/2, size, size);
+
+            // Key Label (Center)
+            let keyText = this.specialsHUDTimers.get('basic_key_' + basic.key);
+            if (!keyText) {
+                keyText = this.add.text(x, y, basic.key, {
+                    fontSize: '28px',
+                    fontFamily: 'monospace',
+                    color: '#ffffff',
+                    fontStyle: 'bold',
+                    stroke: '#000000',
+                    strokeThickness: 4
+                }).setOrigin(0.5).setScrollFactor(0).setDepth(1003);
+                this.specialsHUDTimers.set('basic_key_' + basic.key, keyText);
+            }
+            keyText.setPosition(x, y);
+
+            // Action Label (Bottom)
+            let actionText = this.specialsHUDTimers.get('basic_action_' + basic.key);
+            if (!actionText) {
+                actionText = this.add.text(x, y + size/2 - 8, basic.action, {
+                    fontSize: '10px',
+                    fontFamily: 'monospace',
+                    color: '#aaaaaa',
+                    stroke: '#000000',
+                    strokeThickness: 2
+                }).setOrigin(0.5, 1).setScrollFactor(0).setDepth(1004);
+                this.specialsHUDTimers.set('basic_action_' + basic.key, actionText);
+            }
+            actionText.setPosition(x, y + size/2 - 8);
+        });
+    }
+
     private renderSpecialsCooldowns() {
         const { width, height } = this.cameras.main;
         const specials = [
@@ -4238,6 +4304,7 @@ class MainScene extends Phaser.Scene {
             this.timerText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
         }
 
+        this.renderBasicsControls();
         this.renderSpecialsCooldowns();
 
         const width = this.cameras.main.width;
