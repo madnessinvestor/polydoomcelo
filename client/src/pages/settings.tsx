@@ -68,10 +68,10 @@ export default function Settings() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="pt-8 space-y-8">
+        <CardContent className="pt-8 space-y-8 font-pixel-content">
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-white font-bold uppercase text-sm tracking-widest">Master Volume</label>
+              <label className="text-white font-bold uppercase text-sm tracking-widest font-pixel-label">Master Volume</label>
               <span className="text-[#8b5cf6] font-bold text-lg">{masterVolume}%</span>
             </div>
             <Slider 
@@ -86,7 +86,7 @@ export default function Settings() {
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-white font-bold uppercase text-sm tracking-widest">Music Volume</label>
+              <label className="text-white font-bold uppercase text-sm tracking-widest font-pixel-label">Music Volume</label>
               <span className="text-[#8b5cf6] font-bold text-lg">{musicVolume}%</span>
             </div>
             <Slider 
@@ -101,7 +101,7 @@ export default function Settings() {
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-white font-bold uppercase text-sm tracking-widest">Effects Volume</label>
+              <label className="text-white font-bold uppercase text-sm tracking-widest font-pixel-label">Effects Volume</label>
               <span className="text-[#8b5cf6] font-bold text-lg">{sfxVolume}%</span>
             </div>
             <Slider 

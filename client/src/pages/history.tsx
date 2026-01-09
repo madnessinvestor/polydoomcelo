@@ -23,7 +23,7 @@ export default function History() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="p-8 space-y-6">
+        <CardContent className="p-8 space-y-6 font-pixel-content">
           <div className="aspect-video bg-black border-2 border-blue-500/30 overflow-hidden relative group shadow-2xl">
             <video 
               src="/attached_assets/gamehistory_1767067604123.mp4" 

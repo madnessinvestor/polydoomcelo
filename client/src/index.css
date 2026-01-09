@@ -40,6 +40,17 @@
   .font-pixel {
     font-family: var(--font-pixel);
     font-size: 250%;
+    line-height: 1.2;
+  }
+
+  .font-pixel-content {
+    font-size: 250%;
+    line-height: 1.4;
+  }
+
+  .font-pixel-label {
+    font-size: 180%;
+    line-height: 1.2;
   }
 }
 
