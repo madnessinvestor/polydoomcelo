@@ -429,7 +429,7 @@ class MainScene extends Phaser.Scene {
             if (!keyText) {
                 keyText = this.add.text(x + 4, y + 2, item.key, {
                     fontSize: '12px',
-                    fontFamily: 'monospace',
+                    fontFamily: '"PixelPurl", monospace',
                     color: '#ffffff',
                     stroke: '#000000',
                     strokeThickness: 2,
@@ -444,7 +444,7 @@ class MainScene extends Phaser.Scene {
             if (!qtyText) {
                 qtyText = this.add.text(x + SQUARE_SIZE - 4, y + SQUARE_SIZE - 4, `x${count}`, {
                     fontSize: '14px',
-                    fontFamily: 'monospace',
+                    fontFamily: '"PixelPurl", monospace',
                     color: '#00ff00',
                     stroke: '#000000',
                     strokeThickness: 2,
@@ -929,7 +929,7 @@ class MainScene extends Phaser.Scene {
         const fontStyle = { 
             fontSize: `${fontSize}px`, 
             color: '#ffffff', 
-            fontFamily: '"Pixel", monospace',
+            fontFamily: '"PixelPurl", "Pixel", monospace',
             stroke: '#000000',
             strokeThickness: 3
         };
@@ -938,7 +938,7 @@ class MainScene extends Phaser.Scene {
         this.enemyCounterText = this.add.text(width - 16, 16 + fontSize * 2 + 20, `0/${this.totalEnemiesInWave}`, {
             fontSize: `${fontSize}px`,
             color: '#ff4444',
-            fontFamily: '"Pixel", monospace',
+            fontFamily: '"PixelPurl", "Pixel", monospace',
             stroke: '#000',
             strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
@@ -946,7 +946,7 @@ class MainScene extends Phaser.Scene {
         this.waveText = this.add.text(width - 16, 16, 'WAVE: 1', { 
             fontSize: `${fontSize}px`, 
             color: '#fbbf24', 
-            fontFamily: '"Pixel", monospace',
+            fontFamily: '"PixelPurl", "Pixel", monospace',
             stroke: '#000',
             strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
@@ -954,7 +954,7 @@ class MainScene extends Phaser.Scene {
         this.timerText = this.add.text(width - 16, 16 + fontSize + 10, '00:00', { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
-            fontFamily: '"Pixel", monospace',
+            fontFamily: '"PixelPurl", "Pixel", monospace',
             stroke: '#000',
             strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
@@ -1278,7 +1278,7 @@ class MainScene extends Phaser.Scene {
             fontStyle: 'bold',
             stroke: '#000000',
             strokeThickness: 6,
-            fontFamily: 'Pixel'
+            fontFamily: 'PixelPurl'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
 
         const healthBar = this.add.graphics();
@@ -2380,7 +2380,7 @@ class MainScene extends Phaser.Scene {
             if (!keyText) {
                 keyText = this.add.text(x, y, basic.key, {
                     fontSize: '36px',
-                    fontFamily: 'monospace',
+                    fontFamily: '"PixelPurl", monospace',
                     color: '#ffffff',
                     fontStyle: 'bold',
                     stroke: '#000000',
@@ -2396,7 +2396,7 @@ class MainScene extends Phaser.Scene {
             if (!actionText) {
                 actionText = this.add.text(x, y + size/2 - 6, basic.action, {
                     fontSize: '12px',
-                    fontFamily: 'monospace',
+                    fontFamily: '"PixelPurl", monospace',
                     color: '#ffffff',
                     fontStyle: 'bold',
                     stroke: '#000000',
@@ -2481,7 +2481,7 @@ class MainScene extends Phaser.Scene {
                 if (!timerText) {
                     timerText = this.add.text(x, y, '', {
                         fontSize: '32px',
-                        fontFamily: 'monospace',
+                        fontFamily: '"PixelPurl", monospace',
                         color: '#ffffff',
                         fontStyle: 'bold',
                         stroke: '#000000',
@@ -2504,7 +2504,7 @@ class MainScene extends Phaser.Scene {
             if (!label) {
                 label = this.add.text(x - size/2 + 4, y - size/2 + 4, special.label, {
                     fontSize: '18px',
-                    fontFamily: 'monospace',
+                    fontFamily: '"PixelPurl", monospace',
                     color: '#ffffff',
                     fontStyle: 'bold',
                     stroke: '#000000',
@@ -2521,7 +2521,7 @@ class MainScene extends Phaser.Scene {
             if (!costText) {
                 costText = this.add.text(x + size/2 - 4, y + size/2 - 4, special.ki.toString(), {
                     fontSize: '16px',
-                    fontFamily: 'monospace',
+                    fontFamily: '"PixelPurl", monospace',
                     color: '#4ade80',
                     fontStyle: 'bold',
                     stroke: '#000000',
@@ -4338,7 +4338,7 @@ class MainScene extends Phaser.Scene {
             this.hpLabel = this.add.text(hbX + 10, hbY + 1, '', { 
                 fontSize: `${Math.floor(12 * hudScale)}px`, 
                 color: '#fff', 
-                fontFamily: '"Pixel", monospace',
+                fontFamily: '"PixelPurl", "Pixel", monospace',
                 stroke: '#000',
                 strokeThickness: 2
             }).setScrollFactor(0).setDepth(1001);
@@ -4385,7 +4385,7 @@ class MainScene extends Phaser.Scene {
             this.tooltipText = this.add.text(10, 30, '', {
                 fontSize: '12px',
                 color: '#ffffff',
-                fontFamily: 'monospace',
+                fontFamily: '"PixelPurl", monospace',
                 wordWrap: { width: 200 }
             });
             
@@ -4397,7 +4397,7 @@ class MainScene extends Phaser.Scene {
             this.kiLabel = this.add.text(kiX + 10, kiY + 0, '', { 
                 fontSize: `${Math.floor(10 * hudScale)}px`, 
                 color: '#fff', 
-                fontFamily: '"Pixel", monospace',
+                fontFamily: '"PixelPurl", "Pixel", monospace',
                 stroke: '#000',
                 strokeThickness: 2
             }).setScrollFactor(0).setDepth(1001);
@@ -4492,7 +4492,7 @@ class MainScene extends Phaser.Scene {
                     fontSize: '12px',
                     color: '#ffff00',
                     fontStyle: 'bold',
-                    fontFamily: 'monospace',
+                    fontFamily: '"PixelPurl", monospace',
                     stroke: '#000000',
                     strokeThickness: 2
                 }).setOrigin(0.5);
@@ -5403,7 +5403,7 @@ class StartScene extends Phaser.Scene {
 
         this.add.text(lbX, lbY - lbHeight/2 + 40, 'LEADERBOARD', {
             fontSize: '36px',
-            fontFamily: 'monospace',
+            fontFamily: '"PixelPurl", monospace',
             color: '#4ade80',
             fontStyle: 'bold'
         }).setOrigin(0.5).setDepth(6);
@@ -6346,7 +6346,7 @@ class DeathScene extends Phaser.Scene {
             `ENEMIES: ${this.enemiesDefeated}\n` +
             `TIME: ${formatTime(this.playTime)}`, {
             fontSize: '32px',
-            fontFamily: 'monospace',
+            fontFamily: '"PixelPurl", monospace',
             color: '#4ade80',
             align: 'center',
             lineSpacing: 10
