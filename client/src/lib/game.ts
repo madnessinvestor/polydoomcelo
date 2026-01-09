@@ -3764,12 +3764,11 @@ class MainScene extends Phaser.Scene {
 
         // If player is dashing and pressing Z, deal damage
         if (this.isDashing && this.keys.Z.isDown) {
-            this.hitEnemy(enemy, 1.5); // 1.5x damage multiplier for Dash + Z
-            return; // Skip taking damage if we're attacking during dash
+            this.hitEnemy(enemy, 1.1); // 1.1x damage multiplier for Dash + Z
         }
 
         if (this.isGameOver || this.isWaveInterval || this.isInvincible) return;
-        
+
         // Se estiver defendendo, o escudo bloqueia o dano e treme levemente
         if (this.isDefending) {
             this.cameras.main.shake(100, 0.003); // Treme a tela levemente
@@ -3830,8 +3829,13 @@ class MainScene extends Phaser.Scene {
             this.applyKnockbackToPlayer(enemy);
         }
 
-        const finalDamage = baseDamage * resMultiplier * incomingDamageMult;
+        let finalDamage = baseDamage * resMultiplier * incomingDamageMult;
         
+        // Reduce damage by 50% if player is dashing
+        if (this.isDashing) {
+            finalDamage *= 0.5;
+        }
+
         if (!isNaN(finalDamage) && isFinite(finalDamage)) {
             this.health = Math.max(0, this.health - finalDamage);
         } else {
