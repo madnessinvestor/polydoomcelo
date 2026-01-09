@@ -85,29 +85,34 @@ export default function Controls() {
                       <ArrowKey dir="down" action="Crouch" active />
                       <ArrowKey dir="right" action="Right" active />
                     </div>
+                    <div className="text-center mt-2 px-2 py-1 bg-violet-500/10 rounded border border-violet-500/20">
+                      <p className="text-[10px] text-violet-300 font-bold uppercase tracking-wider">
+                        Quick Dash: Double Tap Arrows
+                      </p>
+                    </div>
                   </div>
 
                   {/* System & Extra Combat */}
                   <div className="flex flex-col items-center gap-4">
                     <div className="flex flex-wrap justify-center gap-4">
                       <div className="flex flex-col items-center gap-1">
-                        <Key label="Z" action="Punch" active />
+                        <Key label="Z" action="Punch (Melee)" active />
                       </div>
                       <div className="flex flex-col items-center gap-1">
-                        <Key label="X" action="ChargeKiArc" active />
+                        <Key label="X" action="Charge KiArc (Hold)" active />
                       </div>
                       <div className="flex flex-col items-center gap-1">
-                        <Key label="C" action="MagicKiaArc" active />
+                        <Key label="C" action="Magic KiArc" active />
                       </div>
                       <div className="flex flex-col items-center gap-1">
-                        <Key label="D" action="Defense" active />
+                        <Key label="D" action="Defend (Hold)" active />
                       </div>
                     </div>
                     <div className="flex flex-col items-center gap-1">
                       <div className="w-16 h-8 flex items-center justify-center border-2 border-violet-500/30 bg-violet-950/40 rounded font-bold text-xs text-violet-200">
                         ESC
                       </div>
-                      <span className="text-[9px] uppercase font-black tracking-tighter text-violet-400/70">Pause / Menu</span>
+                      <span className="text-[9px] uppercase font-black tracking-tighter text-violet-400/70">Pause / Game Menu</span>
                     </div>
                   </div>
                 </div>
@@ -116,19 +121,19 @@ export default function Controls() {
 
             {/* Category: Specials */}
             <div className="flex flex-col items-center gap-4 bg-violet-950/10 p-4 rounded-lg border border-violet-500/10">
-              <h3 className="text-violet-500 font-black uppercase tracking-[0.4em] font-pixel-label" style={{ fontSize: '1.17rem' }}>Specials</h3>
+              <h3 className="text-violet-500 font-black uppercase tracking-[0.4em] font-pixel-label" style={{ fontSize: '1.17rem' }}>Special Abilities</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
                 <div className="flex flex-col items-center gap-1">
-                  <Key label="V" action="ArcKamehameha" active />
+                  <Key label="V" action="Arc-Kamehameha" active />
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <Key label="B" action="ArcGenkiDama" active />
+                  <Key label="B" action="Arc-GenkiDama" active />
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <Key label="F" action="ArcKiExplosion" active />
+                  <Key label="F" action="Arc-Ki Explosion" active />
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <Key label="S" action="ArcMeteor" active />
+                  <Key label="S" action="Arc-Meteor" active />
                 </div>
               </div>
             </div>
