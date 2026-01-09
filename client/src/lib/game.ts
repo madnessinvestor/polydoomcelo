@@ -1541,8 +1541,11 @@ class MainScene extends Phaser.Scene {
         const waveMultiplier = 1 + (this.currentWave - 1) * 0.2;
         const isElite = typeInfo.behavior === 'elite';
         
-        enemy.setData('health', (isElite ? 200 : 20) * waveMultiplier * extraHpMult);
-        enemy.setData('damage', (isElite ? 0.2 : 0.05) * waveMultiplier * extraDamageMult);
+        const baseHealth = (isElite ? 200 : 20) * waveMultiplier * extraHpMult;
+        const baseDamage = (isElite ? 0.2 : 0.05) * waveMultiplier * extraDamageMult;
+
+        enemy.setData('health', isNaN(baseHealth) ? 20 : baseHealth);
+        enemy.setData('damage', isNaN(baseDamage) ? 0.05 : baseDamage);
         enemy.setData('sides', typeInfo.sides);
         enemy.setData('color', typeInfo.color);
         
@@ -3789,8 +3792,8 @@ class MainScene extends Phaser.Scene {
         const resMultiplier = 1 - (stats.res || 0);
         
         let baseDamage = enemy.getData('damage');
-        if (baseDamage === undefined || isNaN(baseDamage)) {
-            baseDamage = 0.01;
+        if (baseDamage === undefined || isNaN(baseDamage) || !isFinite(baseDamage)) {
+            baseDamage = 0.05; // Fallback to a safe small value
         }
         
         // Charger Ram: Dash damage = 10% of player damage
@@ -3941,6 +3944,11 @@ class MainScene extends Phaser.Scene {
     private takeDamage(damage: number) {
         if (this.isInvincible || this.isGameOver || this.isDefending) return;
         
+        if (isNaN(damage) || !isFinite(damage)) {
+            console.warn('Blocked NaN damage in takeDamage');
+            return;
+        }
+
         const finalDamage = damage;
         this.health -= finalDamage;
         this.updateHUD();
@@ -4023,7 +4031,7 @@ class MainScene extends Phaser.Scene {
         this.physics.add.overlap(this.player, projectile, () => {
             if (!this.isInvincible && !this.isDefending) {
                 const damage = enemy.getData('damage');
-                if (!isNaN(damage)) {
+                if (damage !== undefined && !isNaN(damage) && isFinite(damage)) {
                     this.health = Math.max(0, this.health - damage);
                 }
             }
