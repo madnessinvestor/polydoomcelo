@@ -1694,9 +1694,9 @@ class MainScene extends Phaser.Scene {
     }
 
     private getPlayerSpeed(level: number): number {
-        const baseSpeed = 400;
-        // Each level increases speed by 20%
-        return baseSpeed * (1 + (level - 1) * 0.2);
+        const baseSpeed = 300;
+        // Each level increases speed by 10%
+        return baseSpeed * (1 + (level - 1) * 0.1);
     }
 
     private checkDoubleClickDash(time: number) {
