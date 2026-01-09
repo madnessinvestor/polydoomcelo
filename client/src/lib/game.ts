@@ -2374,16 +2374,15 @@ class MainScene extends Phaser.Scene {
         const size = 64;
         const spacing = 12;
         const specialsCount = 4;
-        const specialsHeight = (size + spacing) * specialsCount - spacing;
-        const startYSpecials = (height - specialsHeight) / 2;
+        const totalItemsCount = basics.length + specialsCount;
+        const totalHeight = (size + spacing) * totalItemsCount - spacing;
         
-        // Basics appear ABOVE specials
-        const basicsHeight = (size + spacing) * basics.length - spacing;
-        const startYBasics = startYSpecials - basicsHeight - (spacing * 2);
+        // Centraliza verticalmente o conjunto total (Basics + Specials)
+        const startYAll = (height - totalHeight) / 2;
         const x = width - 50;
 
         basics.forEach((basic, index) => {
-            const y = startYBasics + index * (size + spacing);
+            const y = startYAll + index * (size + spacing);
             
             // Background/Border
             let graphics = this.specialsHUDGraphics.get('basic_' + basic.key);
@@ -2442,12 +2441,18 @@ class MainScene extends Phaser.Scene {
 
         const size = 64; // Uniform size for vertical bar
         const spacing = 12;
-        const totalHeight = (size + spacing) * specials.length - spacing;
-        const startY = (height - totalHeight) / 2; // Centralizado verticalmente
+        const basicsCount = 4;
+        const totalItemsCount = basicsCount + specials.length;
+        const totalHeightAll = (size + spacing) * totalItemsCount - spacing;
+        
+        // Centraliza verticalmente o conjunto total (Basics + Specials)
+        const startYAll = (height - totalHeightAll) / 2;
+        // Specials começam depois dos Basics
+        const startYSpecials = startYAll + basicsCount * (size + spacing);
         const x = width - 50; // Lateral direita
 
         specials.forEach((special, index) => {
-            const y = startY + index * (size + spacing);
+            const y = startYSpecials + index * (size + spacing);
             const cdInfo = this.specialsCooldowns[special.key];
             const elapsed = now - cdInfo.startTime;
             const remaining = Math.max(0, cdInfo.duration - elapsed);
