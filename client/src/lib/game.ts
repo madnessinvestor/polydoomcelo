@@ -75,16 +75,16 @@ class MainScene extends Phaser.Scene {
     ];
 
     private waveConfigs = [
-        { wave: 1, total: 100, enemies: { ground_biter: 1.0 } },
-        { wave: 2, total: 140, enemies: { ground_biter: 0.65, charger_ram: 0.2, pouncer: 0.15 } },
-        { wave: 3, total: 190, enemies: { ground_biter: 0.5, charger_ram: 0.2, arc_shooter: 0.15, pouncer: 0.15 } },
-        { wave: 4, total: 250, enemies: { ground_biter: 0.3, charger_ram: 0.15, arc_shooter: 0.15, hover_mage: 0.15, pouncer: 0.1, spin_star: 0.15 } },
-        { wave: 5, total: 320, enemies: { ground_biter: 0.25, charger_ram: 0.15, arc_shooter: 0.1, hover_mage: 0.15, knockback_brute: 0.15, phase_heptar: 0.2 } },
-        { wave: 6, total: 400, enemies: { ground_biter: 0.2, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, knockback_brute: 0.1, split_core: 0.2, crescent_reaver: 0.2 } },
-        { wave: 7, total: 500, enemies: { ground_biter: 0.15, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.15, shield_sentinel: 0.2, spiral_warden: 0.2 } },
-        { wave: 8, total: 650, enemies: { ground_biter: 0.1, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, prism_drifter: 0.3 } },
-        { wave: 9, total: 850, enemies: { ground_biter: 0.1, charger_ram: 0.05, arc_shooter: 0.05, hover_mage: 0.05, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.15, arc_phantom: 0.1, prism_drifter: 0.3 } },
-        { wave: 10, total: 1100, enemies: { ground_biter: 0.1, charger_ram: 0.05, arc_shooter: 0.05, hover_mage: 0.05, pouncer: 0.05, knockback_brute: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, arc_phantom: 0.1, prism_drifter: 0.2 } }
+        { wave: 1, total: 100, duration: 45000, enemies: { ground_biter: 1.0 } },
+        { wave: 2, total: 140, duration: 50000, enemies: { ground_biter: 0.65, charger_ram: 0.2, pouncer: 0.15 } },
+        { wave: 3, total: 190, duration: 50000, enemies: { ground_biter: 0.5, charger_ram: 0.2, arc_shooter: 0.15, pouncer: 0.15 } },
+        { wave: 4, total: 250, duration: 55000, enemies: { ground_biter: 0.3, charger_ram: 0.15, arc_shooter: 0.15, hover_mage: 0.15, pouncer: 0.1, spin_star: 0.15 } },
+        { wave: 5, total: 320, duration: 60000, enemies: { ground_biter: 0.25, charger_ram: 0.15, arc_shooter: 0.1, hover_mage: 0.15, knockback_brute: 0.15, phase_heptar: 0.2 } },
+        { wave: 6, total: 400, duration: 60000, enemies: { ground_biter: 0.2, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, knockback_brute: 0.1, split_core: 0.2, crescent_reaver: 0.2 } },
+        { wave: 7, total: 500, duration: 70000, enemies: { ground_biter: 0.15, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.15, shield_sentinel: 0.2, spiral_warden: 0.2 } },
+        { wave: 8, total: 650, duration: 70000, enemies: { ground_biter: 0.1, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, prism_drifter: 0.3 } },
+        { wave: 9, total: 850, duration: 70000, enemies: { ground_biter: 0.1, charger_ram: 0.05, arc_shooter: 0.05, hover_mage: 0.05, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.15, arc_phantom: 0.1, prism_drifter: 0.3 } },
+        { wave: 10, total: 1100, duration: 70000, enemies: { ground_biter: 0.1, charger_ram: 0.05, arc_shooter: 0.05, hover_mage: 0.05, pouncer: 0.05, knockback_brute: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, arc_phantom: 0.1, prism_drifter: 0.2 } }
     ];
 
     // Boss polygon graphics map
@@ -1350,10 +1350,10 @@ class MainScene extends Phaser.Scene {
 
         if (this.spawnEvent) this.spawnEvent.destroy();
         
-        // Spawn as fast as possible, spawnBatch handles the 200 limit
-        const calculatedDelay = 140; 
+        // Spawn as fast as possible, spawnBatch handles the limit and timing
+        const calculatedDelay = 200; 
         
-        console.log(`Wave ${this.currentWave}: Spawning ${this.totalEnemiesInWave} enemies (Max 200 on screen)`);
+        console.log(`Wave ${this.currentWave}: Spawning ${this.totalEnemiesInWave} enemies in ${config?.duration || 60000}ms (Max 200 on screen)`);
 
         this.spawnEvent = this.time.addEvent({
             delay: calculatedDelay,
@@ -1405,14 +1405,13 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        // Spawn logic: Waves 7+ should spawn over 2 minutes (120 seconds)
-        // Others use default (roughly 1 minute/60 seconds implicitly by totalEnemies/60)
-        const spawnDuration = this.currentWave >= 7 ? 120000 : 60000;
+        // Spawn logic: Respeitar a duração definida na configuração da onda
+        const spawnDuration = config?.duration || (this.currentWave >= 7 ? 70000 : 60000);
         const enemiesPerSecond = this.totalEnemiesInWave / (spawnDuration / 1000);
         
         // Spawn a small batch or single enemy to keep it steady
         const batchSize = Math.max(1, Math.min(
-            Math.ceil(enemiesPerSecond), 
+            Math.ceil(enemiesPerSecond * (calculatedDelay / 1000)), 
             this.totalEnemiesInWave - this.enemiesSpawnedInWave,
             this.maxSimultaneousEnemies - activeEnemies
         ));
