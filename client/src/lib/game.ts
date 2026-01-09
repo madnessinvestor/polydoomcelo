@@ -3764,7 +3764,7 @@ class MainScene extends Phaser.Scene {
 
         // If player is dashing and pressing Z, deal damage
         if (this.isDashing && this.keys.Z.isDown) {
-            this.hitEnemy(enemy, 1.1); // 1.1x damage multiplier for Dash + Z
+            this.hitEnemy(enemy, 0.5); // 0.5x damage multiplier for Dash + Z
         }
 
         if (this.isGameOver || this.isWaveInterval || this.isInvincible) return;
@@ -3831,9 +3831,9 @@ class MainScene extends Phaser.Scene {
 
         let finalDamage = baseDamage * resMultiplier * incomingDamageMult;
         
-        // Reduce damage by 50% if player is dashing
+        // Reduce damage by 20% (take 80%) if player is dashing
         if (this.isDashing) {
-            finalDamage *= 0.5;
+            finalDamage *= 0.8;
         }
 
         if (!isNaN(finalDamage) && isFinite(finalDamage)) {
