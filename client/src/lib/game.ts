@@ -926,58 +926,37 @@ class MainScene extends Phaser.Scene {
         const fontSize = Math.floor(24 * hudScale);
         const titleFontSize = Math.floor(32 * hudScale);
         
-        this.scoreText = this.add.text(16, 16, `Score: ${this.score.toLocaleString()} | LEVEL: ${this.level} (${this.levelTitle})`, { 
+        const fontStyle = { 
             fontSize: `${fontSize}px`, 
-            color: '#fff', 
-            fontFamily: '"Courier New", Courier, monospace',
-            fontStyle: 'bold',
-            stroke: '#000',
-            strokeThickness: 6
-        }).setScrollFactor(0).setDepth(1000);
-
-        // Wallet HUD - Ocultado conforme solicitado
-        /*
-        const walletAddr = (window as any).walletAddress;
-        if (walletAddr) {
-            const walletDisplay = `${walletAddr.substring(0, 6)}...${walletAddr.substring(walletAddr.length - 4)}`;
-            const networkDisplay = (window as any).networkName || 'Arc Testnet';
-            
-            this.add.text(16, 16 + fontSize + 10, `Player: ${walletDisplay} | Network: ${networkDisplay}`, {
-                fontSize: `${Math.floor(fontSize * 0.7)}px`,
-                color: '#4ade80',
-                fontFamily: '"Courier New", Courier, monospace',
-                fontStyle: 'bold',
-                stroke: '#000',
-                strokeThickness: 4
-            }).setScrollFactor(0).setDepth(1000);
-        }
-        */
+            color: '#ffffff', 
+            fontFamily: '"Pixel", monospace',
+            stroke: '#000000',
+            strokeThickness: 3
+        };
+        this.scoreText = this.add.text(16, 16, `Score: ${this.score.toLocaleString()} | LEVEL: ${this.level} (${this.levelTitle})`, fontStyle).setScrollFactor(0).setDepth(1000);
 
         this.enemyCounterText = this.add.text(width - 16, 16 + fontSize * 2 + 20, `0/${this.totalEnemiesInWave}`, {
             fontSize: `${fontSize}px`,
             color: '#ff4444',
-            fontFamily: '"Courier New", Courier, monospace',
-            fontStyle: 'bold',
+            fontFamily: '"Pixel", monospace',
             stroke: '#000',
-            strokeThickness: 6
+            strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
 
         this.waveText = this.add.text(width - 16, 16, 'WAVE: 1', { 
             fontSize: `${fontSize}px`, 
             color: '#fbbf24', 
-            fontStyle: 'bold', 
-            fontFamily: '"Courier New", Courier, monospace',
+            fontFamily: '"Pixel", monospace',
             stroke: '#000',
-            strokeThickness: 6
+            strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
 
         this.timerText = this.add.text(width - 16, 16 + fontSize + 10, '00:00', { 
             fontSize: `${fontSize}px`, 
             color: '#fff', 
-            fontStyle: 'bold', 
-            fontFamily: '"Courier New", Courier, monospace',
+            fontFamily: '"Pixel", monospace',
             stroke: '#000',
-            strokeThickness: 6
+            strokeThickness: 4
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000);
         
         this.kiarcBar = this.add.graphics().setScrollFactor(0).setDepth(1000);
@@ -4357,10 +4336,11 @@ class MainScene extends Phaser.Scene {
         // HP Text
         if (!this.hpLabel) {
             this.hpLabel = this.add.text(hbX + 10, hbY + 1, '', { 
-                fontSize: `${Math.floor(14 * hudScale)}px`, 
+                fontSize: `${Math.floor(12 * hudScale)}px`, 
                 color: '#fff', 
-                fontFamily: '"Courier New", Courier, monospace',
-                fontStyle: 'bold'
+                fontFamily: '"Pixel", monospace',
+                stroke: '#000',
+                strokeThickness: 2
             }).setScrollFactor(0).setDepth(1001);
         }
         if (this.hpLabel && this.hpLabel.active && this.hpLabel.scene) {
@@ -4415,10 +4395,11 @@ class MainScene extends Phaser.Scene {
         // KI Text
         if (!this.kiLabel) {
             this.kiLabel = this.add.text(kiX + 10, kiY + 0, '', { 
-                fontSize: `${Math.floor(12 * hudScale)}px`, 
+                fontSize: `${Math.floor(10 * hudScale)}px`, 
                 color: '#fff', 
-                fontFamily: '"Courier New", Courier, monospace',
-                fontStyle: 'bold'
+                fontFamily: '"Pixel", monospace',
+                stroke: '#000',
+                strokeThickness: 2
             }).setScrollFactor(0).setDepth(1001);
         }
         if (this.kiLabel && this.kiLabel.active && this.kiLabel.scene) {
