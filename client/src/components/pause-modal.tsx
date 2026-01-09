@@ -15,7 +15,7 @@ export function PauseModal({ onContinue, onExit }: PauseModalProps) {
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onPointerDown={(e) => e.stopPropagation()} />
       
       {/* Modal */}
-      <div className="relative bg-[#0a0a20] border-2 border-slate-700 rounded-lg p-8 w-full max-w-[400px] mx-4 shadow-2xl">
+      <div className="relative bg-[#0a0a20] border-2 border-slate-700 rounded-lg p-8 w-full max-w-[400px] mx-4 shadow-2xl font-pixel">
         {/* Title */}
         <h2 className="text-center text-3xl font-bold text-white mb-8 tracking-wider uppercase">
           Game Paused
