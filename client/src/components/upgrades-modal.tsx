@@ -339,23 +339,23 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[160] bg-black/20 backdrop-blur-none flex items-center justify-center p-4 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
       <Card className="w-full max-w-4xl bg-slate-900 border-2 border-green-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(34,197,94,0.3)] font-pixel" onPointerDown={(e) => e.stopPropagation()}>
-        <CardHeader className="border-b border-green-500/30 bg-green-950/20 relative">
+        <CardHeader className="border-b border-green-500/30 bg-green-950/20 relative py-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-green-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
-              <TrendingUp className="w-8 h-8" />
+            <CardTitle className="text-green-500 text-2xl uppercase font-black tracking-tighter flex items-center gap-2">
+              <TrendingUp className="w-6 h-6" />
               Upgrades
             </CardTitle>
-            <div className="bg-green-950/40 border border-green-500/30 px-4 py-2 rounded-none">
-              <span className="text-green-400 text-xs font-bold uppercase tracking-wider block opacity-70">My Balance</span>
-              <span className="text-white font-mono text-lg font-black">
-                {balance} <span className="text-green-500 text-sm">USDC</span>
+            <div className="bg-green-950/40 border border-green-500/30 px-3 py-1 rounded-none">
+              <span className="text-green-400 text-[10px] font-bold uppercase tracking-wider block opacity-70">Balance</span>
+              <span className="text-white font-mono text-base font-black">
+                {balance} <span className="text-green-500 text-xs">USDC</span>
               </span>
             </div>
           </div>
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
-          <ScrollArea className="h-full p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ScrollArea className="h-full p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {UPGRADE_DATA.map((upgrade) => {
                 const currentLevel = purchasedLevels[upgrade.id];
                 const currentBonusValue = currentLevel > 0 ? upgrade.tiers[currentLevel - 1].bonus : "0";
@@ -440,10 +440,10 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
             </div>
           </ScrollArea>
         </CardContent>
-        <div className="p-6 border-t border-slate-800 flex justify-center">
+        <div className="p-3 border-t border-slate-800 flex justify-center">
           <Button 
             onClick={onClose}
-            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-12 h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg"
+            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-8 h-10 text-base uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg"
             data-testid="button-close-upgrades-footer"
           >
             Close
