@@ -59,9 +59,9 @@ export default function Settings() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[160] pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-xl bg-slate-900 border-[#8b5cf6] pointer-events-auto rounded-none shadow-[0_0_15px_rgba(139,92,246,0.5)] font-pixel">
+      <Card className="w-full max-w-lg bg-slate-900 border-[#8b5cf6] pointer-events-auto rounded-none shadow-[0_0_15px_rgba(139,92,246,0.5)] font-pixel">
         <CardHeader className="border-b border-[#8b5cf6]/30 bg-[#8b5cf6]/20 py-3">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-start gap-2">
             <SettingsIcon className="w-6 h-6 text-[#8b5cf6]" />
             <CardTitle className="text-[#8b5cf6] text-xl uppercase font-black tracking-tighter">
               Settings
