@@ -983,7 +983,7 @@ class MainScene extends Phaser.Scene {
             fontSize: '18px',
             color: '#ffffff',
             fontStyle: 'bold',
-            fontFamily: '"Courier New", Courier, monospace',
+            fontFamily: '"PixelPurl", monospace',
             backgroundColor: '#000000',
             padding: { x: 12, y: 6 }
         }).setScrollFactor(0).setDepth(2002).setVisible(false);
@@ -1761,7 +1761,7 @@ class MainScene extends Phaser.Scene {
             fontStyle: 'bold',
             stroke: '#000000',
             strokeThickness: 4,
-            fontFamily: '"Courier New", Courier, monospace'
+            fontFamily: '"PixelPurl", monospace'
         }).setOrigin(0.5);
 
         this.tweens.add({
@@ -2210,7 +2210,7 @@ class MainScene extends Phaser.Scene {
                     fontStyle: 'bold',
                     stroke: '#000',
                     strokeThickness: 6,
-                    fontFamily: '"Courier New", Courier, monospace'
+                    fontFamily: '"PixelPurl", monospace'
                 }).setOrigin(0.5);
 
                 this.tweens.add({
@@ -2581,7 +2581,7 @@ class MainScene extends Phaser.Scene {
             fontStyle: 'bold',
             stroke: '#000',
             strokeThickness: 4,
-            fontFamily: '"Courier New", Courier, monospace'
+            fontFamily: '"PixelPurl", monospace'
         }).setOrigin(0.5);
 
         this.kamehamehaChargeBar = this.add.graphics();
@@ -2875,7 +2875,7 @@ class MainScene extends Phaser.Scene {
                     fontStyle: 'bold',
                     stroke: '#000',
                     strokeThickness: 3,
-                    fontFamily: '"Courier New", Courier, monospace'
+                    fontFamily: '"PixelPurl", monospace'
                 }).setOrigin(0.5);
 
                 this.genkidamaPercentText = this.add.text(this.player.x, this.player.y - 50, '0%', {
@@ -2884,7 +2884,7 @@ class MainScene extends Phaser.Scene {
                     fontStyle: 'bold',
                     stroke: '#000',
                     strokeThickness: 4,
-                    fontFamily: '"Courier New", Courier, monospace'
+                    fontFamily: '"PixelPurl", monospace'
                 }).setOrigin(0.5);
             }
             
@@ -3352,7 +3352,7 @@ class MainScene extends Phaser.Scene {
             fontStyle: 'bold',
             stroke: '#000',
             strokeThickness: 4,
-            fontFamily: 'Arial, sans-serif'
+            fontFamily: '"PixelPurl", monospace'
         }).setOrigin(0.5);
 
         this.tweens.add({
@@ -4183,7 +4183,7 @@ class MainScene extends Phaser.Scene {
             fontStyle: 'bold',
             stroke: '#000',
             strokeThickness: 6,
-            fontFamily: '"Courier New", Courier, monospace'
+            fontFamily: '"PixelPurl", monospace'
         }).setOrigin(0.5).setDepth(2000);
 
         this.tweens.add({
@@ -4260,7 +4260,7 @@ class MainScene extends Phaser.Scene {
             // Número para usar (Canto Superior Esquerdo)
             this.add.text(4, y + 2, potion.key, {
                 fontSize: '12px',
-                fontFamily: 'Arial',
+                fontFamily: '"PixelPurl", monospace',
                 color: '#60a5fa',
                 fontStyle: 'bold'
             }).setOrigin(0, 0);
@@ -4269,7 +4269,7 @@ class MainScene extends Phaser.Scene {
             const count = this.playerInventory[potion.id] || 0;
             this.add.text(46, y + 46, count.toString(), {
                 fontSize: '14px',
-                fontFamily: 'Arial',
+                fontFamily: '"PixelPurl", monospace',
                 color: '#ffffff',
                 fontStyle: 'bold'
             }).setOrigin(1, 1);
@@ -5291,7 +5291,7 @@ class StartScene extends Phaser.Scene {
             btnRect.setStrokeStyle(2, color, 1);
             const btnText = this.add.text(0, 0, text, {
                 fontSize: fontSize,
-                fontFamily: 'Arial, sans-serif',
+                fontFamily: '"PixelPurl", monospace',
                 color: textColor,
                 fontStyle: 'bold',
                 align: 'center',
@@ -5771,7 +5771,7 @@ class StartScene extends Phaser.Scene {
         // Title
         const title = this.add.text(width / 2, height * 0.18, 'GAME CONTROLS', {
             fontSize: '32px',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"PixelPurl", monospace',
             color: '#fbbf24',
             fontStyle: 'bold',
             align: 'center'
@@ -5887,7 +5887,7 @@ class StartScene extends Phaser.Scene {
         const closeBtn = this.add.rectangle(width / 2, height * 0.85, 150, 50, 0xef4444).setScrollFactor(0).setDepth(205);
         const closeText = this.add.text(width / 2, height * 0.85, 'CLOSE', {
             fontSize: '20px',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"PixelPurl", monospace',
             color: '#000000',
             fontStyle: 'bold'
         }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(206);
@@ -5922,7 +5922,7 @@ class StartScene extends Phaser.Scene {
         // Title
         const leaderboardTitle = this.add.text(width / 2, height * 0.15, 'LEADERBOARD', {
             fontSize: '32px',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"PixelPurl", monospace',
             color: '#fbbf24',
             fontStyle: 'bold',
             align: 'center'
@@ -5996,7 +5996,7 @@ class StartScene extends Phaser.Scene {
         const closeBtn = this.add.rectangle(width / 2, height * 0.85, 150, 50, 0xff6b6b).setScrollFactor(0).setDepth(101);
         const closeText = this.add.text(width / 2, height * 0.85, 'CLOSE', {
             fontSize: '20px',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"PixelPurl", monospace',
             color: '#000000',
             fontStyle: 'bold',
             align: 'center'
@@ -6043,7 +6043,7 @@ class StartScene extends Phaser.Scene {
         // Title
         const settingsTitle = this.add.text(width / 2, height * 0.18, 'SETTINGS', {
             fontSize: '32px',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"PixelPurl", monospace',
             color: '#a78bfa',
             fontStyle: 'bold',
             align: 'center'
@@ -6183,7 +6183,7 @@ class StartScene extends Phaser.Scene {
         const closeBtn = this.add.rectangle(width / 2, height * 0.82, 150, 50, 0xff0000).setScrollFactor(0).setDepth(103);
         const closeText = this.add.text(width / 2, height * 0.82, 'CLOSE', {
             fontSize: '20px',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"PixelPurl", monospace',
             color: '#000000',
             fontStyle: 'bold',
             align: 'center'
@@ -6230,7 +6230,7 @@ class StartScene extends Phaser.Scene {
         // Title
         const historyTitle = this.add.text(width / 2, height * 0.15, 'GAME HISTORY', {
             fontSize: '32px',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"PixelPurl", monospace',
             color: '#60a5fa',
             fontStyle: 'bold',
             align: 'center'
@@ -6262,7 +6262,7 @@ class StartScene extends Phaser.Scene {
         const closeBtn = this.add.rectangle(width / 2, height * 0.85, 150, 50, 0xff6b6b).setScrollFactor(0).setDepth(101);
         const closeText = this.add.text(width / 2, height * 0.85, 'CLOSE', {
             fontSize: '20px',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"PixelPurl", monospace',
             color: '#000000',
             fontStyle: 'bold',
             align: 'center'
@@ -6411,7 +6411,7 @@ class DeathScene extends Phaser.Scene {
         // Title
         const title = this.add.text(width / 2, height / 2 - 110, 'REGISTER SCORE', {
             fontSize: '28px',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"PixelPurl", monospace',
             color: '#4ade80',
             fontStyle: 'bold',
             align: 'center'
@@ -6475,7 +6475,7 @@ class DeathScene extends Phaser.Scene {
         const confirmBtn = this.add.rectangle(width / 2, height / 2 + 40, 200, 50, 0x4ade80).setScrollFactor(0).setDepth(103);
         const confirmText = this.add.text(width / 2, height / 2 + 40, 'CONFIRM', {
             fontSize: '20px',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"PixelPurl", monospace',
             color: '#000000',
             fontStyle: 'bold'
         }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(104);
@@ -6484,7 +6484,7 @@ class DeathScene extends Phaser.Scene {
         const cancelBtn = this.add.rectangle(width / 2, height / 2 + 105, 200, 50, 0xff6b6b).setScrollFactor(0).setDepth(103);
         const cancelText = this.add.text(width / 2, height / 2 + 105, 'CANCEL', {
             fontSize: '20px',
-            fontFamily: 'Arial, sans-serif',
+            fontFamily: '"PixelPurl", monospace',
             color: '#000000',
             fontStyle: 'bold'
         }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(104);
