@@ -3759,6 +3759,15 @@ class MainScene extends Phaser.Scene {
     }
 
     private handlePlayerEnemyCollision(obj1: any, obj2: any) {
+        const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
+        if (!enemy || !enemy.active) return;
+
+        // If player is dashing and pressing Z, deal damage
+        if (this.isDashing && this.keys.Z.isDown) {
+            this.hitEnemy(enemy, 1.5); // 1.5x damage multiplier for Dash + Z
+            return; // Skip taking damage if we're attacking during dash
+        }
+
         if (this.isGameOver || this.isWaveInterval || this.isInvincible) return;
         
         // Se estiver defendendo, o escudo bloqueia o dano e treme levemente
@@ -3784,9 +3793,6 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
-        if (!enemy || !enemy.active) return;
-        
         // Se o inimigo estiver sendo repelido (knockback), não dá dano no player
         if (enemy.getData('isBeingKnockedBack')) return;
 
