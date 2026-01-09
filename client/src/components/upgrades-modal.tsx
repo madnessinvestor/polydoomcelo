@@ -59,6 +59,24 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     ]
   },
   {
+    id: "arc_vamp",
+    name: "ArcVamp",
+    description: "Regenerates HP based on damage dealt",
+    icon: Droplets,
+    tiers: [
+      { level: 1, bonus: "0.0001", price: 20 },
+      { level: 2, bonus: "0.0002", price: 40 },
+      { level: 3, bonus: "0.0003", price: 60 },
+      { level: 4, bonus: "0.0004", price: 80 },
+      { level: 5, bonus: "0.0005", price: 100 },
+      { level: 6, bonus: "0.0006", price: 120 },
+      { level: 7, bonus: "0.0007", price: 140 },
+      { level: 8, bonus: "0.0008", price: 160 },
+      { level: 9, bonus: "0.0009", price: 180 },
+      { level: 10, bonus: "0.001", price: 200 },
+    ]
+  },
+  {
     id: "arc_damage",
     name: "ArcDamage",
     description: "Increases all damage dealt",
@@ -92,24 +110,6 @@ const UPGRADE_DATA: UpgradeCategory[] = [
       { level: 8, bonus: "0.8", price: 230 },
       { level: 9, bonus: "0.9", price: 260 },
       { level: 10, bonus: "1", price: 300 },
-    ]
-  },
-  {
-    id: "arc_vamp",
-    name: "ArcVamp",
-    description: "Regenerates HP based on damage dealt",
-    icon: Droplets,
-    tiers: [
-      { level: 1, bonus: "0.0001", price: 20 },
-      { level: 2, bonus: "0.0002", price: 40 },
-      { level: 3, bonus: "0.0003", price: 60 },
-      { level: 4, bonus: "0.0004", price: 80 },
-      { level: 5, bonus: "0.0005", price: 100 },
-      { level: 6, bonus: "0.0006", price: 120 },
-      { level: 7, bonus: "0.0007", price: 140 },
-      { level: 8, bonus: "0.0008", price: 160 },
-      { level: 9, bonus: "0.0009", price: 180 },
-      { level: 10, bonus: "0.001", price: 200 },
     ]
   }
 ];
@@ -338,7 +338,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[160] bg-black/20 backdrop-blur-none flex items-center justify-center p-4 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-4xl bg-slate-900 border-2 border-green-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(34,197,94,0.3)] font-pixel" onPointerDown={(e) => e.stopPropagation()}>
+      <Card className="w-full max-w-6xl bg-slate-900 border-2 border-green-500 text-white max-h-[75vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(34,197,94,0.3)] font-pixel" onPointerDown={(e) => e.stopPropagation()}>
         <CardHeader className="border-b border-green-500/30 bg-green-950/20 relative py-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-green-500 text-2xl uppercase font-black tracking-tighter flex items-center gap-2">
@@ -355,7 +355,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
           <ScrollArea className="h-full p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {UPGRADE_DATA.map((upgrade) => {
                 const currentLevel = purchasedLevels[upgrade.id];
                 const currentBonusValue = currentLevel > 0 ? upgrade.tiers[currentLevel - 1].bonus : "0";
