@@ -68,50 +68,56 @@ export default function Settings() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="pt-8 space-y-8 font-pixel-content">
-          <div className="space-y-3">
+        <CardContent className="pt-8 space-y-8 font-pixel-content px-10">
+          <div className="space-y-4 w-full">
             <div className="flex flex-col items-center gap-2">
               <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Master Volume</label>
               <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{masterVolume}%</span>
             </div>
-            <Slider 
-              value={[masterVolume]} 
-              onValueChange={(v) => updateVolume("master", v[0])} 
-              max={100} 
-              min={0} 
-              step={1} 
-              className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
-            />
+            <div className="px-2 w-full">
+              <Slider 
+                value={[masterVolume]} 
+                onValueChange={(v) => updateVolume("master", v[0])} 
+                max={100} 
+                min={0} 
+                step={1} 
+                className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+              />
+            </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4 w-full">
             <div className="flex flex-col items-center gap-2">
               <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Music Volume</label>
               <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{musicVolume}%</span>
             </div>
-            <Slider 
-              value={[musicVolume]} 
-              onValueChange={(v) => updateVolume("music", v[0])} 
-              max={100} 
-              min={0} 
-              step={1} 
-              className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
-            />
+            <div className="px-2 w-full">
+              <Slider 
+                value={[musicVolume]} 
+                onValueChange={(v) => updateVolume("music", v[0])} 
+                max={100} 
+                min={0} 
+                step={1} 
+                className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+              />
+            </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4 w-full">
             <div className="flex flex-col items-center gap-2">
               <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Effects Volume</label>
               <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{sfxVolume}%</span>
             </div>
-            <Slider 
-              value={[sfxVolume]} 
-              onValueChange={(v) => updateVolume("sfx", v[0])} 
-              max={100} 
-              min={0} 
-              step={1} 
-              className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
-            />
+            <div className="px-2 w-full">
+              <Slider 
+                value={[sfxVolume]} 
+                onValueChange={(v) => updateVolume("sfx", v[0])} 
+                max={100} 
+                min={0} 
+                step={1} 
+                className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+              />
+            </div>
           </div>
         </CardContent>
 
