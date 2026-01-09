@@ -44,7 +44,7 @@ export default function Controls() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[160] pointer-events-auto overflow-y-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-4xl bg-slate-950 border-violet-500 border-2 pointer-events-auto rounded-none shadow-2xl shadow-violet-500/20">
+      <Card className="w-full max-w-4xl bg-slate-950 border-violet-500 border-2 pointer-events-auto rounded-none shadow-2xl shadow-violet-500/20 font-pixel">
         <CardHeader className="border-b border-violet-500/30 bg-violet-950/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">

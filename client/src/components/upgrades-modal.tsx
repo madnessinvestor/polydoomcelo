@@ -338,7 +338,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[160] bg-black/20 backdrop-blur-none flex items-center justify-center p-4 pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-4xl bg-slate-900 border-2 border-green-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(34,197,94,0.3)]" onPointerDown={(e) => e.stopPropagation()}>
+      <Card className="w-full max-w-4xl bg-slate-900 border-2 border-green-500 text-white max-h-[90vh] flex flex-col overflow-hidden rounded-none shadow-[0_0_20px_rgba(34,197,94,0.3)] font-pixel" onPointerDown={(e) => e.stopPropagation()}>
         <CardHeader className="border-b border-green-500/30 bg-green-950/20 relative">
           <div className="flex items-center justify-between">
             <CardTitle className="text-green-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">

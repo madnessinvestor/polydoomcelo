@@ -14,7 +14,7 @@ export default function History() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[160] pointer-events-auto overflow-y-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-4xl bg-slate-950 border-blue-500 border-2 pointer-events-auto rounded-none shadow-2xl shadow-blue-500/20">
+      <Card className="w-full max-w-4xl bg-slate-950 border-blue-500 border-2 pointer-events-auto rounded-none shadow-2xl shadow-blue-500/20 font-pixel">
         <CardHeader className="border-b border-blue-500/30 bg-blue-950/20 relative">
           <div className="flex items-center gap-3">
             <CardTitle className="text-blue-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
