@@ -22,12 +22,12 @@ export function PauseModal({ onContinue, onExit }: PauseModalProps) {
         </h2>
         
         {/* Message */}
-        <p className="text-center text-slate-300 mb-4 font-pixel-content" style={{ fontSize: '2rem' }}>
+        <p className="text-center text-slate-300 mb-4 font-pixel-content" style={{ fontSize: '1.3rem' }}>
           Do you want to continue or exit the game?
         </p>
         
         {/* Warning about time */}
-        <p className="text-center text-[#fbbf24] mb-10 font-medium animate-pulse font-pixel-content" style={{ fontSize: '1.5rem' }}>
+        <p className="text-center text-[#fbbf24] mb-10 font-medium animate-pulse font-pixel-content" style={{ fontSize: '0.975rem' }}>
           TIME WILL CONTINUE RUNNING DURING PAUSE
         </p>
         

@@ -71,8 +71,8 @@ export default function Settings() {
         <CardContent className="pt-8 space-y-8 font-pixel-content">
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.8rem' }}>Master Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.8rem' }}>{masterVolume}%</span>
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Master Volume</label>
+              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{masterVolume}%</span>
             </div>
             <Slider 
               value={[masterVolume]} 
@@ -86,8 +86,8 @@ export default function Settings() {
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.8rem' }}>Music Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.8rem' }}>{musicVolume}%</span>
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Music Volume</label>
+              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{musicVolume}%</span>
             </div>
             <Slider 
               value={[musicVolume]} 
@@ -101,8 +101,8 @@ export default function Settings() {
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.8rem' }}>Effects Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.8rem' }}>{sfxVolume}%</span>
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Effects Volume</label>
+              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{sfxVolume}%</span>
             </div>
             <Slider 
               value={[sfxVolume]} 

@@ -10,7 +10,7 @@ const Key = ({ label, action, active, className = "" }: { label: string, action:
       ${active ? 'bg-violet-600 border-violet-400 text-white shadow-violet-500/50 scale-105' : 'bg-violet-950/40 border-violet-500/30 text-violet-200 shadow-inner'}`}>
       {label}
     </div>
-    <span className="uppercase font-black tracking-tighter text-violet-400/70 text-center leading-none max-w-[120px] font-pixel-content" style={{ fontSize: '1.2rem' }}>
+    <span className="uppercase font-black tracking-tighter text-violet-400/70 text-center leading-none max-w-[120px] font-pixel-content" style={{ fontSize: '0.78rem' }}>
       {action}
     </span>
   </div>
@@ -29,7 +29,7 @@ const ArrowKey = ({ dir, action, active }: { dir: 'up' | 'down' | 'left' | 'righ
         ${active ? 'bg-violet-600 border-violet-400 text-white shadow-violet-500/50' : 'bg-violet-950/40 border-violet-500/30 text-violet-300'}`}>
         {icons[dir]}
       </div>
-      <span className="uppercase font-black tracking-tighter text-violet-400/70 font-pixel-content" style={{ fontSize: '1rem' }}>{action}</span>
+      <span className="uppercase font-black tracking-tighter text-violet-400/70 font-pixel-content" style={{ fontSize: '0.65rem' }}>{action}</span>
     </div>
   );
 };
@@ -61,7 +61,7 @@ export default function Controls() {
           <div className="space-y-12">
             {/* Category: Items */}
             <div className="flex flex-col items-center gap-6 bg-violet-950/10 p-8 rounded-lg border border-violet-500/10">
-              <h3 className="text-violet-500 font-black uppercase tracking-[0.4em] font-pixel-label" style={{ fontSize: '1.8rem' }}>Items Keys</h3>
+              <h3 className="text-violet-500 font-black uppercase tracking-[0.4em] font-pixel-label" style={{ fontSize: '1.17rem' }}>Items Keys</h3>
               <div className="flex gap-4">
                 <Key label="Q" action="Heal HP" active />
                 <Key label="W" action="Rest. Kiarc" active />
@@ -72,7 +72,7 @@ export default function Controls() {
 
             {/* Category: Basic Keys */}
             <div className="flex flex-col items-center gap-6 bg-violet-950/10 p-8 rounded-lg border border-violet-500/10">
-              <h3 className="text-violet-500 font-black uppercase tracking-[0.4em] font-pixel-label" style={{ fontSize: '1.8rem' }}>Basic Keys</h3>
+              <h3 className="text-violet-500 font-black uppercase tracking-[0.4em] font-pixel-label" style={{ fontSize: '1.17rem' }}>Basic Keys</h3>
               <div className="flex flex-col items-center gap-8 w-full max-w-2xl">
                 {/* Movement */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full">

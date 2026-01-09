@@ -267,13 +267,13 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-bold truncate uppercase font-pixel-label" style={{ fontSize: '2.2rem' }}>{potion.name}</h3>
-                            <Badge variant="secondary" className="bg-blue-900/30 text-blue-400 rounded-none border-blue-500/30 font-pixel-content" style={{ fontSize: '1.5rem' }}>
+                            <h3 className="font-bold truncate uppercase font-pixel-label" style={{ fontSize: '1.43rem' }}>{potion.name}</h3>
+                            <Badge variant="secondary" className="bg-blue-900/30 text-blue-400 rounded-none border-blue-500/30 font-pixel-content" style={{ fontSize: '1rem' }}>
                               Owned: {count}
                             </Badge>
                           </div>
-                          <p className="text-blue-400 font-bold mb-1 italic font-pixel-content" style={{ fontSize: '1.2rem' }}>{potion.effect}</p>
-                          <p className="text-slate-400 mb-4 h-10 line-clamp-2 font-pixel-content" style={{ fontSize: '1.2rem' }}>{potion.description}</p>
+                          <p className="text-blue-400 font-bold mb-1 italic font-pixel-content" style={{ fontSize: '0.78rem' }}>{potion.effect}</p>
+                          <p className="text-slate-400 mb-4 h-10 line-clamp-2 font-pixel-content" style={{ fontSize: '0.78rem' }}>{potion.description}</p>
                           
                           <Button 
                             onClick={() => handleBuy(potion)}
