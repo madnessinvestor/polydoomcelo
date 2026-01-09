@@ -2366,8 +2366,8 @@ class MainScene extends Phaser.Scene {
         const { width, height } = this.cameras.main;
         const basics = [
             { key: 'Z', label: 'Z', action: 'Punch' },
-            { key: 'X', label: 'X', action: 'Kick' },
-            { key: 'C', label: 'C', action: 'Charge Ki' },
+            { key: 'X', label: 'X', action: 'Charge Ki' },
+            { key: 'C', label: 'C', action: 'Magic Ki' },
             { key: 'D', label: 'D', action: 'Defense' }
         ];
 
