@@ -1096,6 +1096,11 @@ class MainScene extends Phaser.Scene {
         let health = hpProgression[waveToUse] || (2000 + (waveToUse - 10) * 500);
         const normalEnemyDamage = Math.pow(1.5, waveToUse - 1) * 0.01;
         let damage = normalEnemyDamage * 4;
+
+        // Validation for boss stats
+        if (isNaN(health) || !isFinite(health) || health <= 0) health = 1000;
+        if (isNaN(damage) || !isFinite(damage) || damage <= 0) damage = 0.5;
+
         let sizeMultiplier = 1.0;
 
         if (this.currentWave > 10) {
