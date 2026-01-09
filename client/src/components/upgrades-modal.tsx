@@ -373,13 +373,13 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-bold text-lg truncate uppercase font-pixel-label">{upgrade.name}</h3>
+                            <h3 className="font-bold truncate uppercase font-pixel-label" style={{ fontSize: '2.2rem' }}>{upgrade.name}</h3>
                             <div className="flex flex-col items-end">
-                              <Badge variant="secondary" className="bg-slate-700 text-green-500 rounded-none font-pixel-content">
+                              <Badge variant="secondary" className="bg-slate-700 text-green-500 rounded-none font-pixel-content" style={{ fontSize: '1.5rem' }}>
                                 Current: Lv {currentLevel}/10
                               </Badge>
                               {currentLevel < 10 && (
-                                <span className="text-[10px] text-slate-500 mt-0.5 font-pixel-content">
+                                <span className="text-slate-500 mt-0.5 font-pixel-content" style={{ fontSize: '1rem' }}>
                                   Next: Lv {currentLevel + 1}
                                 </span>
                               )}
@@ -397,16 +397,16 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                             ))}
                           </div>
 
-                          <p className="text-sm text-slate-400 mb-2 line-clamp-1 font-pixel-content">{upgrade.description}</p>
+                          <p className="text-slate-400 mb-2 line-clamp-1 font-pixel-content" style={{ fontSize: '1.2rem' }}>{upgrade.description}</p>
                           
-                          <div className="flex justify-between text-sm mb-4 font-pixel-content">
+                          <div className="flex justify-between mb-4 font-pixel-content" style={{ fontSize: '1.2rem' }}>
                             <span className="text-slate-500">Current Bonus:</span>
                             <span className="text-green-500 font-bold">+{currentBonus}</span>
                           </div>
                           
                           {currentLevel < 10 ? (
-                            <div className="space-y-3 font-pixel-content">
-                              <div className="flex justify-between text-sm">
+                            <div className="space-y-3 font-pixel-content" style={{ fontSize: '1.2rem' }}>
+                              <div className="flex justify-between">
                                 <span className="text-slate-500">Next Bonus:</span>
                                 <span className="text-green-400 font-mono">+{nextTier.bonus}%</span>
                               </div>
