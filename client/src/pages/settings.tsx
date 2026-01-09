@@ -59,7 +59,7 @@ export default function Settings() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[160] pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-md bg-slate-900 border-[#8b5cf6] pointer-events-auto rounded-none shadow-[0_0_15px_rgba(139,92,246,0.5)] font-pixel">
+      <Card className="w-full max-w-2xl bg-slate-900 border-[#8b5cf6] pointer-events-auto rounded-none shadow-[0_0_15px_rgba(139,92,246,0.5)] font-pixel">
         <CardHeader className="border-b border-[#8b5cf6]/30 bg-[#8b5cf6]/20">
           <div className="flex items-center gap-3">
             <CardTitle className="text-[#8b5cf6] text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
@@ -68,13 +68,13 @@ export default function Settings() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="pt-8 space-y-8 font-pixel-content px-10">
-          <div className="space-y-4 w-full">
+        <CardContent className="pt-8 space-y-10 font-pixel-content px-6">
+          <div className="space-y-4 w-full flex flex-col items-center">
             <div className="flex flex-col items-center gap-2">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Master Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{masterVolume}%</span>
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.43rem' }}>Master Volume</label>
+              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.43rem' }}>{masterVolume}%</span>
             </div>
-            <div className="px-2 w-full">
+            <div className="w-full max-w-xl">
               <Slider 
                 value={[masterVolume]} 
                 onValueChange={(v) => updateVolume("master", v[0])} 
@@ -86,12 +86,12 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="space-y-4 w-full">
+          <div className="space-y-4 w-full flex flex-col items-center">
             <div className="flex flex-col items-center gap-2">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Music Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{musicVolume}%</span>
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.43rem' }}>Music Volume</label>
+              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.43rem' }}>{musicVolume}%</span>
             </div>
-            <div className="px-2 w-full">
+            <div className="w-full max-w-xl">
               <Slider 
                 value={[musicVolume]} 
                 onValueChange={(v) => updateVolume("music", v[0])} 
@@ -103,12 +103,12 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="space-y-4 w-full">
+          <div className="space-y-4 w-full flex flex-col items-center">
             <div className="flex flex-col items-center gap-2">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Effects Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{sfxVolume}%</span>
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.43rem' }}>Effects Volume</label>
+              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.43rem' }}>{sfxVolume}%</span>
             </div>
-            <div className="px-2 w-full">
+            <div className="w-full max-w-xl">
               <Slider 
                 value={[sfxVolume]} 
                 onValueChange={(v) => updateVolume("sfx", v[0])} 
