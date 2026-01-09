@@ -59,22 +59,22 @@ export default function Settings() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[160] pointer-events-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-2xl bg-slate-900 border-[#8b5cf6] pointer-events-auto rounded-none shadow-[0_0_15px_rgba(139,92,246,0.5)] font-pixel">
-        <CardHeader className="border-b border-[#8b5cf6]/30 bg-[#8b5cf6]/20 py-4">
-          <div className="flex items-center justify-center gap-3">
-            <SettingsIcon className="w-8 h-8 text-[#8b5cf6]" />
-            <CardTitle className="text-[#8b5cf6] text-3xl uppercase font-black tracking-tighter">
+      <Card className="w-full max-w-md bg-slate-900 border-[#8b5cf6] pointer-events-auto rounded-none shadow-[0_0_15px_rgba(139,92,246,0.5)] font-pixel">
+        <CardHeader className="border-b border-[#8b5cf6]/30 bg-[#8b5cf6]/20 py-3">
+          <div className="flex items-center justify-center gap-2">
+            <SettingsIcon className="w-6 h-6 text-[#8b5cf6]" />
+            <CardTitle className="text-[#8b5cf6] text-xl uppercase font-black tracking-tighter">
               Settings
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="pt-8 space-y-10 font-pixel-content px-6">
-          <div className="space-y-4 w-full flex flex-col items-center">
-            <div className="flex flex-col items-center gap-2">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.43rem' }}>Master Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.43rem' }}>{masterVolume}%</span>
+        <CardContent className="pt-6 space-y-6 font-pixel-content px-6">
+          <div className="space-y-3 w-full flex flex-col items-center">
+            <div className="flex flex-col items-center gap-1">
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1rem' }}>Master Volume</label>
+              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1rem' }}>{masterVolume}%</span>
             </div>
-            <div className="w-full max-w-xl">
+            <div className="w-full">
               <Slider 
                 value={[masterVolume]} 
                 onValueChange={(v) => updateVolume("master", v[0])} 
@@ -86,12 +86,12 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="space-y-4 w-full flex flex-col items-center">
-            <div className="flex flex-col items-center gap-2">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.43rem' }}>Music Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.43rem' }}>{musicVolume}%</span>
+          <div className="space-y-3 w-full flex flex-col items-center">
+            <div className="flex flex-col items-center gap-1">
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1rem' }}>Music Volume</label>
+              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1rem' }}>{musicVolume}%</span>
             </div>
-            <div className="w-full max-w-xl">
+            <div className="w-full">
               <Slider 
                 value={[musicVolume]} 
                 onValueChange={(v) => updateVolume("music", v[0])} 
@@ -103,12 +103,12 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="space-y-4 w-full flex flex-col items-center">
-            <div className="flex flex-col items-center gap-2">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.43rem' }}>Effects Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.43rem' }}>{sfxVolume}%</span>
+          <div className="space-y-3 w-full flex flex-col items-center">
+            <div className="flex flex-col items-center gap-1">
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1rem' }}>Effects Volume</label>
+              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1rem' }}>{sfxVolume}%</span>
             </div>
-            <div className="w-full max-w-xl">
+            <div className="w-full">
               <Slider 
                 value={[sfxVolume]} 
                 onValueChange={(v) => updateVolume("sfx", v[0])} 
@@ -121,10 +121,10 @@ export default function Settings() {
           </div>
         </CardContent>
 
-        <div className="p-6 border-t border-slate-800 flex justify-center">
+        <div className="p-4 border-t border-slate-800 flex justify-center">
           <Button 
             onClick={closeModal}
-            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-12 h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg"
+            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-8 h-10 text-base uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg"
           >
             CLOSE
           </Button>
