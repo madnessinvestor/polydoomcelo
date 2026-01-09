@@ -818,7 +818,8 @@ class MainScene extends Phaser.Scene {
 
         const platforms = this.physics.add.staticGroup();
         for (let i = 0; i < 100; i++) {
-            const platform = platforms.create(i * 32, height - 16, 'jungle_tiles', 0).refreshBody();
+            const platform = platforms.create(i * 32, height - 32, 'jungle_tiles', 0).refreshBody();
+            platform.setDisplaySize(32, 64);
             platform.setTint(0x1a472a);
         }
 
