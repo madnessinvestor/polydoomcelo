@@ -2377,8 +2377,8 @@ class MainScene extends Phaser.Scene {
         const totalItemsCount = basics.length + specialsCount;
         const totalHeight = (size + spacing) * totalItemsCount - spacing;
         
-        // Centraliza verticalmente o conjunto total (Basics + Specials)
-        const startYAll = (height - totalHeight) / 2;
+        // Centraliza verticalmente o conjunto total (Basics + Specials) e move um pouco para baixo
+        const startYAll = (height - totalHeight) / 2 + 30;
         const x = width - 50;
 
         basics.forEach((basic, index) => {
@@ -2391,8 +2391,8 @@ class MainScene extends Phaser.Scene {
                 this.specialsHUDGraphics.set('basic_' + basic.key, graphics);
             }
             graphics.clear();
-            graphics.lineStyle(2, 0x4ade80, 0.8);
-            graphics.fillStyle(0x000000, 0.4);
+            graphics.lineStyle(2, 0x4ade80, 0.64); // 20% more transparent (0.8 * 0.8)
+            graphics.fillStyle(0x000000, 0.32); // 20% more transparent (0.4 * 0.8)
             graphics.strokeRect(x - size/2, y - size/2, size, size);
             graphics.fillRect(x - size/2, y - size/2, size, size);
 
@@ -2409,6 +2409,7 @@ class MainScene extends Phaser.Scene {
                 }).setOrigin(0.5).setScrollFactor(0).setDepth(1003);
                 this.specialsHUDTimers.set('basic_key_' + basic.key, keyText);
             }
+            keyText.setAlpha(0.8); // 20% more transparent
             keyText.setPosition(x, y);
 
             // Action Label (Bottom)
@@ -2423,6 +2424,7 @@ class MainScene extends Phaser.Scene {
                 }).setOrigin(0.5, 1).setScrollFactor(0).setDepth(1004);
                 this.specialsHUDTimers.set('basic_action_' + basic.key, actionText);
             }
+            actionText.setAlpha(0.8); // 20% more transparent
             actionText.setPosition(x, y + size/2 - 8);
         });
     }
@@ -2445,8 +2447,8 @@ class MainScene extends Phaser.Scene {
         const totalItemsCount = basicsCount + specials.length;
         const totalHeightAll = (size + spacing) * totalItemsCount - spacing;
         
-        // Centraliza verticalmente o conjunto total (Basics + Specials)
-        const startYAll = (height - totalHeightAll) / 2;
+        // Centraliza verticalmente o conjunto total (Basics + Specials) e move um pouco para baixo
+        const startYAll = (height - totalHeightAll) / 2 + 30;
         // Specials começam depois dos Basics
         const startYSpecials = startYAll + basicsCount * (size + spacing);
         const x = width - 50; // Lateral direita
@@ -2476,15 +2478,16 @@ class MainScene extends Phaser.Scene {
                     .setDepth(1001);
                 this.specialsHUDTimers.set(special.key + '_icon', iconImage as any);
             }
+            iconImage.setAlpha(0.8); // 20% more transparent
             iconImage.setPosition(x, y);
 
             // Vibrant Border
-            graphics.lineStyle(2, 0xffdd00, 1.0);
+            graphics.lineStyle(2, 0xffdd00, 0.8); // 20% more transparent (1.0 * 0.8)
             graphics.strokeRect(x - size/2, y - size/2, size, size);
 
             if (remaining > 0) {
                 // Circular "clock" overlay (filling during cooldown)
-                graphics.fillStyle(0x000000, 0.7);
+                graphics.fillStyle(0x000000, 0.56); // 20% more transparent (0.7 * 0.8)
                 graphics.beginPath();
                 graphics.moveTo(x, y);
                 // Start at top (-90 deg), sweep based on progress
@@ -2507,6 +2510,7 @@ class MainScene extends Phaser.Scene {
                     this.specialsHUDTimers.set(special.key, timerText);
                 }
                 timerText.setText(Math.ceil(remaining / 1000).toString());
+                timerText.setAlpha(0.8); // 20% more transparent
                 timerText.setVisible(true);
                 timerText.setPosition(x, y);
             } else {
@@ -2528,6 +2532,7 @@ class MainScene extends Phaser.Scene {
                 }).setScrollFactor(0).setDepth(1004);
                 this.specialsHUDTimers.set(labelKey, label);
             }
+            label.setAlpha(0.8); // 20% more transparent
             label.setPosition(x - size/2 + 4, y - size/2 + 4);
 
             // KI Cost (Bottom Right)
@@ -2544,6 +2549,7 @@ class MainScene extends Phaser.Scene {
                 }).setOrigin(1, 1).setScrollFactor(0).setDepth(1004);
                 this.specialsHUDTimers.set(costKey, costText);
             }
+            costText.setAlpha(0.8); // 20% more transparent
             costText.setPosition(x + size/2 - 4, y + size/2 - 4);
         });
     }
@@ -4455,6 +4461,7 @@ class MainScene extends Phaser.Scene {
     private updateUpgradeIconsUI() {
         if (!this.upgradeIconsContainer) return;
         this.upgradeIconsContainer.removeAll(true);
+        this.upgradeIconsContainer.setAlpha(0.8); // 20% more transparent
 
         const upgradeOrder = ['arc_hp', 'arc_ki', 'arc_damage', 'arc_defence', 'arc_regen', 'arc_vamp'];
 
@@ -4539,6 +4546,7 @@ class MainScene extends Phaser.Scene {
     private updateBuffsUI() {
         if (!this.buffIconsContainer) return;
         this.buffIconsContainer.removeAll(true);
+        this.buffIconsContainer.setAlpha(0.8); // 20% more transparent
         
         const activeBuffs = [];
         if (this.hasPowerBoost) activeBuffs.push({ type: 'ArcPower', title: 'Arc Power Boost', text: 'Doubles all character damage (Punch, Magic and Arcamehameha).', duration: 'Match' });
