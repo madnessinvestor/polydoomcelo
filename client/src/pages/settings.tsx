@@ -70,7 +70,7 @@ export default function Settings() {
         </CardHeader>
         <CardContent className="pt-8 space-y-8 font-pixel-content">
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col items-center gap-2">
               <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Master Volume</label>
               <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{masterVolume}%</span>
             </div>
@@ -85,7 +85,7 @@ export default function Settings() {
           </div>
 
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col items-center gap-2">
               <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Music Volume</label>
               <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{musicVolume}%</span>
             </div>
@@ -100,7 +100,7 @@ export default function Settings() {
           </div>
 
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col items-center gap-2">
               <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1.17rem' }}>Effects Volume</label>
               <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1.17rem' }}>{sfxVolume}%</span>
             </div>
