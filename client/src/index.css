@@ -1,4 +1,12 @@
 @font-face {
+  font-family: 'PixelPurl';
+  src: url('/attached_assets/PixelPurl_1767970624094.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Pixel';
   src: url('https://fonts.gstatic.com/s/pressstart2p/v15/e3t4Cs98at7oc076c8qxG8pTAeY.woff2') format('woff2');
   font-weight: normal;
@@ -12,7 +20,7 @@
 
 @layer base {
   :root {
-    --font-pixel: 'Pixel', cursive;
+    --font-pixel: 'PixelPurl', 'Pixel', cursive;
   }
 
   html {
