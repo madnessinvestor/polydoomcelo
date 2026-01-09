@@ -44,23 +44,23 @@ export default function Controls() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[160] pointer-events-auto overflow-y-auto" onPointerDown={(e) => e.stopPropagation()}>
-      <Card className="w-full max-w-4xl bg-slate-950 border-violet-500 border-2 pointer-events-auto rounded-none shadow-2xl shadow-violet-500/20 font-pixel">
-        <CardHeader className="border-b border-violet-500/30 bg-violet-950/20">
+      <Card className="w-full max-w-3xl bg-slate-950 border-violet-500 border-2 pointer-events-auto rounded-none shadow-2xl shadow-violet-500/20 font-pixel">
+        <CardHeader className="border-b border-violet-500/30 bg-violet-950/20 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <CardTitle className="text-violet-500 text-3xl uppercase font-black tracking-tighter flex items-center gap-3">
-                <KeyboardIcon className="w-8 h-8" />
+              <CardTitle className="text-violet-500 text-2xl uppercase font-black tracking-tighter flex items-center gap-3">
+                <KeyboardIcon className="w-6 h-6" />
                 Game Controls
               </CardTitle>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="p-8 space-y-12">
+        <CardContent className="p-4 space-y-6">
           {/* Main Keyboard Section */}
-          <div className="space-y-12">
+          <div className="space-y-6">
             {/* Category: Items */}
-            <div className="flex flex-col items-center gap-6 bg-violet-950/10 p-8 rounded-lg border border-violet-500/10">
+            <div className="flex flex-col items-center gap-3 bg-violet-950/10 p-4 rounded-lg border border-violet-500/10">
               <h3 className="text-violet-500 font-black uppercase tracking-[0.4em] font-pixel-label" style={{ fontSize: '1.17rem' }}>Items Keys</h3>
               <div className="flex gap-4">
                 <Key label="Q" action="Heal HP" active />
@@ -71,12 +71,12 @@ export default function Controls() {
             </div>
 
             {/* Category: Basic Keys */}
-            <div className="flex flex-col items-center gap-6 bg-violet-950/10 p-8 rounded-lg border border-violet-500/10">
+            <div className="flex flex-col items-center gap-3 bg-violet-950/10 p-4 rounded-lg border border-violet-500/10">
               <h3 className="text-violet-500 font-black uppercase tracking-[0.4em] font-pixel-label" style={{ fontSize: '1.17rem' }}>Basic Keys</h3>
-              <div className="flex flex-col items-center gap-8 w-full max-w-2xl">
+              <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
                 {/* Movement */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full">
-                  <div className="flex flex-col items-center gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                  <div className="flex flex-col items-center gap-2">
                     <div className="grid grid-cols-3 gap-2">
                       <div />
                       <ArrowKey dir="up" action="Jump" active />
@@ -85,36 +85,29 @@ export default function Controls() {
                       <ArrowKey dir="down" action="Crouch" active />
                       <ArrowKey dir="right" action="Right" active />
                     </div>
-                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mt-2">
-                      Double Tap Arrows to <span className="text-violet-400">Dash</span>
-                    </p>
                   </div>
 
                   {/* System & Extra Combat */}
-                  <div className="flex flex-col items-center gap-6">
-                    <div className="flex flex-wrap justify-center gap-6">
-                      <div className="flex flex-col items-center gap-3">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="flex flex-wrap justify-center gap-4">
+                      <div className="flex flex-col items-center gap-1">
                         <Key label="Z" action="Punch" active />
-                        <span className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</span>
                       </div>
-                      <div className="flex flex-col items-center gap-3">
+                      <div className="flex flex-col items-center gap-1">
                         <Key label="X" action="ChargeKiArc" active />
-                        <span className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Hold Key</span>
                       </div>
-                      <div className="flex flex-col items-center gap-3">
+                      <div className="flex flex-col items-center gap-1">
                         <Key label="C" action="MagicKiaArc" active />
-                        <span className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</span>
                       </div>
-                      <div className="flex flex-col items-center gap-3">
+                      <div className="flex flex-col items-center gap-1">
                         <Key label="D" action="Defense" active />
-                        <span className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Hold Key</span>
                       </div>
                     </div>
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="w-16 h-10 flex items-center justify-center border-2 border-violet-500/30 bg-violet-950/40 rounded font-bold text-sm text-violet-200">
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="w-16 h-8 flex items-center justify-center border-2 border-violet-500/30 bg-violet-950/40 rounded font-bold text-xs text-violet-200">
                         ESC
                       </div>
-                      <span className="text-[10px] uppercase font-black tracking-tighter text-violet-400/70">Pause / Menu</span>
+                      <span className="text-[9px] uppercase font-black tracking-tighter text-violet-400/70">Pause / Menu</span>
                     </div>
                   </div>
                 </div>
@@ -122,46 +115,30 @@ export default function Controls() {
             </div>
 
             {/* Category: Specials */}
-            <div className="flex flex-col items-center gap-8 bg-violet-950/10 p-8 rounded-lg border border-violet-500/10">
-              <h3 className="text-violet-500 font-black uppercase text-sm tracking-[0.4em]">Specials</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
-                <div className="flex flex-col items-center gap-3">
-                  <Key label="V" action="ArcKamehameha" active className="!scale-110" />
-                  <div className="text-center space-y-1">
-                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Hold Key</p>
-                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 100 | CD: 5s</p>
-                  </div>
+            <div className="flex flex-col items-center gap-4 bg-violet-950/10 p-4 rounded-lg border border-violet-500/10">
+              <h3 className="text-violet-500 font-black uppercase tracking-[0.4em] font-pixel-label" style={{ fontSize: '1.17rem' }}>Specials</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                <div className="flex flex-col items-center gap-1">
+                  <Key label="V" action="ArcKamehameha" active />
                 </div>
-                <div className="flex flex-col items-center gap-3">
-                  <Key label="B" action="ArcGenkiDama" active className="!scale-110" />
-                  <div className="text-center space-y-1">
-                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
-                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 200 | CD: 30s</p>
-                  </div>
+                <div className="flex flex-col items-center gap-1">
+                  <Key label="B" action="ArcGenkiDama" active />
                 </div>
-                <div className="flex flex-col items-center gap-3">
-                  <Key label="F" action="ArcKiExplosion" active className="!scale-110" />
-                  <div className="text-center space-y-1">
-                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
-                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 100 | CD: 0s</p>
-                  </div>
+                <div className="flex flex-col items-center gap-1">
+                  <Key label="F" action="ArcKiExplosion" active />
                 </div>
-                <div className="flex flex-col items-center gap-3">
-                  <Key label="S" action="ArcMeteor" active className="!scale-110" />
-                  <div className="text-center space-y-1">
-                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Press Key</p>
-                    <p className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">KI: 100 | CD: 5s</p>
-                  </div>
+                <div className="flex flex-col items-center gap-1">
+                  <Key label="S" action="ArcMeteor" active />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Footer Action */}
-          <div className="flex justify-center pt-4">
+          <div className="flex justify-center pt-2">
             <Button 
               onClick={closeModal}
-              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-12 h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg"
+              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-8 h-10 text-base uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg"
             >
               CLOSE
             </Button>
