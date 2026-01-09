@@ -1695,8 +1695,20 @@ class MainScene extends Phaser.Scene {
 
     private getPlayerSpeed(level: number): number {
         const baseSpeed = 300;
-        // Each level increases speed by 10%
-        return baseSpeed * (1 + (level - 1) * 0.1);
+        let bonus = 0;
+        
+        for (let i = 1; i < level; i++) {
+            const currentLvl = i;
+            if (currentLvl >= 9) {
+                bonus += 0.20;
+            } else if (currentLvl >= 4) {
+                bonus += 0.15;
+            } else {
+                bonus += 0.10;
+            }
+        }
+        
+        return baseSpeed * (1 + bonus);
     }
 
     private checkDoubleClickDash(time: number) {
