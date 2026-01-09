@@ -68,54 +68,57 @@ export default function Settings() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="pt-6 space-y-6 font-pixel-content px-6">
-          <div className="space-y-3 w-full flex flex-col items-center">
-            <div className="flex flex-col items-center gap-1">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1rem' }}>Master Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1rem' }}>{masterVolume}%</span>
+        <CardContent className="pt-6 space-y-8 font-pixel-content px-10">
+          <div className="space-y-4 w-full flex flex-col items-start">
+            <div className="flex flex-row items-baseline gap-4 w-full">
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label whitespace-nowrap" style={{ fontSize: '1.2rem' }}>Master Volume</label>
+              <div className="flex-1 border-b border-slate-700 h-px mb-2" />
+              <span className="text-[#8b5cf6] font-bold min-w-[60px] text-right" style={{ fontSize: '1.2rem' }}>{masterVolume}%</span>
             </div>
-            <div className="w-full">
+            <div className="w-full px-2">
               <Slider 
                 value={[masterVolume]} 
                 onValueChange={(v) => updateVolume("master", v[0])} 
                 max={100} 
                 min={0} 
                 step={1} 
-                className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+                className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_[role=slider]]:w-6 [&_[role=slider]]:h-6 [&_.relative]:bg-slate-700 h-6" 
               />
             </div>
           </div>
 
-          <div className="space-y-3 w-full flex flex-col items-center">
-            <div className="flex flex-col items-center gap-1">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1rem' }}>Music Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1rem' }}>{musicVolume}%</span>
+          <div className="space-y-4 w-full flex flex-col items-start">
+            <div className="flex flex-row items-baseline gap-4 w-full">
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label whitespace-nowrap" style={{ fontSize: '1.2rem' }}>Music Volume</label>
+              <div className="flex-1 border-b border-slate-700 h-px mb-2" />
+              <span className="text-[#8b5cf6] font-bold min-w-[60px] text-right" style={{ fontSize: '1.2rem' }}>{musicVolume}%</span>
             </div>
-            <div className="w-full">
+            <div className="w-full px-2">
               <Slider 
                 value={[musicVolume]} 
                 onValueChange={(v) => updateVolume("music", v[0])} 
                 max={100} 
                 min={0} 
                 step={1} 
-                className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+                className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_[role=slider]]:w-6 [&_[role=slider]]:h-6 [&_.relative]:bg-slate-700 h-6" 
               />
             </div>
           </div>
 
-          <div className="space-y-3 w-full flex flex-col items-center">
-            <div className="flex flex-col items-center gap-1">
-              <label className="text-white font-bold uppercase tracking-widest font-pixel-label" style={{ fontSize: '1rem' }}>Effects Volume</label>
-              <span className="text-[#8b5cf6] font-bold" style={{ fontSize: '1rem' }}>{sfxVolume}%</span>
+          <div className="space-y-4 w-full flex flex-col items-start">
+            <div className="flex flex-row items-baseline gap-4 w-full">
+              <label className="text-white font-bold uppercase tracking-widest font-pixel-label whitespace-nowrap" style={{ fontSize: '1.2rem' }}>Effects Volume</label>
+              <div className="flex-1 border-b border-slate-700 h-px mb-2" />
+              <span className="text-[#8b5cf6] font-bold min-w-[60px] text-right" style={{ fontSize: '1.2rem' }}>{sfxVolume}%</span>
             </div>
-            <div className="w-full">
+            <div className="w-full px-2">
               <Slider 
                 value={[sfxVolume]} 
                 onValueChange={(v) => updateVolume("sfx", v[0])} 
                 max={100} 
                 min={0} 
                 step={1} 
-                className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_.relative]:bg-slate-700" 
+                className="w-full [&_[role=slider]]:bg-[#8b5cf6] [&_[role=slider]]:border-white [&_[role=slider]]:w-6 [&_[role=slider]]:h-6 [&_.relative]:bg-slate-700 h-6" 
               />
             </div>
           </div>
