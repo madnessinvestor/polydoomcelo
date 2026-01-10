@@ -99,51 +99,73 @@ export default function Home() {
   }, []);
 
   const fetchUpgradesAndInventory = async () => {
-    if (!(window as any).ethereum) return null;
+    if (!(window as any).ethereum) {
+      console.warn("React: No ethereum provider found");
+      return null;
+    }
+    
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Timeout fetching Web3 data")), 8000)
+    );
+
     try {
-      const provider = new ethers.BrowserProvider((window as any).ethereum);
-      const signer = await provider.getSigner();
-      const userAddress = await signer.getAddress();
-      
-      const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
-      const upgradeAbi = [
-        "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
-      ];
-      
-      let upgradesData = null;
+      const fetchDataPromise = (async () => {
+        const provider = new ethers.BrowserProvider((window as any).ethereum);
+        
+        // Ensure accounts are requested
+        try {
+          await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+        } catch (requestErr) {
+          console.warn("Wallet connection request failed or was rejected:", requestErr);
+        }
 
-      // Fetch Upgrades
-      try {
-        const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
-        const data = await upgradeContract.upgrades(userAddress);
-        upgradesData = {
-          arc_hp: Number(data.hp),
-          arc_ki: Number(data.ki),
-          arc_damage: Number(data.damage),
-          arc_defence: Number(data.defence),
-          arc_regen: Number(data.regen),
-          arc_vamp: Number(data.vamp)
-        };
-        console.log("React: Initial upgrades fetched:", upgradesData);
-      } catch (err) {
-        console.warn("Could not fetch on-chain upgrades:", err);
-      }
+        const signer = await provider.getSigner();
+        const userAddress = await signer.getAddress();
+        
+        const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
+        const upgradeAbi = [
+          "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
+        ];
+        
+        let upgradesData = null;
 
-      // Get Inventory from local storage tied to wallet
-      const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
-      const saved = localStorage.getItem(inventoryKey);
-      let inventoryData = saved ? JSON.parse(saved) : { health: 0, ki: 0, immunity: 0, score: 0 };
-      
-      if (!saved) {
-        localStorage.setItem(inventoryKey, JSON.stringify(inventoryData));
-      }
-      
-      setInventory(inventoryData);
-      (window as any).walletAddress = userAddress; // Store for game scene usage
+        // Fetch Upgrades
+        try {
+          const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
+          const data = await upgradeContract.upgrades(userAddress);
+          upgradesData = {
+            arc_hp: Number(data.hp),
+            arc_ki: Number(data.ki),
+            arc_damage: Number(data.damage),
+            arc_defence: Number(data.defence),
+            arc_regen: Number(data.regen),
+            arc_vamp: Number(data.vamp)
+          };
+          console.log("React: Initial upgrades fetched:", upgradesData);
+        } catch (err) {
+          console.warn("Could not fetch on-chain upgrades:", err);
+        }
 
-      return { upgrades: upgradesData, inventory: inventoryData };
+        // Get Inventory from local storage tied to wallet
+        const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
+        const saved = localStorage.getItem(inventoryKey);
+        let inventoryData = saved ? JSON.parse(saved) : { health: 0, ki: 0, immunity: 0, score: 0 };
+        
+        if (!saved) {
+          localStorage.setItem(inventoryKey, JSON.stringify(inventoryData));
+        }
+        
+        setInventory(inventoryData);
+        (window as any).walletAddress = userAddress; // Store for game scene usage
+
+        return { upgrades: upgradesData, inventory: inventoryData };
+      })();
+
+      // Race against timeout
+      return await Promise.race([fetchDataPromise, timeoutPromise]) as { upgrades: any, inventory: any };
     } catch (e) {
-      console.error("Error fetching data for game start:", e);
+      console.error("Error fetching data for game start (falling back to local):", e);
       return null;
     }
   };
@@ -219,8 +241,15 @@ export default function Home() {
           setTimeout(updateHUD, 2000);
         });
       }).catch(err => {
-        console.error("Failed to load game data:", err);
-        setIsChecking(false);
+        console.error("Failed to load game data (graceful fallback):", err);
+        // Still try to init the game with local data or defaults
+        import("@/lib/game").then((mod) => {
+          mod.initGame();
+          setTimeout(() => {
+            setIsChecking(false);
+            console.log("Loading complete (fallback mode).");
+          }, 1500);
+        });
       });
     }
 
