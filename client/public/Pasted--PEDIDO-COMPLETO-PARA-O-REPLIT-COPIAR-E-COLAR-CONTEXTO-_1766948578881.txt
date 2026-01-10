@@ -1,0 +1,233 @@
+🎮 PEDIDO COMPLETO PARA O REPLIT (COPIAR E COLAR)
+🧠 CONTEXTO GERAL
+
+Crie um jogo web 2D de plataforma, estilo Mario, com jogabilidade simples, sensação de poder extremo do personagem principal e arte 100% original (não usar assets protegidos por direitos autorais).
+
+Tecnologia obrigatória:
+
+HTML5
+
+JavaScript
+
+Phaser.js
+
+O jogo deve rodar totalmente no navegador.
+
+🔐 REGRA CRÍTICA – ACESSO PELA ARC NETWORK
+
+O jogo SÓ PODE INICIAR se o jogador estiver conectado à ARC Network.
+
+Implementação:
+
+Antes de carregar o jogo, verificar:
+
+window.arc || window.isArcConnected === true
+
+Se NÃO estiver conectado:
+
+Mostrar tela de bloqueio com texto:
+
+“Conecte-se à ARC Network para jogar Gokuarc vs Criptoides”
+
+Botão: Verificar conexão
+
+O jogo NÃO inicia
+
+Se estiver conectado:
+
+Carregar o Phaser
+
+Iniciar o jogo normalmente
+
+Caso não exista SDK real, simular a conexão, mas deixar o código preparado para integração futura.
+
+🎮 CONCEITO DO JOGO
+
+Nome: Gokuarc vs Criptoides
+Gênero: Plataforma 2D
+Cenário: Selva
+Foco: diversão, poder extremo, combate simples
+
+🧍‍♂️ PERSONAGEM PRINCIPAL — GOKUARC
+
+Personagem original inspirado em guerreiros de anime (sem copiar personagens existentes).
+
+Status
+
+Vida: 100% fixa
+
+Extremamente poderoso
+
+Habilidades
+
+👊 Soco
+
+🔋 Carregar Kiarc
+
+✨ Magias
+
+💥 Arcamehameha (especial)
+
+🌀 Esquiva
+
+🪽 Voar
+
+⬆️ Pulo super alto
+
+Controles
+Ação	Tecla
+Andar	← →
+Pular	↑
+Voar	↑ (segurar)
+Soco	Z
+Carregar Kiarc	X
+Magia	C
+Arcamehameha	V
+Esquiva	Shift
+⚖️ BALANCEAMENTO OBRIGATÓRIO
+Gokuarc
+
+Vida começa em 100%
+
+Cada ataque inimigo causa NO MÁXIMO 0.01% de dano
+
+O Gokuarc praticamente não morre
+
+Ataques do Gokuarc
+
+Todos os ataques eliminam inimigos comuns instantaneamente
+
+Não usar cálculo de dano para inimigos normais
+
+👾 INIMIGOS — CRIPTOIDES
+Tipo 1 – Criptoide Básico
+
+Anda
+
+Morre com 1 hit
+
+Tipo 2 – Criptoide Saltador
+
+Pula entre plataformas
+
+Morre com 1 hit
+
+Tipo 3 – Criptoide Atirador
+
+Dispara projéteis
+
+Morre com 1 hit
+
+👑 CHEFE — CRIPTOIDE ARCANO
+
+Possui 10 pontos de vida
+
+Cada ataque normal do Gokuarc remove 1 ponto
+
+Ataques do chefe causam apenas 0.01% de dano
+
+O chefe pode:
+
+lançar magias
+
+atacar à distância
+
+Arcamehameha elimina o chefe instantaneamente
+
+🌴 CENÁRIO
+
+Selva 2D
+
+Árvores, cipós, pedras
+
+Plataformas naturais
+
+Fundo com parallax simples
+
+🎨 SPRITES — GERAR VIA IA (OBRIGATÓRIO)
+Gokuarc
+Crie um sprite sheet em pixel art 2D,
+personagem original chamado Gokuarc,
+inspirado em guerreiros de anime sem copiar personagens existentes,
+cabelo espetado,
+roupa laranja estilizada,
+aura azul-esverdeada de energia (Kiarc),
+fundo transparente,
+32x32 por frame,
+animações:
+idle, andar, pulo, voo, soco, carregar energia, magia, arcamehameha, esquiva
+
+Criptoide Básico
+Sprite pixel art 2D,
+monstro criptoide,
+cores roxo e verde,
+olhos brilhantes,
+fundo transparente,
+32x32,
+animações: idle, andar, dano, morrer
+
+Criptoide Saltador
+Sprite pixel art 2D,
+criptoide com pernas longas,
+visual agressivo,
+fundo transparente,
+32x32,
+animações: idle, pulo, ataque, dano
+
+Criptoide Atirador
+Sprite pixel art 2D,
+criptoide lançador de energia,
+braços brilhantes,
+energia azul,
+fundo transparente,
+32x32,
+animações: idle, atirar, dano
+
+Chefe — Criptoide Arcano
+Sprite pixel art 2D,
+chefe final,
+criptoide arcano grande,
+símbolos mágicos flutuando,
+aura energética,
+fundo transparente,
+64x64,
+animações: idle, lançar magia, ataque especial, dano
+
+Tileset Selva
+Pixel art 2D jungle tileset,
+plataformas naturais,
+árvores, pedras e cipós,
+tilemap 32x32
+
+🗂️ ESTRUTURA DE ARQUIVOS
+/sprites
+  gokuarc.png
+  criptoide1.png
+  criptoide2.png
+  criptoide3.png
+  boss.png
+/tiles
+  jungle_tiles.png
+index.html
+style.css
+game.js
+
+🧪 HUD
+
+Barra de vida do Gokuarc (100%)
+
+Barra de Kiarc
+
+Contador simples de inimigos derrotados
+
+✅ RESULTADO FINAL ESPERADO
+
+Jogo totalmente funcional
+
+Jogável no navegador
+
+Sensação de poder extremo
+
+Código organizado e fácil de expandir
+
+Preparado para integração real com ARC Network

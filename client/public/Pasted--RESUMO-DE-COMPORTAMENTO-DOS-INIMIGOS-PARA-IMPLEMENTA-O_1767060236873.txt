@@ -1,0 +1,146 @@
+🧠 RESUMO DE COMPORTAMENTO DOS INIMIGOS (PARA IMPLEMENTAÇÃO)
+🔹 Inimigos Comuns
+1️⃣ Ground Biter
+
+Tipo: Melee
+
+Ataque: Punch simples
+
+Observação: Inimigo base, sem habilidades especiais
+
+2️⃣ Charger Ram
+
+Tipo: Investida
+
+Ataque:
+
+Dash em direção ao personagem
+
+Dano do dash = 10% do dano do personagem
+
+Após o dash, aplica punch
+
+Observação: Ataque rápido e punitivo
+
+3️⃣ Arc Shooter
+
+Tipo: À distância
+
+Ataque:
+
+Dispara bola de energia lenta
+
+Projétil segue a direção do personagem
+
+Comportamento idêntico ao C: Magic do personagem
+
+Observação: Pressão constante à distância
+
+4️⃣ Hover Mage
+
+Tipo: Voador
+
+Ataque:
+
+Dispara raio contínuo em direção ao personagem
+
+Defesa:
+
+Esquiva ativamente dos ataques do personagem
+
+Observação: Difícil de acertar, foco em mobilidade
+
+5️⃣ Pouncer
+
+Tipo: Salto
+
+Ataque:
+
+Salta alto em direção ao personagem
+
+Executa punch triplo ao acertar
+
+Observação: Ataque imprevisível
+
+6️⃣ Knockback Brute
+
+Tipo: Controle de espaço
+
+Ataque:
+
+Punch com empurrão forte (knockback)
+
+Se acertar, causa dano de punch ×4
+
+Observação: Perigoso em áreas pequenas
+
+7️⃣ Blink Stalker
+
+Tipo: Explosivo / Mobilidade
+
+Ataque:
+
+Explode ao tocar o personagem (Ataque bomba)
+
+Efeito especial:
+
+Teleporta o personagem após a explosão
+
+Observação: Alto risco, alto impacto
+
+8️⃣ Split Core
+
+Tipo: Híbrido
+
+Ataques:
+
+Punch melee
+
+Ataque à distância (lança flecha)
+
+Passiva:
+
+Divide uma única vez ao morrer
+
+Observação: Controle de área pós-morte
+
+9️⃣ Shield Sentinel
+
+Tipo: Defensivo
+
+Defesa:
+
+Escudo reduz 90% do dano de punch do personagem
+
+Não defende ataques mágicos (C, V, B)
+
+Observação: Obriga uso de magia
+
+🔸 Inimigo Elite
+🔟 Arc Phantom (Elite)
+
+Tipo: Elite / Híbrido
+
+Ataques:
+
+Punch
+
+Raio
+
+Bolas de energia
+
+Defesa especial:
+
+Reduz 80% do dano mágico recebido
+
+Observação: Inimigo completo, pressão total
+
+🎯 NOTAS GERAIS PARA O CÓDIGO
+
+Todos os inimigos conseguem atacar melee
+
+Alguns possuem ataques à distância ou especiais
+
+Reduções de dano são percentuais e acumuláveis
+
+Priorizar feedback visual para ataques especiais (raio, explosão, escudo)

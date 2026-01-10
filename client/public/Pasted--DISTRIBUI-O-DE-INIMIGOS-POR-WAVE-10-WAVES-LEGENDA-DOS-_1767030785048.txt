@@ -1,0 +1,185 @@
+👾 DISTRIBUIÇÃO DE INIMIGOS POR WAVE (10 WAVES)
+📌 LEGENDA DOS INIMIGOS
+
+Ground Biter – melee básico
+
+Charger Ram – investida
+
+Arc Shooter – ranged
+
+Hover Mage – voador mágico
+
+Pouncer – salto
+
+Knockback Brute – empurrão
+
+Blink Stalker – teleporte
+
+Split Core – divide ao morrer
+
+Shield Sentinel – defesa direcional
+
+Arc Phantom – elite avançado
+
+🌊 WAVES DETALHADAS
+🟢 Wave 1 — Aprendizado
+
+Inimigos ativos:
+
+Ground Biter (100%)
+
+🎯 Objetivo: aprender movimento e ataque
+
+🟢 Wave 2 — Pressão Inicial
+
+Inimigos ativos:
+
+Ground Biter (70%)
+
+Pouncer (30%)
+
+🎯 Introduz ataque vertical
+
+🟢 Wave 3 — Alcance
+
+Inimigos ativos:
+
+Ground Biter (50%)
+
+Arc Shooter (30%)
+
+Pouncer (20%)
+
+🎯 Jogador aprende a priorizar alvos
+
+🟡 Wave 4 — Aérea
+
+Inimigos ativos:
+
+Ground Biter (40%)
+
+Arc Shooter (25%)
+
+Hover Mage (20%)
+
+Pouncer (15%)
+
+🎯 Introduz combate aéreo
+
+🟡 Wave 5 — Impacto
+
+Inimigos ativos:
+
+Ground Biter (35%)
+
+Charger Ram (25%)
+
+Arc Shooter (20%)
+
+Hover Mage (20%)
+
+🎯 Quebra posicionamento
+
+🟠 Wave 6 — Controle
+
+Inimigos ativos:
+
+Ground Biter (30%)
+
+Charger Ram (20%)
+
+Knockback Brute (20%)
+
+Arc Shooter (15%)
+
+Hover Mage (15%)
+
+🎯 Jogador começa a ser jogado para a horda
+
+🔴 Wave 7 — Caos
+
+Inimigos ativos:
+
+Ground Biter (25%)
+
+Split Core (20%)
+
+Charger Ram (15%)
+
+Knockback Brute (15%)
+
+Arc Shooter (15%)
+
+Hover Mage (10%)
+
+🎯 Densidade e divisão de inimigos
+
+🔴 Wave 8 — Insegurança
+
+Inimigos ativos:
+
+Ground Biter (20%)
+
+Split Core (20%)
+
+Blink Stalker (20%)
+
+Arc Shooter (15%)
+
+Hover Mage (15%)
+
+Knockback Brute (10%)
+
+🎯 Quebra zonas seguras
+
+🔴 Wave 9 — Defesa
+
+Inimigos ativos:
+
+Ground Biter (15%)
+
+Shield Sentinel (20%)
+
+Split Core (20%)
+
+Blink Stalker (15%)
+
+Arc Shooter (15%)
+
+Hover Mage (15%)
+
+🎯 Força reposicionamento constante
+
+🔥 Wave 10 — Inferno Arc
+
+Inimigos ativos:
+
+Ground Biter (10%)
+
+Charger Ram (15%)
+
+Knockback Brute (15%)
+
+Split Core (15%)
+
+Blink Stalker (15%)
+
+Shield Sentinel (10%)
+
+Arc Shooter (10%)
+
+Hover Mage (10%)
+
+Arc Phantom (10%)
+
+🎯 Todas as ameaças combinadas + elites
+
+👑 ELITES (IMPORTANTE)
+
+Arc Phantom só aparece:
+
+Wave 9 (raros)
+
+Wave 10 (frequentes)
+
+Pode aparecer como mini-elite aos 90s

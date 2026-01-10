@@ -1,0 +1,167 @@
+🎁 SISTEMA DE ITENS ALEATÓRIOS — ARCGAME
+📌 Regras gerais dos itens
+
+Itens spawnam aleatoriamente na arena
+
+Spawn condicionado a:
+
+tempo (ex: a cada X segundos)
+
+ou inimigos derrotados
+
+Apenas 1 item ativo por vez na tela (recomendado)
+
+Se não coletado, desaparece após alguns segundos
+
+Efeito é imediato ou temporário, dependendo do item
+
+🔷 ITENS DISPONÍVEIS
+❤️ 1. ArcHP Core (Recuperação de Vida)
+
+Efeito
+
+Recupera 30% do ArcHP máximo
+
+Não ultrapassa o HP máximo
+
+Uso
+
+Sobrevivência em meio à horda
+
+Estilo visual
+
+Forma: Círculo
+
+Cor: Verde
+
+Efeito: pulso suave
+
+Ícone: símbolo de “+”
+
+⚡ 2. ArcKI Core (Recuperação de Energia)
+
+Efeito
+
+Recupera 40% do ArcKI máximo
+
+Permite usar Magia / Arcamehameha novamente
+
+Uso
+
+Retomar controle da arena
+
+Estilo visual
+
+Forma: Hexágono
+
+Cor: Azul
+
+Efeito: brilho elétrico
+
+Ícone: raio
+
+🔥 3. Arc Power Boost (Dano 2×)
+
+Efeito
+
+Dobra todo o dano do personagem
+
+Soco, Magia e Arcamehameha
+
+Duração: até o fim da partida
+
+Uso
+
+Item raro e extremamente poderoso
+
+Estilo visual
+
+Forma: Triângulo
+
+Cor: Vermelho
+
+Efeito: chamas/energia intensa
+
+Ícone: seta para cima ou “×2”
+
+⭐ 4. Arc Score Boost (Score 2×)
+
+Efeito
+
+Dobra todo o score ganho
+
+Inimigos e chefes
+
+Duração: até o fim da partida
+
+Uso
+
+Acelerar progressão de level
+
+Estilo visual
+
+Forma: Estrela
+
+Cor: Dourado
+
+Efeito: partículas cintilantes
+
+Ícone: “×2”
+
+🛡️ 5. Arc Barrier (Invencibilidade)
+
+Efeito
+
+Personagem fica invencível por 10 segundos
+
+Não recebe dano
+
+Ainda pode atacar normalmente
+
+Uso
+
+Escape ou limpeza de horda
+
+Estilo visual
+
+Forma: Quadrado
+
+Cor: Roxo
+
+Efeito: aura circular translúcida ao redor do personagem
+
+Ícone: escudo
+
+🎨 RESUMO VISUAL (LEITURA RÁPIDA)
+Item	Forma	Cor	Efeito
+ArcHP Core	Círculo	Verde	Cura
+ArcKI Core	Hexágono	Azul	Energia
+Arc Power Boost	Triângulo	Vermelho	Dano 2×
+Arc Score Boost	Estrela	Dourado	Score 2×
+Arc Barrier	Quadrado	Roxo	Invencível
+
+👉 Forma + cor = reconhecimento instantâneo.
+
+⚙️ REGRAS DE BALANCEAMENTO IMPORTANTES
+
+Power Boost e Score Boost não acumulam
+
+Barrier não estende duração se pegar outro
+
+HP/KI podem spawnar com maior frequência
+
+Itens fortes devem ser raros
+
+📌 Texto curto (pra pedir ao Replit)
+
+“Adicionar itens aleatórios na arena com efeitos de cura, recuperação de KI, dano 2×, score 2× e invencibilidade temporária, cada um com forma geométrica e cor distinta para fácil identificação.”
+
+🧠 DESIGN INTENÇÃO
+
+Itens criam momentos de virada
+
+Jogador sente recompensa imediata
+
+Visual simples, leitura rápida
+
+Combina com arcade/horde
