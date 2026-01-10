@@ -5590,14 +5590,19 @@ class StartScene extends Phaser.Scene {
             lbStyle.remove();
         });
 
+        // Contracts List
+        const contractsX = width - 40;
+        const contractsY = height - 120; // Move back to bottom right area
+        const contractFontSize = '14px';
+
         // Wallet Display Logic
         this.networkInfoText = this.add.text(width / 2, height / 2 - 70, isWalletConnected ? 'Arc Testnet' : '', {
             fontSize: '18px', color: '#4ade80', fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        this.usdcBalanceText = this.add.text(width - 40, 40, '', {
-            fontSize: '32px', color: '#4ade80', fontFamily: 'monospace'
-        }).setOrigin(1, 0).setVisible(isWalletConnected);
+        this.usdcBalanceText = this.add.text(contractsX, contractsY - 10, '', {
+            fontSize: '22px', color: '#4ade80', fontFamily: 'monospace'
+        }).setOrigin(1, 1).setVisible(isWalletConnected);
 
         if (isWalletConnected) this.updateUSDCBalance();
 
@@ -5625,11 +5630,6 @@ class StartScene extends Phaser.Scene {
             this.add.image(sx, footerY + 20, s.icon).setDisplaySize(24, 24);
             sbtn.on('pointerdown', () => window.open(s.url, '_blank'));
         });
-
-        // Contracts List
-        const contractsX = width - 40;
-        const contractsY = height - 120; // Move back to bottom right area
-        const contractFontSize = '14px';
 
         this.add.text(contractsX, contractsY, 'CONTRACTS', {
             fontSize: '18px',
