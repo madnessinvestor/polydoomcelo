@@ -5343,9 +5343,21 @@ class StartScene extends Phaser.Scene {
                 startBtnObj.btnText.setText('LOADING...');
                 
                 // Fetch Character State from Backend (Inventory)
-                const response = await fetch(`/api/character-state/${currentWallet}`);
-                if (!response.ok) throw new Error('Failed to load character data');
-                const data = await response.json();
+                let data;
+                try {
+                    const response = await fetch(`/api/character-state/${currentWallet}`);
+                    if (response.ok) {
+                        data = await response.json();
+                    } else {
+                        throw new Error('API not available');
+                    }
+                } catch (apiErr) {
+                    console.warn('API not available, using defaults:', apiErr);
+                    data = {
+                        inventory: { walletAddress: currentWallet, potions: { health: 0, ki: 0, immunity: 0, score: 0 } },
+                        upgrades: { walletAddress: currentWallet, stats: { health: 0, damage: 0, speed: 0, ki: 0 } }
+                    };
+                }
                 
                 // Store inventory in global for MainScene access
                 (window as any).characterState = data;
@@ -5353,36 +5365,63 @@ class StartScene extends Phaser.Scene {
                 // 📡 ON-CHAIN SYNC: Fetch Upgrades exactly like the UPGRADES button does
                 console.log("📡 Start Game: Sincronizando upgrades on-chain...");
                 
-                const provider = new ethers.BrowserProvider((window as any).ethereum);
-                const signer = await provider.getSigner();
-                const userAddress = await signer.getAddress();
+                let upgradesData;
+                try {
+                    const provider = new ethers.BrowserProvider((window as any).ethereum);
+                    const signer = await provider.getSigner();
+                    const userAddress = await signer.getAddress();
+                    
+                    const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
+                    const upgradeAbi = [
+                        "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
+                    ];
+                    
+                    const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
+                    const onChainData = await upgradeContract.upgrades(userAddress);
+                    
+                    upgradesData = {
+                        arc_hp: Number(onChainData.hp),
+                        arc_ki: Number(onChainData.ki),
+                        arc_damage: Number(onChainData.damage),
+                        arc_defence: Number(onChainData.defence),
+                        arc_regen: Number(onChainData.regen),
+                        arc_vamp: Number(onChainData.vamp)
+                    };
+                    
+                    console.log("✅ Start Game: Upgrades sincronizados:", upgradesData);
+                } catch (onChainErr) {
+                    console.warn("On-chain sync failed, using defaults:", onChainErr);
+                    upgradesData = {
+                        arc_hp: 0,
+                        arc_ki: 0,
+                        arc_damage: 0,
+                        arc_defence: 0,
+                        arc_regen: 0,
+                        arc_vamp: 0
+                    };
+                }
                 
-                const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
-                const upgradeAbi = [
-                    "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
-                ];
-                
-                const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
-                const onChainData = await upgradeContract.upgrades(userAddress);
-                
-                const upgradesData = {
-                    arc_hp: Number(onChainData.hp),
-                    arc_ki: Number(onChainData.ki),
-                    arc_damage: Number(onChainData.damage),
-                    arc_defence: Number(onChainData.defence),
-                    arc_regen: Number(onChainData.regen),
-                    arc_vamp: Number(onChainData.vamp)
-                };
-                
-                console.log("✅ Start Game: Upgrades sincronizados:", upgradesData);
                 (window as any).playerUpgrades = upgradesData;
                 
                 this.stopOpeningMusic();
                 this.scene.start('MainScene');
             } catch (err) {
                 console.error('Error starting game:', err);
-                alert('Failed to load game data or sync on-chain upgrades. Please try again.');
-                startBtnObj.btnText.setText('START GAME');
+                // Use defaults if everything fails
+                (window as any).characterState = {
+                    inventory: { walletAddress: currentWallet, potions: { health: 0, ki: 0, immunity: 0, score: 0 } },
+                    upgrades: { walletAddress: currentWallet, stats: { health: 0, damage: 0, speed: 0, ki: 0 } }
+                };
+                (window as any).playerUpgrades = {
+                    arc_hp: 0,
+                    arc_ki: 0,
+                    arc_damage: 0,
+                    arc_defence: 0,
+                    arc_regen: 0,
+                    arc_vamp: 0
+                };
+                this.stopOpeningMusic();
+                this.scene.start('MainScene');
             }
         });
         this.startBtn = startBtnObj.btn as any;
