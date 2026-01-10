@@ -39,8 +39,12 @@ export default defineConfig(async ({ mode }) => {
     },
     server: {
       fs: {
-        strict: true,
-        deny: ["**/.*"],
+        strict: false,
+        allow: [
+          path.resolve(import.meta.dirname, "client"),
+          path.resolve(import.meta.dirname, "shared"),
+          path.resolve(import.meta.dirname, "attached_assets"),
+        ],
       },
     },
   };
