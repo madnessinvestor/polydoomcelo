@@ -5012,13 +5012,13 @@ class StartScene extends Phaser.Scene {
         ]);
 
         // Social Media Icons
-        this.load.image('x_icon', 'social/x.png');
-        this.load.image('github_icon', 'social/github.png');
-        this.load.image('youtube_icon', 'social/youtube.png');
-        this.load.image('farcaster_icon', 'social/farcaster.png');
-        this.load.image('instagram_icon', 'social/instagram.png');
-        this.load.image('telegram_icon', 'social/telegram.png');
-        this.load.image('discord_icon', 'social/discord.png');
+        this.load.image('x_icon', '/x.png');
+        this.load.image('github_icon', '/github.png');
+        this.load.image('youtube_icon', '/youtube.png');
+        this.load.image('farcaster_icon', '/farcaster.png');
+        this.load.image('instagram_icon', '/instagram.png');
+        this.load.image('telegram_icon', '/telegram.png');
+        this.load.image('discord_icon', '/discord.png');
     }
 
     private async connectWallet() {
