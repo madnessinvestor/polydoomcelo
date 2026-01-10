@@ -219,15 +219,15 @@ class MainScene extends Phaser.Scene {
 
     // Music system
     private musicTracks = [
-        '0_1767069690246.mp3',
-        '1_1767069690246.mp3',
-        '2_1767069690245.mp3',
-        '3_1767069690247.mp3'
+        '/0_1767069690246.mp3',
+        '/1_1767069690246.mp3',
+        '/2_1767069690245.mp3',
+        '/3_1767069690247.mp3'
     ];
     private deathSoundKey = 'death_sound';
-    private deathSoundPath = 'Death_(Player)_1767820208727.mp3';
+    private deathSoundPath = '/Death_(Player)_1767820208727.mp3';
     private defenseSoundKey = 'defense_sound';
-    private defenseSoundPath = 'Som_Defesa_(player)_1767820303726.mp3';
+    private defenseSoundPath = '/Som_Defesa_(player)_1767820303726.mp3';
     private currentMusicIndex: number = 0;
     private currentMusic: Phaser.Sound.BaseSound | null = null;
     private openingMusic: Phaser.Sound.BaseSound | null = null;
@@ -704,8 +704,8 @@ class MainScene extends Phaser.Scene {
 
     // Sound assets
     preload() {
-        this.load.spritesheet('criptoide_basic', 'generated_images/pixel_art_criptoide_basic_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
-        this.load.spritesheet('jungle_tiles', 'generated_images/pixel_art_jungle_tileset.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('criptoide_basic', '/pixel_art_criptoide_basic_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('jungle_tiles', '/pixel_art_jungle_tileset.png', { frameWidth: 32, frameHeight: 32 });
         
         // Load music tracks
         this.load.audio('music_0', this.musicTracks[0]);
@@ -715,34 +715,34 @@ class MainScene extends Phaser.Scene {
 
         // Load Opening Music - Tentar carregar como MP3 e OGG
         this.load.audio('opening_music', [
-            'Open_1767879401695.ogg',
-            'Open_1767879213418.mp3'
+            '/Open_1767879401695.ogg',
+            '/Open_1767879213418.mp3'
         ]);
 
         // Load SFX
-        this.load.audio('genkidama_charge', 'ArcGenkiDama_(Carregando)_1767105766842.mp3');
-        this.load.audio('genkidama_launch', 'ArcGenkiDama_(Lançando)_1767105766844.mp3');
-        this.load.audio('kamehameha_charge', 'ArcKamehameha_(Carregando)_1767105836583.mp3');
-        this.load.audio('kamehameha_launch', 'ArcKamehameha_(Lançando)_1767105839121.mp3');
-        this.load.audio('charge_ki_new', 'Charge-KiArc_1767881300691.ogg');
-        this.load.audio('charge_ki', 'Charge_KiArc_1767105879554.mp3');
-        this.load.audio('dash', 'Dash_1767105889490.mp3');
-        this.load.audio('explosion_ki', 'Explosion_KiArc_1767105910641.mp3');
-        this.load.audio('item_pickup', 'Pegando_Item_1767106047757.mp3');
-        this.load.audio('punch', 'Punch_1767106076988.mp3');
-        this.load.audio('magic', 'Magic_1767122074232.mp3');
-        this.load.audio('menu_button', 'Som_do_Botão_Start_Game_Leaderboard_e_History_1767106107861.ogg');
-        this.load.audio('close_button', 'Close_1767118231095.ogg');
-        this.load.audio('meteor_1', 'Meteor_1_1767808998910.ogg');
-        this.load.audio('meteor_2', 'Meteor_2_1767809001052.ogg');
+        this.load.audio('genkidama_charge', '/ArcGenkiDama_(Carregando)_1767105766842.mp3');
+        this.load.audio('genkidama_launch', '/ArcGenkiDama_(Lançando)_1767105766844.mp3');
+        this.load.audio('kamehameha_charge', '/ArcKamehameha_(Carregando)_1767105836583.mp3');
+        this.load.audio('kamehameha_launch', '/ArcKamehameha_(Lançando)_1767105839121.mp3');
+        this.load.audio('charge_ki_new', '/Charge-KiArc_1767881300691.ogg');
+        this.load.audio('charge_ki', '/Charge_KiArc_1767105879554.mp3');
+        this.load.audio('dash', '/Dash_1767105889490.mp3');
+        this.load.audio('explosion_ki', '/Explosion_KiArc_1767105910641.mp3');
+        this.load.audio('item_pickup', '/Pegando_Item_1767106047757.mp3');
+        this.load.audio('punch', '/Punch_1767106076988.mp3');
+        this.load.audio('magic', '/Magic_1767122074232.mp3');
+        this.load.audio('menu_button', '/Som_do_Botão_Start_Game_Leaderboard_e_History_1767106107861.ogg');
+        this.load.audio('close_button', '/Close_1767118231095.ogg');
+        this.load.audio('meteor_1', '/Meteor_1_1767808998910.ogg');
+        this.load.audio('meteor_2', '/Meteor_2_1767809001052.ogg');
         this.load.audio(this.deathSoundKey, this.deathSoundPath);
         this.load.audio(this.defenseSoundKey, this.defenseSoundPath);
 
         // Load Special Icons
-        this.load.image('icon_V', 'image_1767828341470.png');
-        this.load.image('icon_B', 'image_1767828364520.png');
-        this.load.image('icon_F', 'image_1767828377671.png');
-        this.load.image('icon_S', 'image_1767828391361.png');
+        this.load.image('icon_V', '/image_1767828341470.png');
+        this.load.image('icon_B', '/image_1767828364520.png');
+        this.load.image('icon_F', '/image_1767828377671.png');
+        this.load.image('icon_S', '/image_1767828391361.png');
     }
 
     create() {
@@ -5000,15 +5000,15 @@ class StartScene extends Phaser.Scene {
 
     preload() {
         // Background Image
-        this.load.image('start_bg', 'Background_Tela_Principal_1767815377331.png');
+        this.load.image('start_bg', '/Background_Tela_Principal_1767815377331.png');
 
         // Logo
-        this.load.image('game_logo', '8a5b21d5-fa8e-404c-b7a1-4d7acfe803ef_1767786400336.png');
+        this.load.image('game_logo', '/8a5b21d5-fa8e-404c-b7a1-4d7acfe803ef_1767786400336.png');
 
         // Opening Music
         this.load.audio('opening_music', [
-            'Open_1767879401695.ogg',
-            'Open_1767879213418.mp3'
+            '/Open_1767879401695.ogg',
+            '/Open_1767879213418.mp3'
         ]);
 
         // Social Media Icons
@@ -6243,7 +6243,7 @@ class StartScene extends Phaser.Scene {
         const videoY = height / 2 - videoHeight / 2;
 
         const videoElement = document.createElement('video');
-        videoElement.src = 'gamehistory_1767067604123.mp4';
+        videoElement.src = '/gamehistory_1767067604123.mp4';
         videoElement.width = Math.floor(videoWidth);
         videoElement.height = Math.floor(videoHeight);
         videoElement.controls = true;

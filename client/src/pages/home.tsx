@@ -10,7 +10,7 @@ import { ethers } from "ethers";
 import { useUI } from "@/hooks/use-ui";
 import Settings from "@/pages/settings";
 import Controls from "@/pages/controls";
-import backgroundImage from "@assets/Background_Tela_Principal_1767815377331.png";
+import backgroundImage from "/Background_Tela_Principal_1767815377331.png";
 
 const POTIONS_UI = [
   { id: "health", key: "Q", icon: Beaker, color: "text-red-500", borderColor: "border-red-500/50" },
@@ -366,7 +366,7 @@ export default function Home() {
           <div className="fixed inset-0 z-[160] flex items-center justify-center pointer-events-auto bg-black/80">
             <div className="bg-slate-950 border-4 border-blue-400 p-4 max-w-4xl w-full flex flex-col items-center shadow-2xl shadow-blue-500/20">
               <h2 className="text-3xl font-black text-blue-400 mb-6 uppercase tracking-tighter">Game History</h2>
-              <video src="/attached_assets/gamehistory_1767067604123.mp4" controls className="w-full h-auto mb-8 border-2 border-blue-400/30 shadow-2xl" />
+              <video src="/gamehistory_1767067604123.mp4" controls className="w-full h-auto mb-8 border-2 border-blue-400/30 shadow-2xl" />
               <div className="flex justify-center w-full border-t border-slate-800 pt-6">
                 <Button 
                   onClick={closeModal} 
