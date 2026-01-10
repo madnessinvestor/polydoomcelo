@@ -718,9 +718,9 @@ class MainScene extends Phaser.Scene {
         this.load.audio('music_3', this.musicTracks[3]);
 
         // Load Opening Music - Tentar carregar como MP3 e OGG
-        // Load Opening Music - Tentar carregar como MP3 e OGG
         this.load.audio('opening_music', [
-            '/Abertura_1767113066246.mp3'
+            '/Open_1767879401695.ogg',
+            '/Open_1767879213418.mp3'
         ]);
 
         // Load SFX
@@ -826,27 +826,12 @@ class MainScene extends Phaser.Scene {
             platform.setTint(0x1a472a);
         }
 
-        this.player = this.physics.add.sprite(100, height - 100, 'gokuarc', 0);
+        this.player = this.physics.add.sprite(100, height - 100, 'jungle_tiles', 0);
         this.playerScarf = new ScarfComponent(this, this.player);
         this.player.setCollideWorldBounds(true);
-        this.player.setAlpha(1); // Mude para 1 para mostrar o sprite
+        this.player.setAlpha(0);
         this.player.setDepth(10);
         this.player.setDisplaySize(32, 32);
-
-        // Criar animações para o Gokuarc
-        this.anims.create({
-            key: 'gokuarc_idle',
-            frames: this.anims.generateFrameNumbers('gokuarc', { start: 0, end: 3 }),
-            frameRate: 8,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'gokuarc_run',
-            frames: this.anims.generateFrameNumbers('gokuarc', { start: 4, end: 7 }),
-            frameRate: 12,
-            repeat: -1
-        });
-        this.player.play('gokuarc_idle');
         
         // Create graphics for player visual
         this.playerGraphics = this.add.graphics().setDepth(11);
@@ -1066,20 +1051,10 @@ class MainScene extends Phaser.Scene {
     private spawnBoss() {
         const width = this.cameras.main.width;
         const x = width / 2;
-        const boss = this.enemies.create(x, 100, 'boss_criptoide') as Phaser.Physics.Arcade.Sprite;
+        const boss = this.enemies.create(x, 100, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
         boss.setBounce(0.5);
         boss.setCollideWorldBounds(true);
-        boss.setAlpha(1); // Mostrar sprite do boss
-        
-        if (!this.anims.exists('boss_anim')) {
-            this.anims.create({
-                key: 'boss_anim',
-                frames: this.anims.generateFrameNumbers('boss_criptoide', { start: 0, end: 3 }),
-                frameRate: 6,
-                repeat: -1
-            });
-        }
-        boss.play('boss_anim');
+        boss.setAlpha(0); // Hide sprite, use graphics instead
         
         // Determine sides based on wave
         let sides = 4; // Default to square
@@ -1544,11 +1519,7 @@ class MainScene extends Phaser.Scene {
     }
 
     private createEnemyObject(x: number, y: number, typeInfo: any, extraDamageMult: number = 1, extraHpMult: number = 1): Phaser.Physics.Arcade.Sprite | null {
-        let spriteKey = 'criptoide_basic';
-        if (typeInfo.id === 'criptoide_jumper') spriteKey = 'criptoide_jumper';
-        else if (typeInfo.id === 'criptoide_shooter') spriteKey = 'criptoide_shooter';
-
-        const enemy = this.enemies.create(x, y, spriteKey) as Phaser.Physics.Arcade.Sprite;
+        const enemy = this.enemies.create(x, y, 'criptoide_basic') as Phaser.Physics.Arcade.Sprite;
         if (!enemy) return null;
         enemy.setBounce(0.5);
         enemy.setCollideWorldBounds(true);
@@ -1566,19 +1537,7 @@ class MainScene extends Phaser.Scene {
         enemy.setData('sides', typeInfo.sides);
         enemy.setData('color', typeInfo.color);
         
-        enemy.setAlpha(1); // Mude para 1 para mostrar o sprite
-        
-        // Criar animação para o inimigo se não existir
-        if (!this.anims.exists(spriteKey + '_anim')) {
-            this.anims.create({
-                key: spriteKey + '_anim',
-                frames: this.anims.generateFrameNumbers(spriteKey, { start: 0, end: 3 }),
-                frameRate: 8,
-                repeat: -1
-            });
-        }
-        enemy.play(spriteKey + '_anim');
-
+        enemy.setAlpha(0);
         const graphics = this.add.graphics();
         graphics.setDepth(8);
 
@@ -5051,9 +5010,9 @@ class StartScene extends Phaser.Scene {
         this.load.image('game_logo', '/8a5b21d5-fa8e-404c-b7a1-4d7acfe803ef_1767786400336.png');
 
         // Opening Music
-        // Load Opening Music - Tentar carregar como MP3 e OGG
         this.load.audio('opening_music', [
-            '/Abertura_1767113066246.mp3'
+            '/Open_1767879401695.ogg',
+            '/Open_1767879213418.mp3'
         ]);
 
         // Social Media Icons
