@@ -718,9 +718,9 @@ class MainScene extends Phaser.Scene {
         this.load.audio('music_3', this.musicTracks[3]);
 
         // Load Opening Music - Tentar carregar como MP3 e OGG
+        // Load Opening Music - Tentar carregar como MP3 e OGG
         this.load.audio('opening_music', [
-            '/Open_1767879401695.ogg',
-            '/Open_1767879213418.mp3'
+            '/Abertura_1767113066246.mp3'
         ]);
 
         // Load SFX
@@ -1071,10 +1071,9 @@ class MainScene extends Phaser.Scene {
         boss.setCollideWorldBounds(true);
         boss.setAlpha(1); // Mostrar sprite do boss
         
-        // Criar animação para o boss
         if (!this.anims.exists('boss_anim')) {
             this.anims.create({
-                key: boss_anim,
+                key: 'boss_anim',
                 frames: this.anims.generateFrameNumbers('boss_criptoide', { start: 0, end: 3 }),
                 frameRate: 6,
                 repeat: -1
@@ -5052,9 +5051,9 @@ class StartScene extends Phaser.Scene {
         this.load.image('game_logo', '/8a5b21d5-fa8e-404c-b7a1-4d7acfe803ef_1767786400336.png');
 
         // Opening Music
+        // Load Opening Music - Tentar carregar como MP3 e OGG
         this.load.audio('opening_music', [
-            '/Open_1767879401695.ogg',
-            '/Open_1767879213418.mp3'
+            '/Abertura_1767113066246.mp3'
         ]);
 
         // Social Media Icons
