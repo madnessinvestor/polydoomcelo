@@ -706,6 +706,10 @@ class MainScene extends Phaser.Scene {
     preload() {
         this.load.spritesheet('criptoide_basic', '/pixel_art_criptoide_basic_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('jungle_tiles', '/pixel_art_jungle_tileset.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('gokuarc', '/pixel_art_gokuarc_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('criptoide_jumper', '/pixel_art_criptoide_jumper_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('criptoide_shooter', '/pixel_art_criptoide_shooter_sprite_sheet.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('boss_criptoide', '/pixel_art_boss_criptoide_arcano_sprite_sheet.png', { frameWidth: 64, frameHeight: 64 });
         
         // Load music tracks
         this.load.audio('music_0', this.musicTracks[0]);
