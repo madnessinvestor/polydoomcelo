@@ -12,6 +12,8 @@
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.39.7",
+
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@radix-ui/react-accordion": "^1.2.4",
@@ -112,3 +114,4 @@
     "bufferutil": "^4.0.8"
   }
 }
+
