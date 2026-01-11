@@ -27,6 +27,7 @@ export async function registerRoutes(
 
   app.post('/api/saveScore', async (req, res) => {
     try {
+      // Direct insertion from request body
       const score = await storage.createScore(req.body);
       res.status(201).json(score);
     } catch (err) {

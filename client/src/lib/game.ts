@@ -6749,10 +6749,11 @@ class DeathScene extends Phaser.Scene {
                 if (response.ok) {
                     console.log("✓ Score registrado na API local com sucesso!");
                 } else {
-                    console.error("Erro ao registrar na API local:", await response.text());
+                    const errorText = await response.text();
+                    console.error("❌ Erro ao registrar na API local:", response.status, errorText);
                 }
             } catch (apiErr) {
-                console.error("Falha na requisição local:", apiErr);
+                console.error("❌ Falha na requisição local:", apiErr);
             }
 
             // Independentemente de on-chain ou local, resetar o jogo após sucesso local
