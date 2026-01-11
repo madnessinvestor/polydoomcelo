@@ -1838,14 +1838,14 @@ class MainScene extends Phaser.Scene {
         explosion.setDepth(this.player.depth + 1);
         this.tweens.add({
             targets: explosion,
-            radius: 250,
+            radius: 500,
             alpha: 0,
             duration: 600,
             onComplete: () => explosion.destroy()
         });
 
         // Dano em área e Knockback
-        const impactRadius = 250;
+        const impactRadius = 500;
         const impactX = this.player.x;
         const impactY = this.player.y;
 
