@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
@@ -38,6 +39,76 @@ export function log(message: string, source = "express") {
 // 🔥 ROTAS SUPABASE (NOVAS)
 // ===============================
 
+/**
+ * Robust field normalizer - accepts multiple property name variations
+ * and returns a standardized value
+ */
+function normalizeField(record: any, fieldVariations: string[], defaultValue: any = 0): any {
+  for (const field of fieldVariations) {
+    const value = record[field];
+    if (value !== undefined && value !== null) {
+      return value;
+    }
+  }
+  return defaultValue;
+}
+
+/**
+ * Normalize a single score record to standard format
+ */
+function normalizeScoreRecord(record: any) {
+  // Player Name variations
+  const playerName = normalizeField(record, [
+    'playerName',
+    'player_name',
+    'player',
+    'Player',
+    'PLAYER'
+  ], 'Anonymous');
+
+  // Enemies Defeated variations
+  const enemiesDefeated = normalizeField(record, [
+    'enemiesDefeated',
+    'enemies_defeated',
+    'enemies',
+    'Enemies',
+    'ENEMIES'
+  ], 0);
+
+  // Play Time variations
+  const playTime = normalizeField(record, [
+    'playTime',
+    'play_time',
+    'time',
+    'Time',
+    'TIME'
+  ], 0);
+
+  // Score variations
+  const score = normalizeField(record, [
+    'score',
+    'Score',
+    'SCORE'
+  ], 0);
+
+  // Wave variations
+  const wave = normalizeField(record, [
+    'wave',
+    'Wave',
+    'WAVE'
+  ], 0);
+
+  return {
+    id: record.id,
+    playerName,
+    score,
+    wave,
+    enemiesDefeated,
+    playTime,
+    createdAt: record.created_at || record.createdAt
+  };
+}
+
 app.get("/api/leaderboard", async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -49,7 +120,10 @@ app.get("/api/leaderboard", async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
 
-    return res.json(data);
+    // Normalize all records to standardized format
+    const normalizedData = data?.map(normalizeScoreRecord) || [];
+
+    return res.json(normalizedData);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Internal server error" });
