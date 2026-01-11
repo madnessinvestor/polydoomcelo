@@ -38,9 +38,12 @@ export async function registerRoutes(
   // Leaderboard endpoint
   app.get('/api/leaderboard', async (req, res) => {
     try {
+      console.log("API: GET /api/leaderboard called");
       const scores = await storage.getScores();
+      console.log(`API: Returning ${scores.length} scores`);
       res.json(scores);
     } catch (err) {
+      console.error("API: GET /api/leaderboard error:", err);
       res.status(500).json({ message: 'Failed to fetch leaderboard' });
     }
   });

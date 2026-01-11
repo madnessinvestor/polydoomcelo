@@ -20,6 +20,7 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   async getScores(): Promise<Score[]> {
     try {
+      console.log("Storage: Fetching scores from Supabase...");
       const { data, error } = await supabase
         .from("scores")
         .select("*")
@@ -27,9 +28,15 @@ export class DatabaseStorage implements IStorage {
         .limit(50);
 
       if (error) {
-        console.error("Supabase getScores error:", error);
+        console.error("Supabase getScores error details:", {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
         return [];
       }
+      console.log(`Storage: Successfully fetched ${data?.length || 0} scores`);
       return data || [];
     } catch (err) {
       console.error("Unexpected error in getScores:", err);
