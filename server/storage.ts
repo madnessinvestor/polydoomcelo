@@ -1,8 +1,5 @@
-import { db } from "./db";
+import { supabase } from "./supabase";
 import {
-  scores,
-  inventory,
-  upgrades,
   type InsertScore,
   type Score,
   type Inventory,
@@ -10,7 +7,6 @@ import {
   type Upgrade,
   type InsertUpgrade
 } from "@shared/schema";
-import { desc, eq } from "drizzle-orm";
 
 export interface IStorage {
   getScores(): Promise<Score[]>;
@@ -23,51 +19,99 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getScores(): Promise<Score[]> {
-    return await db.select().from(scores).orderBy(desc(scores.score));
+    const { data, error } = await supabase
+      .from("scores")
+      .select("*")
+      .order("score", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
   }
 
   async createScore(insertScore: InsertScore): Promise<Score> {
-    const [score] = await db.insert(scores).values(insertScore).returning();
-    return score;
+    const { data, error } = await supabase
+      .from("scores")
+      .insert(insertScore)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
   async getInventory(walletAddress: string): Promise<Inventory | undefined> {
-    const [userInventory] = await db.select().from(inventory).where(eq(inventory.walletAddress, walletAddress));
-    return userInventory;
+    const { data, error } = await supabase
+      .from("inventory")
+      .select("*")
+      .eq("wallet_address", walletAddress)
+      .single();
+
+    if (error && error.code !== "PGRST116") throw error;
+    return data || undefined;
   }
 
   async upsertInventory(insertInventory: InsertInventory): Promise<Inventory> {
-    const [existing] = await db.select().from(inventory).where(eq(inventory.walletAddress, insertInventory.walletAddress));
-    
+    const { data: existing } = await supabase
+      .from("inventory")
+      .select("*")
+      .eq("wallet_address", insertInventory.walletAddress)
+      .single();
+
     if (existing) {
-      const [updated] = await db.update(inventory)
-        .set({ potions: insertInventory.potions })
-        .where(eq(inventory.walletAddress, insertInventory.walletAddress))
-        .returning();
-      return updated;
+      const { data, error } = await supabase
+        .from("inventory")
+        .update({ potions: insertInventory.potions })
+        .eq("wallet_address", insertInventory.walletAddress)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
     } else {
-      const [created] = await db.insert(inventory).values(insertInventory).returning();
-      return created;
+      const { data, error } = await supabase
+        .from("inventory")
+        .insert(insertInventory)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
     }
   }
 
   async getUpgrades(walletAddress: string): Promise<Upgrade | undefined> {
-    const [userUpgrades] = await db.select().from(upgrades).where(eq(upgrades.walletAddress, walletAddress));
-    return userUpgrades;
+    const { data, error } = await supabase
+      .from("upgrades")
+      .select("*")
+      .eq("wallet_address", walletAddress)
+      .single();
+
+    if (error && error.code !== "PGRST116") throw error;
+    return data || undefined;
   }
 
   async upsertUpgrades(insertUpgrade: InsertUpgrade): Promise<Upgrade> {
-    const [existing] = await db.select().from(upgrades).where(eq(upgrades.walletAddress, insertUpgrade.walletAddress));
-    
+    const { data: existing } = await supabase
+      .from("upgrades")
+      .select("*")
+      .eq("wallet_address", insertUpgrade.walletAddress)
+      .single();
+
     if (existing) {
-      const [updated] = await db.update(upgrades)
-        .set({ stats: insertUpgrade.stats })
-        .where(eq(upgrades.walletAddress, insertUpgrade.walletAddress))
-        .returning();
-      return updated;
+      const { data, error } = await supabase
+        .from("upgrades")
+        .update({ stats: insertUpgrade.stats })
+        .eq("wallet_address", insertUpgrade.walletAddress)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
     } else {
-      const [created] = await db.insert(upgrades).values(insertUpgrade).returning();
-      return created;
+      const { data, error } = await supabase
+        .from("upgrades")
+        .insert(insertUpgrade)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
     }
   }
 }
