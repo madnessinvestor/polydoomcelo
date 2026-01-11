@@ -111,71 +111,80 @@ export default function Home() {
 
     try {
       const fetchDataPromise = (async () => {
-        const provider = new ethers.BrowserProvider((window as any).ethereum);
-        
-        // Ensure accounts are requested
-        try {
-          await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
-        } catch (requestErr) {
-          console.warn("Wallet connection request failed or was rejected:", requestErr);
-        }
+        // Create a timeout for the entire fetch process to avoid hanging
+        const fetchTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Internal fetch timeout")), 5000)
+        );
 
-        const signer = await provider.getSigner();
-        const userAddress = await signer.getAddress();
-        
-        const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
-        const upgradeAbi = [
-          "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
-        ];
-        
-        let upgradesData = null;
-
-        // Fetch Upgrades
-        try {
-          const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
-          const data = await upgradeContract.upgrades(userAddress);
-          upgradesData = {
-            arc_hp: Number(data.hp),
-            arc_ki: Number(data.ki),
-            arc_damage: Number(data.damage),
-            arc_defence: Number(data.defence),
-            arc_regen: Number(data.regen),
-            arc_vamp: Number(data.vamp)
-          };
-          console.log("React: Initial upgrades fetched:", upgradesData);
-        } catch (err) {
-          console.warn("Could not fetch on-chain upgrades:", err);
-        }
-
-        // Get Inventory from local storage tied to wallet
-        const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
-        const saved = localStorage.getItem(inventoryKey);
-        let inventoryData = saved ? JSON.parse(saved) : { health: 0, ki: 0, immunity: 0, score: 0 };
-        
-        if (!saved) {
-          localStorage.setItem(inventoryKey, JSON.stringify(inventoryData));
-        }
-        
-        setInventory(inventoryData);
-        (window as any).walletAddress = userAddress; // Store for game scene usage
-
-        // Fetch user profile from Supabase to get player_name
-        try {
-          const profileResponse = await fetch(`/api/character-state/${userAddress}`);
-          if (profileResponse.ok) {
-            const profileData = await profileResponse.json();
-            if (profileData.playerName) {
-              (window as any).playerName = profileData.playerName;
-            }
+        const actualFetch = (async () => {
+          const provider = new ethers.BrowserProvider((window as any).ethereum);
+          
+          // Ensure accounts are requested
+          try {
+            await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+          } catch (requestErr) {
+            console.warn("Wallet connection request failed or was rejected:", requestErr);
           }
-        } catch (err) {
-          console.warn("Failed to fetch player name from backend:", err);
-        }
 
-        return { upgrades: upgradesData, inventory: inventoryData };
+          const signer = await provider.getSigner();
+          const userAddress = await signer.getAddress();
+          
+          const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
+          const upgradeAbi = [
+            "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)"
+          ];
+          
+          let upgradesData = null;
+
+          // Fetch Upgrades
+          try {
+            const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
+            const data = await upgradeContract.upgrades(userAddress);
+            upgradesData = {
+              arc_hp: Number(data.hp),
+              arc_ki: Number(data.ki),
+              arc_damage: Number(data.damage),
+              arc_defence: Number(data.defence),
+              arc_regen: Number(data.regen),
+              arc_vamp: Number(data.vamp)
+            };
+            console.log("React: Initial upgrades fetched:", upgradesData);
+          } catch (err) {
+            console.warn("Could not fetch on-chain upgrades:", err);
+          }
+
+          // Get Inventory from local storage tied to wallet
+          const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
+          const saved = localStorage.getItem(inventoryKey);
+          let inventoryData = saved ? JSON.parse(saved) : { health: 0, ki: 0, immunity: 0, score: 0 };
+          
+          if (!saved) {
+            localStorage.setItem(inventoryKey, JSON.stringify(inventoryData));
+          }
+          
+          setInventory(inventoryData);
+          (window as any).walletAddress = userAddress; // Store for game scene usage
+
+          // Fetch user profile from Supabase to get player_name
+          try {
+            const profileResponse = await fetch(`/api/character-state/${userAddress}`);
+            if (profileResponse.ok) {
+              const profileData = await profileResponse.json();
+              if (profileData.playerName) {
+                (window as any).playerName = profileData.playerName;
+              }
+            }
+          } catch (err) {
+            console.warn("Failed to fetch player name from backend:", err);
+          }
+
+          return { upgrades: upgradesData, inventory: inventoryData };
+        })();
+
+        return await Promise.race([actualFetch, fetchTimeout]);
       })();
 
-      // Race against timeout
+      // Race against global timeout
       return await Promise.race([fetchDataPromise, timeoutPromise]) as { upgrades: any, inventory: any };
     } catch (e) {
       console.error("Error fetching data for game start (falling back to local):", e);
