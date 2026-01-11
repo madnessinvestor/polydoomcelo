@@ -130,20 +130,20 @@ export function Leaderboard() {
                     </div>
                     <div className="w-[35%] truncate pr-2">
                       <span className="text-white uppercase font-bold tracking-tight truncate block">
-                        {score.playerName}
+                        {score.playerName && score.playerName !== "undefined" ? score.playerName : "Anonymous"}
                       </span>
                     </div>
                     <div className="w-[15%] text-center text-[#4ade80] font-mono">
-                      {score.wave}
+                      {score.wave || 1}
                     </div>
                     <div className="w-[15%] text-center text-[#4ade80] font-mono">
-                      {score.enemiesDefeated}
+                      {score.enemiesDefeated || 0}
                     </div>
                     <div className="w-[15%] text-center text-[#4ade80] font-mono tabular-nums">
-                      {Math.floor(score.playTime / 60)}:{(score.playTime % 60).toString().padStart(2, '0')}
+                      {Math.floor((score.playTime || 0) / 60)}:{((score.playTime || 0) % 60).toString().padStart(2, '0')}
                     </div>
                     <div className="w-[10%] text-right text-yellow-400 font-bold font-mono">
-                      {score.score.toLocaleString()}
+                      {(score.score || 0).toLocaleString()}
                     </div>
                   </div>
                 ))

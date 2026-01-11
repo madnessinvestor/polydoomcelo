@@ -95,6 +95,10 @@ class MainScene extends Phaser.Scene {
     private levelTitle: string = 'Arc Initiate';
     private enemiesDefeated: number = 0;
     private isSubmittingScore: boolean = false;
+    private finalScore: number = 0;
+    private finalWave: number = 1;
+    private finalEnemiesDefeated: number = 0;
+    private finalPlayTime: number = 0;
 
     private isDefending: boolean = false;
     private shieldGraphics: Phaser.GameObjects.Graphics | null = null;
@@ -6650,8 +6654,9 @@ class DeathScene extends Phaser.Scene {
             console.log('═══════════════════════════════════════════════════════');
             console.log('🎮 Jogador:', playerName);
             console.log('📊 Score Final (this.finalScore):', this.finalScore);
-            console.log('📝 Tipo de Score:', typeof this.finalScore);
-            console.log('✔️ É válido (> 0)?:', this.finalScore && this.finalScore > 0);
+            console.log('📈 Wave Final (this.currentWave):', this.currentWave);
+            console.log('⏰ Tempo Final (this.time.now - this.gameStartTime):', Math.floor((this.time.now - this.gameStartTime) / 1000));
+            console.log('⚔️ Inimigos Mortos:', this.enemiesDefeated);
             
             // 🛑 CRÍTICO: Validação OBRIGATÓRIA - Bloquear se score for 0
             if (!this.finalScore || this.finalScore <= 0 || isNaN(this.finalScore)) {
@@ -6735,15 +6740,21 @@ class DeathScene extends Phaser.Scene {
             // Registrar na API local SEMPRE
             console.log('📤 Registrando score na API local...');
             try {
+                // Sincronizar dados finais antes de enviar
+                this.finalScore = Math.floor(this.score);
+                this.finalWave = this.currentWave;
+                this.finalEnemiesDefeated = this.enemiesDefeated;
+                this.finalPlayTime = Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000);
+
                 const response = await fetch("/api/saveScore", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         playerName: playerName,
-                        score: Math.floor(this.finalScore),
+                        score: this.finalScore,
                         wave: this.finalWave,
-                        enemiesDefeated: this.enemiesDefeated || 0,
-                        playTime: this.playTime || 0
+                        enemiesDefeated: this.finalEnemiesDefeated,
+                        playTime: this.finalPlayTime
                     })
                 });
 
