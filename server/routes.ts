@@ -27,9 +27,22 @@ export async function registerRoutes(
 
   app.post('/api/saveScore', async (req, res) => {
     try {
-      // Direct insertion from request body
-      const score = await storage.createScore(req.body);
-      res.status(201).json(score);
+      const { playerName, score, wave, enemiesDefeated, playTime } = req.body;
+      
+      if (!playerName || score === undefined || enemiesDefeated === undefined) {
+        return res.status(400).json({ error: "Missing fields", received: req.body });
+      }
+
+      const scoreData = {
+        playerName,
+        score: Number(score),
+        wave: Number(wave || 1),
+        enemiesDefeated: Number(enemiesDefeated),
+        playTime: Number(playTime || 0)
+      };
+
+      const savedScore = await storage.createScore(scoreData);
+      res.status(201).json(savedScore);
     } catch (err) {
       console.error("POST /api/saveScore error:", err);
       res.status(500).json({ message: 'Failed to save score' });
