@@ -58,7 +58,17 @@ app.get("/api/leaderboard", async (req, res) => {
 
 app.post("/api/saveScore", async (req, res) => {
   try {
-    const { playerName, score, wave, enemiesDefeated, playTime } = req.body;
+    const { playerName, score, wave, enemiesDefeated, playTime, chainId } = req.body;
+
+    // Validação da Arc Network
+    // Chain ID da Arc Network (ajuste conforme necessário)
+    const ARC_NETWORK_CHAIN_ID = "0x..."; // TODO: Adicionar o Chain ID correto da Arc Network
+    
+    if (chainId && chainId !== ARC_NETWORK_CHAIN_ID) {
+      return res.status(403).json({ 
+        error: "Invalid network. Please connect to Arc Network to save scores." 
+      });
+    }
 
     if (
       !playerName ||
