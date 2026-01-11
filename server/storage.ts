@@ -20,30 +20,26 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   async getScores(): Promise<Score[]> {
     try {
+      // Usando a tabela 'scores' conforme sugerido, já que ela é a que parece existir no cache
       const { data, error } = await supabase
-        .from("leaderboard")
+        .from("scores")
         .select("id, player_name, score, enemies_defeated, play_time, created_at")
         .order("score", { ascending: false });
 
       if (error) {
-        console.error("Supabase getScores error (leaderboard):", error);
+        console.error("Supabase getScores error (scores):", error);
         return [];
       }
       
-      return (data || []).map((s: any) => {
-        // Log para depuração no console do servidor
-        console.log("Supabase Raw Score Row:", JSON.stringify(s));
-        
-        return {
-          id: s.id,
-          playerName: s.player_name || s.wallet || "Anonymous", // Tenta player_name primeiro, depois wallet
-          score: Number(s.score) || 0,
-          wave: 1,
-          enemiesDefeated: Number(s.enemies_defeated) || 0,
-          playTime: Number(s.play_time) || 0,
-          createdAt: s.created_at
-        };
-      });
+      return (data || []).map((s: any) => ({
+        id: s.id,
+        playerName: s.player_name || s.wallet || "Anonymous",
+        score: Number(s.score) || 0,
+        wave: 1,
+        enemiesDefeated: Number(s.enemies_defeated) || 0,
+        playTime: Number(s.play_time) || 0,
+        createdAt: s.created_at
+      }));
     } catch (err) {
       console.error("Error in getScores:", err);
       return [];
@@ -53,7 +49,7 @@ export class DatabaseStorage implements IStorage {
   async createScore(insertScore: InsertScore): Promise<Score> {
     try {
       const { data, error } = await supabase
-        .from("leaderboard")
+        .from("scores")
         .insert({
           player_name: insertScore.playerName,
           score: insertScore.score,
