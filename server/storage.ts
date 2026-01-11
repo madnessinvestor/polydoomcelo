@@ -43,25 +43,29 @@ export class DatabaseStorage implements IStorage {
     const { data, error } = await supabase
       .from("inventory")
       .select("*")
-      .eq("wallet_address", walletAddress)
+      .eq("wallet_address", walletAddress.toLowerCase())
       .single();
 
-    if (error && error.code !== "PGRST116") throw error;
+    if (error && error.code !== "PGRST116") {
+      console.error("Error fetching inventory:", error);
+      return undefined;
+    }
     return data || undefined;
   }
 
   async upsertInventory(insertInventory: InsertInventory): Promise<Inventory> {
+    const walletLower = insertInventory.walletAddress.toLowerCase();
     const { data: existing } = await supabase
       .from("inventory")
       .select("*")
-      .eq("wallet_address", insertInventory.walletAddress)
+      .eq("wallet_address", walletLower)
       .single();
 
     if (existing) {
       const { data, error } = await supabase
         .from("inventory")
         .update({ potions: insertInventory.potions })
-        .eq("wallet_address", insertInventory.walletAddress)
+        .eq("wallet_address", walletLower)
         .select()
         .single();
       if (error) throw error;
@@ -69,7 +73,7 @@ export class DatabaseStorage implements IStorage {
     } else {
       const { data, error } = await supabase
         .from("inventory")
-        .insert(insertInventory)
+        .insert({ ...insertInventory, walletAddress: walletLower })
         .select()
         .single();
       if (error) throw error;
@@ -81,25 +85,29 @@ export class DatabaseStorage implements IStorage {
     const { data, error } = await supabase
       .from("upgrades")
       .select("*")
-      .eq("wallet_address", walletAddress)
+      .eq("wallet_address", walletAddress.toLowerCase())
       .single();
 
-    if (error && error.code !== "PGRST116") throw error;
+    if (error && error.code !== "PGRST116") {
+      console.error("Error fetching upgrades:", error);
+      return undefined;
+    }
     return data || undefined;
   }
 
   async upsertUpgrades(insertUpgrade: InsertUpgrade): Promise<Upgrade> {
+    const walletLower = insertUpgrade.walletAddress.toLowerCase();
     const { data: existing } = await supabase
       .from("upgrades")
       .select("*")
-      .eq("wallet_address", insertUpgrade.walletAddress)
+      .eq("wallet_address", walletLower)
       .single();
 
     if (existing) {
       const { data, error } = await supabase
         .from("upgrades")
         .update({ stats: insertUpgrade.stats })
-        .eq("wallet_address", insertUpgrade.walletAddress)
+        .eq("wallet_address", walletLower)
         .select()
         .single();
       if (error) throw error;
@@ -107,7 +115,7 @@ export class DatabaseStorage implements IStorage {
     } else {
       const { data, error } = await supabase
         .from("upgrades")
-        .insert(insertUpgrade)
+        .insert({ ...insertUpgrade, walletAddress: walletLower })
         .select()
         .single();
       if (error) throw error;
