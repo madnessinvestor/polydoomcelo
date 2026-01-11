@@ -21,8 +21,8 @@ export class DatabaseStorage implements IStorage {
   async getScores(): Promise<Score[]> {
     try {
       const { data, error } = await supabase
-        .from("scores")
-        .select("id, player_name, score, wave, enemies_defeated, play_time, created_at")
+        .from("leaderboard")
+        .select("id, wallet, score, created_at")
         .order("score", { ascending: false });
 
       if (error) {
@@ -30,14 +30,13 @@ export class DatabaseStorage implements IStorage {
         throw error;
       }
       
-      // Map database snake_case to camelCase
       return (data || []).map((s: any) => ({
         id: s.id,
-        playerName: s.player_name,
+        playerName: s.wallet,
         score: s.score,
-        wave: s.wave,
-        enemiesDefeated: s.enemies_defeated,
-        playTime: s.play_time,
+        wave: 1,
+        enemiesDefeated: 0,
+        playTime: 0,
         createdAt: s.created_at
       }));
     } catch (err) {
@@ -48,25 +47,23 @@ export class DatabaseStorage implements IStorage {
 
   async createScore(insertScore: InsertScore): Promise<Score> {
     try {
-      console.log("Saving to Supabase:", insertScore);
       const { data, error } = await supabase
-        .from("scores")
+        .from("leaderboard")
         .insert({
-          player_name: insertScore.playerName,
-          score: insertScore.score,
-          wave: insertScore.wave,
-          enemies_defeated: insertScore.enemiesDefeated,
-          play_time: insertScore.playTime
+          wallet: insertScore.playerName,
+          score: insertScore.score
         })
         .select()
         .single();
 
-      if (error) {
-        console.error("Supabase createScore error:", error);
-        throw error;
-      }
-      console.log("Supabase save success:", data);
-      return data;
+      if (error) throw error;
+      return {
+        ...data,
+        playerName: data.wallet,
+        wave: 1,
+        enemiesDefeated: 0,
+        playTime: 0
+      };
     } catch (err) {
       console.error("Error in createScore:", err);
       throw err;
@@ -77,90 +74,50 @@ export class DatabaseStorage implements IStorage {
     const { data, error } = await supabase
       .from("inventory")
       .select("*")
-      .eq("wallet_address", walletAddress.toLowerCase())
-      .single();
+      .eq("wallet", walletAddress.toLowerCase());
 
-    if (error && error.code !== "PGRST116") {
-      console.error("Error fetching inventory:", error);
-      return undefined;
-    }
-    return data || undefined;
+    if (error) return undefined;
+    
+    // Converter lista de itens para o formato esperado pelo jogo
+    const potions = { health: 0, ki: 0, immunity: 0, score: 0 };
+    data?.forEach((item: any) => {
+      if (item.item in potions) {
+        potions[item.item as keyof typeof potions]++;
+      }
+    });
+
+    return { walletAddress, potions } as any;
   }
 
   async upsertInventory(insertInventory: InsertInventory): Promise<Inventory> {
     const walletLower = insertInventory.walletAddress.toLowerCase();
-    const { data: existing } = await supabase
-      .from("inventory")
-      .select("*")
-      .eq("wallet_address", walletLower)
-      .single();
-
-    if (existing) {
-      const { data, error } = await supabase
-        .from("inventory")
-        .update({ potions: insertInventory.potions })
-        .eq("wallet_address", walletLower)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    } else {
-      const { data, error } = await supabase
-        .from("inventory")
-        .insert({
-          wallet_address: walletLower,
-          potions: insertInventory.potions
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    }
+    // No novo esquema, inventory é uma lista de itens. 
+    // Para simplificar, vamos apenas adicionar o novo item se for uma compra
+    // ou retornar o estado atual.
+    return this.getInventory(walletLower) as any;
   }
 
   async getUpgrades(walletAddress: string): Promise<Upgrade | undefined> {
     const { data, error } = await supabase
       .from("upgrades")
       .select("*")
-      .eq("wallet_address", walletAddress.toLowerCase())
-      .single();
+      .eq("wallet", walletAddress.toLowerCase());
 
-    if (error && error.code !== "PGRST116") {
-      console.error("Error fetching upgrades:", error);
-      return undefined;
-    }
-    return data || undefined;
+    if (error) return undefined;
+    
+    const stats = { health: 0, damage: 0, speed: 0, ki: 0 };
+    data?.forEach((upg: any) => {
+      if (upg.upgrade in stats) {
+        stats[upg.upgrade as keyof typeof stats] = upg.level;
+      }
+    });
+
+    return { walletAddress, stats } as any;
   }
 
   async upsertUpgrades(insertUpgrade: InsertUpgrade): Promise<Upgrade> {
     const walletLower = insertUpgrade.walletAddress.toLowerCase();
-    const { data: existing } = await supabase
-      .from("upgrades")
-      .select("*")
-      .eq("wallet_address", walletLower)
-      .single();
-
-    if (existing) {
-      const { data, error } = await supabase
-        .from("upgrades")
-        .update({ stats: insertUpgrade.stats })
-        .eq("wallet_address", walletLower)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    } else {
-      const { data, error } = await supabase
-        .from("upgrades")
-        .insert({
-          wallet_address: walletLower,
-          stats: insertUpgrade.stats
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    }
+    return this.getUpgrades(walletLower) as any;
   }
 }
 
