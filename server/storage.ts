@@ -97,7 +97,10 @@ export class DatabaseStorage implements IStorage {
     } else {
       const { data, error } = await supabase
         .from("inventory")
-        .insert({ ...insertInventory, walletAddress: walletLower })
+        .insert({
+          wallet_address: walletLower,
+          potions: insertInventory.potions
+        })
         .select()
         .single();
       if (error) throw error;
@@ -139,7 +142,10 @@ export class DatabaseStorage implements IStorage {
     } else {
       const { data, error } = await supabase
         .from("upgrades")
-        .insert({ ...insertUpgrade, walletAddress: walletLower })
+        .insert({
+          wallet_address: walletLower,
+          stats: insertUpgrade.stats
+        })
         .select()
         .single();
       if (error) throw error;
