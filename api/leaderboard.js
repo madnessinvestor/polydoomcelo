@@ -19,5 +19,16 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: error.message })
   }
 
-  return res.status(200).json(data)
+  // 🔥 AQUI está a correção real
+  const mapped = data.map(row => ({
+    id: row.id,
+    playerName: row.player_name,
+    score: row.score,
+    wave: row.wave,
+    enemiesDefeated: row.enemies_defeated,
+    playTime: row.play_time,
+    createdAt: row.created_at
+  }))
+
+  return res.status(200).json(mapped)
 }
