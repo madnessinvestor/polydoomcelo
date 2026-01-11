@@ -6741,16 +6741,19 @@ class DeathScene extends Phaser.Scene {
             // Registrar na API local SEMPRE
             console.log('📤 Registrando score na API local...');
             try {
+                const totalPlayTime = this.finalPlayTime || Math.floor((this.time.now - (this.gameStartTime || 0) - (this.totalPausedTime || 0)) / 1000);
+                const savePayload = {
+                    playerName: playerName,
+                    score: Math.floor(this.finalScore || this.score),
+                    wave: this.finalWave || this.currentWave || 1,
+                    enemiesDefeated: this.finalEnemiesDefeated || this.enemiesDefeated || 0,
+                    playTime: totalPlayTime
+                };
+                console.log("Enviando para /api/saveScore:", savePayload);
                 const response = await fetch("/api/saveScore", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        playerName: playerName,
-                        score: Math.floor(this.finalScore || this.score),
-                        wave: this.finalWave || this.currentWave || 1,
-                        enemiesDefeated: this.finalEnemiesDefeated || this.enemiesDefeated || 0,
-                        playTime: this.finalPlayTime || Math.floor((this.time.now - this.gameStartTime) / 1000)
-                    })
+                    body: JSON.stringify(savePayload)
                 });
 
                 if (response.ok) {

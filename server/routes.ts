@@ -27,10 +27,11 @@ export async function registerRoutes(
 
   app.post('/api/saveScore', async (req, res) => {
     try {
-      console.log("SAVE SCORE BODY:", req.body);
+      console.log("SAVE SCORE BODY RECEIVED:", JSON.stringify(req.body, null, 2));
       const { playerName, score, wave, enemiesDefeated, playTime } = req.body;
       
       if (!playerName || score === undefined || enemiesDefeated === undefined) {
+        console.error("Missing fields in saveScore:", { playerName, score, enemiesDefeated });
         return res.status(400).json({ error: "Missing fields", received: req.body });
       }
 
@@ -42,7 +43,7 @@ export async function registerRoutes(
         playTime: Number(playTime || 0)
       };
 
-      console.log("SAVING SCORE DATA:", scoreData);
+      console.log("FINAL SCORE DATA TO STORAGE:", scoreData);
 
       const savedScore = await storage.createScore(scoreData);
       res.status(201).json(savedScore);
