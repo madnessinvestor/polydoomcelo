@@ -2316,10 +2316,14 @@ class MainScene extends Phaser.Scene {
 
                         if (enemy.getData('health') <= 0) {
                             if (enemy.getData('isBoss')) {
-                                const bossScore = 20 * Math.pow(5, this.currentWave - 1);
-                                this.score += bossScore;
+                                const waveNum = this.currentWave || 1;
+                                let bossScore = 20 * Math.pow(5, waveNum - 1);
+                                if (this.hasScoreBoost) bossScore *= 2;
+                                this.score += Math.min(bossScore, 100);
                             } else {
-                                this.score++;
+                                let auraScore = 1;
+                                if (this.hasScoreBoost) auraScore *= 2;
+                                this.score += Math.min(auraScore, 100);
                             }
                             this.enemiesDefeated++;
                             this.createExplosion(enemy.x, enemy.y);
@@ -3168,12 +3172,12 @@ class MainScene extends Phaser.Scene {
                     if (enemy.getData('isBoss')) {
                         let bossScore = 20 * Math.pow(5, this.currentWave - 1);
                         if (this.hasScoreBoost) bossScore *= 2;
-                        this.score += bossScore;
+                        this.score += Math.min(bossScore, 100);
                     } else {
                         // Standard score increase by 1 per enemy
                         let gainedScore = 1;
                         if (this.hasScoreBoost) gainedScore *= 2;
-                        this.score += gainedScore;
+                        this.score += Math.min(gainedScore, 100);
                     }
 
                     // Level progression logic based on score threshold
