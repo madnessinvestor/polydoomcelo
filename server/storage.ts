@@ -30,15 +30,20 @@ export class DatabaseStorage implements IStorage {
         return [];
       }
       
-      return (data || []).map((s: any) => ({
-        id: s.id,
-        playerName: s.player_name || "Anonymous",
-        score: Number(s.score) || 0,
-        wave: 1,
-        enemiesDefeated: Number(s.enemies_defeated) || 0,
-        playTime: Number(s.play_time) || 0,
-        createdAt: s.created_at
-      }));
+      return (data || []).map((s: any) => {
+        // Log para depuração no console do servidor
+        console.log("Supabase Raw Score Row:", JSON.stringify(s));
+        
+        return {
+          id: s.id,
+          playerName: s.player_name || s.wallet || "Anonymous", // Tenta player_name primeiro, depois wallet
+          score: Number(s.score) || 0,
+          wave: 1,
+          enemiesDefeated: Number(s.enemies_defeated) || 0,
+          playTime: Number(s.play_time) || 0,
+          createdAt: s.created_at
+        };
+      });
     } catch (err) {
       console.error("Error in getScores:", err);
       return [];

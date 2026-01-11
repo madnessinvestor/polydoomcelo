@@ -119,7 +119,7 @@ export function Leaderboard() {
 
                     <div className="w-[35%] truncate pr-2">
                       <span className="text-white uppercase font-bold truncate block">
-                        {score.playerName && score.playerName !== "undefined"
+                        {score.playerName && score.playerName !== "undefined" && score.playerName !== "null"
                           ? score.playerName
                           : "Anonymous"}
                       </span>
