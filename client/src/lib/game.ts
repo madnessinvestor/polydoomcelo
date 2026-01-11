@@ -136,8 +136,8 @@ class MainScene extends Phaser.Scene {
                     symbol: "ARC",
                     decimals: 18
                 },
-                rpcUrls: ["https://rpc.testnet.arc.io"],
-                blockExplorerUrls: ["https://explorer.testnet.arc.io"]
+                rpcUrls: ["https://rpc.testnet.arc.network"],
+                blockExplorerUrls: ["https://explorer.testnet.arc.network"]
             };
 
             const provider = new ethers.BrowserProvider((window as any).ethereum);
