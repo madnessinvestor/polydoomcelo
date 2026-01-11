@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { supabase } from "./supabase";
 
 const app = express();
 const httpServer = createServer(app);
@@ -32,6 +33,62 @@ export function log(message: string, source = "express") {
 
   console.log(`${formattedTime} [${source}] ${message}`);
 }
+
+// ===============================
+// 🔥 ROTAS SUPABASE (NOVAS)
+// ===============================
+
+app.get("/api/leaderboard", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("scores")
+      .select("*")
+      .order("score", { ascending: false });
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.json(data);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/api/saveScore", async (req, res) => {
+  try {
+    const { playerName, score, wave, enemiesDefeated, playTime } = req.body;
+
+    if (
+      !playerName ||
+      score == null ||
+      wave == null ||
+      enemiesDefeated == null
+    ) {
+      return res.status(400).json({ error: "Missing fields" });
+    }
+
+    const { error } = await supabase.from("scores").insert({
+      player_name: playerName,
+      score,
+      wave,
+      enemies_defeated: enemiesDefeated,
+      play_time: playTime ?? 0,
+    });
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ===============================
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -70,9 +127,6 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
@@ -80,10 +134,6 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5000", 10);
   httpServer.listen(
     {
@@ -96,3 +146,4 @@ app.use((req, res, next) => {
     },
   );
 })();
+
