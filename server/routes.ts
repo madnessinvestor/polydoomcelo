@@ -116,7 +116,7 @@ export async function registerRoutes(
       const [inv, upg, score] = await Promise.all([
         storage.getInventory(walletAddress),
         storage.getUpgrades(walletAddress),
-        storage.getScores().then(scores => scores.find(s => s.playerName.includes(walletAddress.substring(0, 6)))) // Tentar achar por wallet
+        storage.getScores().then(scores => scores.find(s => s.playerName && s.playerName.toLowerCase().includes(walletAddress.toLowerCase().substring(0, 6)))) // Tentar achar por wallet
       ]);
       
       res.json({

@@ -22,14 +22,24 @@ export class DatabaseStorage implements IStorage {
     try {
       const { data, error } = await supabase
         .from("scores")
-        .select("*")
+        .select("id, player_name, score, wave, enemies_defeated, play_time, created_at")
         .order("score", { ascending: false });
 
       if (error) {
         console.error("Supabase getScores error:", error);
         throw error;
       }
-      return data || [];
+      
+      // Map database snake_case to camelCase
+      return (data || []).map((s: any) => ({
+        id: s.id,
+        playerName: s.player_name,
+        score: s.score,
+        wave: s.wave,
+        enemiesDefeated: s.enemies_defeated,
+        playTime: s.play_time,
+        createdAt: s.created_at
+      }));
     } catch (err) {
       console.error("Error in getScores:", err);
       return [];

@@ -107,8 +107,6 @@ export function Leaderboard() {
               </div>
             ) : (
               sortedScores.map((score, index) => {
-                const time = score.play_time ?? 0;
-
                 return (
                   <div
                     key={score.id}
@@ -121,8 +119,8 @@ export function Leaderboard() {
 
                     <div className="w-[35%] truncate pr-2">
                       <span className="text-white uppercase font-bold truncate block">
-                        {score.player_name && score.player_name !== "undefined"
-                          ? score.player_name
+                        {score.playerName && score.playerName !== "undefined"
+                          ? score.playerName
                           : "Anonymous"}
                       </span>
                     </div>
@@ -132,11 +130,11 @@ export function Leaderboard() {
                     </div>
 
                     <div className="w-[15%] text-center text-[#4ade80]">
-                      {score.enemies_defeated ?? 0}
+                      {score.enemiesDefeated ?? 0}
                     </div>
 
                     <div className="w-[15%] text-center text-[#4ade80] tabular-nums">
-                      {Math.floor(time / 60)}:{(time % 60).toString().padStart(2, "0")}
+                      {Math.floor((score.playTime ?? 0) / 60)}:{((score.playTime ?? 0) % 60).toString().padStart(2, "0")}
                     </div>
 
                     <div className="w-[10%] text-right text-yellow-400 font-bold">
