@@ -6734,7 +6734,7 @@ class DeathScene extends Phaser.Scene {
             // Registrar na API local SEMPRE
             console.log('📤 Registrando score na API local...');
             try {
-                const response = await fetch("/api/scores", {
+                const response = await fetch("/api/saveScore", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({

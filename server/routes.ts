@@ -14,37 +14,24 @@ export async function registerRoutes(
   // Serve attached_assets folder statically
   app.use('/attached_assets', express.static(path.resolve(process.cwd(), 'attached_assets')));
   
-  app.get(api.scores.list.path, async (req, res) => {
-    const scores = await storage.getScores();
-    res.json(scores);
-  });
-
-  app.post(api.scores.create.path, async (req, res) => {
+  // Scores endpoints
+  app.get('/api/leaderboard', async (req, res) => {
     try {
-      const input = api.scores.create.input.parse(req.body);
-      const score = await storage.createScore(input);
-      res.status(201).json(score);
+      const scores = await storage.getScores();
+      res.json(scores);
     } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({
-          message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
-        });
-      }
-      throw err;
+      console.error("GET /api/leaderboard error:", err);
+      res.status(500).json({ message: 'Failed to fetch leaderboard' });
     }
   });
 
-  // Leaderboard endpoint
-  app.get('/api/leaderboard', async (req, res) => {
+  app.post('/api/saveScore', async (req, res) => {
     try {
-      console.log("API: GET /api/leaderboard called");
-      const scores = await storage.getScores();
-      console.log(`API: Returning ${scores.length} scores`);
-      res.json(scores);
+      const score = await storage.createScore(req.body);
+      res.status(201).json(score);
     } catch (err) {
-      console.error("API: GET /api/leaderboard error:", err);
-      res.status(500).json({ message: 'Failed to fetch leaderboard' });
+      console.error("POST /api/saveScore error:", err);
+      res.status(500).json({ message: 'Failed to save score' });
     }
   });
 
