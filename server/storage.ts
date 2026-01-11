@@ -23,10 +23,12 @@ export class DatabaseStorage implements IStorage {
       const { data, error } = await supabase
         .from("scores")
         .select("*")
-        .order("score", { ascending: false })
-        .limit(50);
+        .order("score", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase getScores error:", error);
+        throw error;
+      }
       return data || [];
     } catch (err) {
       console.error("Error in getScores:", err);
@@ -35,14 +37,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createScore(insertScore: InsertScore): Promise<Score> {
-    const { data, error } = await supabase
-      .from("scores")
-      .insert(insertScore)
-      .select()
-      .single();
+    try {
+      console.log("Saving to Supabase:", insertScore);
+      const { data, error } = await supabase
+        .from("scores")
+        .insert({
+          player_name: insertScore.playerName,
+          score: insertScore.score,
+          wave: insertScore.wave,
+          enemies_defeated: insertScore.enemiesDefeated,
+          play_time: insertScore.playTime
+        })
+        .select()
+        .single();
 
-    if (error) throw error;
-    return data;
+      if (error) {
+        console.error("Supabase createScore error:", error);
+        throw error;
+      }
+      console.log("Supabase save success:", data);
+      return data;
+    } catch (err) {
+      console.error("Error in createScore:", err);
+      throw err;
+    }
   }
 
   async getInventory(walletAddress: string): Promise<Inventory | undefined> {
