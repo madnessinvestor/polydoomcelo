@@ -82,8 +82,7 @@ export const fetchOnChainLeaderboard = async () => {
         
         normalizedOnChain.forEach(onChainScore => {
             const exists = combined.find(ls => 
-                ls.playerName === onChainScore.playerName && 
-                Math.floor(ls.score) === Math.floor(onChainScore.score)
+                ls.playerName === onChainScore.playerName
             );
             if (!exists) {
                 combined.push({
@@ -93,6 +92,9 @@ export const fetchOnChainLeaderboard = async () => {
                     enemiesDefeated: 0,
                     playTime: 0
                 });
+            } else if (onChainScore.score > exists.score) {
+                // Atualiza se o score da blockchain for maior
+                exists.score = onChainScore.score;
             }
         });
 
