@@ -249,7 +249,7 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
                   {balance} <span className="text-blue-500 text-sm">USDC</span>
                 </span>
               </div>
-              <span className="text-[10px] text-blue-400/60 font-bold uppercase mt-1 tracking-widest">
+              <span className="text-[20px] text-blue-400/60 font-bold uppercase mt-1 tracking-widest">
                 Items saved in browser and on-chain
               </span>
             </div>
