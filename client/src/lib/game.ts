@@ -2781,8 +2781,8 @@ class MainScene extends Phaser.Scene {
         const punchX = this.player.flipX ? this.player.x - 20 : this.player.x + 20;
         const targets = this.enemies.getChildren().filter(e => {
             const enemy = e as Phaser.Physics.Arcade.Sprite;
-            // Aumentando a área do dano do punch (Z) em 100% (de 40 para 80)
-            return Phaser.Math.Distance.Between(punchX, this.player.y, enemy.x, enemy.y) < 80;
+            // Aumentando a área do dano do punch (Z) (Ajustado: 80 * 0.7 = 56)
+            return Phaser.Math.Distance.Between(punchX, this.player.y, enemy.x, enemy.y) < 56;
         });
         
         targets.forEach(e => {
