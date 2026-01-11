@@ -22,12 +22,12 @@ export class DatabaseStorage implements IStorage {
     try {
       const { data, error } = await supabase
         .from("leaderboard")
-        .select("*")
+        .select("id, player_name, score, enemies_defeated, play_time, created_at")
         .order("score", { ascending: false });
 
       if (error) {
-        console.error("Supabase getScores error:", error);
-        // Fallback para a tabela antiga se a nova não existir
+        console.error("Supabase getScores error (leaderboard):", error);
+        // Fallback para a tabela 'scores' se a 'leaderboard' falhar
         const { data: oldData, error: oldError } = await supabase
           .from("scores")
           .select("*")
@@ -47,11 +47,11 @@ export class DatabaseStorage implements IStorage {
       
       return (data || []).map((s: any) => ({
         id: s.id,
-        playerName: s.wallet,
+        playerName: s.player_name,
         score: s.score,
-        wave: 1,
-        enemiesDefeated: 0,
-        playTime: 0,
+        wave: 1, // Leaderboard nova não tem wave no SQL enviado, mantendo compatibilidade
+        enemiesDefeated: s.enemies_defeated || 0,
+        playTime: s.play_time || 0,
         createdAt: s.created_at
       }));
     } catch (err) {
@@ -65,8 +65,10 @@ export class DatabaseStorage implements IStorage {
       const { data, error } = await supabase
         .from("leaderboard")
         .insert({
-          wallet: insertScore.playerName,
-          score: insertScore.score
+          player_name: insertScore.playerName,
+          score: insertScore.score,
+          enemies_defeated: insertScore.enemiesDefeated,
+          play_time: insertScore.playTime
         })
         .select()
         .single();
@@ -74,10 +76,10 @@ export class DatabaseStorage implements IStorage {
       if (error) throw error;
       return {
         ...data,
-        playerName: data.wallet,
-        wave: 1,
-        enemiesDefeated: 0,
-        playTime: 0
+        playerName: data.player_name,
+        enemiesDefeated: data.enemies_defeated,
+        playTime: data.play_time,
+        wave: 1
       };
     } catch (err) {
       console.error("Error in createScore:", err);
