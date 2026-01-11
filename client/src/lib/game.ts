@@ -111,7 +111,40 @@ class MainScene extends Phaser.Scene {
                 return;
             }
 
+            const ARC_TESTNET_CONFIG = {
+                chainId: "0x4cef52",
+                chainName: "Arc Testnet",
+                nativeCurrency: {
+                    name: "ARC",
+                    symbol: "ARC",
+                    decimals: 18
+                },
+                rpcUrls: ["https://rpc.testnet.arc.io"],
+                blockExplorerUrls: ["https://explorer.testnet.arc.io"]
+            };
+
             const provider = new ethers.BrowserProvider((window as any).ethereum);
+            
+            // Check network before submitting
+            const network = await provider.getNetwork();
+            if (network.chainId !== BigInt(parseInt(ARC_TESTNET_CONFIG.chainId, 16))) {
+                try {
+                    await (window as any).ethereum.request({
+                        method: "wallet_switchEthereumChain",
+                        params: [{ chainId: ARC_TESTNET_CONFIG.chainId }],
+                    });
+                } catch (switchError: any) {
+                    if (switchError.code === 4902) {
+                        await (window as any).ethereum.request({
+                            method: "wallet_addEthereumChain",
+                            params: [ARC_TESTNET_CONFIG],
+                        });
+                    } else {
+                        throw switchError;
+                    }
+                }
+            }
+
             const signer = await provider.getSigner();
             const userAddress = await signer.getAddress();
             
