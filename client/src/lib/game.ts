@@ -169,10 +169,11 @@ class MainScene extends Phaser.Scene {
             const abi = ["function addScore(string name, uint256 score) public"];
             const contract = new ethers.Contract(contractAddress, abi, signer);
 
-            // Nome padrão caso não tenhamos um nome customizado
-            const playerName = (window as any).walletAddress 
-                ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
-                : "Arc Player";
+            // Nome do jogador vindo do Supabase ou da Wallet
+            const playerName = (window as any).playerName || 
+                ((window as any).walletAddress 
+                    ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
+                    : "Arc Player");
             
             const totalPlayTime = Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000);
 

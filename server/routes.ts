@@ -100,14 +100,16 @@ export async function registerRoutes(
   app.get('/api/character-state/:walletAddress', async (req, res) => {
     try {
       const { walletAddress } = req.params;
-      const [inv, upg] = await Promise.all([
+      const [inv, upg, score] = await Promise.all([
         storage.getInventory(walletAddress),
-        storage.getUpgrades(walletAddress)
+        storage.getUpgrades(walletAddress),
+        storage.getScores().then(scores => scores.find(s => s.playerName.includes(walletAddress.substring(0, 6)))) // Tentar achar por wallet
       ]);
       
       res.json({
         inventory: inv || { walletAddress, potions: { health: 0, ki: 0, immunity: 0, score: 0 } },
-        upgrades: upg || { walletAddress, stats: { health: 0, damage: 0, speed: 0, ki: 0 } }
+        upgrades: upg || { walletAddress, stats: { health: 0, damage: 0, speed: 0, ki: 0 } },
+        playerName: score?.playerName || null
       });
     } catch (err) {
       res.status(500).json({ message: 'Failed to fetch character state' });

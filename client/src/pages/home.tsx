@@ -159,6 +159,19 @@ export default function Home() {
         setInventory(inventoryData);
         (window as any).walletAddress = userAddress; // Store for game scene usage
 
+        // Fetch user profile from Supabase to get player_name
+        try {
+          const profileResponse = await fetch(`/api/character-state/${userAddress}`);
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            if (profileData.playerName) {
+              (window as any).playerName = profileData.playerName;
+            }
+          }
+        } catch (err) {
+          console.warn("Failed to fetch player name from backend:", err);
+        }
+
         return { upgrades: upgradesData, inventory: inventoryData };
       })();
 
