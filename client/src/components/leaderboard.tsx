@@ -105,7 +105,7 @@ export function Leaderboard() {
             <div className="w-[10%] text-right">Score</div>
           </div>
 
-          <ScrollArea className="flex-1 w-full">
+          <ScrollArea className="flex-1 w-full overflow-y-auto custom-scrollbar">
             <div className="p-[2vh] pt-0 space-y-[0.5vh]">
               {/* Rows */}
               {sortedScores.length === 0 ? (

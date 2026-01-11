@@ -166,4 +166,18 @@
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
   }
+
+  .custom-scrollbar [data-radix-scroll-area-viewport]::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar [data-radix-scroll-area-viewport]::-webkit-scrollbar-track {
+    background: rgba(74, 222, 128, 0.05);
+  }
+  .custom-scrollbar [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb {
+    background: rgba(74, 222, 128, 0.3);
+    border-radius: 3px;
+  }
+  .custom-scrollbar [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb:hover {
+    background: rgba(74, 222, 128, 0.5);
+  }
 }
