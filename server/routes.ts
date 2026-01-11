@@ -27,6 +27,7 @@ export async function registerRoutes(
 
   app.post('/api/saveScore', async (req, res) => {
     try {
+      console.log("SAVE SCORE BODY:", req.body);
       const { playerName, score, wave, enemiesDefeated, playTime } = req.body;
       
       if (!playerName || score === undefined || enemiesDefeated === undefined) {
@@ -40,6 +41,8 @@ export async function registerRoutes(
         enemiesDefeated: Number(enemiesDefeated),
         playTime: Number(playTime || 0)
       };
+
+      console.log("SAVING SCORE DATA:", scoreData);
 
       const savedScore = await storage.createScore(scoreData);
       res.status(201).json(savedScore);

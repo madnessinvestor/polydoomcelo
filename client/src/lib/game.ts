@@ -175,15 +175,15 @@ class MainScene extends Phaser.Scene {
                     ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
                     : "Arc Player");
             
-            const totalPlayTime = Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000);
+            const totalPlayTime = Math.floor((this.time.now - this.gameStartTime - (this.totalPausedTime || 0)) / 1000);
 
-            console.log(`Submetendo: ${playerName} - ${this.score}`);
+            console.log(`Submetendo: ${playerName} - ${this.score}, Tempo: ${totalPlayTime}s`);
             const tx = await contract.addScore(playerName, BigInt(Math.floor(this.score)));
             console.log("Transação enviada:", tx.hash);
             
             // Also save to backend leaderboard
             try {
-                await fetch('/api/scores', {
+                await fetch('/api/saveScore', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
