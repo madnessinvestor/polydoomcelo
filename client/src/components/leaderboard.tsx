@@ -80,7 +80,7 @@ export function Leaderboard() {
       >
         {/* Title */}
         <div className="flex-shrink-0 p-[2vh] flex items-center justify-center border-b border-[#4ade80]/30">
-          <h2 className="text-[#4ade80] font-bold tracking-[0.5em] uppercase" style={{ fontSize: "3vh" }}>
+          <h2 className="text-yellow-400 font-bold tracking-[0.5em] uppercase" style={{ fontSize: "3vh" }}>
             LEADERBOARD
           </h2>
         </div>
