@@ -21,8 +21,7 @@ export const fetchOnChainLeaderboard = async () => {
                 localScores = await localResponse.json();
                 console.log("✅ Dados do Supabase carregados:", localScores.length, "itens");
             } else {
-                const errText = await localResponse.text();
-                console.error("❌ Erro na resposta do backend:", localResponse.status, errText);
+                console.error("❌ Erro na resposta do backend:", localResponse.status);
             }
         } catch (e) {
             console.error("❌ Erro ao buscar scores do Supabase:", e);

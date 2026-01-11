@@ -19,13 +19,22 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getScores(): Promise<Score[]> {
-    const { data, error } = await supabase
-      .from("scores")
-      .select("*")
-      .order("score", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("scores")
+        .select("*")
+        .order("score", { ascending: false })
+        .limit(50);
 
-    if (error) throw error;
-    return data || [];
+      if (error) {
+        console.error("Supabase getScores error:", error);
+        return [];
+      }
+      return data || [];
+    } catch (err) {
+      console.error("Unexpected error in getScores:", err);
+      return [];
+    }
   }
 
   async createScore(insertScore: InsertScore): Promise<Score> {
@@ -35,7 +44,10 @@ export class DatabaseStorage implements IStorage {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase createScore error:", error);
+      throw error;
+    }
     return data;
   }
 
