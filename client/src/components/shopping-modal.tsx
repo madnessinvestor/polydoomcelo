@@ -245,8 +245,8 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
             <div className="flex flex-col items-end">
               <div className="bg-blue-950/40 border border-blue-500/30 px-4 py-2 rounded-none">
                 <span className="text-blue-400 text-xs font-bold uppercase tracking-wider block opacity-70">My Balance</span>
-                <span className="text-white font-mono text-lg font-black">
-                  {balance} <span className="text-blue-500 text-sm">USDC</span>
+                <span className="text-white font-mono text-3xl font-black">
+                  {balance} <span className="text-blue-500 text-lg">USDC</span>
                 </span>
               </div>
               <span className="text-[20px] text-blue-400/60 font-bold uppercase mt-1 tracking-widest">

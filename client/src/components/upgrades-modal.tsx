@@ -347,8 +347,8 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
             </CardTitle>
             <div className="bg-green-950/40 border border-green-500/30 px-3 py-1 rounded-none">
               <span className="text-green-400 text-[10px] font-bold uppercase tracking-wider block opacity-70">Balance</span>
-              <span className="text-white font-mono text-base font-black">
-                {balance} <span className="text-green-500 text-xs">USDC</span>
+              <span className="text-white font-mono text-2xl font-black">
+                {balance} <span className="text-green-500 text-sm">USDC</span>
               </span>
             </div>
           </div>
