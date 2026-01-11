@@ -15,10 +15,14 @@ export const fetchOnChainLeaderboard = async () => {
         // 1. Tentar buscar no Supabase (Backend) primeiro, pois é mais confiável e rápido
         let localScores: any[] = [];
         try {
+            console.log("📡 Buscando scores do backend...");
             const localResponse = await fetch("/api/leaderboard");
             if (localResponse.ok) {
                 localScores = await localResponse.json();
                 console.log("✅ Dados do Supabase carregados:", localScores.length, "itens");
+            } else {
+                const errText = await localResponse.text();
+                console.error("❌ Erro na resposta do backend:", localResponse.status, errText);
             }
         } catch (e) {
             console.error("❌ Erro ao buscar scores do Supabase:", e);
