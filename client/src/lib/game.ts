@@ -99,6 +99,19 @@ class MainScene extends Phaser.Scene {
     private isDefending: boolean = false;
     private shieldGraphics: Phaser.GameObjects.Graphics | null = null;
     
+    private async updateLeaderboard() {
+        try {
+            const { fetchOnChainLeaderboard } = await import('./leaderboard');
+            const scores = await fetchOnChainLeaderboard();
+            console.log("✅ Leaderboard atualizado após fim de jogo:", scores.length, "itens");
+            // Se houver uma forma de atualizar o componente Leaderboard do React, faríamos aqui.
+            // O componente Leaderboard usa useQuery, então invalidar a query /api/leaderboard
+            // no frontend deve ser suficiente.
+        } catch (e) {
+            console.warn("Erro ao atualizar leaderboard:", e);
+        }
+    }
+
     private async submitScoreOnChain() {
         if (this.isSubmittingScore || this.score <= 0) return;
         

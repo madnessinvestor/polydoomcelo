@@ -12,6 +12,18 @@ const contractAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
 
 export const fetchOnChainLeaderboard = async () => {
     try {
+        // 1. Tentar buscar no Supabase (Backend) primeiro, pois é mais confiável e rápido
+        let localScores: any[] = [];
+        try {
+            const localResponse = await fetch("/api/leaderboard");
+            if (localResponse.ok) {
+                localScores = await localResponse.json();
+                console.log("✅ Dados do Supabase carregados:", localScores.length, "itens");
+            }
+        } catch (e) {
+            console.error("❌ Erro ao buscar scores do Supabase:", e);
+        }
+
         const publicRpcUrl = "https://rpc.testnet.arc.network";
         const provider = new ethers.JsonRpcProvider(publicRpcUrl);
         const contract = new ethers.Contract(contractAddress, abi, provider);
@@ -20,31 +32,19 @@ export const fetchOnChainLeaderboard = async () => {
         
         let rawScores: any[] = [];
         
-        // 1. Tentar getScores() que parece retornar [address, name, score] conforme ArcScan
+        // 2. Tentar buscar dados On-Chain como complemento/validação
         try {
             console.log("📡 Tentando getScores()...");
             const res = await contract.getScores();
             if (res && Array.isArray(res)) {
                 rawScores = res;
-                console.log("✅ getScores() retornou:", res.length, "itens");
             }
         } catch (e) {
-            console.warn("⚠️ getScores() falhou");
-            
-            // 2. Fallback para getAllScores()
             try {
-                console.log("📡 Tentando getAllScores()...");
                 const res = await contract.getAllScores();
-                if (res && Array.isArray(res)) {
-                    rawScores = res;
-                    console.log("✅ getAllScores() retornou:", res.length, "itens");
-                }
+                if (res && Array.isArray(res)) rawScores = res;
             } catch (e2) {
-                console.warn("⚠️ getAllScores() falhou");
-                
-                // 3. Fallback para mapping manual
                 try {
-                    console.log("📡 Tentando mapping manual...");
                     const count = await contract.scoreCount();
                     const total = Math.min(Number(count), 50);
                     for (let i = 0; i < total; i++) {
@@ -55,18 +55,15 @@ export const fetchOnChainLeaderboard = async () => {
             }
         }
 
-        // Normalização baseada no ArcScan (onde aparece address, name, score)
-        const normalized = rawScores.map(s => {
+        // Normalização dos dados On-Chain
+        const normalizedOnChain = rawScores.map(s => {
             let name = "Anonymous";
             let scoreValue = 0;
-
             if (Array.isArray(s)) {
                 if (s.length >= 3) {
-                    // [address, name, score]
                     name = s[1] ? s[1].toString() : "Anonymous";
                     scoreValue = Number(s[2]);
                 } else {
-                    // [name, score]
                     name = s[0] ? s[0].toString() : "Anonymous";
                     scoreValue = Number(s[1]);
                 }
@@ -74,50 +71,30 @@ export const fetchOnChainLeaderboard = async () => {
                 name = (s.name || s[0] || "Anonymous").toString();
                 scoreValue = Number(s.score || s[1] || 0);
             }
-
-            return { playerName: name.trim() || "Anonymous", score: scoreValue };
+            return { playerName: name.trim() || "Anonymous", score: scoreValue, onChain: true };
         }).filter(s => s.score > 0);
 
-        console.log("📊 Dados normalizados para o leaderboard:", normalized);
-
-        // Remover duplicados e ordenar
-        const unique = normalized.reduce((acc: any[], curr) => {
-            const exists = acc.find(x => x.playerName === curr.playerName && x.score === curr.score);
-            if (!exists) acc.push(curr);
-            return acc;
-        }, []);
-
-        // Fetch local scores for missing data
-        let localScores: any[] = [];
-        try {
-            const localResponse = await fetch("/api/leaderboard");
-            if (localResponse.ok) {
-                localScores = await localResponse.json();
+        // Mesclar dados: Prioridade para o que está no Supabase, mas adiciona o que for novo da Blockchain
+        const combined = [...localScores];
+        
+        normalizedOnChain.forEach(onChainScore => {
+            const exists = combined.find(ls => 
+                ls.playerName === onChainScore.playerName && 
+                Math.floor(ls.score) === Math.floor(onChainScore.score)
+            );
+            if (!exists) {
+                combined.push({
+                    playerName: onChainScore.playerName,
+                    score: onChainScore.score,
+                    wave: 1,
+                    enemiesDefeated: 0,
+                    playTime: 0
+                });
             }
-        } catch (e) {}
-
-        // Se on-chain falhar totalmente, usar dados locais como fallback principal
-        if (unique.length === 0 && localScores.length > 0) {
-            console.log("⚠️ Usando dados locais como fallback principal do leaderboard");
-            return localScores.sort((a: any, b: any) => b.score - a.score).map((s: any) => ({
-                playerName: s.playerName,
-                score: s.score,
-                wave: s.wave || 1,
-                enemiesDefeated: s.enemiesDefeated || 0,
-                playTime: s.playTime || 0
-            }));
-        }
-
-        return unique.sort((a, b) => b.score - a.score).map(s => {
-            const localMatch = localScores.find((ls: any) => ls.playerName === s.playerName && Math.floor(ls.score) === Math.floor(s.score));
-            return {
-                ...s,
-                wave: localMatch?.wave || 1,
-                enemiesDefeated: localMatch?.enemiesDefeated || 0,
-                playTime: localMatch?.playTime || 0
-            };
         });
 
+        console.log("📊 Leaderboard Combinado:", combined.length, "itens");
+        return combined.sort((a, b) => b.score - a.score);
     } catch (e) {
         console.error('❌ Erro no Leaderboard:', e);
         return [];
