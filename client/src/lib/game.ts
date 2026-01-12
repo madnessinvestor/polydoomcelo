@@ -5108,17 +5108,18 @@ class StartScene extends Phaser.Scene {
         this.isWalletConnecting = true;
 
         try {
-            // Arc Testnet Config
+            // Arc Testnet Config (ChainID 10001 = 0x2711)
+            const arcChainId = '0x2711';
             const arcTestnet = {
-                chainId: '0x4cef52', // 5042002 decimal em hexadecimal
+                chainId: arcChainId,
                 chainName: 'Arc Testnet',
                 nativeCurrency: {
-                    name: 'USDC',
-                    symbol: 'USDC',
+                    name: 'ARC',
+                    symbol: 'ARC',
                     decimals: 18
                 },
-                rpcUrls: ['https://rpc.testnet.arc.network', 'https://rpc.blockdaemon.testnet.arc.network', 'https://rpc.drpc.testnet.arc.network', 'https://rpc.quicknode.testnet.arc.network'],
-                blockExplorerUrls: ['https://testnet.arcscan.app']
+                rpcUrls: ['https://rpc.testnet.arc.network'],
+                blockExplorerUrls: ['https://explorer.testnet.arc.network']
             };
 
             try {
@@ -5131,29 +5132,32 @@ class StartScene extends Phaser.Scene {
                 (window as any).walletAddress = this.walletAddress;
                 
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
+                const network = await provider.getNetwork();
 
-                console.log('Attempting to switch to Arc Testnet (0x4cef52)...');
-                try {
-                    await (window as any).ethereum.request({
-                        method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: '0x4cef52' }],
-                    });
-                } catch (switchError: any) {
-                    console.log('Network switch failed, error:', switchError.code || switchError.message);
-                    
-                    // Robust check for chain not found error
-                    const isMissing = switchError.code === 4902 || 
-                                    (switchError.data && switchError.data.originalError && switchError.data.originalError.code === 4902) ||
-                                    (switchError.message && (switchError.message.toLowerCase().includes('unrecognized') || switchError.message.toLowerCase().includes('not been added')));
-
-                    if (isMissing) {
-                        console.log('Adding Arc Testnet to wallet...');
+                if (network.chainId !== BigInt(10001)) {
+                    console.log('Attempting to switch to Arc Testnet (0x2711)...');
+                    try {
                         await (window as any).ethereum.request({
-                            method: 'wallet_addEthereumChain',
-                            params: [arcTestnet],
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: arcChainId }],
                         });
-                    } else {
-                        throw switchError;
+                    } catch (switchError: any) {
+                        console.log('Network switch failed, error:', switchError.code || switchError.message);
+                        
+                        // Robust check for chain not found error
+                        const isMissing = switchError.code === 4902 || 
+                                        (switchError.data && switchError.data.originalError && switchError.data.originalError.code === 4902) ||
+                                        (switchError.message && (switchError.message.toLowerCase().includes('unrecognized') || switchError.message.toLowerCase().includes('not been added')));
+
+                        if (isMissing) {
+                            console.log('Adding Arc Testnet to wallet...');
+                            await (window as any).ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [arcTestnet],
+                            });
+                        } else {
+                            throw switchError;
+                        }
                     }
                 }
 
@@ -5171,7 +5175,7 @@ class StartScene extends Phaser.Scene {
                     mainScene.updateWalletHUD?.();
                 }
             } catch (error: any) {
-                console.error('Outer connection error:', error);
+                console.error('Inner connection error:', error);
                 this.isWalletConnecting = false;
                 this.updateWalletButtonText('CONNECT WALLET');
             }
@@ -5179,6 +5183,8 @@ class StartScene extends Phaser.Scene {
             console.error('Outer connection error:', error);
             this.isWalletConnecting = false;
             this.updateWalletButtonText('CONNECT WALLET');
+        } finally {
+            this.isWalletConnecting = false;
         }
     }
 
@@ -5421,6 +5427,17 @@ class StartScene extends Phaser.Scene {
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
                 const network = await provider.getNetwork();
                 const arcChainId = '0x2711'; // 10001 in hex
+                const arcTestnet = {
+                    chainId: arcChainId,
+                    chainName: 'Arc Testnet',
+                    nativeCurrency: {
+                        name: 'ARC',
+                        symbol: 'ARC',
+                        decimals: 18
+                    },
+                    rpcUrls: ['https://rpc.testnet.arc.network'],
+                    blockExplorerUrls: ['https://explorer.testnet.arc.network']
+                };
 
                 if (network.chainId !== BigInt(10001)) {
                     console.log('Switching to Arc Testnet before start...');
@@ -5429,31 +5446,12 @@ class StartScene extends Phaser.Scene {
                             method: 'wallet_switchEthereumChain',
                             params: [{ chainId: arcChainId }],
                         });
-                        // After switching, we need to refresh the provider to get the new network state
-                        const newProvider = new ethers.BrowserProvider((window as any).ethereum);
-                        const newNetwork = await newProvider.getNetwork();
-                        if (newNetwork.chainId !== BigInt(10001)) {
-                            alert('Please switch to Arc Testnet to start the game.');
-                            return;
-                        }
                     } catch (switchError: any) {
                         if (switchError.code === 4902) {
                             try {
                                 await (window as any).ethereum.request({
                                     method: 'wallet_addEthereumChain',
-                                    params: [
-                                        {
-                                            chainId: arcChainId,
-                                            chainName: 'Arc Testnet',
-                                            rpcUrls: ['https://rpc.testnet.arc.network'],
-                                            nativeCurrency: {
-                                                name: 'ARC',
-                                                symbol: 'ARC',
-                                                decimals: 18
-                                            },
-                                            blockExplorerUrls: ['https://explorer.testnet.arc.network']
-                                        },
-                                    ],
+                                    params: [arcTestnet],
                                 });
                             } catch (addError) {
                                 console.error("Failed to add Arc Testnet", addError);
@@ -5465,6 +5463,15 @@ class StartScene extends Phaser.Scene {
                             alert('Please switch to Arc Testnet in your wallet.');
                             return;
                         }
+                    }
+                    
+                    // After successful switch/add, wait a bit for provider to sync
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    const newProvider = new ethers.BrowserProvider((window as any).ethereum);
+                    const newNetwork = await newProvider.getNetwork();
+                    if (newNetwork.chainId !== BigInt(10001)) {
+                        alert('Please ensure you are on Arc Testnet to start.');
+                        return;
                     }
                 }
             } catch (providerErr) {
