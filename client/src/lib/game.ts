@@ -2304,7 +2304,7 @@ class MainScene extends Phaser.Scene {
                     const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
                     if (dist < auraRadius) {
                         const currentHealth = enemy.getData('health');
-                        enemy.setData('health', Math.max(0, (currentHealth || 0) - 10));
+                        enemy.setData('health', Math.max(0, (currentHealth || 0) - 1));
                         
                         // Visual feedback for aura damage
                         if (this.time.now % 500 < 20) {
