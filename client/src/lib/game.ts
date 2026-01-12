@@ -4862,8 +4862,8 @@ class MainScene extends Phaser.Scene {
     }
 
     private applySingleUpgrade(id: string, level: number) {
-        // Updated bonus values to match the exact percentages requested for ArcVamp
-        // hp/ki/damage use the standard scale, vamp uses the specific 0.0001 to 0.001 scale
+        // Multiplier values for ArcVamp (matching requested 0.0001 to 0.001)
+        // Note: Using these directly as multipliers based on user preference
         const standardBonuses = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.55, 0.7, 0.85, 1.0, 2.0];
         const vampBonuses = [0, 0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.0006, 0.0007, 0.0008, 0.0009, 0.001];
         
