@@ -5108,8 +5108,8 @@ class StartScene extends Phaser.Scene {
         this.isWalletConnecting = true;
 
         try {
-            // Arc Testnet Config (ChainID 10001 = 0x2711)
-            const arcChainId = '0x2711';
+            // Arc Testnet Config (ChainID 5042002 = 0x4cef52)
+            const arcChainId = '0x4cef52';
             const arcTestnet = {
                 chainId: arcChainId,
                 chainName: 'Arc Testnet',
@@ -5134,8 +5134,8 @@ class StartScene extends Phaser.Scene {
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
                 const network = await provider.getNetwork();
 
-                if (network.chainId !== BigInt(10001)) {
-                    console.log('Attempting to switch to Arc Testnet (0x2711)...');
+                if (network.chainId !== BigInt(5042002)) {
+                    console.log('Attempting to switch to Arc Testnet (0x4cef52)...');
                     try {
                         await (window as any).ethereum.request({
                             method: 'wallet_switchEthereumChain',
@@ -5426,7 +5426,7 @@ class StartScene extends Phaser.Scene {
             try {
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
                 const network = await provider.getNetwork();
-                const arcChainId = '0x2711'; // 10001 in hex
+                const arcChainId = '0x4cef52'; // 5042002 in hex
                 const arcTestnet = {
                     chainId: arcChainId,
                     chainName: 'Arc Testnet',
@@ -5439,7 +5439,7 @@ class StartScene extends Phaser.Scene {
                     blockExplorerUrls: ['https://explorer.testnet.arc.network']
                 };
 
-                if (network.chainId !== BigInt(10001)) {
+                if (network.chainId !== BigInt(5042002)) {
                     console.log('Switching to Arc Testnet before start...');
                     try {
                         await (window as any).ethereum.request({
@@ -5469,7 +5469,7 @@ class StartScene extends Phaser.Scene {
                     await new Promise(resolve => setTimeout(resolve, 500));
                     const newProvider = new ethers.BrowserProvider((window as any).ethereum);
                     const newNetwork = await newProvider.getNetwork();
-                    if (newNetwork.chainId !== BigInt(10001)) {
+                    if (newNetwork.chainId !== BigInt(5042002)) {
                         alert('Please ensure you are on Arc Testnet to start.');
                         return;
                     }
@@ -6774,10 +6774,10 @@ class DeathScene extends Phaser.Scene {
                     const provider = new ethers.BrowserProvider((window as any).ethereum);
                     
                     // 📡 ENSURE ARC TESTNET
-                    const arcChainId = '0x2711'; // 10001 in hex
+                    const arcChainId = '0x4cef52'; // 5042002 in hex
                     const network = await provider.getNetwork();
                     
-                    if (network.chainId !== BigInt(10001)) {
+                    if (network.chainId !== BigInt(5042002)) {
                         console.log('Switching to Arc Testnet...');
                         try {
                             await (window as any).ethereum.request({
