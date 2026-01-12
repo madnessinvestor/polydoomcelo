@@ -5431,75 +5431,66 @@ class StartScene extends Phaser.Scene {
                 return;
             }
 
-            // 📡 ENSURE ARC TESTNET
+            // 📡 FORCED NETWORK CHECK BEFORE ANY LOADING
             try {
+                if (!(window as any).ethereum) {
+                    alert('MetaMask or Rabby is required.');
+                    return;
+                }
+
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
-                const network = await provider.getNetwork();
-                const arcChainId = '0x4cef52'; // 5042002 in hex
-                const arcTestnet = {
-                    chainId: arcChainId,
-                    chainName: 'Arc Testnet',
-                    nativeCurrency: {
-                        name: 'ARC',
-                        symbol: 'ARC',
-                        decimals: 18
-                    },
-                    rpcUrls: ['https://rpc.testnet.arc.network'],
-                    blockExplorerUrls: ['https://explorer.testnet.arc.network']
-                };
+                let network = await provider.getNetwork();
+                const arcChainId = '0x4cef52'; // 5042002
 
                 if (network.chainId !== BigInt(5042002)) {
-                    console.log('Switching to Arc Testnet before start...');
+                    console.log('Forcing network switch to Arc Testnet...');
                     try {
-                        // Forçar a troca de rede
                         await (window as any).ethereum.request({
                             method: 'wallet_switchEthereumChain',
                             params: [{ chainId: arcChainId }],
                         });
                         
-                        // Aguardar e verificar se a troca realmente aconteceu
-                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        // Wait for the provider to update and re-check
+                        await new Promise(resolve => setTimeout(resolve, 1500));
                         const verifiedProvider = new ethers.BrowserProvider((window as any).ethereum);
                         const verifiedNetwork = await verifiedProvider.getNetwork();
                         
                         if (verifiedNetwork.chainId !== BigInt(5042002)) {
-                            throw new Error('Network switch was not successful');
+                            alert('Network switch failed. You MUST be on Arc Testnet to play.');
+                            return;
                         }
                     } catch (switchError: any) {
                         if (switchError.code === 4902) {
                             try {
                                 await (window as any).ethereum.request({
                                     method: 'wallet_addEthereumChain',
-                                    params: [arcTestnet],
+                                    params: [{
+                                        chainId: arcChainId,
+                                        chainName: 'Arc Testnet',
+                                        rpcUrls: ['https://rpc.testnet.arc.network'],
+                                        nativeCurrency: { name: 'ARC', symbol: 'ARC', decimals: 18 },
+                                        blockExplorerUrls: ['https://explorer.testnet.arc.network']
+                                    }],
                                 });
                             } catch (addError) {
-                                console.error("Failed to add Arc Testnet", addError);
-                                alert('Please add Arc Testnet to your wallet manually.');
+                                alert('Please add and switch to Arc Testnet manually.');
                                 return;
                             }
                         } else {
-                            console.error("Failed to switch to Arc Testnet", switchError);
-                            alert('Please switch to Arc Testnet in your wallet.');
+                            alert('Switch to Arc Testnet was rejected. Game cannot start.');
                             return;
                         }
                     }
-                    
-                    // After successful switch/add, wait a bit for provider to sync
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    const newProvider = new ethers.BrowserProvider((window as any).ethereum);
-                    const newNetwork = await newProvider.getNetwork();
-                    if (newNetwork.chainId !== BigInt(5042002)) {
-                        alert('Please ensure you are on Arc Testnet to start.');
-                        return;
-                    }
                 }
-            } catch (providerErr) {
-                console.error("Provider error during network check:", providerErr);
-                alert('Wallet error. Please ensure MetaMask is connected.');
+            } catch (err) {
+                console.error("Network check failed:", err);
+                alert('Error verifying network. Please try again.');
                 return;
             }
 
             try {
+                // Now proceed with loading only after network is confirmed
+                startBtnObj.btnText.setText('LOADING...');
                 // Show loading state
                 startBtnObj.btnText.setText('LOADING...');
                 
