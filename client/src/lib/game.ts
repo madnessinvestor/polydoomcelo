@@ -4862,8 +4862,12 @@ class MainScene extends Phaser.Scene {
     }
 
     private applySingleUpgrade(id: string, level: number) {
-        const bonusValues = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.55, 0.7, 0.85, 1.0, 2.0]; // Match UPGRADE_DATA
-        const bonus = bonusValues[level] || 0;
+        // Updated bonus values to match the exact percentages requested for ArcVamp
+        // hp/ki/damage use the standard scale, vamp uses the specific 0.0001 to 0.001 scale
+        const standardBonuses = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.55, 0.7, 0.85, 1.0, 2.0];
+        const vampBonuses = [0, 0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.0006, 0.0007, 0.0008, 0.0009, 0.001];
+        
+        const bonus = id === 'arc_vamp' ? (vampBonuses[level] || 0) : (standardBonuses[level] || 0);
         
         // Get base stats for current level
         const baseStats = this.levelStats[this.level - 1] || this.levelStats[0];
