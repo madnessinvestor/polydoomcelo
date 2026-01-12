@@ -5137,10 +5137,19 @@ class StartScene extends Phaser.Scene {
                 if (network.chainId !== BigInt(5042002)) {
                     console.log('Attempting to switch to Arc Testnet (0x4cef52)...');
                     try {
+                        // Forçar a troca de rede
                         await (window as any).ethereum.request({
                             method: 'wallet_switchEthereumChain',
                             params: [{ chainId: arcChainId }],
                         });
+                        
+                        // Aguardar e verificar
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        const verifiedProvider = new ethers.BrowserProvider((window as any).ethereum);
+                        const verifiedNetwork = await verifiedProvider.getNetwork();
+                        if (verifiedNetwork.chainId !== BigInt(5042002)) {
+                            throw new Error('Network switch was not successful');
+                        }
                     } catch (switchError: any) {
                         console.log('Network switch failed, error:', switchError.code || switchError.message);
                         
@@ -5442,10 +5451,20 @@ class StartScene extends Phaser.Scene {
                 if (network.chainId !== BigInt(5042002)) {
                     console.log('Switching to Arc Testnet before start...');
                     try {
+                        // Forçar a troca de rede
                         await (window as any).ethereum.request({
                             method: 'wallet_switchEthereumChain',
                             params: [{ chainId: arcChainId }],
                         });
+                        
+                        // Aguardar e verificar se a troca realmente aconteceu
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        const verifiedProvider = new ethers.BrowserProvider((window as any).ethereum);
+                        const verifiedNetwork = await verifiedProvider.getNetwork();
+                        
+                        if (verifiedNetwork.chainId !== BigInt(5042002)) {
+                            throw new Error('Network switch was not successful');
+                        }
                     } catch (switchError: any) {
                         if (switchError.code === 4902) {
                             try {
@@ -6780,10 +6799,19 @@ class DeathScene extends Phaser.Scene {
                     if (network.chainId !== BigInt(5042002)) {
                         console.log('Switching to Arc Testnet...');
                         try {
+                            // Forçar a troca de rede
                             await (window as any).ethereum.request({
                                 method: 'wallet_switchEthereumChain',
                                 params: [{ chainId: arcChainId }],
                             });
+                            
+                            // Aguardar e verificar
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            const verifiedProvider = new ethers.BrowserProvider((window as any).ethereum);
+                            const verifiedNetwork = await verifiedProvider.getNetwork();
+                            if (verifiedNetwork.chainId !== BigInt(5042002)) {
+                                throw new Error('Network switch was not successful');
+                            }
                         } catch (switchError: any) {
                             if (switchError.code === 4902) {
                                 try {
