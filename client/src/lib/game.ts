@@ -6706,8 +6706,52 @@ class DeathScene extends Phaser.Scene {
             if ((window as any).ethereum) {
                 try {
                     console.log('=== INICIANDO REGISTRO ON-CHAIN ===');
-                    
+
                     const provider = new ethers.BrowserProvider((window as any).ethereum);
+                    
+                    // 📡 ENSURE ARC TESTNET
+                    const arcChainId = '0x2711'; // 10001 in hex
+                    const network = await provider.getNetwork();
+                    
+                    if (network.chainId !== BigInt(10001)) {
+                        console.log('Switching to Arc Testnet...');
+                        try {
+                            await (window as any).ethereum.request({
+                                method: 'wallet_switchEthereumChain',
+                                params: [{ chainId: arcChainId }],
+                            });
+                        } catch (switchError: any) {
+                            if (switchError.code === 4902) {
+                                try {
+                                    await (window as any).ethereum.request({
+                                        method: 'wallet_addEthereumChain',
+                                        params: [
+                                            {
+                                                chainId: arcChainId,
+                                                chainName: 'Arc Testnet',
+                                                rpcUrls: ['https://rpc.testnet.arc.network'],
+                                                nativeCurrency: {
+                                                    name: 'ARC',
+                                                    symbol: 'ARC',
+                                                    decimals: 18
+                                                },
+                                                blockExplorerUrls: ['https://explorer.testnet.arc.network']
+                                            },
+                                        ],
+                                    });
+                                } catch (addError) {
+                                    console.error("Failed to add Arc Testnet", addError);
+                                    alert('Please add Arc Testnet to your wallet manually.');
+                                    return;
+                                }
+                            } else {
+                                console.error("Failed to switch to Arc Testnet", switchError);
+                                alert('Please switch to Arc Testnet in your wallet.');
+                                return;
+                            }
+                        }
+                    }
+
                     const signer = await provider.getSigner();
                     const userAddress = await signer.getAddress();
                     
