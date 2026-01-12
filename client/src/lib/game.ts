@@ -3125,6 +3125,7 @@ class MainScene extends Phaser.Scene {
         if (vampBonus > 0 && finalDamage > 0) {
             const healAmount = finalDamage * vampBonus;
             this.health = Math.min(this.maxHealth, this.health + healAmount);
+            this.updateHUD(); // Ensure HP bar updates immediately
         }
 
         // Mostra o dano causado
