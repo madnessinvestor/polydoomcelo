@@ -5416,6 +5416,63 @@ class StartScene extends Phaser.Scene {
                 return;
             }
 
+            // 📡 ENSURE ARC TESTNET
+            try {
+                const provider = new ethers.BrowserProvider((window as any).ethereum);
+                const network = await provider.getNetwork();
+                const arcChainId = '0x2711'; // 10001 in hex
+
+                if (network.chainId !== BigInt(10001)) {
+                    console.log('Switching to Arc Testnet before start...');
+                    try {
+                        await (window as any).ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: arcChainId }],
+                        });
+                        // After switching, we need to refresh the provider to get the new network state
+                        const newProvider = new ethers.BrowserProvider((window as any).ethereum);
+                        const newNetwork = await newProvider.getNetwork();
+                        if (newNetwork.chainId !== BigInt(10001)) {
+                            alert('Please switch to Arc Testnet to start the game.');
+                            return;
+                        }
+                    } catch (switchError: any) {
+                        if (switchError.code === 4902) {
+                            try {
+                                await (window as any).ethereum.request({
+                                    method: 'wallet_addEthereumChain',
+                                    params: [
+                                        {
+                                            chainId: arcChainId,
+                                            chainName: 'Arc Testnet',
+                                            rpcUrls: ['https://rpc.testnet.arc.network'],
+                                            nativeCurrency: {
+                                                name: 'ARC',
+                                                symbol: 'ARC',
+                                                decimals: 18
+                                            },
+                                            blockExplorerUrls: ['https://explorer.testnet.arc.network']
+                                        },
+                                    ],
+                                });
+                            } catch (addError) {
+                                console.error("Failed to add Arc Testnet", addError);
+                                alert('Please add Arc Testnet to your wallet manually.');
+                                return;
+                            }
+                        } else {
+                            console.error("Failed to switch to Arc Testnet", switchError);
+                            alert('Please switch to Arc Testnet in your wallet.');
+                            return;
+                        }
+                    }
+                }
+            } catch (providerErr) {
+                console.error("Provider error during network check:", providerErr);
+                alert('Wallet error. Please ensure MetaMask is connected.');
+                return;
+            }
+
             try {
                 // Show loading state
                 startBtnObj.btnText.setText('LOADING...');
