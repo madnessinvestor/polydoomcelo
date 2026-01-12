@@ -3899,7 +3899,7 @@ class MainScene extends Phaser.Scene {
 
         // If player is dashing and pressing Z, deal damage
         if (this.isDashing && this.keys.Z.isDown) {
-            this.hitEnemy(enemy, 0.5); // 0.5x damage multiplier for Dash + Z
+            this.hitEnemy(enemy, (stats.punch * 0.5)); // 0.5x base punch damage multiplier for Dash + Z
         }
 
         if (this.isGameOver || this.isWaveInterval || this.isInvincible) return;
