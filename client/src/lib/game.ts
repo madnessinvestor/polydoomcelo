@@ -3897,6 +3897,9 @@ class MainScene extends Phaser.Scene {
         const enemy = obj2 as Phaser.Physics.Arcade.Sprite;
         if (!enemy || !enemy.active) return;
 
+        const levelIndex = Math.max(0, Math.min(this.level - 1, this.levelStats.length - 1));
+        const stats = this.levelStats[levelIndex];
+
         // If player is dashing and pressing Z, deal damage
         if (this.isDashing && this.keys.Z.isDown) {
             this.hitEnemy(enemy, (stats.punch * 0.5)); // 0.5x base punch damage multiplier for Dash + Z
@@ -3943,9 +3946,6 @@ class MainScene extends Phaser.Scene {
             incomingDamageMult = 0.2;
         }
 
-        // Get resistance from current level stats
-        const levelIndex = Math.max(0, Math.min(this.level - 1, this.levelStats.length - 1));
-        const stats = this.levelStats[levelIndex];
         const resMultiplier = 1 - (stats.res || 0);
         
         let baseDamage = enemy.getData('damage');
@@ -4005,7 +4005,6 @@ class MainScene extends Phaser.Scene {
             if (this.sfx[this.deathSoundKey]) {
                 this.sfx[this.deathSoundKey].play({ volume: this.sfxVolume });
             }
-        (this as any).gameOver = true;
             this.health = 0;
             this.playerGraphics.clear();
             this.playerAuraGraphics.clear();
