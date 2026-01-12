@@ -397,7 +397,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                             ))}
                           </div>
 
-                          <p className="text-slate-400 mb-2 line-clamp-1 font-pixel-content" style={{ fontSize: '0.78rem' }}>{upgrade.description}</p>
+                          <p className="text-slate-400 mb-2 font-pixel-content" style={{ fontSize: '0.78rem' }}>{upgrade.description}</p>
                           
                           <div className="flex justify-between mb-4 font-pixel-content" style={{ fontSize: '0.78rem' }}>
                             <span className="text-slate-500">Current Bonus:</span>
