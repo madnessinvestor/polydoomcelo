@@ -2315,6 +2315,9 @@ class MainScene extends Phaser.Scene {
                         }
 
                         if (enemy.getData('health') <= 0) {
+                            if (enemy.getData('isDefeated')) return;
+                            enemy.setData('isDefeated', true);
+
                             if (enemy.getData('isBoss')) {
                                 const waveNum = this.currentWave || 1;
                                 let bossScore = 20 * Math.pow(5, waveNum - 1);
