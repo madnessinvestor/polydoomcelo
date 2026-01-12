@@ -3093,7 +3093,15 @@ class MainScene extends Phaser.Scene {
     hitEnemy(enemy: Phaser.Physics.Arcade.Sprite, damage: number) {
         let health = enemy.getData('health') || 1;
         const typeId = enemy.getData('typeId');
-        let finalDamage = (this.hasPowerBoost || this.hasDamageBoost) ? damage * 2 : damage;
+        
+        // Apply arc_damage upgrade multiplier
+        const damageMultiplier = (this as any).damageMultiplier || 1.0;
+        let finalDamage = damage * damageMultiplier;
+
+        // Apply PowerBoost or DamageBoost (temporary items)
+        if (this.hasPowerBoost || this.hasDamageBoost) {
+            finalDamage *= 2;
+        }
 
         if (finalDamage > 0 && Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y) < 60) {
             this.sfx['punch']?.play();
@@ -3111,6 +3119,13 @@ class MainScene extends Phaser.Scene {
 
         health -= finalDamage;
         enemy.setData('health', health);
+
+        // ArcVamp: Regenerates HP based on damage dealt
+        const vampBonus = (this as any).vampBonus || 0;
+        if (vampBonus > 0 && finalDamage > 0) {
+            const healAmount = finalDamage * vampBonus;
+            this.health = Math.min(this.maxHealth, this.health + healAmount);
+        }
 
         // Mostra o dano causado
         this.showDamage(enemy.x, enemy.y, Math.round(finalDamage));
