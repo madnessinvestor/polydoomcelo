@@ -1,12 +1,12 @@
-🎮 PolyDoomArcUnder
+🎮 PolyDoomArc
 
-PolyDoomArcUnder is a modern hybrid Web2 + Web3 game architecture built on the Arc Network, combining traditional backend technologies, decentralized smart contracts, and a cloud database to deliver a scalable, secure, and high-performance gaming experience.
+PolyDoomArc is a modern hybrid Web2 + Web3 game architecture built on the Arc Network, combining traditional backend technologies, decentralized smart contracts, and a cloud database to deliver a scalable, secure, and high-performance gaming experience.
 
 This project demonstrates how real blockchain mechanics can coexist with practical off-chain infrastructure while leveraging the Arc ecosystem as its foundational layer.
 
 🌐 Built on Arc Network
 
-PolyDoomArcUnder is natively designed for the Arc Network, taking advantage of its infrastructure for:
+PolyDoomArc is natively designed for the Arc Network, taking advantage of its infrastructure for:
 
 ⚡ Efficient on-chain interactions
 
@@ -22,7 +22,7 @@ The project architecture assumes Arc Network as the core settlement and logic la
 
 🔗 Web3 + Database Integration
 
-PolyDoomArcUnder combines:
+PolyDoomArc combines:
 
 🌐 Arc Network (smart contracts & on-chain logic)
 
@@ -60,7 +60,7 @@ Low latency for gameplay features
 
 ⛓️ Smart Contracts (On-Chain – Arc Network)
 
-PolyDoomArcUnder integrates real deployed smart contracts on the Arc Network, bringing true Web3 functionality into the game economy.
+PolyDoomArc integrates real deployed smart contracts on the Arc Network, bringing true Web3 functionality into the game economy.
 
 📜 Upgrade Contract
 
@@ -108,7 +108,7 @@ This approach makes the project:
 
 🚀 Project Vision
 
-PolyDoomArcUnder was designed as:
+PolyDoomArc was designed as:
 
 A proof of concept for Arc-based Web3 gaming
 
