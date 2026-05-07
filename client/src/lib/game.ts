@@ -4074,6 +4074,7 @@ class MainScene extends Phaser.Scene {
     }
 
     private enemySpiralCast(enemy: Phaser.Physics.Arcade.Sprite) {
+        const damage = enemy.getData('damage') || 0;
         for (let i = 0; i < 3; i++) {
             const angle = (this.time.now / 500) + (i * Math.PI * 2 / 3);
             const magic = this.add.circle(enemy.x, enemy.y, 8, 0x4ade80, 1);
@@ -4081,8 +4082,9 @@ class MainScene extends Phaser.Scene {
             const body = magic.body as Phaser.Physics.Arcade.Body;
             body.setVelocity(Math.cos(angle) * 300, Math.sin(angle) * 300);
             this.physics.add.overlap(this.player, magic, () => {
+                if (!magic.active) return;
                 magic.destroy();
-                this.takeDamage(enemy.getData('damage'));
+                if (isFinite(damage) && !isNaN(damage)) this.takeDamage(damage);
             });
             this.time.delayedCall(3000, () => {
                 if (magic.active) magic.destroy();
@@ -4145,12 +4147,17 @@ class MainScene extends Phaser.Scene {
             this.createExplosion(this.player.x, this.player.y);
             
             this.time.delayedCall(1000, () => {
-                this.scene.switch('DeathScene');
+                const totalTime = Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000);
+                const playerName = (window as any).walletAddress
+                    ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
+                    : "Arc Player";
                 this.scene.start('DeathScene', { 
                     level: this.level,
                     wave: this.currentWave,
                     score: this.score,
                     enemiesDefeated: this.enemiesDefeated,
+                    playTime: totalTime,
+                    playerName: playerName,
                     levelTitle: this.levelTitle
                 });
             });
@@ -4240,7 +4247,19 @@ class MainScene extends Phaser.Scene {
     private enemyShootArrow(enemy: Phaser.Physics.Arcade.Sprite) {
         if (this.time.now < (enemy.getData('lastArrowTime') || 0) + 3000) return;
         enemy.setData('lastArrowTime', this.time.now);
-        // Simple arrow projectile
+        const arrow = this.add.circle(enemy.x, enemy.y, 5, 0xffd700);
+        this.physics.add.existing(arrow);
+        const body = arrow.body as Phaser.Physics.Arcade.Body;
+        if (body) body.setAllowGravity(false);
+        const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        body.setVelocity(Math.cos(angle) * 350, Math.sin(angle) * 350);
+        const dmg = enemy.getData('damage') || 0;
+        this.physics.add.overlap(this.player, arrow, () => {
+            if (!arrow.active) return;
+            arrow.destroy();
+            if (isFinite(dmg) && !isNaN(dmg)) this.takeDamage(dmg);
+        });
+        this.time.delayedCall(2500, () => { if (arrow.active) arrow.destroy(); });
     }
 
     private enemyEliteBehavior(enemy: Phaser.Physics.Arcade.Sprite) {
@@ -4336,7 +4355,7 @@ class MainScene extends Phaser.Scene {
                 .setOrigin(0, 0);
             
             // Número para usar (Canto Superior Esquerdo)
-            this.add.text(4, y + 2, potion.key, {
+            const keyText = this.add.text(4, y + 2, potion.key, {
                 fontSize: '12px',
                 fontFamily: '"PixelPurl", monospace',
                 color: '#60a5fa',
@@ -4345,7 +4364,7 @@ class MainScene extends Phaser.Scene {
 
             // Quantidade (Canto Inferior Direito)
             const count = this.playerInventory[potion.id] || 0;
-            this.add.text(46, y + 46, count.toString(), {
+            const countText = this.add.text(46, y + 46, count.toString(), {
                 fontSize: '14px',
                 fontFamily: '"PixelPurl", monospace',
                 color: '#ffffff',
@@ -4355,7 +4374,7 @@ class MainScene extends Phaser.Scene {
             // Ícone do Item (Círculo colorido no centro)
             const icon = this.add.circle(25, y + 25, 12, potion.color);
             
-            this.inventoryHUD?.add([bg, icon]);
+            this.inventoryHUD?.add([bg, icon, keyText, countText]);
         });
     }
 
@@ -4891,16 +4910,19 @@ class MainScene extends Phaser.Scene {
                 (this as any).defenceBonus = bonus;
                 break;
             case 'arc_regen':
-                if (!(this as any).regenTimer) {
-                    (this as any).regenTimer = this.time.addEvent({
-                        delay: 10000,
-                        callback: () => {
-                            const regenAmount = this.maxHealth * bonus;
-                            this.health = Math.min(this.maxHealth, this.health + regenAmount);
-                        },
-                        loop: true
-                    });
+                if ((this as any).regenTimer) {
+                    (this as any).regenTimer.remove();
+                    (this as any).regenTimer = null;
                 }
+                (this as any).regenBonus = bonus;
+                (this as any).regenTimer = this.time.addEvent({
+                    delay: 10000,
+                    callback: () => {
+                        const regenAmount = this.maxHealth * ((this as any).regenBonus || 0);
+                        this.health = Math.min(this.maxHealth, this.health + regenAmount);
+                    },
+                    loop: true
+                });
                 break;
             case 'arc_vamp':
                 (this as any).vampBonus = bonus;
@@ -5225,7 +5247,7 @@ class StartScene extends Phaser.Scene {
 
         try {
             const provider = new ethers.BrowserProvider((window as any).ethereum);
-            const usdcAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
+            const usdcAddress = "0x3600000000000000000000000000000000000000";
             const usdcAbi = [
                 "function balanceOf(address owner) view returns (uint256)",
                 "function decimals() view returns (uint8)"
@@ -5491,8 +5513,6 @@ class StartScene extends Phaser.Scene {
             try {
                 // Now proceed with loading only after network is confirmed
                 startBtnObj.btnText.setText('LOADING...');
-                // Show loading state
-                startBtnObj.btnText.setText('LOADING...');
                 
                 // Fetch Character State from Backend (Inventory)
                 let data;
@@ -5583,9 +5603,9 @@ class StartScene extends Phaser.Scene {
         const menuY = height / 2 + 130;
         createNeonButton(width / 2, menuY, 220, 46, 0x6b7280, 'UPGRADES', '20px', '#ffffff', () => (window as any).openUpgradesModal?.());
         createNeonButton(width / 2, menuY + 60, 220, 46, 0x6b7280, 'SHOPPING', '20px', '#ffffff', () => (window as any).openShoppingModal?.());
-        createNeonButton(width / 2, menuY + 120, 220, 46, 0x6b7280, 'HISTORY', '20px', '#ffffff', () => (window as any).openHistoryModal?.());
-        createNeonButton(width / 2, menuY + 180, 220, 46, 0x6b7280, 'CONTROLS', '20px', '#ffffff', () => (window as any).openControlsModal?.());
-        createNeonButton(width / 2, menuY + 240, 220, 46, 0x6b7280, 'SETTINGS', '20px', '#ffffff', () => (window as any).openSettingsModal?.());
+        createNeonButton(width / 2, menuY + 120, 220, 46, 0x6b7280, 'HISTORY', '20px', '#ffffff', () => this.openHistoryModal());
+        createNeonButton(width / 2, menuY + 180, 220, 46, 0x6b7280, 'CONTROLS', '20px', '#ffffff', () => this.openControlsModal());
+        createNeonButton(width / 2, menuY + 240, 220, 46, 0x6b7280, 'SETTINGS', '20px', '#ffffff', () => this.openSettingsModal());
 
         // Embedded Leaderboard in StartScene
         const lbWidth = 600; // Increased width
@@ -6105,7 +6125,7 @@ class StartScene extends Phaser.Scene {
         const height = this.cameras.main.height;
 
         // Overlay background
-        const overlay = this.add.zone(width / 2, height / 2, width, height).setScrollFactor(0);
+        const overlay = this.add.rectangle(0, 0, width * 2, height * 2, 0x000000, 0.6).setOrigin(0).setScrollFactor(0).setInteractive();
 
         // Modal background
         const modalBg = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8, 0x000000, 0.9).setScrollFactor(0);
@@ -6261,8 +6281,11 @@ class StartScene extends Phaser.Scene {
         settingsContainer.style.zIndex = '104';
         settingsContainer.style.pointerEvents = 'auto';
 
-        // Add CSS for range inputs
+        // Add CSS for range inputs (prevent duplicates)
+        const existingStyle = document.getElementById('settings-range-style');
+        if (existingStyle) existingStyle.remove();
         const style = document.createElement('style');
+        style.id = 'settings-range-style';
         style.textContent = `
             #settings-container input[type="range"] {
                 width: 100%;
@@ -6413,7 +6436,7 @@ class StartScene extends Phaser.Scene {
         const height = this.cameras.main.height;
 
         // Overlay background
-        const overlay = this.add.zone(width / 2, height / 2, width, height).setScrollFactor(0);
+        const overlay = this.add.rectangle(0, 0, width * 2, height * 2, 0x000000, 0.6).setOrigin(0).setScrollFactor(0).setInteractive();
 
         // Modal background
         const modalBg = this.add.rectangle(width / 2, height / 2, width * 0.8, height * 0.8, 0x000000, 0.9).setScrollFactor(0);
@@ -6565,7 +6588,7 @@ class DeathScene extends Phaser.Scene {
                 .on('pointerout', () => registerBtn.setFillStyle(0x4ade80));
         } else {
             registerBtn.setFillStyle(0x6b7280);
-            registerText.setColor(0x9ca3af);
+            registerText.setColor('#9ca3af');
             registerText.setText(`SCORE: ${Math.floor(this.finalScore)}`);
         }
 
@@ -6755,8 +6778,8 @@ class DeathScene extends Phaser.Scene {
             console.log('═══════════════════════════════════════════════════════');
             console.log('🎮 Jogador:', playerName);
             console.log('📊 Score Final (this.finalScore):', this.finalScore);
-            console.log('📈 Wave Final (this.currentWave):', this.currentWave);
-            console.log('⏰ Tempo Final (this.time.now - this.gameStartTime):', Math.floor((this.time.now - this.gameStartTime) / 1000));
+            console.log('📈 Wave Final:', this.finalWave);
+            console.log('⏰ Tempo de Jogo:', this.playTime, 's');
             console.log('⚔️ Inimigos Mortos:', this.enemiesDefeated);
             
             // 🛑 CRÍTICO: Validação OBRIGATÓRIA - Bloquear se score for 0
@@ -6896,9 +6919,9 @@ class DeathScene extends Phaser.Scene {
             try {
                 const savePayload = {
                     playerName: playerName,
-                    score: Math.floor(this.finalScore || this.score),
-                    wave: this.finalWave || this.currentWave || 1,
-                    enemiesDefeated: this.finalEnemiesDefeated || this.enemiesDefeated || 0,
+                    score: Math.floor(this.finalScore),
+                    wave: this.finalWave || 1,
+                    enemiesDefeated: this.enemiesDefeated || 0,
                     playTime: this.playTime || 0
                 };
                 console.log("Enviando para /api/saveScore:", savePayload);

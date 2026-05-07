@@ -165,7 +165,7 @@ export default function Home() {
           setInventory(inventoryData);
           (window as any).walletAddress = userAddress; // Store for game scene usage
 
-          // Fetch user profile from Supabase to get player_name
+          // Fetch user profile from backend to get player_name
           try {
             const profileResponse = await fetch(`/api/character-state/${userAddress}`);
             if (profileResponse.ok) {
@@ -187,7 +187,7 @@ export default function Home() {
       // Race against global timeout
       return await Promise.race([fetchDataPromise, timeoutPromise]) as { upgrades: any, inventory: any };
     } catch (e) {
-      console.error("Error fetching data for game start (falling back to local):", e);
+      console.warn("No wallet connected or data load timed out, using local fallback:", e);
       return null;
     }
   };

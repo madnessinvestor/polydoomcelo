@@ -19,12 +19,12 @@ export const fetchOnChainLeaderboard = async () => {
             const localResponse = await fetch("/api/leaderboard");
             if (localResponse.ok) {
                 localScores = await localResponse.json();
-                console.log("✅ Dados do Supabase carregados:", localScores.length, "itens");
+                console.log("✅ Dados do backend carregados:", localScores.length, "itens");
             } else {
                 console.error("❌ Erro na resposta do backend:", localResponse.status);
             }
         } catch (e) {
-            console.error("❌ Erro ao buscar scores do Supabase:", e);
+            console.error("❌ Erro ao buscar scores do backend:", e);
         }
 
         const publicRpcUrl = "https://rpc.testnet.arc.network";
@@ -77,7 +77,7 @@ export const fetchOnChainLeaderboard = async () => {
             return { playerName: name.trim() || "Anonymous", score: scoreValue, onChain: true };
         }).filter(s => s.score > 0);
 
-        // Mesclar dados: Prioridade para o que está no Supabase, mas adiciona o que for novo da Blockchain
+        // Mesclar dados: Prioridade para o que está no backend, mas adiciona o que for novo da Blockchain
         const combined = [...localScores];
         
         normalizedOnChain.forEach(onChainScore => {
