@@ -43,9 +43,8 @@ waitForPort = 5000
 
 [agent]
 expertMode = true
+stack = "FULLSTACK_JS"
 
 [userenv]
 
 [userenv.shared]
-SUPABASE_URL = "https://yidsvyvlykdtxjpyhwip.supabase.co"
-SUPABASE_SERVICE_ROLE_KEY = "sb_secret_35TZ7hJmm_1gKe2ysyX03w_Ir7KIxT-"
