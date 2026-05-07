@@ -34,6 +34,24 @@ declare global {
   }
 }
 
+const GAME_W = 1920;
+const GAME_H = 1080;
+
+function useGameScale() {
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const calc = () => {
+      const scaleX = window.innerWidth / GAME_W;
+      const scaleY = window.innerHeight / GAME_H;
+      setScale(Math.min(scaleX, scaleY));
+    };
+    calc();
+    window.addEventListener("resize", calc);
+    return () => window.removeEventListener("resize", calc);
+  }, []);
+  return scale;
+}
+
 export default function Home() {
   const { isLocked, openModal, closeModal, activeModal } = useUI();
   const [isConnected, setIsConnected] = useState(true);
@@ -44,6 +62,7 @@ export default function Home() {
     immunity: 0,
     score: 0
   });
+  const scale = useGameScale();
 
   const ARC_TESTNET_CONFIG = {
     chainId: "0x4cef52", // Updated to 0x4cef52 based on actual network ID seen in logs
@@ -443,37 +462,61 @@ export default function Home() {
         />
       )}
 
-      <div className={`w-full flex flex-col items-center transition-all duration-300 ${isLocked ? "scale-[0.98] blur-[2px]" : "scale-100 blur-0"}`}>
-        {/* Loading Overlay */}
-        {isChecking && (
-          <div className="fixed inset-0 z-[3000] bg-black flex flex-col items-center justify-center">
-            <div className="relative w-64 h-64 mb-8">
-              <Loader2 className="w-full h-full text-[#4ade80] animate-spin opacity-20" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-[#4ade80] font-black text-4xl animate-pulse tracking-tighter italic">
-                  LOADING
-                </div>
+      {/* Loading Overlay */}
+      {isChecking && (
+        <div className="fixed inset-0 z-[3000] bg-black flex flex-col items-center justify-center">
+          <div className="relative w-64 h-64 mb-8">
+            <Loader2 className="w-full h-full text-[#4ade80] animate-spin opacity-20" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-[#4ade80] font-black text-4xl animate-pulse tracking-tighter italic">
+                LOADING
               </div>
             </div>
-            <div className="space-y-2 text-center">
-              <p className="text-[#4ade80]/60 font-bold uppercase tracking-[0.3em] text-sm animate-pulse">
-                Reading on-chain data...
-              </p>
-            </div>
           </div>
-        )}
+          <div className="space-y-2 text-center">
+            <p className="text-[#4ade80]/60 font-bold uppercase tracking-[0.3em] text-sm animate-pulse">
+              Reading on-chain data...
+            </p>
+          </div>
+        </div>
+      )}
 
-        {/* Game Container */}
-        <div className="relative mt-8">
+      {/* Game Viewport — sizes to exactly the scaled canvas */}
+      <div
+        style={{
+          width: `${GAME_W * scale}px`,
+          height: `${GAME_H * scale}px`,
+          position: "relative",
+          overflow: "hidden",
+          margin: "0 auto",
+        }}
+      >
+        {/* Scaled canvas wrapper */}
+        <div
+          style={{
+            width: `${GAME_W}px`,
+            height: `${GAME_H}px`,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            position: "absolute",
+            top: 0,
+            left: 0,
+          }}
+        >
           {isLocked && (
-            <div 
-              className="absolute inset-0 z-[2000] bg-transparent cursor-not-allowed" 
+            <div
+              className="absolute inset-0 z-[2000] bg-transparent cursor-not-allowed"
+              style={{ width: GAME_W, height: GAME_H }}
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
               onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
             />
           )}
-          <div id="game-container" className="shadow-2xl border-4 border-slate-800 rounded-lg overflow-hidden relative" style={{ width: '1920px', height: '1080px' }} />
+          <div
+            id="game-container"
+            className="shadow-2xl overflow-hidden relative"
+            style={{ width: `${GAME_W}px`, height: `${GAME_H}px` }}
+          />
         </div>
       </div>
     </div>
