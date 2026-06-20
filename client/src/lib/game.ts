@@ -3364,7 +3364,7 @@ class MainScene extends Phaser.Scene {
         const x = Phaser.Math.Between(50, width - 50);
         const y = -50;
 
-        const itemTypes = ['ArcHP', 'ArcKI', 'ArcPower', 'ArcScore', 'ArcBarrier'];
+        const itemTypes = ['CeloHP', 'CeloKI', 'CeloPower', 'CeloScore', 'CeloBarrier'];
         const type = Phaser.Utils.Array.GetRandom(itemTypes);
 
         const item = this.items.create(x, y, 'jungle_tiles', 0) as Phaser.Physics.Arcade.Sprite;
@@ -3444,47 +3444,45 @@ class MainScene extends Phaser.Scene {
         });
 
         switch (type) {
-            case 'ArcHP':
-                // Recupera 50% do HP, sem aumentar o limite máximo
+            case 'CeloHP':
                 this.health = Math.min(this.maxHealth, this.health + this.maxHealth * 0.5);
                 this.cameras.main.flash(200, 0, 255, 0, true);
-                this.showPickupNotification('ArcHP', 'Restores 50% Health.');
+                this.showPickupNotification('CeloHP', 'Restores 50% Health.');
                 break;
-            case 'ArcKI':
-                // Recupera 100% do KI, sem aumentar o limite máximo
+            case 'CeloKI':
                 this.kiarc = this.maxKiarc;
                 this.cameras.main.flash(200, 0, 0, 255, true);
-                this.showPickupNotification('ArcKI', 'Restores 100% Energy (KI).');
+                this.showPickupNotification('CeloKI', 'Restores 100% Energy (KI).');
                 break;
-            case 'ArcPower':
+            case 'CeloPower':
                 this.hasDamageBoost = true;
-                this.addBuff('ArcPower', 'Damage Boost', 'Doubles all character damage (Z, C, V, B, F and S).', 20);
+                this.addBuff('CeloPower', 'Damage Boost', 'Doubles all character damage (Z, C, V, B, F and S).', 20);
                 this.cameras.main.flash(500, 255, 0, 0, true);
-                this.showPickupNotification('ArcPower', 'Double Damage for 20 seconds!');
+                this.showPickupNotification('CeloPower', 'Double Damage for 20 seconds!');
                 this.time.delayedCall(20000, () => {
                     this.hasDamageBoost = false;
-                    this.removeBuff('ArcPower');
+                    this.removeBuff('CeloPower');
                 });
                 break;
-            case 'ArcScore':
+            case 'CeloScore':
                 this.hasScoreBoost = true;
-                this.addBuff('ArcScore', 'Score Boost', 'Doubles all score gained from enemies and bosses.', 20);
+                this.addBuff('CeloScore', 'Score Boost', 'Doubles all score gained from enemies and bosses.', 20);
                 this.cameras.main.flash(500, 255, 215, 0, true);
-                this.showPickupNotification('ArcScore', 'Double Score for 20 seconds!');
+                this.showPickupNotification('CeloScore', 'Double Score for 20 seconds!');
                 this.time.delayedCall(20000, () => {
                     this.hasScoreBoost = false;
-                    this.removeBuff('ArcScore');
+                    this.removeBuff('CeloScore');
                 });
                 break;
-            case 'ArcBarrier':
+            case 'CeloBarrier':
                 this.isInvincible = true;
-                this.invincibilityTimer = 20000; // 20 seconds
-                this.addBuff('ArcBarrier', 'Invincibility', 'Character becomes invincible and takes no damage.', 20);
+                this.invincibilityTimer = 20000;
+                this.addBuff('CeloBarrier', 'Invincibility', 'Character becomes invincible and takes no damage.', 20);
                 this.cameras.main.flash(300, 255, 0, 255, true);
-                this.showPickupNotification('ArcBarrier', 'Invincibility for 20 seconds!');
+                this.showPickupNotification('CeloBarrier', 'Invincibility for 20 seconds!');
                 this.time.delayedCall(20000, () => {
                     this.isInvincible = false;
-                    this.removeBuff('ArcBarrier');
+                    this.removeBuff('CeloBarrier');
                 });
                 break;
         }
@@ -3555,9 +3553,9 @@ class MainScene extends Phaser.Scene {
 
     private getItemColor(type: string): number {
         switch (type) {
-            case 'ArcPower': return 0xff0000;
-            case 'ArcScore': return 0xffd700;
-            case 'ArcBarrier': return 0x800080;
+            case 'CeloPower': return 0xff0000;
+            case 'CeloScore': return 0xffd700;
+            case 'CeloBarrier': return 0x800080;
             default: return 0xffffff;
         }
     }
@@ -3573,7 +3571,7 @@ class MainScene extends Phaser.Scene {
             const size = 15 * pulse;
 
             switch (type) {
-                case 'ArcHP': // Circle, Green, + icon
+                case 'CeloHP': // Circle, Green, + icon
                     graphics.lineStyle(2, 0xffffff, 1);
                     graphics.fillStyle(0x00ff00, 0.8);
                     graphics.fillCircle(item.x, item.y, size);
@@ -3582,7 +3580,7 @@ class MainScene extends Phaser.Scene {
                     graphics.lineBetween(item.x - 5, item.y, item.x + 5, item.y);
                     graphics.lineBetween(item.x, item.y - 5, item.x, item.y + 5);
                     break;
-                case 'ArcKI': // Hexagon, Blue, lightning
+                case 'CeloKI': // Hexagon, Blue, lightning
                     graphics.lineStyle(2, 0xffffff, 1);
                     graphics.fillStyle(0x0000ff, 0.8);
                     const points = this.createPolygonGeometry(6, size);
@@ -3603,7 +3601,7 @@ class MainScene extends Phaser.Scene {
                     graphics.lineTo(item.x - 2, item.y + 7);
                     graphics.strokePath();
                     break;
-                case 'ArcPower': // Triangle, Red, Up arrow
+                case 'CeloPower': // Triangle, Red, Up arrow
                     graphics.lineStyle(2, 0xffffff, 1);
                     graphics.fillStyle(0xff0000, 0.8);
                     const tPoints = this.createPolygonGeometry(3, size);
@@ -3616,7 +3614,7 @@ class MainScene extends Phaser.Scene {
                     graphics.fillPath();
                     graphics.strokePath();
                     break;
-                case 'ArcScore': // Star, Gold, particles
+                case 'CeloScore': // Star, Gold, particles
                     graphics.lineStyle(2, 0xffffff, 1);
                     graphics.fillStyle(0xffd700, 0.8);
                     // Draw simple star
@@ -3634,7 +3632,7 @@ class MainScene extends Phaser.Scene {
                     graphics.fillPath();
                     graphics.strokePath();
                     break;
-                case 'ArcBarrier': // Square, Purple, shield icon
+                case 'CeloBarrier': // Square, Purple, shield icon
                     graphics.lineStyle(2, 0xffffff, 1);
                     graphics.fillStyle(0x800080, 0.8);
                     graphics.fillRect(item.x - size, item.y - size, size * 2, size * 2);
@@ -4628,9 +4626,9 @@ class MainScene extends Phaser.Scene {
         this.buffIconsContainer.setAlpha(0.8); // 20% more transparent
         
         const activeBuffs = [];
-        if (this.hasPowerBoost) activeBuffs.push({ type: 'ArcPower', title: 'Arc Power Boost', text: 'Doubles all character damage (Punch, Magic and Arcamehameha).', duration: 'Match' });
-        if (this.hasScoreBoost) activeBuffs.push({ type: 'ArcScore', title: 'Arc Score Boost', text: 'Doubles all score gained from enemies and bosses.', duration: 'Match' });
-        if (this.isInvincible) activeBuffs.push({ type: 'ArcBarrier', title: 'Arc Barrier', text: 'Character becomes invincible and takes no damage.', duration: `${Math.ceil(this.invincibilityTimer / 1000)}s` });
+        if (this.hasPowerBoost) activeBuffs.push({ type: 'CeloPower', title: 'Celo Power Boost', text: 'Doubles all character damage (Punch, Magic and Celo-Kamehameha).', duration: 'Match' });
+        if (this.hasScoreBoost) activeBuffs.push({ type: 'CeloScore', title: 'Celo Score Boost', text: 'Doubles all score gained from enemies and bosses.', duration: 'Match' });
+        if (this.isInvincible) activeBuffs.push({ type: 'CeloBarrier', title: 'Celo Barrier', text: 'Character becomes invincible and takes no damage.', duration: `${Math.ceil(this.invincibilityTimer / 1000)}s` });
 
         activeBuffs.forEach((buff, index) => {
             const x = index * 45;
@@ -4639,7 +4637,7 @@ class MainScene extends Phaser.Scene {
             iconBg.fillStyle(this.getBuffColor(buff.type), 0.8);
             
             const size = 15;
-            if (buff.type === 'ArcPower') {
+            if (buff.type === 'CeloPower') {
                 const points = this.createPolygonGeometry(3, size);
                 iconBg.beginPath();
                 iconBg.moveTo(points[0].x, points[0].y);
@@ -4647,7 +4645,7 @@ class MainScene extends Phaser.Scene {
                 iconBg.closePath();
                 iconBg.fillPath();
                 iconBg.strokePath();
-            } else if (buff.type === 'ArcScore') {
+            } else if (buff.type === 'CeloScore') {
                 const starPoints = 5;
                 iconBg.beginPath();
                 for (let i = 0; i < starPoints * 2; i++) {
@@ -4661,7 +4659,7 @@ class MainScene extends Phaser.Scene {
                 iconBg.closePath();
                 iconBg.fillPath();
                 iconBg.strokePath();
-            } else if (buff.type === 'ArcBarrier') {
+            } else if (buff.type === 'CeloBarrier') {
                 iconBg.fillRect(-size, -size, size * 2, size * 2);
                 iconBg.strokeRect(-size, -size, size * 2, size * 2);
             }
@@ -4747,9 +4745,9 @@ class MainScene extends Phaser.Scene {
 
     private getBuffColor(type: string): number {
         switch (type) {
-            case 'ArcPower': return 0xff0000;
-            case 'ArcScore': return 0xffd700;
-            case 'ArcBarrier': return 0x800080;
+            case 'CeloPower': return 0xff0000;
+            case 'CeloScore': return 0xffd700;
+            case 'CeloBarrier': return 0x800080;
             default: return 0xffffff;
         }
     }
@@ -6072,7 +6070,7 @@ class StartScene extends Phaser.Scene {
                         <span style="color: #fbbf24;">Z KEY (HOLD)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
-                        <span>MAGIC KIARC</span>
+                        <span>MAGIC CELOKI</span>
                         <span style="color: #fbbf24;">C KEY (PRESS)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
@@ -6083,35 +6081,35 @@ class StartScene extends Phaser.Scene {
                 <div>
                     <h3 style="color: #fbbf24; border-bottom: 2px solid #fbbf24; padding-bottom: 5px; margin-bottom: 15px;">SPECIAL ABILITIES</h3>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
-                        <span>CHARGE ARCKI</span>
+                        <span>CHARGE CELOKI</span>
                         <div style="text-align: right;">
                             <span style="color: #fbbf24;">X KEY (HOLD)</span><br/>
                             <small style="color: #60a5fa;">KI: +REC | CD: 0s</small>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
-                        <span>ARCKAMEHAMEHA</span>
+                        <span>CELO-KAMEHAMEHA</span>
                         <div style="text-align: right;">
                             <span style="color: #fbbf24;">V KEY (HOLD/RELEASE)</span><br/>
                             <small style="color: #60a5fa;">KI: 100 | CD: 5s</small>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
-                        <span>ARCGENKIDAMA</span>
+                        <span>CELO-GENKIDAMA</span>
                         <div style="text-align: right;">
                             <span style="color: #fbbf24;">B KEY (HOLD/RELEASE)</span><br/>
                             <small style="color: #60a5fa;">KI: 50 | CD: 30s</small>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
-                        <span>EXPLOSION KIARC</span>
+                        <span>EXPLOSION CELOKI</span>
                         <div style="text-align: right;">
                             <span style="color: #fbbf24;">F KEY (PRESS)</span><br/>
                             <small style="color: #60a5fa;">KI: 100 | CD: 5s</small>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding: 5px 0;">
-                        <span>MAGIC KIARC</span>
+                        <span>MAGIC CELOKI</span>
                         <div style="text-align: right;">
                             <span style="color: #fbbf24;">C KEY (PRESS)</span><br/>
                             <small style="color: #60a5fa;">KI: 5 | CD: 0s</small>

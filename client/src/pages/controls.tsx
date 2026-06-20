@@ -66,7 +66,7 @@ export default function Controls() {
                   <h3 className="text-green-500 font-bold uppercase font-pixel-label" style={{ fontSize: '1.43rem' }}>Items Keys</h3>
                   <div className="flex flex-wrap justify-center gap-6">
                     <Key label="Q" action="Heal HP" active />
-                    <Key label="W" action="Rest. Kiarc" active />
+                    <Key label="W" action="Rest. CeloKi" active />
                     <Key label="E" action="Immunity" active />
                     <Key label="R" action="Score X2" active />
                   </div>
@@ -96,8 +96,8 @@ export default function Controls() {
 
                     <div className="flex flex-wrap justify-center content-center gap-6">
                       <Key label="Z" action="Punch (Melee)" active />
-                      <Key label="X" action="Charge KiArc (Hold)" active />
-                      <Key label="C" action="Magic KiArc" active />
+                      <Key label="X" action="Charge CeloKi (Hold)" active />
+                      <Key label="C" action="Magic CeloKi" active />
                       <Key label="D" action="Defend (Hold)" active />
                       <div className="flex flex-col items-center gap-1">
                         <div className="w-16 h-8 flex items-center justify-center border-2 border-green-500/30 bg-green-950/40 rounded font-bold text-xs text-white">
