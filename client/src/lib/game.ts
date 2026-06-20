@@ -2622,7 +2622,7 @@ class MainScene extends Phaser.Scene {
         this.player.setVelocity(0, 0);
         this.sfx['kamehameha_charge']?.play({ loop: true });
         
-        this.kamehamehaText = this.add.text(this.player.x, this.player.y - 40, 'Arc.....', {
+        this.kamehamehaText = this.add.text(this.player.x, this.player.y - 40, 'Celo.....', {
             fontSize: '18px',
             color: '#add8e6',
             fontStyle: 'bold',
@@ -2695,7 +2695,7 @@ class MainScene extends Phaser.Scene {
         
         if (this.kamehamehaText && this.kamehamehaText.active) {
             try {
-                this.kamehamehaText.setText('Arc...... Kamehamehaaaaa!!!!');
+                this.kamehamehaText.setText('Celo Kamehamehaaa!!!');
                 this.kamehamehaText.setColor('#ffffff');
                 this.kamehamehaText.setFontSize(24);
                 
@@ -2917,7 +2917,7 @@ class MainScene extends Phaser.Scene {
                 this.sfx['genkidama_charge']?.play({ loop: true });
                 this.genkidama = this.add.circle(this.player.x, this.player.y - 100, 10, 0xadd8e6, 0.6);
                 
-                this.genkidamaText = this.add.text(this.player.x, this.player.y - 30, 'All Arcs, share your power', {
+                this.genkidamaText = this.add.text(this.player.x, this.player.y - 30, 'All Celo Users share your power', {
                     fontSize: '14px',
                     color: '#add8e6',
                     fontStyle: 'bold',
