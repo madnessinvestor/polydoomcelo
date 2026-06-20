@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -8,18 +8,12 @@ import { ethers } from "ethers";
 import { useUI } from "@/hooks/use-ui";
 
 const SHOP_CONTRACT_ADDRESS = "0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a";
-const USDC_ADDRESS = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C"; // USDC on Celo Mainnet
 
 const SHOP_ABI = [
-  "function buyHealthPotion() external",
-  "function buyKiPotion() external",
-  "function buyImmunityPotion() external",
-  "function buyScorePotion() external"
-];
-
-const ERC20_ABI = [
-  "function approve(address spender, uint256 amount) external returns (bool)",
-  "function allowance(address owner, address spender) external view returns (uint256)"
+  "function buyHealthPotion() external payable",
+  "function buyKiPotion() external payable",
+  "function buyImmunityPotion() external payable",
+  "function buyScorePotion() external payable"
 ];
 
 interface Potion {
@@ -28,7 +22,7 @@ interface Potion {
   type: string;
   effect: string;
   description: string;
-  price: number;
+  price: string;
   icon: any;
   color: string;
 }
@@ -40,7 +34,7 @@ const POTIONS: Potion[] = [
     type: "Consumable",
     effect: "Restores 100% HP instantly",
     description: "A basic potion that fully restores health.",
-    price: 100,
+    price: "1",
     icon: Beaker,
     color: "text-red-500"
   },
@@ -50,7 +44,7 @@ const POTIONS: Potion[] = [
     type: "Consumable",
     effect: "Restores 100% Ki instantly",
     description: "Pure Celo energy condensed into liquid form.",
-    price: 100,
+    price: "1",
     icon: Zap,
     color: "text-blue-500"
   },
@@ -60,7 +54,7 @@ const POTIONS: Potion[] = [
     type: "Consumable",
     effect: "Total immunity for 30 seconds",
     description: "Absolute protection against all threats — for a short time.",
-    price: 500,
+    price: "5",
     icon: Shield,
     color: "text-yellow-500"
   },
@@ -70,7 +64,7 @@ const POTIONS: Potion[] = [
     type: "Consumable",
     effect: "200% score for 100 seconds",
     description: "Every enemy defeated is worth double while the effect lasts.",
-    price: 100,
+    price: "1",
     icon: Star,
     color: "text-purple-500"
   }
@@ -79,7 +73,7 @@ const POTIONS: Potion[] = [
 export function ShoppingModal({ onClose }: { onClose: () => void }) {
   const { isLocked } = useUI();
   const [isBuying, setIsBuying] = useState<string | null>(null);
-  const [balance, setBalance] = useState<string>("0.00");
+  const [balance, setBalance] = useState<string>("0.0000");
   const [inventory, setInventory] = useState<Record<string, number>>({
     health: 0,
     ki: 0,
@@ -93,12 +87,10 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
         const provider = new ethers.BrowserProvider((window as any).ethereum);
         const signer = await provider.getSigner();
         const userAddress = await signer.getAddress();
-        
-        const usdcContract = new ethers.Contract(USDC_ADDRESS, ["function balanceOf(address) view returns (uint256)"], provider);
-        const balanceWei = await usdcContract.balanceOf(userAddress);
-        setBalance(ethers.formatUnits(balanceWei, 6));
+        const balanceWei = await provider.getBalance(userAddress);
+        setBalance(parseFloat(ethers.formatEther(balanceWei)).toFixed(4));
       } catch (error) {
-        console.error("Failed to fetch balance:", error);
+        console.error("Failed to fetch CELO balance:", error);
       }
     }
   };
@@ -110,27 +102,21 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
           const provider = new ethers.BrowserProvider((window as any).ethereum);
           const signer = await provider.getSigner();
           const userAddress = await signer.getAddress();
-          
+
           await fetchBalance();
-          
-          // Use wallet address as key for inventory
+
           const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
           const savedInventory = localStorage.getItem(inventoryKey);
-          
+
           if (savedInventory) {
             const parsed = JSON.parse(savedInventory);
             setInventory(parsed);
-            
-            // Sync with game if running
             if (window.game) {
               (window.game as any).playerInventory = parsed;
               const scene = (window.game as any).scene.getScene('MainScene');
-              if (scene) {
-                scene.events.emit('sync_inventory', parsed);
-              }
+              if (scene) scene.events.emit('sync_inventory', parsed);
             }
           } else {
-            // Initialize empty inventory for new wallet
             const initial = { health: 0, ki: 0, immunity: 0, score: 0 };
             setInventory(initial);
             localStorage.setItem(inventoryKey, JSON.stringify(initial));
@@ -139,14 +125,11 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
           console.error("Failed to fetch wallet for inventory:", error);
         }
       } else {
-        // Fallback to generic if no wallet
         const savedInventory = localStorage.getItem('player_inventory');
-        if (savedInventory) {
-          setInventory(JSON.parse(savedInventory));
-        }
+        if (savedInventory) setInventory(JSON.parse(savedInventory));
       }
     };
-    
+
     fetchInventory();
   }, []);
 
@@ -158,39 +141,27 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
       }
 
       setIsBuying(potion.id);
-      
+
       const provider = new ethers.BrowserProvider((window as any).ethereum);
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
-      
+
       const shopContract = new ethers.Contract(SHOP_CONTRACT_ADDRESS, SHOP_ABI, signer);
-      const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
+      const priceInWei = ethers.parseEther(potion.price);
 
-      const priceInWei = ethers.parseUnits(potion.price.toString(), 6); // USDC typically has 6 decimals
-      
-      // 1. Check Allowance
-      const allowance = await usdcContract.allowance(userAddress, SHOP_CONTRACT_ADDRESS);
-      if (allowance < priceInWei) {
-        console.log("Approving USDC...");
-        const approveTx = await usdcContract.approve(SHOP_CONTRACT_ADDRESS, ethers.MaxUint256);
-        await approveTx.wait();
-        console.log("USDC Approved!");
-      }
-
-      // 2. Call Contract Function
       let tx;
       switch (potion.id) {
         case "health":
-          tx = await shopContract.buyHealthPotion();
+          tx = await shopContract.buyHealthPotion({ value: priceInWei });
           break;
         case "ki":
-          tx = await shopContract.buyKiPotion();
+          tx = await shopContract.buyKiPotion({ value: priceInWei });
           break;
         case "immunity":
-          tx = await shopContract.buyImmunityPotion();
+          tx = await shopContract.buyImmunityPotion({ value: priceInWei });
           break;
         case "score":
-          tx = await shopContract.buyScorePotion();
+          tx = await shopContract.buyScorePotion({ value: priceInWei });
           break;
         default:
           throw new Error("Invalid potion type");
@@ -199,11 +170,9 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
       console.log("Transaction sent:", tx.hash);
       await tx.wait();
       console.log("Transaction confirmed!");
-      
-      // Update balance after purchase
+
       await fetchBalance();
-      
-      // Update local state for immediate feedback
+
       const inventoryKey = `player_inventory_${userAddress.toLowerCase()}`;
       const currentSaved = localStorage.getItem(inventoryKey);
       const currentInv = currentSaved ? JSON.parse(currentSaved) : inventory;
@@ -212,16 +181,14 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
         ...currentInv,
         [potion.id]: (currentInv[potion.id] || 0) + 1
       };
-      
+
       setInventory(newInventory);
       localStorage.setItem(inventoryKey, JSON.stringify(newInventory));
-      
+
       if (window.game) {
         (window.game as any).playerInventory = newInventory;
         const scene = (window.game as any).scene.getScene('MainScene');
-        if (scene) {
-          scene.events.emit('sync_inventory', newInventory);
-        }
+        if (scene) scene.events.emit('sync_inventory', newInventory);
       }
 
       alert(`${potion.name} purchased successfully on-chain!`);
@@ -246,7 +213,7 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
               <div className="bg-blue-950/40 border border-blue-500/30 px-4 py-2 rounded-none">
                 <span className="text-blue-400 text-xs font-bold uppercase tracking-wider block opacity-70">My Balance</span>
                 <span className="text-white font-mono text-3xl font-black">
-                  {balance} <span className="text-blue-500 text-lg">USDC</span>
+                  {balance} <span className="text-[#FCFF52] text-lg">CELO</span>
                 </span>
               </div>
               <span className="text-[20px] text-blue-400/60 font-bold uppercase mt-1 tracking-widest">
@@ -279,8 +246,8 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
                           </div>
                           <p className="text-blue-400 font-bold mb-1 italic font-pixel-content" style={{ fontSize: '0.78rem' }}>{potion.effect}</p>
                           <p className="text-slate-400 mb-4 h-10 line-clamp-2 font-pixel-content" style={{ fontSize: '0.78rem' }}>{potion.description}</p>
-                          
-                          <Button 
+
+                          <Button
                             onClick={() => handleBuy(potion)}
                             disabled={!!isBuying}
                             className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold h-12 text-lg uppercase tracking-wider rounded-none shadow-lg border-none"
@@ -288,7 +255,7 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
                             {isLoading ? (
                               <Loader2 className="h-5 w-5 animate-spin" />
                             ) : (
-                              `Buy - ${potion.price} USDC`
+                              `Buy — ${potion.price} CELO`
                             )}
                           </Button>
                         </div>
@@ -301,7 +268,7 @@ export function ShoppingModal({ onClose }: { onClose: () => void }) {
           </ScrollArea>
         </CardContent>
         <div className="p-6 border-t border-slate-800 flex justify-center">
-          <Button 
+          <Button
             onClick={onClose}
             className="bg-[#FF6B6B] hover:bg-[#FF5252] text-black font-bold px-12 h-12 text-lg uppercase tracking-wider rounded-none transition-all hover:scale-105 active:scale-95 shadow-lg"
           >

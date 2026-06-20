@@ -5,6 +5,7 @@ import { ShieldCheck, Loader2, ArrowUpCircle, Beaker, Zap, Shield, Star } from "
 import { PauseModal } from "@/components/pause-modal";
 import { UpgradesModal } from "@/components/upgrades-modal";
 import { ShoppingModal } from "@/components/shopping-modal";
+import { ProofOfShipModal } from "@/components/proof-of-ship-modal";
 import { Leaderboard } from "@/components/leaderboard";
 import { ethers } from "ethers";
 import { useUI } from "@/hooks/use-ui";
@@ -349,6 +350,12 @@ export default function Home() {
     };
     (window as any).openHistoryModal = triggerHistory;
 
+    const triggerProofOfShip = () => {
+      console.log("React: triggerProofOfShip called");
+      openModal("proofofship");
+    };
+    (window as any).openProofOfShipModal = triggerProofOfShip;
+
     return () => {
       delete (window as any).showPauseModal;
       delete (window as any).hidePauseModal;
@@ -359,6 +366,7 @@ export default function Home() {
       delete (window as any).openSettingsModal;
       delete (window as any).openControlsModal;
       delete (window as any).openHistoryModal;
+      delete (window as any).openProofOfShipModal;
     };
   }, [isConnected]);
 
@@ -422,6 +430,9 @@ export default function Home() {
       )}
       {activeModal === "shopping" && (
         <ShoppingModal onClose={() => closeModal()} />
+      )}
+      {activeModal === "proofofship" && (
+        <ProofOfShipModal onClose={() => closeModal()} />
       )}
       {activeModal === "leaderboard" && (
         <Leaderboard />

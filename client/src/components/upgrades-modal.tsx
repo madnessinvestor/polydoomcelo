@@ -133,12 +133,10 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
         const provider = new ethers.BrowserProvider((window as any).ethereum);
         const signer = await provider.getSigner();
         const userAddress = await signer.getAddress();
-        const usdcAddress = "0x3600000000000000000000000000000000000000";
-        const usdcContract = new ethers.Contract(usdcAddress, ["function balanceOf(address) view returns (uint256)"], provider);
-        const balanceWei = await usdcContract.balanceOf(userAddress);
-        setBalance(ethers.formatUnits(balanceWei, 6));
+        const balanceWei = await provider.getBalance(userAddress);
+        setBalance(parseFloat(ethers.formatEther(balanceWei)).toFixed(4));
       } catch (error) {
-        console.error("Failed to fetch balance:", error);
+        console.error("Failed to fetch CELO balance:", error);
       }
     }
   };
@@ -208,65 +206,44 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
       
-      const usdcAddress = "0x3600000000000000000000000000000000000000"; 
       const upgradeContractAddress = "0x6101d4D79C6573c570eAA0eeabff13e663c17c08";
-      
-      const usdcAbi = [
-        "function transfer(address to, uint256 amount) public returns (bool)",
-        "function approve(address spender, uint256 amount) public returns (bool)",
-        "function allowance(address owner, address spender) public view returns (uint256)",
-        "function symbol() public view returns (string)",
-        "function decimals() public view returns (uint8)"
-      ];
 
       const upgradeAbi = [
-        "function upgradeHP() public",
-        "function upgradeKI() public",
-        "function upgradeDamage() public",
-        "function upgradeDefense() public",
-        "function upgradeRegen() public",
-        "function upgradeVamp() public",
+        "function upgradeHP() public payable",
+        "function upgradeKI() public payable",
+        "function upgradeDamage() public payable",
+        "function upgradeDefense() public payable",
+        "function upgradeRegen() public payable",
+        "function upgradeVamp() public payable",
         "function upgrades(address) public view returns (uint256 hp, uint256 ki, uint256 damage, uint256 defence, uint256 regen, uint256 vamp)",
         "function defencePrices(uint256) public view returns (uint256)"
       ];
-      
-      const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, signer);
+
       const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
 
       // Specific check for CeloDefence
       if (id === "celo_defence") {
-        // Always read upgrades(userAddress).defence as source of truth
-        // Calculate price using defencePrices[defence]
         try {
           const onChainData = await upgradeContract.upgrades(userAddress);
           const currentOnChainDefence = Number(onChainData.defence);
-          
+
           if (currentOnChainDefence >= 10) {
             throw new Error("Maximum defense level reached on-chain.");
           }
 
           const price = await upgradeContract.defencePrices(currentOnChainDefence);
           if (price === BigInt(0)) {
-            throw new Error(`Defense level ${currentOnChainDefence + 1} not available (defencePrices[${currentOnChainDefence}] == 0).`);
+            throw new Error(`Defense level ${currentOnChainDefence + 1} not available.`);
           }
-          
+
           console.log(`Validated on-chain: Current Level ${currentOnChainDefence}, Price ${price.toString()}`);
         } catch (e: any) {
           throw new Error("On-chain validation error (CeloDefence): " + (e.reason || e.message));
         }
       }
-      
-      const amount = ethers.parseUnits(nextTier.price.toString(), 6);
-      const currentAllowance = await usdcContract.allowance(userAddress, upgradeContractAddress);
-      
-      const amountToApprove = ethers.MaxUint256;
-      if (currentAllowance < amount) {
-        console.log("Approving USDC...");
-        const approveTx = await usdcContract.approve(upgradeContractAddress, amountToApprove);
-        await approveTx.wait();
-        console.log("USDC Approved");
-      }
-      
+
+      const priceInWei = ethers.parseEther(nextTier.price.toString());
+
       const functionMap: Record<string, string> = {
         celo_hp: "upgradeHP",
         celo_ki: "upgradeKI",
@@ -279,10 +256,10 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       const functionName = functionMap[id];
       if (!functionName) throw new Error("Unknown upgrade function");
 
-      console.log(`Calling ${functionName} on upgrade contract...`);
-      
-      // Manual gas limit for upgradeDefense to prevent estimateGas failure
-      const txOptions = id === "celo_defence" ? { gasLimit: 500000 } : {};
+      console.log(`Calling ${functionName} on upgrade contract with ${nextTier.price} CELO...`);
+
+      const txOptions: any = { value: priceInWei };
+      if (id === "celo_defence") txOptions.gasLimit = 500000;
       const tx = await upgradeContract[functionName](txOptions);
       
       console.log("Transaction sent:", tx.hash);
@@ -348,7 +325,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
             <div className="bg-green-950/40 border border-green-500/30 px-3 py-1 rounded-none">
               <span className="text-green-400 text-[10px] font-bold uppercase tracking-wider block opacity-70">Balance</span>
               <span className="text-white font-mono text-2xl font-black">
-                {balance} <span className="text-green-500 text-sm">USDC</span>
+                {balance} <span className="text-[#FCFF52] text-sm">CELO</span>
               </span>
             </div>
           </div>
@@ -422,7 +399,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
                                     Processing...
                                   </>
                                 ) : (
-                                  `Upgrade - ${nextTier.price} USDC`
+                                  `Upgrade — ${nextTier.price} CELO`
                                 )}
                               </Button>
                             </div>
