@@ -4015,8 +4015,8 @@ class MainScene extends Phaser.Scene {
             this.time.delayedCall(1000, () => {
                 const totalTime = Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000);
                 const playerName = (window as any).walletAddress 
-                    ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
-                    : "Arc Player";
+                    ? "Celo Player " + (window as any).walletAddress.substring(0, 6)
+                    : "Celo Player";
 
                 this.scene.stop('MainScene');
                 this.scene.start('DeathScene', { 
@@ -4145,8 +4145,8 @@ class MainScene extends Phaser.Scene {
             this.time.delayedCall(1000, () => {
                 const totalTime = Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000);
                 const playerName = (window as any).walletAddress
-                    ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
-                    : "Arc Player";
+                    ? "Celo Player " + (window as any).walletAddress.substring(0, 6)
+                    : "Celo Player";
                 this.scene.start('DeathScene', { 
                     level: this.level,
                     wave: this.currentWave,
@@ -5047,8 +5047,8 @@ class MainScene extends Phaser.Scene {
         
         const totalTime = Math.floor((this.time.now - this.gameStartTime - this.totalPausedTime) / 1000);
         const playerName = (window as any).walletAddress 
-            ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
-            : "Arc Player";
+            ? "Celo Player " + (window as any).walletAddress.substring(0, 6)
+            : "Celo Player";
 
         const stats = { 
             level: this.level,
@@ -6532,8 +6532,8 @@ class DeathScene extends Phaser.Scene {
         this.enemiesDefeated = data.enemiesDefeated || 0;
         this.playTime = data.playTime || 0;
         this.playerName = data.playerName || ((window as any).walletAddress 
-            ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
-            : "Arc Player");
+            ? "Celo Player " + (window as any).walletAddress.substring(0, 6)
+            : "Celo Player");
     }
 
     create() {
