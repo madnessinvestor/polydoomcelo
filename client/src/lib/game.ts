@@ -5673,30 +5673,43 @@ class StartScene extends Phaser.Scene {
                 background: #4ade80 !important;
                 border-radius: 3px;
             }
-            .lb-table { width: 100%; border-collapse: collapse; font-family: monospace; }
+            .lb-table { width: 100%; border-collapse: collapse; font-family: monospace; table-layout: fixed; }
+            .lb-table col.col-rank    { width: 36px; }
+            .lb-table col.col-player  { width: auto; }
+            .lb-table col.col-wave    { width: 62px; }
+            .lb-table col.col-enemies { width: 80px; }
+            .lb-table col.col-time    { width: 62px; }
+            .lb-table col.col-score   { width: 70px; }
             .lb-table th { 
                 color: #4ade80; 
                 text-align: center; 
-                padding: 10px 5px; 
-                font-size: 1.1em; 
+                padding: 10px 6px; 
+                font-size: 1em; 
                 text-transform: uppercase; 
                 position: sticky; 
                 top: 0; 
-                background: rgba(0, 0, 0, 0.8);
+                background: rgba(0, 0, 0, 0.85);
                 z-index: 10;
                 border-bottom: 2px solid rgba(74, 222, 128, 0.3);
+                white-space: nowrap;
+                overflow: hidden;
             }
-            .lb-table td { padding: 12px 5px; font-size: 1em; text-align: center; vertical-align: middle; }
+            .lb-table td { padding: 10px 6px; font-size: 0.95em; text-align: center; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .lb-table th.col-rank-h, .lb-table td.col-rank-h { text-align: left; }
+            .lb-table th.col-player-h, .lb-table td.col-player-h { text-align: left; }
+            .lb-table th.col-score-h, .lb-table td.col-score-h { text-align: right; }
             .lb-row { border-bottom: 1px solid rgba(74, 222, 128, 0.1); }
+            .player-cell { display: flex; align-items: center; gap: 5px; overflow: hidden; }
+            .player-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
             .pixel-crown {
                 display: inline-grid;
                 grid-template-columns: repeat(5, 1fr);
                 gap: 1px;
-                width: 1.5em;
-                height: 1.2em;
+                min-width: 1.2em;
+                width: 1.2em;
+                height: 1em;
                 image-rendering: pixelated;
-                margin-left: 5px;
-                vertical-align: middle;
+                flex-shrink: 0;
             }
         `;
         document.head.appendChild(lbStyle);
@@ -5707,14 +5720,22 @@ class StartScene extends Phaser.Scene {
             let content = `
                 <div style="font-family: monospace;">
                     <table class="lb-table">
+                        <colgroup>
+                            <col class="col-rank">
+                            <col class="col-player">
+                            <col class="col-wave">
+                            <col class="col-enemies">
+                            <col class="col-time">
+                            <col class="col-score">
+                        </colgroup>
                         <thead>
                             <tr>
-                                <th style="text-align: left; width: 30px;">#</th>
-                                <th style="text-align: left;">PLAYER</th>
+                                <th class="col-rank-h">#</th>
+                                <th class="col-player-h">PLAYER</th>
                                 <th>WAVE</th>
                                 <th>ENEMIES</th>
                                 <th>TIME</th>
-                                <th style="text-align: right;">SCORE</th>
+                                <th class="col-score-h">SCORE</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -5749,14 +5770,17 @@ class StartScene extends Phaser.Scene {
                     
                     content += `
                         <tr class="lb-row">
-                            <td style="color: #94a3b8; text-align: left;">${index + 1}</td>
-                            <td style="color: #fff; font-weight: bold; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;" title="${score.playerName}">
-                                ${score.playerName}${getCrownHtml(index + 1)}
+                            <td class="col-rank-h" style="color: #94a3b8;">${index + 1}</td>
+                            <td class="col-player-h" title="${score.playerName}">
+                                <div class="player-cell">
+                                    <span class="player-name" style="color: #fff; font-weight: bold;">${score.playerName}</span>
+                                    ${getCrownHtml(index + 1)}
+                                </div>
                             </td>
                             <td style="color: #60a5fa;">${score.wave || 1}</td>
                             <td style="color: #f87171;">${score.enemiesDefeated || 0}</td>
                             <td style="color: #fbbf24;">${formatTime(score.playTime || 0)}</td>
-                            <td style="text-align: right; color: #4ade80; font-weight: bold; font-size: 1.1em;">${Math.floor(score.score).toLocaleString()}</td>
+                            <td class="col-score-h" style="color: #4ade80; font-weight: bold; font-size: 1.05em;">${Math.floor(score.score).toLocaleString()}</td>
                         </tr>
                     `;
                 });
