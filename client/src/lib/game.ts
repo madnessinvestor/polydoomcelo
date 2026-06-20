@@ -5122,92 +5122,206 @@ class StartScene extends Phaser.Scene {
 
     private async connectWallet() {
         if (this.isWalletConnecting) return;
+        // If already inside MiniPay, skip the selector and connect directly
+        if ((window as any).ethereum?.isMiniPay) {
+            await this.connectWithProvider((window as any).ethereum, 'MiniPay');
+            return;
+        }
+        this.showWalletSelector();
+    }
+
+    private showWalletSelector() {
+        const { width, height } = this.cameras.main;
+
+        // Overlay
+        const overlay = this.add.rectangle(0, 0, width * 2, height * 2, 0x000000, 0.75)
+            .setOrigin(0).setScrollFactor(0).setDepth(500).setInteractive();
+
+        const isMiniPay = !!(window as any).ethereum?.isMiniPay;
+        const hasBrowserWallet = !!(window as any).ethereum && !(window as any).ethereum?.isMiniPay;
+
+        const container = document.createElement('div');
+        container.id = 'wallet-selector-modal';
+        container.style.cssText = `
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 9999; background: #0a0f1e; border: 2px solid #3b82f6;
+            box-shadow: 0 0 40px rgba(59,130,246,0.5); padding: 32px 28px;
+            min-width: 320px; max-width: 420px; width: 90%; font-family: monospace;
+            border-radius: 4px;
+        `;
+
+        const style = document.createElement('style');
+        style.textContent = `
+            #wallet-selector-modal h2 {
+                color: #ffffff; font-size: 18px; font-weight: bold;
+                text-align: center; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 2px;
+            }
+            #wallet-selector-modal .subtitle {
+                color: #6b7280; font-size: 12px; text-align: center; margin: 0 0 24px 0;
+            }
+            .wallet-option {
+                display: flex; align-items: center; gap: 14px;
+                background: #111827; border: 1.5px solid #1f2937;
+                padding: 14px 16px; margin-bottom: 12px; cursor: pointer;
+                transition: all 0.15s; border-radius: 4px; width: 100%; box-sizing: border-box;
+            }
+            .wallet-option:hover { border-color: #3b82f6; background: #1a2540; }
+            .wallet-option.recommended { border-color: #4ade80; }
+            .wallet-option.recommended:hover { border-color: #22c55e; background: #0d2010; }
+            .wallet-option.disabled { opacity: 0.4; cursor: not-allowed; }
+            .wallet-option .icon {
+                width: 40px; height: 40px; border-radius: 50%;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 20px; flex-shrink: 0;
+            }
+            .wallet-option .info { flex: 1; text-align: left; }
+            .wallet-option .name { color: #fff; font-size: 15px; font-weight: bold; }
+            .wallet-option .desc { color: #6b7280; font-size: 11px; margin-top: 2px; }
+            .wallet-option .badge {
+                font-size: 10px; padding: 2px 8px; border-radius: 99px;
+                background: #4ade80; color: #000; font-weight: bold; flex-shrink: 0;
+            }
+            #wallet-selector-modal .cancel-btn {
+                display: block; width: 100%; margin-top: 8px; padding: 10px;
+                background: transparent; border: 1px solid #374151; color: #6b7280;
+                cursor: pointer; font-size: 13px; font-family: monospace;
+                text-transform: uppercase; letter-spacing: 1px; border-radius: 4px;
+                transition: all 0.15s;
+            }
+            #wallet-selector-modal .cancel-btn:hover { border-color: #6b7280; color: #fff; }
+        `;
+        document.head.appendChild(style);
+
+        container.innerHTML = `
+            <h2>Connect Wallet</h2>
+            <p class="subtitle">Choose how to connect to Celo Mainnet</p>
+
+            <button class="wallet-option ${isMiniPay ? 'recommended' : ''}" id="ws-minipay" ${!isMiniPay && !(window as any).ethereum ? '' : ''}>
+                <div class="icon" style="background:#1a2f1a;">🥭</div>
+                <div class="info">
+                    <div class="name">MiniPay</div>
+                    <div class="desc">${isMiniPay ? 'Detected — tap to connect' : 'Open in Opera MiniPay app to use'}</div>
+                </div>
+                ${isMiniPay ? '<span class="badge">DETECTED</span>' : ''}
+            </button>
+
+            <button class="wallet-option ${hasBrowserWallet ? '' : 'disabled'}" id="ws-metamask">
+                <div class="icon" style="background:#1c1a00;">🦊</div>
+                <div class="info">
+                    <div class="name">MetaMask / Browser Wallet</div>
+                    <div class="desc">${hasBrowserWallet ? 'Extension detected — connect now' : 'No browser wallet detected'}</div>
+                </div>
+                ${hasBrowserWallet ? '' : '<span class="badge" style="background:#374151;color:#9ca3af;">NOT FOUND</span>'}
+            </button>
+
+            <button class="wallet-option" id="ws-walletconnect">
+                <div class="icon" style="background:#0d1f3c;">🔗</div>
+                <div class="info">
+                    <div class="name">WalletConnect</div>
+                    <div class="desc">Coming soon — scan QR with any wallet</div>
+                </div>
+                <span class="badge" style="background:#374151;color:#9ca3af;">SOON</span>
+            </button>
+
+            <button class="cancel-btn" id="ws-cancel">Cancel</button>
+        `;
+
+        document.body.appendChild(container);
+
+        const close = () => {
+            if (document.body.contains(container)) document.body.removeChild(container);
+            if (document.head.contains(style)) document.head.removeChild(style);
+            overlay.destroy();
+            this.isWalletConnecting = false;
+        };
+
+        // MiniPay button
+        document.getElementById('ws-minipay')!.addEventListener('click', async () => {
+            if (!isMiniPay) {
+                // Not inside MiniPay — open install page
+                window.open('https://www.opera.com/mobile/minipay', '_blank');
+                return;
+            }
+            close();
+            await this.connectWithProvider((window as any).ethereum, 'MiniPay');
+        });
+
+        // MetaMask / browser wallet button
+        document.getElementById('ws-metamask')!.addEventListener('click', async () => {
+            if (!hasBrowserWallet) return;
+            close();
+            await this.connectWithProvider((window as any).ethereum, 'MetaMask');
+        });
+
+        // WalletConnect — coming soon
+        document.getElementById('ws-walletconnect')!.addEventListener('click', () => {
+            // no-op for now
+        });
+
+        document.getElementById('ws-cancel')!.addEventListener('click', close);
+        overlay.on('pointerdown', close);
+    }
+
+    private async connectWithProvider(provider: any, walletName: string) {
+        if (this.isWalletConnecting) return;
         this.isWalletConnecting = true;
+        this.updateWalletButtonText('CONNECTING...');
+
+        const celoChainId = '0xa4ec';
+        const celoMainnet = {
+            chainId: celoChainId,
+            chainName: 'Celo Mainnet',
+            nativeCurrency: { name: 'CELO', symbol: 'CELO', decimals: 18 },
+            rpcUrls: ['https://forno.celo.org'],
+            blockExplorerUrls: ['https://celoscan.io']
+        };
 
         try {
-            // Celo Mainnet Config (ChainID 42220 = 0xa4ec)
-            const celoChainId = '0xa4ec';
-            const celoMainnet = {
-                chainId: celoChainId,
-                chainName: 'Celo Mainnet',
-                nativeCurrency: {
-                    name: 'CELO',
-                    symbol: 'CELO',
-                    decimals: 18
-                },
-                rpcUrls: ['https://forno.celo.org'],
-                blockExplorerUrls: ['https://celoscan.io']
-            };
+            console.log(`Connecting via ${walletName}...`);
+            const accounts = await provider.request({ method: 'eth_requestAccounts', params: [] });
+            this.walletAddress = accounts[0];
+            (window as any).walletAddress = this.walletAddress;
+            (window as any).ethereum = provider;
 
-            try {
-                console.log('Requesting account connection...');
-                const accounts = await (window as any).ethereum.request({
-                    method: 'eth_requestAccounts',
-                    params: [],
-                });
-                this.walletAddress = accounts[0];
-                (window as any).walletAddress = this.walletAddress;
-                
-                const provider = new ethers.BrowserProvider((window as any).ethereum);
-                const network = await provider.getNetwork();
+            const ethProvider = new ethers.BrowserProvider(provider);
+            const network = await ethProvider.getNetwork();
 
-                if (network.chainId !== BigInt(42220)) {
-                    console.log('Attempting to switch to Celo Mainnet (0xa4ec)...');
-                    try {
-                        // Forçar a troca de rede
-                        await (window as any).ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: celoChainId }],
-                        });
-                        
-                        // Aguardar e verificar
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        const verifiedProvider = new ethers.BrowserProvider((window as any).ethereum);
-                        const verifiedNetwork = await verifiedProvider.getNetwork();
-                        if (verifiedNetwork.chainId !== BigInt(42220)) {
-                            throw new Error('Network switch was not successful');
-                        }
-                    } catch (switchError: any) {
-                        console.log('Network switch failed, error:', switchError.code || switchError.message);
-                        
-                        // Robust check for chain not found error
-                        const isMissing = switchError.code === 4902 || 
-                                        (switchError.data && switchError.data.originalError && switchError.data.originalError.code === 4902) ||
-                                        (switchError.message && (switchError.message.toLowerCase().includes('unrecognized') || switchError.message.toLowerCase().includes('not been added')));
-
-                        if (isMissing) {
-                            console.log('Adding Celo Mainnet to wallet...');
-                            await (window as any).ethereum.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [celoMainnet],
-                            });
-                        } else {
-                            throw switchError;
-                        }
+            if (network.chainId !== BigInt(42220)) {
+                console.log('Switching to Celo Mainnet...');
+                try {
+                    await provider.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: celoChainId }],
+                    });
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    const verified = new ethers.BrowserProvider(provider);
+                    const vNet = await verified.getNetwork();
+                    if (vNet.chainId !== BigInt(42220)) throw new Error('Network switch failed');
+                } catch (switchError: any) {
+                    const isMissing = switchError.code === 4902 ||
+                        (switchError.data?.originalError?.code === 4902) ||
+                        switchError.message?.toLowerCase().includes('unrecognized') ||
+                        switchError.message?.toLowerCase().includes('not been added');
+                    if (isMissing) {
+                        await provider.request({ method: 'wallet_addEthereumChain', params: [celoMainnet] });
+                    } else {
+                        throw switchError;
                     }
                 }
-
-                this.updateWalletButtonText(`CONNECTED: ${this.walletAddress?.substring(0, 6)}...`);
-                this.updateNetworkDisplay('Celo Mainnet');
-                (window as any).networkName = 'Celo Mainnet';
-                
-                // Update START GAME button state
-                if ((window as any).updateStartButtonState) {
-                    (window as any).updateStartButtonState();
-                }
-                
-                if (this.scene.isActive('MainScene')) {
-                    const mainScene = this.scene.get('MainScene') as any;
-                    mainScene.updateWalletHUD?.();
-                }
-            } catch (error: any) {
-                console.error('Inner connection error:', error);
-                this.isWalletConnecting = false;
-                this.updateWalletButtonText('CONNECT WALLET');
             }
+
+            this.updateWalletButtonText(`${walletName}: ${this.walletAddress?.substring(0, 6)}...`);
+            this.updateNetworkDisplay('Celo Mainnet');
+            (window as any).networkName = 'Celo Mainnet';
+
+            if ((window as any).updateStartButtonState) (window as any).updateStartButtonState();
+            if (this.scene.isActive('MainScene')) {
+                const mainScene = this.scene.get('MainScene') as any;
+                mainScene.updateWalletHUD?.();
+            }
+            console.log(`✅ Connected via ${walletName}: ${this.walletAddress}`);
         } catch (error: any) {
-            console.error('Outer connection error:', error);
-            this.isWalletConnecting = false;
+            console.error(`Connection error (${walletName}):`, error);
             this.updateWalletButtonText('CONNECT WALLET');
         } finally {
             this.isWalletConnecting = false;
