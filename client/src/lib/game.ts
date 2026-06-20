@@ -5079,6 +5079,7 @@ class StartScene extends Phaser.Scene {
     private health: number = 300;
     private maxKiarc: number = 100;
     private intervalTimerEvent: Phaser.Time.TimerEvent | null = null;
+    private autoStartOnConnect: boolean = false;
 
     constructor() {
         super('StartScene');
@@ -5336,6 +5337,14 @@ class StartScene extends Phaser.Scene {
                 mainScene.updateWalletHUD?.();
             }
             console.log(`[Wallet] ✅ Connected via ${walletName}: ${this.walletAddress}`);
+
+            // If user clicked START GAME while disconnected, auto-proceed now
+            if (this.autoStartOnConnect) {
+                this.autoStartOnConnect = false;
+                this.time.delayedCall(200, () => {
+                    if (this.startBtn) (this.startBtn as any).emit('pointerdown');
+                });
+            }
         } catch (error: any) {
             console.error(`[Wallet] Connection error (${walletName}):`, error);
             this.updateWalletButtonText('CONNECT WALLET');
@@ -5630,8 +5639,9 @@ class StartScene extends Phaser.Scene {
                         return;
                     }
                 } else {
-                    // Browser wallet: must connect first
-                    alert('Wallet not connected! Please click "CONNECT WALLET" first.');
+                    // Browser wallet: open connect modal directly — no alert so the popup isn't blocked
+                    // Set flag so _doConnect auto-starts the game after connecting
+                    this.autoStartOnConnect = true;
                     this.connectWallet();
                     return;
                 }
@@ -5775,6 +5785,31 @@ class StartScene extends Phaser.Scene {
         });
         this.startBtn = startBtnObj.btn as any;
         this.startText = startBtnObj.btnText;
+
+        // Wire updateStartButtonState so _doConnect can turn the button green after connecting
+        (window as any).updateStartButtonState = () => {
+            const connected = !!(window as any).walletAddress;
+            const color = connected ? 0x4ade80 : 0x6b7280;
+            if (this.startBtn) {
+                (this.startBtn as any).setStrokeStyle(2, color, 1);
+                (this.startBtn as any).setFillStyle(0x000000, 0.8);
+            }
+            if (this.startText) {
+                this.startText.setText(connected ? 'START GAME' : 'START GAME');
+            }
+            // Re-tint the neon glow containers if accessible
+            startBtnObj.container?.list?.forEach((child: any) => {
+                if (child.type === 'Graphics') {
+                    child.clear();
+                    const w = 240, h = 60;
+                    const drawGlow = (thickness: number, alpha: number) => {
+                        child.lineStyle(thickness, color, alpha);
+                        child.strokeRoundedRect(-w/2 - thickness/2, -h/2 - thickness/2, w + thickness, h + thickness, 12 + thickness/2);
+                    };
+                    drawGlow(16, 0.1); drawGlow(12, 0.2); drawGlow(8, 0.3); drawGlow(4, 0.5);
+                }
+            });
+        };
 
         // Menu Buttons Grid
 
