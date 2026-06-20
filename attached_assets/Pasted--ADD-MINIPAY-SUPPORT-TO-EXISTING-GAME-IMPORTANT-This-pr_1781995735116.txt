@@ -1,0 +1,290 @@
+# ADD MINIPAY SUPPORT TO EXISTING GAME
+
+IMPORTANT:
+
+This project is already functional.
+
+DO NOT rewrite, remove, refactor, rename, reorganize, or replace any existing game logic, screens, assets, styles, APIs, ranking systems, score systems, or gameplay mechanics.
+
+Only ADD MiniPay support and wallet connectivity.
+
+If something is already working, leave it unchanged.
+
+The objective is to allow players using the MiniPay mobile application to connect their wallet and interact with the game.
+
+---
+
+## PROJECT GOAL
+
+Add support for:
+
+* MiniPay wallet
+* Celo blockchain
+* Mobile users
+* Wallet connection
+* Player identification by wallet address
+* Future score registration on-chain
+* Future rewards and tournaments
+
+The game itself must remain exactly as it is today.
+
+---
+
+## USER FLOW
+
+### Mobile User
+
+1. User installs MiniPay app.
+2. User opens MiniPay.
+3. User scans a QR Code displayed on the game website OR opens the game link directly from MiniPay.
+4. MiniPay opens the game inside its built-in browser.
+5. Wallet is detected automatically.
+6. Wallet connects automatically.
+7. User can play normally.
+8. Wallet address becomes the player's unique ID.
+
+No email.
+
+No password.
+
+No registration.
+
+Wallet address is the account.
+
+---
+
+## DESKTOP USER FLOW
+
+When user accesses from desktop:
+
+Show:
+
+"Play with MiniPay"
+
+Generate a QR Code containing:
+
+```text
+https://YOUR-GAME-URL.com
+```
+
+The QR must be visible on desktop.
+
+User scans using MiniPay mobile app.
+
+MiniPay opens the game.
+
+Wallet becomes available.
+
+---
+
+## WALLET DETECTION
+
+Create:
+
+```text
+src/hooks/useMiniPay.ts
+```
+
+Responsibilities:
+
+* Detect MiniPay
+* Detect MetaMask
+* Detect Celo-compatible wallets
+* Auto-connect MiniPay
+* Return wallet address
+* Return connection status
+
+Detection:
+
+```javascript
+window.ethereum?.isMiniPay
+```
+
+---
+
+## CONNECTION RULES
+
+If MiniPay detected:
+
+* Connect automatically.
+* Do not show Connect Wallet button.
+* Load wallet address automatically.
+
+If MiniPay not detected:
+
+Show:
+
+"Open this game with MiniPay"
+
+and display QR Code.
+
+Optional:
+
+Allow MetaMask connection.
+
+---
+
+## PLAYER IDENTITY
+
+Create PlayerContext.
+
+Player identity must be:
+
+```javascript
+walletAddress
+```
+
+Example:
+
+```text
+0x123456789....
+```
+
+Store:
+
+* wallet address
+* first connection date
+* local game stats
+
+Future blockchain integration will use this address.
+
+---
+
+## WALLET PANEL
+
+Create:
+
+```text
+WalletPanel
+```
+
+Display:
+
+* Connected wallet
+* Short address
+* Network
+* Connected status
+
+Example:
+
+```text
+Wallet:
+0x12AB...F991
+
+Network:
+Celo
+
+Status:
+Connected
+```
+
+---
+
+## QR CODE COMPONENT
+
+Create:
+
+```text
+MiniPayQRCode
+```
+
+Desktop:
+
+Display QR Code with game URL.
+
+Instructions:
+
+1. Install MiniPay
+2. Open MiniPay
+3. Scan QR Code
+4. Play
+
+---
+
+## NETWORK SUPPORT
+
+Support:
+
+* Celo Mainnet
+* Celo Alfajores
+* Celo Sepolia
+
+If wrong network:
+
+Display network switch request.
+
+---
+
+## BLOCKCHAIN PREPARATION
+
+Create blockchain layer but DO NOT activate gameplay transactions yet.
+
+Create:
+
+```text
+services/blockchain.ts
+```
+
+Prepare functions:
+
+```typescript
+connectWallet()
+
+getWalletAddress()
+
+submitScore()
+
+getBestScore()
+
+getPlayerRank()
+
+claimReward()
+```
+
+Leave them ready for future use.
+
+Do not modify game mechanics.
+
+---
+
+## FILES TO CREATE
+
+Create only new files whenever possible:
+
+```text
+src/hooks/useMiniPay.ts
+
+src/context/PlayerContext.tsx
+
+src/components/WalletPanel.tsx
+
+src/components/MiniPayQRCode.tsx
+
+src/services/minipay.ts
+
+src/services/blockchain.ts
+```
+
+Avoid changing existing files.
+
+---
+
+## CRITICAL REQUIREMENT
+
+DO NOT TOUCH EXISTING GAME LOGIC.
+
+DO NOT MODIFY GAMEPLAY.
+
+DO NOT MODIFY SCORE CALCULATIONS.
+
+DO NOT MODIFY UI DESIGN.
+
+ONLY ADD:
+
+* MiniPay support
+* QR Code support
+* Wallet detection
+* Wallet connection
+* Blockchain-ready architecture
+
+The game must continue functioning exactly as before.

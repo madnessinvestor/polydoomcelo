@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Loader2, ArrowUpCircle, Beaker, Zap, Shield, Star } from "lucide-react";
@@ -557,30 +558,82 @@ export default function Home() {
           </p>
 
           {/* MiniPay */}
-          <button
-            onClick={() => {
-              if (isMiniPay) {
+          {isMiniPay ? (
+            <button
+              onClick={() => {
                 closeModal();
                 walletCallbackRef.current?.((window as any).ethereum, 'MiniPay');
-              } else {
-                window.open('https://www.opera.com/mobile/minipay', '_blank');
-              }
-            }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '14px',
-              background: isMiniPay ? '#0d2010' : '#111827',
-              border: `1.5px solid ${isMiniPay ? '#4ade80' : '#1f2937'}`,
-              padding: '14px 16px', marginBottom: '10px', cursor: 'pointer',
-              borderRadius: '4px', width: '100%', boxSizing: 'border-box'
-            }}
-          >
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#1a2f1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🥭</div>
-            <div style={{ flex: 1, textAlign: 'left' }}>
-              <div style={{ color: '#fff', fontSize: '15px', fontWeight: 'bold' }}>MiniPay</div>
-              <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>{isMiniPay ? 'Detected — tap to connect' : 'Open inside Opera MiniPay app'}</div>
+              }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '14px',
+                background: '#0d2010', border: '1.5px solid #4ade80',
+                padding: '14px 16px', marginBottom: '10px', cursor: 'pointer',
+                borderRadius: '4px', width: '100%', boxSizing: 'border-box'
+              }}
+            >
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#1a2f1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🥭</div>
+              <div style={{ flex: 1, textAlign: 'left' }}>
+                <div style={{ color: '#fff', fontSize: '15px', fontWeight: 'bold' }}>MiniPay</div>
+                <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>Detected — tap to connect</div>
+              </div>
+              <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '99px', background: '#4ade80', color: '#000', fontWeight: 'bold' }}>DETECTED</span>
+            </button>
+          ) : (
+            <div style={{
+              background: '#0a0f1e', border: '1.5px solid #1f2937',
+              borderRadius: '4px', padding: '16px', marginBottom: '10px',
+              boxSizing: 'border-box'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#1a2f1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🥭</div>
+                <div>
+                  <div style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>Play with MiniPay</div>
+                  <div style={{ color: '#6b7280', fontSize: '11px' }}>Scan with your MiniPay app</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>
+                <div style={{ background: '#fff', padding: '10px', borderRadius: '6px', display: 'inline-block' }}>
+                  <QRCodeSVG
+                    value={window.location.origin}
+                    size={148}
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                    level="M"
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {[
+                  ['1', 'Install MiniPay', 'opera.com/mobile/minipay'],
+                  ['2', 'Open MiniPay', 'tap the browser icon'],
+                  ['3', 'Scan QR Code', 'camera opens automatically'],
+                  ['4', 'Play!', 'wallet connects automatically'],
+                ].map(([num, title, sub]) => (
+                  <div key={num} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#1e3a5f', color: '#60a5fa', fontSize: '11px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{num}</span>
+                    <div>
+                      <span style={{ color: '#e5e7eb', fontSize: '12px', fontWeight: 'bold' }}>{title}</span>
+                      <span style={{ color: '#6b7280', fontSize: '11px' }}> — {sub}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <a
+                href="https://www.opera.com/mobile/minipay"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'block', textAlign: 'center', marginTop: '12px',
+                  color: '#60a5fa', fontSize: '11px', textDecoration: 'underline', cursor: 'pointer'
+                }}
+              >
+                Download MiniPay →
+              </a>
             </div>
-            {isMiniPay && <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '99px', background: '#4ade80', color: '#000', fontWeight: 'bold' }}>DETECTED</span>}
-          </button>
+          )}
 
           {/* Browser Wallet (MetaMask / Rabby) */}
           <button
