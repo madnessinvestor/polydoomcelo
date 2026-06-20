@@ -6635,16 +6635,19 @@ class DeathScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(103);
 
-        // HTML Input container (Only for the name input)
+        // HTML container with input + buttons (all HTML so they always render above canvas)
         const inputContainer = document.createElement('div');
         inputContainer.id = 'score-register-container';
         inputContainer.style.position = 'absolute';
         inputContainer.style.left = '50%';
-        inputContainer.style.top = '46%';
+        inputContainer.style.top = '50%';
         inputContainer.style.transform = 'translate(-50%, -50%)';
         inputContainer.style.width = '300px';
-        inputContainer.style.zIndex = '104';
+        inputContainer.style.zIndex = '200';
         inputContainer.style.pointerEvents = 'auto';
+        inputContainer.style.display = 'flex';
+        inputContainer.style.flexDirection = 'column';
+        inputContainer.style.gap = '12px';
 
         const style = document.createElement('style');
         style.textContent = `
@@ -6658,29 +6661,67 @@ class DeathScene extends Phaser.Scene {
                 color: #fff;
                 box-sizing: border-box;
                 text-align: center;
+                font-family: "PixelPurl", monospace;
             }
             #score-register-container input:focus {
                 outline: none;
                 border-color: #22c55e;
                 box-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
             }
+            #score-confirm-btn {
+                width: 100%;
+                padding: 14px;
+                font-size: 18px;
+                font-family: "PixelPurl", monospace;
+                font-weight: bold;
+                background: #4ade80;
+                color: #000;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                letter-spacing: 2px;
+            }
+            #score-confirm-btn:hover { background: #22c55e; }
+            #score-confirm-btn:disabled { background: #666; cursor: default; }
+            #score-cancel-btn {
+                width: 100%;
+                padding: 14px;
+                font-size: 18px;
+                font-family: "PixelPurl", monospace;
+                font-weight: bold;
+                background: #ff6b6b;
+                color: #000;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                letter-spacing: 2px;
+            }
+            #score-cancel-btn:hover { background: #ff5252; }
         `;
         document.head.appendChild(style);
 
-        inputContainer.innerHTML = `<input type="text" id="player-name-input" placeholder="Enter your name" maxlength="30">`;
+        inputContainer.innerHTML = `
+            <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="30">
+            <button id="score-confirm-btn">CONFIRM</button>
+            <button id="score-cancel-btn">CANCEL</button>
+        `;
         document.body.appendChild(inputContainer);
 
         const nameInput = document.getElementById('player-name-input') as HTMLInputElement;
+        const confirmBtn = document.getElementById('score-confirm-btn') as HTMLButtonElement;
+        const cancelBtn = document.getElementById('score-cancel-btn') as HTMLButtonElement;
+
+        // Dummy Phaser objects so closeModal() destroy() calls don't error
+        const confirmBtnPhaser = { destroy: () => {}, getData: () => false, setData: () => {}, setFillStyle: () => {}, setInteractive: () => confirmBtnPhaser, on: () => confirmBtnPhaser } as any;
+        const confirmTextPhaser = { destroy: () => {}, setText: () => {} } as any;
+        const cancelBtnPhaser = { destroy: () => {} } as any;
+        const cancelTextPhaser = { destroy: () => {} } as any;
 
         // Force capture of keyboard events to bypass Phaser's event prevention
-        const stopPropagation = (e: KeyboardEvent) => {
-            e.stopPropagation();
-        };
-        nameInput.addEventListener('keydown', stopPropagation, true); // Use capture phase
+        const stopPropagation = (e: KeyboardEvent) => { e.stopPropagation(); };
+        nameInput.addEventListener('keydown', stopPropagation, true);
         nameInput.addEventListener('keyup', stopPropagation, true);
         nameInput.addEventListener('keypress', stopPropagation, true);
-
-        // Explicitly handle keys that Phaser might be blocking
         nameInput.addEventListener('keydown', (e) => {
             if (['s', 'd', 'f', 'x', 'c', 'v', 'b'].includes(e.key.toLowerCase())) {
                 e.stopPropagation();
@@ -6689,30 +6730,10 @@ class DeathScene extends Phaser.Scene {
 
         setTimeout(() => nameInput?.focus(), 100);
 
-        // Phaser CONFIRM Button
-        const confirmBtn = this.add.rectangle(width / 2, height / 2 + 40, 200, 50, 0x4ade80).setScrollFactor(0).setDepth(103);
-        const confirmText = this.add.text(width / 2, height / 2 + 40, 'CONFIRM', {
-            fontSize: '20px',
-            fontFamily: '"PixelPurl", monospace',
-            color: '#000000',
-            fontStyle: 'bold'
-        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(104);
-
-        // Phaser CANCEL Button
-        const cancelBtn = this.add.rectangle(width / 2, height / 2 + 105, 200, 50, 0xff6b6b).setScrollFactor(0).setDepth(103);
-        const cancelText = this.add.text(width / 2, height / 2 + 105, 'CANCEL', {
-            fontSize: '20px',
-            fontFamily: '"PixelPurl", monospace',
-            color: '#000000',
-            fontStyle: 'bold'
-        }).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(104);
-
         const closeModal = () => {
-            // Re-enable Phaser keyboard input
             if (this.input.keyboard) {
                 this.input.keyboard.enabled = true;
             }
-
             if (inputContainer && inputContainer.parentElement) {
                 inputContainer.remove();
             }
@@ -6723,10 +6744,10 @@ class DeathScene extends Phaser.Scene {
             modalBg.destroy();
             border.destroy();
             title.destroy();
-            confirmBtn.destroy();
-            confirmText.destroy();
-            cancelBtn.destroy();
-            cancelText.destroy();
+            confirmBtnPhaser.destroy();
+            confirmTextPhaser.destroy();
+            cancelBtnPhaser.destroy();
+            cancelTextPhaser.destroy();
         };
 
         // Disable Phaser keyboard input while typing in the HTML field
@@ -6734,8 +6755,10 @@ class DeathScene extends Phaser.Scene {
             this.input.keyboard.enabled = false;
         }
 
+        let processing = false;
+
         const submitWithName = async () => {
-            if (confirmBtn.getData('processing')) return;
+            if (processing) return;
 
             const playerName = nameInput.value.trim();
             if (playerName.length < 2) {
@@ -6743,26 +6766,23 @@ class DeathScene extends Phaser.Scene {
                 nameInput.focus();
                 return;
             }
-            
-            confirmBtn.setData('processing', true);
-            confirmBtn.setFillStyle(0x666666);
-            confirmText.setText('SENDING...');
-            
+
+            processing = true;
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'SENDING...';
+
             try {
                 await this.submitScore(playerName);
             } catch (err) {
                 console.error('Erro no submit:', err);
-                confirmBtn.setData('processing', false);
-                confirmBtn.setFillStyle(0x4ade80);
-                confirmText.setText('CONFIRM');
+                processing = false;
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'CONFIRM';
             }
         };
 
-        confirmBtn.setInteractive().on('pointerdown', submitWithName).on('pointerover', () => confirmBtn.setFillStyle(0x22c55e)).on('pointerout', () => {
-            if (!confirmBtn.getData('processing')) confirmBtn.setFillStyle(0x4ade80);
-        });
-        
-        cancelBtn.setInteractive().on('pointerdown', () => closeModal()).on('pointerover', () => cancelBtn.setFillStyle(0xff5252)).on('pointerout', () => cancelBtn.setFillStyle(0xff6b6b));
+        confirmBtn.addEventListener('click', submitWithName);
+        cancelBtn.addEventListener('click', () => closeModal());
 
         nameInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') submitWithName();
