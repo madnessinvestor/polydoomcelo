@@ -5122,187 +5122,179 @@ class StartScene extends Phaser.Scene {
 
     private async connectWallet() {
         if (this.isWalletConnecting) return;
-        // If already inside MiniPay, skip the selector and connect directly
+        this.isWalletConnecting = true;
+
+        // If running inside MiniPay, skip selector and connect directly
         if ((window as any).ethereum?.isMiniPay) {
-            await this.connectWithProvider((window as any).ethereum, 'MiniPay');
+            await this._doConnect((window as any).ethereum, 'MiniPay');
             return;
         }
-        this.showWalletSelector();
+
+        // Otherwise show wallet selector
+        this.isWalletConnecting = false; // allow re-entry after modal choice
+        this._showWalletSelector();
     }
 
-    private showWalletSelector() {
-        const { width, height } = this.cameras.main;
+    private _showWalletSelector() {
+        // Prevent duplicate modals
+        if (document.getElementById('wallet-selector-modal')) return;
 
-        // Overlay
+        const isMiniPay = !!(window as any).ethereum?.isMiniPay;
+        const hasBrowserWallet = !!(window as any).ethereum;
+
+        // Dark Phaser overlay (click-through to cancel)
+        const { width, height } = this.cameras.main;
         const overlay = this.add.rectangle(0, 0, width * 2, height * 2, 0x000000, 0.75)
             .setOrigin(0).setScrollFactor(0).setDepth(500).setInteractive();
 
-        const isMiniPay = !!(window as any).ethereum?.isMiniPay;
-        const hasBrowserWallet = !!(window as any).ethereum && !(window as any).ethereum?.isMiniPay;
+        // Inject styles once
+        const styleId = 'wallet-selector-style';
+        if (!document.getElementById(styleId)) {
+            const style = document.createElement('style');
+            style.id = styleId;
+            style.textContent = `
+                #wallet-selector-modal { position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+                  z-index:99999;background:#0a0f1e;border:2px solid #3b82f6;
+                  box-shadow:0 0 40px rgba(59,130,246,.5);padding:32px 28px;
+                  min-width:300px;max-width:420px;width:90%;font-family:monospace;border-radius:4px; }
+                #wallet-selector-modal h2 { color:#fff;font-size:18px;font-weight:bold;
+                  text-align:center;margin:0 0 6px;text-transform:uppercase;letter-spacing:2px; }
+                #wallet-selector-modal .sub { color:#6b7280;font-size:12px;text-align:center;margin:0 0 22px; }
+                .ws-opt { display:flex;align-items:center;gap:14px;background:#111827;
+                  border:1.5px solid #1f2937;padding:14px 16px;margin-bottom:10px;cursor:pointer;
+                  transition:all .15s;border-radius:4px;width:100%;box-sizing:border-box; }
+                .ws-opt:hover:not(.ws-disabled) { border-color:#3b82f6;background:#1a2540; }
+                .ws-opt.ws-highlight { border-color:#4ade80; }
+                .ws-opt.ws-highlight:hover { background:#0d2010;border-color:#22c55e; }
+                .ws-opt.ws-disabled { opacity:.4;cursor:not-allowed; }
+                .ws-opt .ws-icon { width:40px;height:40px;border-radius:50%;display:flex;
+                  align-items:center;justify-content:center;font-size:20px;flex-shrink:0; }
+                .ws-opt .ws-info { flex:1;text-align:left; }
+                .ws-opt .ws-name { color:#fff;font-size:15px;font-weight:bold; }
+                .ws-opt .ws-desc { color:#6b7280;font-size:11px;margin-top:2px; }
+                .ws-badge { font-size:10px;padding:2px 8px;border-radius:99px;
+                  background:#4ade80;color:#000;font-weight:bold;flex-shrink:0; }
+                .ws-badge.ws-grey { background:#374151;color:#9ca3af; }
+                #ws-cancel { display:block;width:100%;margin-top:6px;padding:10px;
+                  background:transparent;border:1px solid #374151;color:#6b7280;cursor:pointer;
+                  font-size:13px;font-family:monospace;text-transform:uppercase;letter-spacing:1px;
+                  border-radius:4px;transition:all .15s; }
+                #ws-cancel:hover { border-color:#6b7280;color:#fff; }
+            `;
+            document.head.appendChild(style);
+        }
 
-        const container = document.createElement('div');
-        container.id = 'wallet-selector-modal';
-        container.style.cssText = `
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 9999; background: #0a0f1e; border: 2px solid #3b82f6;
-            box-shadow: 0 0 40px rgba(59,130,246,0.5); padding: 32px 28px;
-            min-width: 320px; max-width: 420px; width: 90%; font-family: monospace;
-            border-radius: 4px;
-        `;
-
-        const style = document.createElement('style');
-        style.textContent = `
-            #wallet-selector-modal h2 {
-                color: #ffffff; font-size: 18px; font-weight: bold;
-                text-align: center; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 2px;
-            }
-            #wallet-selector-modal .subtitle {
-                color: #6b7280; font-size: 12px; text-align: center; margin: 0 0 24px 0;
-            }
-            .wallet-option {
-                display: flex; align-items: center; gap: 14px;
-                background: #111827; border: 1.5px solid #1f2937;
-                padding: 14px 16px; margin-bottom: 12px; cursor: pointer;
-                transition: all 0.15s; border-radius: 4px; width: 100%; box-sizing: border-box;
-            }
-            .wallet-option:hover { border-color: #3b82f6; background: #1a2540; }
-            .wallet-option.recommended { border-color: #4ade80; }
-            .wallet-option.recommended:hover { border-color: #22c55e; background: #0d2010; }
-            .wallet-option.disabled { opacity: 0.4; cursor: not-allowed; }
-            .wallet-option .icon {
-                width: 40px; height: 40px; border-radius: 50%;
-                display: flex; align-items: center; justify-content: center;
-                font-size: 20px; flex-shrink: 0;
-            }
-            .wallet-option .info { flex: 1; text-align: left; }
-            .wallet-option .name { color: #fff; font-size: 15px; font-weight: bold; }
-            .wallet-option .desc { color: #6b7280; font-size: 11px; margin-top: 2px; }
-            .wallet-option .badge {
-                font-size: 10px; padding: 2px 8px; border-radius: 99px;
-                background: #4ade80; color: #000; font-weight: bold; flex-shrink: 0;
-            }
-            #wallet-selector-modal .cancel-btn {
-                display: block; width: 100%; margin-top: 8px; padding: 10px;
-                background: transparent; border: 1px solid #374151; color: #6b7280;
-                cursor: pointer; font-size: 13px; font-family: monospace;
-                text-transform: uppercase; letter-spacing: 1px; border-radius: 4px;
-                transition: all 0.15s;
-            }
-            #wallet-selector-modal .cancel-btn:hover { border-color: #6b7280; color: #fff; }
-        `;
-        document.head.appendChild(style);
-
-        container.innerHTML = `
+        const modal = document.createElement('div');
+        modal.id = 'wallet-selector-modal';
+        modal.innerHTML = `
             <h2>Connect Wallet</h2>
-            <p class="subtitle">Choose how to connect to Celo Mainnet</p>
+            <p class="sub">Choose how to connect to Celo Mainnet</p>
 
-            <button class="wallet-option ${isMiniPay ? 'recommended' : ''}" id="ws-minipay" ${!isMiniPay && !(window as any).ethereum ? '' : ''}>
-                <div class="icon" style="background:#1a2f1a;">🥭</div>
-                <div class="info">
-                    <div class="name">MiniPay</div>
-                    <div class="desc">${isMiniPay ? 'Detected — tap to connect' : 'Open in Opera MiniPay app to use'}</div>
+            <button class="ws-opt ${isMiniPay ? 'ws-highlight' : ''}" id="ws-minipay">
+                <div class="ws-icon" style="background:#1a2f1a">🥭</div>
+                <div class="ws-info">
+                    <div class="ws-name">MiniPay</div>
+                    <div class="ws-desc">${isMiniPay ? 'Detected — tap to connect' : 'Open this game inside the Opera MiniPay app'}</div>
                 </div>
-                ${isMiniPay ? '<span class="badge">DETECTED</span>' : ''}
+                ${isMiniPay ? '<span class="ws-badge">DETECTED</span>' : ''}
             </button>
 
-            <button class="wallet-option ${hasBrowserWallet ? '' : 'disabled'}" id="ws-metamask">
-                <div class="icon" style="background:#1c1a00;">🦊</div>
-                <div class="info">
-                    <div class="name">MetaMask / Browser Wallet</div>
-                    <div class="desc">${hasBrowserWallet ? 'Extension detected — connect now' : 'No browser wallet detected'}</div>
+            <button class="ws-opt ${hasBrowserWallet ? '' : 'ws-disabled'}" id="ws-browser">
+                <div class="ws-icon" style="background:#1c1a00">🦊</div>
+                <div class="ws-info">
+                    <div class="ws-name">MetaMask / Rabby / Browser Wallet</div>
+                    <div class="ws-desc">${hasBrowserWallet ? 'Extension detected — click to connect' : 'No browser wallet extension detected'}</div>
                 </div>
-                ${hasBrowserWallet ? '' : '<span class="badge" style="background:#374151;color:#9ca3af;">NOT FOUND</span>'}
+                ${!hasBrowserWallet ? '<span class="ws-badge ws-grey">NOT FOUND</span>' : ''}
             </button>
 
-            <button class="wallet-option" id="ws-walletconnect">
-                <div class="icon" style="background:#0d1f3c;">🔗</div>
-                <div class="info">
-                    <div class="name">WalletConnect</div>
-                    <div class="desc">Coming soon — scan QR with any wallet</div>
+            <button class="ws-opt ws-disabled" id="ws-wc">
+                <div class="ws-icon" style="background:#0d1f3c">🔗</div>
+                <div class="ws-info">
+                    <div class="ws-name">WalletConnect</div>
+                    <div class="ws-desc">Coming soon</div>
                 </div>
-                <span class="badge" style="background:#374151;color:#9ca3af;">SOON</span>
+                <span class="ws-badge ws-grey">SOON</span>
             </button>
 
-            <button class="cancel-btn" id="ws-cancel">Cancel</button>
+            <button id="ws-cancel">Cancel</button>
         `;
+        document.body.appendChild(modal);
 
-        document.body.appendChild(container);
-
-        const close = () => {
-            if (document.body.contains(container)) document.body.removeChild(container);
-            if (document.head.contains(style)) document.head.removeChild(style);
-            overlay.destroy();
-            this.isWalletConnecting = false;
+        const cleanup = () => {
+            const m = document.getElementById('wallet-selector-modal');
+            if (m) document.body.removeChild(m);
+            if (overlay && overlay.scene) overlay.destroy();
         };
 
-        // MiniPay button
-        document.getElementById('ws-minipay')!.addEventListener('click', async () => {
-            if (!isMiniPay) {
-                // Not inside MiniPay — open install page
+        document.getElementById('ws-minipay')!.onclick = async () => {
+            if (isMiniPay) {
+                cleanup();
+                await this._doConnect((window as any).ethereum, 'MiniPay');
+            } else {
                 window.open('https://www.opera.com/mobile/minipay', '_blank');
-                return;
             }
-            close();
-            await this.connectWithProvider((window as any).ethereum, 'MiniPay');
-        });
+        };
 
-        // MetaMask / browser wallet button
-        document.getElementById('ws-metamask')!.addEventListener('click', async () => {
+        document.getElementById('ws-browser')!.onclick = async () => {
             if (!hasBrowserWallet) return;
-            close();
-            await this.connectWithProvider((window as any).ethereum, 'MetaMask');
-        });
+            cleanup();
+            await this._doConnect((window as any).ethereum, 'Wallet');
+        };
 
-        // WalletConnect — coming soon
-        document.getElementById('ws-walletconnect')!.addEventListener('click', () => {
-            // no-op for now
-        });
-
-        document.getElementById('ws-cancel')!.addEventListener('click', close);
-        overlay.on('pointerdown', close);
+        document.getElementById('ws-cancel')!.onclick = cleanup;
+        overlay.on('pointerdown', cleanup);
     }
 
-    private async connectWithProvider(provider: any, walletName: string) {
+    private async _doConnect(provider: any, walletName: string) {
         if (this.isWalletConnecting) return;
         this.isWalletConnecting = true;
         this.updateWalletButtonText('CONNECTING...');
 
         const celoChainId = '0xa4ec';
         const celoMainnet = {
-            chainId: celoChainId,
-            chainName: 'Celo Mainnet',
+            chainId: celoChainId, chainName: 'Celo Mainnet',
             nativeCurrency: { name: 'CELO', symbol: 'CELO', decimals: 18 },
             rpcUrls: ['https://forno.celo.org'],
             blockExplorerUrls: ['https://celoscan.io']
         };
 
         try {
-            console.log(`Connecting via ${walletName}...`);
-            const accounts = await provider.request({ method: 'eth_requestAccounts', params: [] });
+            console.log(`[Wallet] Connecting via ${walletName}...`);
+
+            // MiniPay: try silent eth_accounts first, then request
+            let accounts: string[];
+            if (walletName === 'MiniPay') {
+                accounts = await provider.request({ method: 'eth_accounts' });
+                if (!accounts || accounts.length === 0) {
+                    accounts = await provider.request({ method: 'eth_requestAccounts' });
+                }
+            } else {
+                accounts = await provider.request({ method: 'eth_requestAccounts' });
+            }
+            console.log('[Wallet] Accounts:', accounts);
+
+            if (!accounts || accounts.length === 0) throw new Error('No accounts returned');
+
             this.walletAddress = accounts[0];
             (window as any).walletAddress = this.walletAddress;
-            (window as any).ethereum = provider;
 
+            // Ensure Celo Mainnet
             const ethProvider = new ethers.BrowserProvider(provider);
             const network = await ethProvider.getNetwork();
+            console.log('[Wallet] Current chainId:', network.chainId.toString());
 
             if (network.chainId !== BigInt(42220)) {
-                console.log('Switching to Celo Mainnet...');
                 try {
                     await provider.request({
                         method: 'wallet_switchEthereumChain',
                         params: [{ chainId: celoChainId }],
                     });
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    const verified = new ethers.BrowserProvider(provider);
-                    const vNet = await verified.getNetwork();
-                    if (vNet.chainId !== BigInt(42220)) throw new Error('Network switch failed');
                 } catch (switchError: any) {
-                    const isMissing = switchError.code === 4902 ||
-                        (switchError.data?.originalError?.code === 4902) ||
+                    if (switchError.code === 4902 ||
+                        switchError.data?.originalError?.code === 4902 ||
                         switchError.message?.toLowerCase().includes('unrecognized') ||
-                        switchError.message?.toLowerCase().includes('not been added');
-                    if (isMissing) {
+                        switchError.message?.toLowerCase().includes('not been added')) {
                         await provider.request({ method: 'wallet_addEthereumChain', params: [celoMainnet] });
                     } else {
                         throw switchError;
@@ -5310,7 +5302,7 @@ class StartScene extends Phaser.Scene {
                 }
             }
 
-            this.updateWalletButtonText(`${walletName}: ${this.walletAddress?.substring(0, 6)}...`);
+            this.updateWalletButtonText(`${walletName}: ${this.walletAddress.substring(0, 6)}...`);
             this.updateNetworkDisplay('Celo Mainnet');
             (window as any).networkName = 'Celo Mainnet';
 
@@ -5319,9 +5311,9 @@ class StartScene extends Phaser.Scene {
                 const mainScene = this.scene.get('MainScene') as any;
                 mainScene.updateWalletHUD?.();
             }
-            console.log(`✅ Connected via ${walletName}: ${this.walletAddress}`);
+            console.log(`[Wallet] ✅ Connected via ${walletName}: ${this.walletAddress}`);
         } catch (error: any) {
-            console.error(`Connection error (${walletName}):`, error);
+            console.error(`[Wallet] Connection error (${walletName}):`, error);
             this.updateWalletButtonText('CONNECT WALLET');
         } finally {
             this.isWalletConnecting = false;
