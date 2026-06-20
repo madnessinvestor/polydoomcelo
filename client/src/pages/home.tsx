@@ -3,8 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Loader2, ArrowUpCircle, Beaker, Zap, Shield, Star } from "lucide-react";
 import { PauseModal } from "@/components/pause-modal";
-import { UpgradesModal } from "@/components/upgrades-modal";
-import { ShoppingModal } from "@/components/shopping-modal";
 import { ProofOfShipModal } from "@/components/proof-of-ship-modal";
 import { Leaderboard } from "@/components/leaderboard";
 import { ethers } from "ethers";
@@ -313,19 +311,6 @@ export default function Home() {
     };
     (window as any).pauseOpening = handleOpeningMusic;
 
-    const triggerUpgrades = () => {
-      console.log("React: triggerUpgrades called");
-      openModal("upgrades");
-    };
-    (window as any).openUpgradesModal = triggerUpgrades;
-    (window as any).showUpgradesModal = triggerUpgrades;
-
-    const triggerShopping = () => {
-      console.log("React: triggerShopping called");
-      openModal("shopping");
-    };
-    (window as any).openShoppingModal = triggerShopping;
-
     const triggerLeaderboard = () => {
       console.log("React: triggerLeaderboard called");
       openModal("leaderboard");
@@ -359,9 +344,6 @@ export default function Home() {
     return () => {
       delete (window as any).showPauseModal;
       delete (window as any).hidePauseModal;
-      delete (window as any).openUpgradesModal;
-      delete (window as any).showUpgradesModal;
-      delete (window as any).openShoppingModal;
       delete (window as any).openLeaderboardModal;
       delete (window as any).openSettingsModal;
       delete (window as any).openControlsModal;
@@ -424,12 +406,6 @@ export default function Home() {
           onContinue={handleContinueGame} 
           onExit={handleExitGame}
         />
-      )}
-      {activeModal === "upgrades" && (
-        <UpgradesModal onClose={() => closeModal()} />
-      )}
-      {activeModal === "shopping" && (
-        <ShoppingModal onClose={() => closeModal()} />
       )}
       {activeModal === "proofofship" && (
         <ProofOfShipModal onClose={() => closeModal()} />

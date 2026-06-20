@@ -371,10 +371,8 @@ class MainScene extends Phaser.Scene {
     }
 
     private updateInventoryHUD() {
-        // Ensure inventoryHUD container exists
-        if (!this.inventoryHUD) {
-            this.inventoryHUD = this.add.container(0, 0).setScrollFactor(0).setDepth(1000);
-        }
+        // Inventory HUD disabled
+        return;
         
         // Load inventory directly from localStorage using the connected wallet address
         const walletAddress = (window as any).walletAddress;
@@ -4327,9 +4325,8 @@ class MainScene extends Phaser.Scene {
     }
 
     private createInventoryHUD() {
-        if (this.inventoryHUD) {
-            this.inventoryHUD.destroy();
-        }
+        // Inventory HUD disabled
+        return;
         
         const { width, height } = this.cameras.main;
         // Posicionado no canto esquerdo, quase centralizado verticalmente
@@ -5612,9 +5609,7 @@ class StartScene extends Phaser.Scene {
 
         // Menu Buttons Grid
         const menuY = height / 2 + 130;
-        createNeonButton(width / 2, menuY, 220, 46, 0x6b7280, 'UPGRADES', '20px', '#ffffff', () => (window as any).openUpgradesModal?.());
-        createNeonButton(width / 2, menuY + 60, 220, 46, 0x6b7280, 'SHOPPING', '20px', '#ffffff', () => (window as any).openShoppingModal?.());
-        createNeonButton(width / 2, menuY + 120, 220, 46, 0x1a1a00, 'PROOF OF SHIP', '16px', '#FCFF52', () => (window as any).openProofOfShipModal?.());
+        createNeonButton(width / 2, menuY, 220, 46, 0x1a1a00, 'PROOF OF SHIP', '16px', '#FCFF52', () => (window as any).openProofOfShipModal?.());
 
         // Embedded Leaderboard in StartScene
         const lbWidth = 600; // Increased width
