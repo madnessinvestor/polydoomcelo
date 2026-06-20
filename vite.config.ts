@@ -39,6 +39,9 @@ export default defineConfig(async ({ mode }) => {
     },
     server: {
       allowedHosts: true,
+      hmr: {
+        overlay: false,
+      },
       fs: {
         strict: false,
         allow: [
