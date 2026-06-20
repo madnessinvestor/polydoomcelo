@@ -5353,22 +5353,45 @@ class StartScene extends Phaser.Scene {
         // Add a subtle dark overlay to ensure readability
         this.add.rectangle(0, 0, width, height, 0x000000, 0.3).setOrigin(0).setScrollFactor(0);
 
-        // Title
-        const logo = this.add.image(width / 2, height / 3, 'game_logo').setOrigin(0.5, 0.5).setDepth(10);
-        const titleScale = (width * 0.4) / logo.width;
-        logo.setScale(titleScale);
+        // Title — rendered as Phaser text so the name is always correct
+        const titleFontSize = Math.round(width * 0.072);
+        const titleY = height / 3;
 
-        // Pulsing effect
+        const titleLine1 = this.add.text(0, -titleFontSize * 0.6, 'POLYDOOM', {
+            fontFamily: '"Press Start 2P", monospace',
+            fontSize: `${titleFontSize}px`,
+            color: '#fbbf24',
+            stroke: '#000000',
+            strokeThickness: 8,
+            shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 0, fill: true }
+        }).setOrigin(0.5, 0.5);
+
+        const titleLine2 = this.add.text(0, titleFontSize * 0.7, 'CELO', {
+            fontFamily: '"Press Start 2P", monospace',
+            fontSize: `${titleFontSize}px`,
+            color: '#FCFF52',
+            stroke: '#000000',
+            strokeThickness: 8,
+            shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 0, fill: true }
+        }).setOrigin(0.5, 0.5);
+
+        const logoContainer = this.add.container(width / 2, titleY, [titleLine1, titleLine2]);
+        logoContainer.setDepth(10);
+
+        // Pulsing effect on the whole title
         this.tweens.add({
-            targets: logo,
-            scale: titleScale * 1.05,
+            targets: logoContainer,
+            scaleX: 1.04,
+            scaleY: 1.04,
             duration: 3000,
             yoyo: true,
             loop: -1,
             ease: 'Sine.easeInOut'
         });
 
-        // Particle effect around the logo
+        // Particle effect around the title area
+        const titleW = titleLine1.displayWidth * 1.1;
+        const titleH = (titleFontSize * 1.5) * 2;
         const particles = this.add.particles(0, 0, 'flare', {
             speed: { min: 20, max: 50 },
             scale: { start: 0.1, end: 0 },
@@ -5378,21 +5401,11 @@ class StartScene extends Phaser.Scene {
             frequency: 50,
             emitZone: {
                 type: 'edge',
-                source: new Phaser.Geom.Rectangle(-logo.displayWidth / 2, -logo.displayHeight / 2, logo.displayWidth, logo.displayHeight),
+                source: new Phaser.Geom.Rectangle(width / 2 - titleW / 2, titleY - titleH / 2, titleW, titleH),
                 quantity: 40
             }
         });
-        
-        const logoContainer = this.add.container(logo.x, logo.y);
-        logoContainer.add(particles);
-        logoContainer.setDepth(9);
-        
-        // Sync particles position with pulsing logo
-        this.events.on('update', () => {
-            if (logo.active) {
-                logoContainer.setScale(logo.scale);
-            }
-        });
+        particles.setDepth(9);
 
         // Helper to create neon buttons
         const createNeonButton = (x: number, y: number, w: number, h: number, color: number, text: string, fontSize: string, textColor: string, callback: () => void) => {
