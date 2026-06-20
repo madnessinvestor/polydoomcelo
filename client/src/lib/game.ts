@@ -59,17 +59,17 @@ class MainScene extends Phaser.Scene {
     private enemyTypes = [
         { id: 'ground_biter', name: 'Ground Biter', sides: 4, color: 0x4ade80, behavior: 'melee', scale: 1.0 },
         { id: 'charger_ram', name: 'Charger Ram', sides: 5, color: 0x4ade80, behavior: 'charge', scale: 1.2 },
-        { id: 'arc_shooter', name: 'Arc Shooter', sides: 3, color: 0x4ade80, behavior: 'ranged', scale: 1.0 },
+        { id: 'celo_shooter', name: 'Celo Shooter', sides: 3, color: 0x4ade80, behavior: 'ranged', scale: 1.0 },
         { id: 'hover_mage', name: 'Hover Mage', sides: 6, color: 0x4ade80, behavior: 'fly', scale: 1.1 },
         { id: 'pouncer', name: 'Pouncer', sides: 3, color: 0x4ade80, behavior: 'jump', scale: 0.8, inverted: true },
         { id: 'knockback_brute', name: 'Knockback Brute', sides: 4, color: 0x4ade80, behavior: 'knockback', scale: 1.5, ratio: 1.5 },
         { id: 'blink_stalker', name: 'Blink Stalker', sides: 8, color: 0x4ade80, behavior: 'teleport_bomb', scale: 0.8 },
         { id: 'split_core', name: 'Split Core', sides: 8, color: 0x4ade80, behavior: 'split_hybrid', scale: 1.2 },
         { id: 'shield_sentinel', name: 'Shield Sentinel', sides: 4, color: 0x4ade80, behavior: 'shield', scale: 1.3, doubleBorder: true },
-        { id: 'arc_phantom', name: 'Arc Phantom', sides: 10, color: 0x4ade80, behavior: 'elite_hybrid', scale: 1.8 },
+        { id: 'celo_phantom', name: 'Celo Phantom', sides: 10, color: 0x4ade80, behavior: 'elite_hybrid', scale: 1.8 },
         { id: 'spin_star', name: 'Spin Star', sides: 10, isStar: true, color: 0x4ade80, behavior: 'spin', scale: 1.0 },
         { id: 'phase_heptar', name: 'Phase Heptar', sides: 7, color: 0x4ade80, behavior: 'phase', scale: 1.2 },
-        { id: 'crescent_reaver', name: 'Crescent Reaver', sides: 30, isCrescent: true, color: 0x4ade80, behavior: 'arc_dash', scale: 1.2 },
+        { id: 'crescent_reaver', name: 'Crescent Reaver', sides: 30, isCrescent: true, color: 0x4ade80, behavior: 'celo_dash', scale: 1.2 },
         { id: 'spiral_warden', name: 'Spiral Warden', isSpiral: true, color: 0x4ade80, behavior: 'spiral', scale: 1.3 },
         { id: 'prism_drifter', name: 'Prism Drifter', sides: 4, ratio: 0.6, color: 0x4ade80, behavior: 'prism', scale: 1.1 }
     ];
@@ -77,14 +77,14 @@ class MainScene extends Phaser.Scene {
     private waveConfigs = [
         { wave: 1, total: 100, duration: 45000, enemies: { ground_biter: 1.0 } },
         { wave: 2, total: 140, duration: 50000, enemies: { ground_biter: 0.65, charger_ram: 0.2, pouncer: 0.15 } },
-        { wave: 3, total: 190, duration: 50000, enemies: { ground_biter: 0.5, charger_ram: 0.2, arc_shooter: 0.15, pouncer: 0.15 } },
-        { wave: 4, total: 250, duration: 55000, enemies: { ground_biter: 0.3, charger_ram: 0.15, arc_shooter: 0.15, hover_mage: 0.15, pouncer: 0.1, spin_star: 0.15 } },
-        { wave: 5, total: 320, duration: 60000, enemies: { ground_biter: 0.25, charger_ram: 0.15, arc_shooter: 0.1, hover_mage: 0.15, knockback_brute: 0.15, phase_heptar: 0.2 } },
-        { wave: 6, total: 400, duration: 60000, enemies: { ground_biter: 0.2, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, knockback_brute: 0.1, split_core: 0.2, crescent_reaver: 0.2 } },
-        { wave: 7, total: 500, duration: 70000, enemies: { ground_biter: 0.15, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.15, shield_sentinel: 0.2, spiral_warden: 0.2 } },
-        { wave: 8, total: 650, duration: 70000, enemies: { ground_biter: 0.1, charger_ram: 0.1, arc_shooter: 0.1, hover_mage: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, prism_drifter: 0.3 } },
-        { wave: 9, total: 850, duration: 70000, enemies: { ground_biter: 0.1, charger_ram: 0.05, arc_shooter: 0.05, hover_mage: 0.05, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.15, arc_phantom: 0.1, prism_drifter: 0.3 } },
-        { wave: 10, total: 1100, duration: 70000, enemies: { ground_biter: 0.1, charger_ram: 0.05, arc_shooter: 0.05, hover_mage: 0.05, pouncer: 0.05, knockback_brute: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, arc_phantom: 0.1, prism_drifter: 0.2 } }
+        { wave: 3, total: 190, duration: 50000, enemies: { ground_biter: 0.5, charger_ram: 0.2, celo_shooter: 0.15, pouncer: 0.15 } },
+        { wave: 4, total: 250, duration: 55000, enemies: { ground_biter: 0.3, charger_ram: 0.15, celo_shooter: 0.15, hover_mage: 0.15, pouncer: 0.1, spin_star: 0.15 } },
+        { wave: 5, total: 320, duration: 60000, enemies: { ground_biter: 0.25, charger_ram: 0.15, celo_shooter: 0.1, hover_mage: 0.15, knockback_brute: 0.15, phase_heptar: 0.2 } },
+        { wave: 6, total: 400, duration: 60000, enemies: { ground_biter: 0.2, charger_ram: 0.1, celo_shooter: 0.1, hover_mage: 0.1, knockback_brute: 0.1, split_core: 0.2, crescent_reaver: 0.2 } },
+        { wave: 7, total: 500, duration: 70000, enemies: { ground_biter: 0.15, charger_ram: 0.1, celo_shooter: 0.1, hover_mage: 0.1, split_core: 0.15, shield_sentinel: 0.2, spiral_warden: 0.2 } },
+        { wave: 8, total: 650, duration: 70000, enemies: { ground_biter: 0.1, charger_ram: 0.1, celo_shooter: 0.1, hover_mage: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, prism_drifter: 0.3 } },
+        { wave: 9, total: 850, duration: 70000, enemies: { ground_biter: 0.1, charger_ram: 0.05, celo_shooter: 0.05, hover_mage: 0.05, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.15, celo_phantom: 0.1, prism_drifter: 0.3 } },
+        { wave: 10, total: 1100, duration: 70000, enemies: { ground_biter: 0.1, charger_ram: 0.05, celo_shooter: 0.05, hover_mage: 0.05, pouncer: 0.05, knockback_brute: 0.1, split_core: 0.1, shield_sentinel: 0.1, blink_stalker: 0.1, celo_phantom: 0.1, prism_drifter: 0.2 } }
     ];
 
     // Boss polygon graphics map
@@ -92,7 +92,7 @@ class MainScene extends Phaser.Scene {
     
     private isGameOver: boolean = false;
     private level: number = 1;
-    private levelTitle: string = 'Arc Initiate';
+    private levelTitle: string = 'Celo Initiate';
     private enemiesDefeated: number = 0;
     private isSubmittingScore: boolean = false;
     private finalScore: number = 0;
@@ -128,33 +128,33 @@ class MainScene extends Phaser.Scene {
                 return;
             }
 
-            const ARC_TESTNET_CONFIG = {
-                chainId: "0x4cef52",
-                chainName: "Arc Testnet",
+            const CELO_NETWORK_CONFIG = {
+                chainId: "0xa4ec",
+                chainName: "Celo Mainnet",
                 nativeCurrency: {
-                    name: "ARC",
-                    symbol: "ARC",
+                    name: "CELO",
+                    symbol: "CELO",
                     decimals: 18
                 },
-                rpcUrls: ["https://rpc.testnet.arc.network"],
-                blockExplorerUrls: ["https://explorer.testnet.arc.network"]
+                rpcUrls: ["https://forno.celo.org"],
+                blockExplorerUrls: ["https://celoscan.io"]
             };
 
             const provider = new ethers.BrowserProvider((window as any).ethereum);
             
             // Check network before submitting
             const network = await provider.getNetwork();
-            if (network.chainId !== BigInt(parseInt(ARC_TESTNET_CONFIG.chainId, 16))) {
+            if (network.chainId !== BigInt(parseInt(CELO_NETWORK_CONFIG.chainId, 16))) {
                 try {
                     await (window as any).ethereum.request({
                         method: "wallet_switchEthereumChain",
-                        params: [{ chainId: ARC_TESTNET_CONFIG.chainId }],
+                        params: [{ chainId: CELO_NETWORK_CONFIG.chainId }],
                     });
                 } catch (switchError: any) {
                     if (switchError.code === 4902) {
                         await (window as any).ethereum.request({
                             method: "wallet_addEthereumChain",
-                            params: [ARC_TESTNET_CONFIG],
+                            params: [CELO_NETWORK_CONFIG],
                         });
                     } else {
                         throw switchError;
@@ -172,8 +172,8 @@ class MainScene extends Phaser.Scene {
             // Nome do jogador vindo do Supabase ou da Wallet
             const playerName = (window as any).playerName || 
                 ((window as any).walletAddress 
-                    ? "Arc Player " + (window as any).walletAddress.substring(0, 6)
-                    : "Arc Player");
+                    ? "Celo Player " + (window as any).walletAddress.substring(0, 6)
+                    : "Celo Player");
             
             const totalPlayTime = Math.floor((this.time.now - this.gameStartTime - (this.totalPausedTime || 0)) / 1000);
 
@@ -238,8 +238,8 @@ class MainScene extends Phaser.Scene {
     ];
 
     private levelTitles = [
-        'Arc Initiate', 'Arc Novice', 'Arc Apprentice', 'Arc Adept', 'Arc Mage',
-        'Arc Master', 'Arc Grandmaster', 'Arc Sage', 'Arc Archon', 'Arc Divine'
+        'Celo Initiate', 'Celo Novice', 'Celo Apprentice', 'Celo Adept', 'Celo Mage',
+        'Celo Master', 'Celo Grandmaster', 'Celo Sage', 'Celo Archon', 'Celo Divine'
     ];
 
     // Public method to trigger a re-application of upgrades from the global game object
@@ -521,12 +521,12 @@ class MainScene extends Phaser.Scene {
     private walletHUDText: Phaser.GameObjects.Text | null = null;
     private tooltipHideTimer: Phaser.Time.TimerEvent | null = null;
     private playerUpgrades: Record<string, number> = {
-        arc_hp: 0,
-        arc_ki: 0,
-        arc_damage: 0,
-        arc_defence: 0,
-        arc_regen: 0,
-        arc_vamp: 0
+        celo_hp: 0,
+        celo_ki: 0,
+        celo_damage: 0,
+        celo_defence: 0,
+        celo_regen: 0,
+        celo_vamp: 0
     };
 
     // 🔒 SISTEMA DE PAUSA - Variáveis obrigatórias
@@ -1422,7 +1422,7 @@ class MainScene extends Phaser.Scene {
                 delay: delay,
                 callback: () => {
                     if (!this.isWaveInterval && !this.isGameOver) {
-                        this.spawnEnemyOfType('arc_phantom');
+                        this.spawnEnemyOfType('celo_phantom');
                     }
                 }
             });
@@ -2063,7 +2063,7 @@ class MainScene extends Phaser.Scene {
                         }
                         enemy.setVelocity(Math.cos(angle) * enemySpeed * 0.5, Math.sin(angle) * enemySpeed * 0.5);
                         break;
-                    case 'arc_dash':
+                    case 'celo_dash':
                         const orbitX = this.player.x + Math.cos(time/500) * 200;
                         const orbitY = this.player.y + Math.sin(time/500) * 200;
                         enemy.setVelocity((orbitX - enemy.x) * 2, (orbitY - enemy.y) * 2);
@@ -3094,7 +3094,7 @@ class MainScene extends Phaser.Scene {
         let health = enemy.getData('health') || 1;
         const typeId = enemy.getData('typeId');
         
-        // Apply arc_damage upgrade multiplier
+        // Apply celo_damage upgrade multiplier
         const damageMultiplier = (this as any).damageMultiplier || 1.0;
         let finalDamage = damage * damageMultiplier;
 
@@ -3292,16 +3292,16 @@ class MainScene extends Phaser.Scene {
 
     private getLevelTitle(score: number): { level: number, title: string } {
         const levels = [
-            { threshold: 15000000, title: 'Arc Prime', level: 10 },
-            { threshold: 3000000, title: 'Arc Ascendant', level: 9 },
-            { threshold: 600000, title: 'Arc Architect', level: 8 },
-            { threshold: 125000, title: 'Arc Spartan', level: 7 },
-            { threshold: 25000, title: 'Arc Vanguard', level: 6 },
-            { threshold: 5000, title: 'Arc Sentinel', level: 5 },
-            { threshold: 1000, title: 'Arc Forged', level: 4 },
-            { threshold: 200, title: 'Arc Adept', level: 3 },
-            { threshold: 50, title: 'Arc Seeker', level: 2 },
-            { threshold: 0, title: 'Arc Initiate', level: 1 }
+            { threshold: 15000000, title: 'Celo Prime', level: 10 },
+            { threshold: 3000000, title: 'Celo Ascendant', level: 9 },
+            { threshold: 600000, title: 'Celo Architect', level: 8 },
+            { threshold: 125000, title: 'Celo Spartan', level: 7 },
+            { threshold: 25000, title: 'Celo Vanguard', level: 6 },
+            { threshold: 5000, title: 'Celo Sentinel', level: 5 },
+            { threshold: 1000, title: 'Celo Forged', level: 4 },
+            { threshold: 200, title: 'Celo Adept', level: 3 },
+            { threshold: 50, title: 'Celo Seeker', level: 2 },
+            { threshold: 0, title: 'Celo Initiate', level: 1 }
         ];
         return levels.find(l => score >= l.threshold) || levels[levels.length - 1];
     }
@@ -3776,11 +3776,11 @@ class MainScene extends Phaser.Scene {
         
         // Apply stats immediately
         const stats = this.levelStats[this.level - 1] || this.levelStats[0];
-        if (id === 'arc_hp') {
+        if (id === 'celo_hp') {
             const bonus = 1 + (level * 0.1); // Simple 10% per level for display logic
             this.maxHealth = stats.hp * bonus;
             this.updateHUD();
-        } else if (id === 'arc_ki') {
+        } else if (id === 'celo_ki') {
             const bonus = 1 + (level * 0.1);
             this.maxKiarc = stats.ki * bonus;
             this.updateHUD();
@@ -3851,12 +3851,12 @@ class MainScene extends Phaser.Scene {
         this.upgradeIconsContainer.removeAll(true);
         
         const upgradeTypes: Record<string, { icon: string, color: number }> = {
-            'arc_hp': { icon: '❤', color: 0xff4444 },
-            'arc_ki': { icon: '⚡', color: 0x44ccff },
-            'arc_damage': { icon: '⚔', color: 0xffcc44 },
-            'arc_defence': { icon: '🛡', color: 0x44ff44 },
-            'arc_regen': { icon: '✚', color: 0x44ffaa },
-            'arc_vamp': { icon: '💧', color: 0xaa44ff }
+            'celo_hp': { icon: '❤', color: 0xff4444 },
+            'celo_ki': { icon: '⚡', color: 0x44ccff },
+            'celo_damage': { icon: '⚔', color: 0xffcc44 },
+            'celo_defence': { icon: '🛡', color: 0x44ff44 },
+            'celo_regen': { icon: '✚', color: 0x44ffaa },
+            'celo_vamp': { icon: '💧', color: 0xaa44ff }
         };
 
         let xOffset = 0;
@@ -4542,24 +4542,24 @@ class MainScene extends Phaser.Scene {
         this.upgradeIconsContainer.removeAll(true);
         this.upgradeIconsContainer.setAlpha(0.8); // 20% more transparent
 
-        const upgradeOrder = ['arc_hp', 'arc_ki', 'arc_damage', 'arc_defence', 'arc_regen', 'arc_vamp'];
+        const upgradeOrder = ['celo_hp', 'celo_ki', 'celo_damage', 'celo_defence', 'celo_regen', 'celo_vamp'];
 
         const upgradeNames: Record<string, string> = {
-            arc_hp: 'HP',
-            arc_ki: 'KI',
-            arc_damage: 'DMG',
-            arc_defence: 'DEF',
-            arc_regen: 'REG',
-            arc_vamp: 'VMP'
+            celo_hp: 'HP',
+            celo_ki: 'KI',
+            celo_damage: 'DMG',
+            celo_defence: 'DEF',
+            celo_regen: 'REG',
+            celo_vamp: 'VMP'
         };
 
         const upgradeColors: Record<string, number> = {
-            arc_hp: 0xff4444,
-            arc_ki: 0xffd700,
-            arc_damage: 0xff8800,
-            arc_defence: 0x4444ff,
-            arc_regen: 0x44ff44,
-            arc_vamp: 0xff00ff
+            celo_hp: 0xff4444,
+            celo_ki: 0xffd700,
+            celo_damage: 0xff8800,
+            celo_defence: 0x4444ff,
+            celo_regen: 0x44ff44,
+            celo_vamp: 0xff00ff
         };
 
         let index = 0;
@@ -4601,12 +4601,12 @@ class MainScene extends Phaser.Scene {
                 container.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
                 
                 const descriptions: Record<string, string> = {
-                    arc_hp: 'Permanently increases your maximum health.',
-                    arc_ki: 'Permanently increases your KI capacity.',
-                    arc_damage: 'Increases the damage of your attacks.',
-                    arc_defence: 'Reduces damage received from enemies.',
-                    arc_regen: 'Increases passive health regeneration.',
-                    arc_vamp: 'Heals a portion of damage dealt.'
+                    celo_hp: 'Permanently increases your maximum health.',
+                    celo_ki: 'Permanently increases your KI capacity.',
+                    celo_damage: 'Increases the damage of your attacks.',
+                    celo_defence: 'Reduces damage received from enemies.',
+                    celo_regen: 'Increases passive health regeneration.',
+                    celo_vamp: 'Heals a portion of damage dealt.'
                 };
 
                 container.on('pointerover', () => {
@@ -4886,30 +4886,30 @@ class MainScene extends Phaser.Scene {
         const standardBonuses = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.55, 0.7, 0.85, 1.0, 2.0];
         const vampBonuses = [0, 0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.0006, 0.0007, 0.0008, 0.0009, 0.001];
         
-        const bonus = id === 'arc_vamp' ? (vampBonuses[level] || 0) : (standardBonuses[level] || 0);
+        const bonus = id === 'celo_vamp' ? (vampBonuses[level] || 0) : (standardBonuses[level] || 0);
         
         // Get base stats for current level
         const baseStats = this.levelStats[this.level - 1] || this.levelStats[0];
 
         switch (id) {
-            case 'arc_hp':
+            case 'celo_hp':
                 const oldMaxHp = this.maxHealth || 300;
                 this.maxHealth = (baseStats.hp || 300) * (1 + bonus);
                 if (isNaN(this.maxHealth)) this.maxHealth = oldMaxHp;
                 this.health += (this.maxHealth - oldMaxHp); 
                 break;
-            case 'arc_ki':
+            case 'celo_ki':
                 this.maxKiarc = (baseStats.ki || 100) * (1 + bonus);
                 if (isNaN(this.maxKiarc)) this.maxKiarc = (baseStats.ki || 100);
                 break;
-            case 'arc_damage':
+            case 'celo_damage':
                 // We'll use a property to multiply damage
                 (this as any).damageMultiplier = 1 + bonus;
                 break;
-            case 'arc_defence':
+            case 'celo_defence':
                 (this as any).defenceBonus = bonus;
                 break;
-            case 'arc_regen':
+            case 'celo_regen':
                 if ((this as any).regenTimer) {
                     (this as any).regenTimer.remove();
                     (this as any).regenTimer = null;
@@ -4924,7 +4924,7 @@ class MainScene extends Phaser.Scene {
                     loop: true
                 });
                 break;
-            case 'arc_vamp':
+            case 'celo_vamp':
                 (this as any).vampBonus = bonus;
                 break;
         }
@@ -5130,18 +5130,18 @@ class StartScene extends Phaser.Scene {
         this.isWalletConnecting = true;
 
         try {
-            // Arc Testnet Config (ChainID 5042002 = 0x4cef52)
-            const arcChainId = '0x4cef52';
-            const arcTestnet = {
-                chainId: arcChainId,
-                chainName: 'Arc Testnet',
+            // Celo Mainnet Config (ChainID 42220 = 0xa4ec)
+            const celoChainId = '0xa4ec';
+            const celoMainnet = {
+                chainId: celoChainId,
+                chainName: 'Celo Mainnet',
                 nativeCurrency: {
-                    name: 'ARC',
-                    symbol: 'ARC',
+                    name: 'CELO',
+                    symbol: 'CELO',
                     decimals: 18
                 },
-                rpcUrls: ['https://rpc.testnet.arc.network'],
-                blockExplorerUrls: ['https://explorer.testnet.arc.network']
+                rpcUrls: ['https://forno.celo.org'],
+                blockExplorerUrls: ['https://celoscan.io']
             };
 
             try {
@@ -5156,20 +5156,20 @@ class StartScene extends Phaser.Scene {
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
                 const network = await provider.getNetwork();
 
-                if (network.chainId !== BigInt(5042002)) {
-                    console.log('Attempting to switch to Arc Testnet (0x4cef52)...');
+                if (network.chainId !== BigInt(42220)) {
+                    console.log('Attempting to switch to Celo Mainnet (0xa4ec)...');
                     try {
                         // Forçar a troca de rede
                         await (window as any).ethereum.request({
                             method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: arcChainId }],
+                            params: [{ chainId: celoChainId }],
                         });
                         
                         // Aguardar e verificar
                         await new Promise(resolve => setTimeout(resolve, 1000));
                         const verifiedProvider = new ethers.BrowserProvider((window as any).ethereum);
                         const verifiedNetwork = await verifiedProvider.getNetwork();
-                        if (verifiedNetwork.chainId !== BigInt(5042002)) {
+                        if (verifiedNetwork.chainId !== BigInt(42220)) {
                             throw new Error('Network switch was not successful');
                         }
                     } catch (switchError: any) {
@@ -5181,10 +5181,10 @@ class StartScene extends Phaser.Scene {
                                         (switchError.message && (switchError.message.toLowerCase().includes('unrecognized') || switchError.message.toLowerCase().includes('not been added')));
 
                         if (isMissing) {
-                            console.log('Adding Arc Testnet to wallet...');
+                            console.log('Adding Celo Mainnet to wallet...');
                             await (window as any).ethereum.request({
                                 method: 'wallet_addEthereumChain',
-                                params: [arcTestnet],
+                                params: [celoMainnet],
                             });
                         } else {
                             throw switchError;
@@ -5193,8 +5193,8 @@ class StartScene extends Phaser.Scene {
                 }
 
                 this.updateWalletButtonText(`CONNECTED: ${this.walletAddress?.substring(0, 6)}...`);
-                this.updateNetworkDisplay('Arc Testnet');
-                (window as any).networkName = 'Arc Testnet';
+                this.updateNetworkDisplay('Celo Mainnet');
+                (window as any).networkName = 'Celo Mainnet';
                 
                 // Update START GAME button state
                 if ((window as any).updateStartButtonState) {
@@ -5462,14 +5462,14 @@ class StartScene extends Phaser.Scene {
 
                 const provider = new ethers.BrowserProvider((window as any).ethereum);
                 let network = await provider.getNetwork();
-                const arcChainId = '0x4cef52'; // 5042002
+                const celoChainId = '0xa4ec'; // 42220
 
-                if (network.chainId !== BigInt(5042002)) {
-                    console.log('Forcing network switch to Arc Testnet...');
+                if (network.chainId !== BigInt(42220)) {
+                    console.log('Forcing network switch to Celo Mainnet...');
                     try {
                         await (window as any).ethereum.request({
                             method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: arcChainId }],
+                            params: [{ chainId: celoChainId }],
                         });
                         
                         // Wait for the provider to update and re-check
@@ -5477,8 +5477,8 @@ class StartScene extends Phaser.Scene {
                         const verifiedProvider = new ethers.BrowserProvider((window as any).ethereum);
                         const verifiedNetwork = await verifiedProvider.getNetwork();
                         
-                        if (verifiedNetwork.chainId !== BigInt(5042002)) {
-                            alert('Network switch failed. You MUST be on Arc Testnet to play.');
+                        if (verifiedNetwork.chainId !== BigInt(42220)) {
+                            alert('Network switch failed. You MUST be on Celo Mainnet to play.');
                             return;
                         }
                     } catch (switchError: any) {
@@ -5487,19 +5487,19 @@ class StartScene extends Phaser.Scene {
                                 await (window as any).ethereum.request({
                                     method: 'wallet_addEthereumChain',
                                     params: [{
-                                        chainId: arcChainId,
-                                        chainName: 'Arc Testnet',
-                                        rpcUrls: ['https://rpc.testnet.arc.network'],
-                                        nativeCurrency: { name: 'ARC', symbol: 'ARC', decimals: 18 },
-                                        blockExplorerUrls: ['https://explorer.testnet.arc.network']
+                                        chainId: celoChainId,
+                                        chainName: 'Celo Mainnet',
+                                        rpcUrls: ['https://forno.celo.org'],
+                                        nativeCurrency: { name: 'CELO', symbol: 'CELO', decimals: 18 },
+                                        blockExplorerUrls: ['https://celoscan.io']
                                     }],
                                 });
                             } catch (addError) {
-                                alert('Please add and switch to Arc Testnet manually.');
+                                alert('Please add and switch to Celo Mainnet manually.');
                                 return;
                             }
                         } else {
-                            alert('Switch to Arc Testnet was rejected. Game cannot start.');
+                            alert('Switch to Celo Mainnet was rejected. Game cannot start.');
                             return;
                         }
                     }
@@ -5552,24 +5552,24 @@ class StartScene extends Phaser.Scene {
                     const onChainData = await upgradeContract.upgrades(userAddress);
                     
                     upgradesData = {
-                        arc_hp: Number(onChainData.hp),
-                        arc_ki: Number(onChainData.ki),
-                        arc_damage: Number(onChainData.damage),
-                        arc_defence: Number(onChainData.defence),
-                        arc_regen: Number(onChainData.regen),
-                        arc_vamp: Number(onChainData.vamp)
+                        celo_hp: Number(onChainData.hp),
+                        celo_ki: Number(onChainData.ki),
+                        celo_damage: Number(onChainData.damage),
+                        celo_defence: Number(onChainData.defence),
+                        celo_regen: Number(onChainData.regen),
+                        celo_vamp: Number(onChainData.vamp)
                     };
                     
                     console.log("✅ Start Game: Upgrades sincronizados:", upgradesData);
                 } catch (onChainErr) {
                     console.warn("On-chain sync failed, using defaults:", onChainErr);
                     upgradesData = {
-                        arc_hp: 0,
-                        arc_ki: 0,
-                        arc_damage: 0,
-                        arc_defence: 0,
-                        arc_regen: 0,
-                        arc_vamp: 0
+                        celo_hp: 0,
+                        celo_ki: 0,
+                        celo_damage: 0,
+                        celo_defence: 0,
+                        celo_regen: 0,
+                        celo_vamp: 0
                     };
                 }
                 
@@ -5585,12 +5585,12 @@ class StartScene extends Phaser.Scene {
                     upgrades: { walletAddress: currentWallet, stats: { health: 0, damage: 0, speed: 0, ki: 0 } }
                 };
                 (window as any).playerUpgrades = {
-                    arc_hp: 0,
-                    arc_ki: 0,
-                    arc_damage: 0,
-                    arc_defence: 0,
-                    arc_regen: 0,
-                    arc_vamp: 0
+                    celo_hp: 0,
+                    celo_ki: 0,
+                    celo_damage: 0,
+                    celo_defence: 0,
+                    celo_regen: 0,
+                    celo_vamp: 0
                 };
                 this.stopOpeningMusic();
                 this.scene.start('MainScene');
@@ -5835,7 +5835,7 @@ class StartScene extends Phaser.Scene {
         const contractFontSize = '14px';
 
         // Wallet Display Logic
-        this.networkInfoText = this.add.text(width / 2, height / 2 - 70, isWalletConnected ? 'Arc Testnet' : '', {
+        this.networkInfoText = this.add.text(width / 2, height / 2 - 70, isWalletConnected ? 'Celo Mainnet' : '', {
             fontSize: '18px', color: '#4ade80', fontStyle: 'bold'
         }).setOrigin(0.5);
 
@@ -5847,7 +5847,7 @@ class StartScene extends Phaser.Scene {
 
         // Footer and Social
         const footerY = height - 60;
-        this.add.text(width / 2, footerY - 20, '2026 PolyDoom Arc — Built on Arc Network. All rights reserved.', {
+        this.add.text(width / 2, footerY - 20, '2026 PolyDoom Celo — Built on Celo Network. All rights reserved.', {
             fontSize: '14px', color: '#ffffff'
         }).setOrigin(0.5);
 
@@ -6854,24 +6854,24 @@ class DeathScene extends Phaser.Scene {
 
                     const provider = new ethers.BrowserProvider((window as any).ethereum);
                     
-                    // 📡 ENSURE ARC TESTNET
-                    const arcChainId = '0x4cef52'; // 5042002 in hex
+                    // 📡 ENSURE CELO MAINNET
+                    const celoChainId = '0xa4ec'; // 42220 in hex
                     const network = await provider.getNetwork();
                     
-                    if (network.chainId !== BigInt(5042002)) {
-                        console.log('Switching to Arc Testnet...');
+                    if (network.chainId !== BigInt(42220)) {
+                        console.log('Switching to Celo Mainnet...');
                         try {
                             // Forçar a troca de rede
                             await (window as any).ethereum.request({
                                 method: 'wallet_switchEthereumChain',
-                                params: [{ chainId: arcChainId }],
+                                params: [{ chainId: celoChainId }],
                             });
                             
                             // Aguardar e verificar
                             await new Promise(resolve => setTimeout(resolve, 1000));
                             const verifiedProvider = new ethers.BrowserProvider((window as any).ethereum);
                             const verifiedNetwork = await verifiedProvider.getNetwork();
-                            if (verifiedNetwork.chainId !== BigInt(5042002)) {
+                            if (verifiedNetwork.chainId !== BigInt(42220)) {
                                 throw new Error('Network switch was not successful');
                             }
                         } catch (switchError: any) {
@@ -6881,26 +6881,26 @@ class DeathScene extends Phaser.Scene {
                                         method: 'wallet_addEthereumChain',
                                         params: [
                                             {
-                                                chainId: arcChainId,
-                                                chainName: 'Arc Testnet',
-                                                rpcUrls: ['https://rpc.testnet.arc.network'],
+                                                chainId: celoChainId,
+                                                chainName: 'Celo Mainnet',
+                                                rpcUrls: ['https://forno.celo.org'],
                                                 nativeCurrency: {
-                                                    name: 'ARC',
-                                                    symbol: 'ARC',
+                                                    name: 'CELO',
+                                                    symbol: 'CELO',
                                                     decimals: 18
                                                 },
-                                                blockExplorerUrls: ['https://explorer.testnet.arc.network']
+                                                blockExplorerUrls: ['https://celoscan.io']
                                             },
                                         ],
                                     });
                                 } catch (addError) {
-                                    console.error("Failed to add Arc Testnet", addError);
-                                    alert('Please add Arc Testnet to your wallet manually.');
+                                    console.error("Failed to add Celo Mainnet", addError);
+                                    alert('Please add Celo Mainnet to your wallet manually.');
                                     return;
                                 }
                             } else {
-                                console.error("Failed to switch to Arc Testnet", switchError);
-                                alert('Please switch to Arc Testnet in your wallet.');
+                                console.error("Failed to switch to Celo Mainnet", switchError);
+                                alert('Please switch to Celo Mainnet in your wallet.');
                                 return;
                             }
                         }

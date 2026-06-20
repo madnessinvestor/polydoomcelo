@@ -115,10 +115,10 @@ export default function Controls() {
                 <CardContent className="p-4 flex flex-col items-center gap-4">
                   <h3 className="text-green-500 font-bold uppercase font-pixel-label" style={{ fontSize: '1.43rem' }}>Special Abilities</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                    <Key label="V" action="Arc-Kamehameha" active />
-                    <Key label="B" action="Arc-GenkiDama" active />
-                    <Key label="F" action="Arc-Ki Explosion" active />
-                    <Key label="S" action="Arc-Meteor" active />
+                    <Key label="V" action="Celo-Kamehameha" active />
+                    <Key label="B" action="Celo-GenkiDama" active />
+                    <Key label="F" action="Celo-Ki Explosion" active />
+                    <Key label="S" action="Celo-Meteor" active />
                   </div>
                 </CardContent>
               </Card>

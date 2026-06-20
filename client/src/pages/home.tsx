@@ -22,7 +22,7 @@ const POTIONS_UI = [
 declare global {
   interface Window {
     arc?: any;
-    isArcConnected?: boolean;
+    isCeloConnected?: boolean;
     game?: Phaser.Game;
     showPauseModal?: () => void;
     hidePauseModal?: () => void;
@@ -64,16 +64,16 @@ export default function Home() {
   });
   const scale = useGameScale();
 
-  const ARC_TESTNET_CONFIG = {
-    chainId: "0x4cef52", // Updated to 0x4cef52 based on actual network ID seen in logs
-    chainName: "Arc Testnet",
+  const CELO_NETWORK_CONFIG = {
+    chainId: "0xa4ec", // Celo Mainnet Chain ID: 42220
+    chainName: "Celo Mainnet",
     nativeCurrency: {
-      name: "ARC",
-      symbol: "ARC",
+      name: "CELO",
+      symbol: "CELO",
       decimals: 18
     },
-    rpcUrls: ["https://rpc.testnet.arc.io"], // Updated RPC URL
-    blockExplorerUrls: ["https://explorer.testnet.arc.io"]
+    rpcUrls: ["https://forno.celo.org"],
+    blockExplorerUrls: ["https://celoscan.io"]
   };
 
   const switchNetwork = async () => {
@@ -81,26 +81,26 @@ export default function Home() {
     try {
       await (window as any).ethereum.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: ARC_TESTNET_CONFIG.chainId }],
+        params: [{ chainId: CELO_NETWORK_CONFIG.chainId }],
       });
     } catch (switchError: any) {
       if (switchError.code === 4902) {
         try {
           await (window as any).ethereum.request({
             method: "wallet_addEthereumChain",
-            params: [ARC_TESTNET_CONFIG],
+            params: [CELO_NETWORK_CONFIG],
           });
         } catch (addError) {
-          console.error("Error adding Arc Testnet:", addError);
+          console.error("Error adding Celo Mainnet:", addError);
         }
       }
-      console.error("Error switching to Arc Testnet:", switchError);
+      console.error("Error switching to Celo Mainnet:", switchError);
     }
   };
 
   useEffect(() => {
     const handleChainChanged = (chainId: string) => {
-      if (chainId !== ARC_TESTNET_CONFIG.chainId) {
+      if (chainId !== CELO_NETWORK_CONFIG.chainId) {
         switchNetwork();
       }
     };
@@ -160,12 +160,12 @@ export default function Home() {
             const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
             const data = await upgradeContract.upgrades(userAddress);
             upgradesData = {
-              arc_hp: Number(data.hp),
-              arc_ki: Number(data.ki),
-              arc_damage: Number(data.damage),
-              arc_defence: Number(data.defence),
-              arc_regen: Number(data.regen),
-              arc_vamp: Number(data.vamp)
+              celo_hp: Number(data.hp),
+              celo_ki: Number(data.ki),
+              celo_damage: Number(data.damage),
+              celo_defence: Number(data.defence),
+              celo_regen: Number(data.regen),
+              celo_vamp: Number(data.vamp)
             };
             console.log("React: Initial upgrades fetched:", upgradesData);
           } catch (err) {

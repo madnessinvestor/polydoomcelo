@@ -8,7 +8,7 @@ import { ethers } from "ethers";
 import { useUI } from "@/hooks/use-ui";
 
 const SHOP_CONTRACT_ADDRESS = "0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a";
-const USDC_ADDRESS = "0x3600000000000000000000000000000000000000"; // Correct USDC address for Arc Testnet 0x4cef52
+const USDC_ADDRESS = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C"; // USDC on Celo Mainnet
 
 const SHOP_ABI = [
   "function buyHealthPotion() external",
@@ -49,7 +49,7 @@ const POTIONS: Potion[] = [
     name: "Ki Potion",
     type: "Consumable",
     effect: "Restores 100% Ki instantly",
-    description: "Pure arcane energy condensed into liquid form.",
+    description: "Pure Celo energy condensed into liquid form.",
     price: 100,
     icon: Zap,
     color: "text-blue-500"

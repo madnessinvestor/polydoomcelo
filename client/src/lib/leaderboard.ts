@@ -8,7 +8,7 @@ const abi = [
     "function scores(uint256 index) public view returns (string name, uint256 score)"
 ];
 
-const contractAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006";
+const contractAddress = "0x9b673bDBA9ed06989b1846d4C63468BCE86cf006"; // TODO: Deploy on Celo Mainnet
 
 export const fetchOnChainLeaderboard = async () => {
     try {
@@ -27,7 +27,7 @@ export const fetchOnChainLeaderboard = async () => {
             console.error("❌ Erro ao buscar scores do backend:", e);
         }
 
-        const publicRpcUrl = "https://rpc.testnet.arc.network";
+        const publicRpcUrl = "https://forno.celo.org";
         const provider = new ethers.JsonRpcProvider(publicRpcUrl);
         const contract = new ethers.Contract(contractAddress, abi, provider);
         

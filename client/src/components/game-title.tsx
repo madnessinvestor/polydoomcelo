@@ -42,10 +42,10 @@ export function GameTitle() {
           text-stroke: 4px #fbbf24;
         }
         
-        .arc-text {
+        .celo-text {
           -webkit-text-fill-color: transparent;
-          -webkit-text-stroke: 4px #4ade80;
-          text-stroke: 4px #4ade80;
+          -webkit-text-stroke: 4px #FCFF52;
+          text-stroke: 4px #FCFF52;
         }
         
         @keyframes titlePulse {
@@ -66,10 +66,10 @@ export function GameTitle() {
           color: #fbbf24;
         }
         
-        .arc-text {
+        .celo-text {
           animation: titlePulse 2s ease-in-out infinite;
           animation-delay: 0.2s;
-          color: #4ade80;
+          color: #FCFF52;
         }
         
         @media (max-width: 768px) {
@@ -79,7 +79,7 @@ export function GameTitle() {
           }
           
           .polydoom-text,
-          .arc-text {
+          .celo-text {
             -webkit-text-stroke: 2px;
             text-stroke: 2px;
           }
@@ -88,7 +88,7 @@ export function GameTitle() {
             animation-name: titlePulseMobile;
           }
           
-          .arc-text {
+          .celo-text {
             animation-name: titlePulseMobile;
           }
         }
@@ -109,7 +109,7 @@ export function GameTitle() {
 
       <div className="game-title-container">
         <div className="game-title-text polydoom-text">POLYDOOM</div>
-        <div className="game-title-text arc-text">ARC</div>
+        <div className="game-title-text celo-text">CELO</div>
       </div>
     </div>
   );

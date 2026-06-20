@@ -23,8 +23,8 @@ interface UpgradeCategory {
 
 const UPGRADE_DATA: UpgradeCategory[] = [
   {
-    id: "arc_hp",
-    name: "ArcHP",
+    id: "celo_hp",
+    name: "CeloHP",
     description: "Increases maximum health",
     icon: Heart,
     tiers: [
@@ -41,8 +41,8 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     ]
   },
   {
-    id: "arc_ki",
-    name: "ArcKI",
+    id: "celo_ki",
+    name: "CeloKI",
     description: "Increases maximum Ki capacity",
     icon: Zap,
     tiers: [
@@ -59,8 +59,8 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     ]
   },
   {
-    id: "arc_vamp",
-    name: "ArcVamp",
+    id: "celo_vamp",
+    name: "CeloVamp",
     description: "Regenerates HP based on damage dealt",
     icon: Droplets,
     tiers: [
@@ -77,8 +77,8 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     ]
   },
   {
-    id: "arc_damage",
-    name: "ArcDamage",
+    id: "celo_damage",
+    name: "CeloDamage",
     description: "Increases all damage dealt",
     icon: Sword,
     tiers: [
@@ -95,8 +95,8 @@ const UPGRADE_DATA: UpgradeCategory[] = [
     ]
   },
   {
-    id: "arc_regen",
-    name: "ArcRegen",
+    id: "celo_regen",
+    name: "CeloRegen",
     description: "Regenerates HP every 10 seconds",
     icon: Activity,
     tiers: [
@@ -119,12 +119,12 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
   const [isUpgrading, setIsUpgrading] = useState<string | null>(null);
   const [balance, setBalance] = useState<string>("0.00");
   const [purchasedLevels, setPurchasedLevels] = useState<Record<string, number>>({
-    arc_hp: 0,
-    arc_ki: 0,
-    arc_damage: 0,
-    arc_defence: 0,
-    arc_regen: 0,
-    arc_vamp: 0,
+    celo_hp: 0,
+    celo_ki: 0,
+    celo_damage: 0,
+    celo_defence: 0,
+    celo_regen: 0,
+    celo_vamp: 0,
   });
 
   const fetchBalance = async () => {
@@ -169,12 +169,12 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
           const onChainDefence = Number(data.defence);
           
           setPurchasedLevels({
-            arc_hp: Number(data.hp),
-            arc_ki: Number(data.ki),
-            arc_damage: Number(data.damage),
-            arc_defence: onChainDefence,
-            arc_regen: Number(data.regen),
-            arc_vamp: Number(data.vamp)
+            celo_hp: Number(data.hp),
+            celo_ki: Number(data.ki),
+            celo_damage: Number(data.damage),
+            celo_defence: onChainDefence,
+            celo_regen: Number(data.regen),
+            celo_vamp: Number(data.vamp)
           });
         } catch (err) {
           console.warn("Silent: Could not fetch levels via .upgrades()", err);
@@ -233,8 +233,8 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       const usdcContract = new ethers.Contract(usdcAddress, usdcAbi, signer);
       const upgradeContract = new ethers.Contract(upgradeContractAddress, upgradeAbi, signer);
 
-      // Specific check for ArcDefence
-      if (id === "arc_defence") {
+      // Specific check for CeloDefence
+      if (id === "celo_defence") {
         // Always read upgrades(userAddress).defence as source of truth
         // Calculate price using defencePrices[defence]
         try {
@@ -252,7 +252,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
           
           console.log(`Validated on-chain: Current Level ${currentOnChainDefence}, Price ${price.toString()}`);
         } catch (e: any) {
-          throw new Error("On-chain validation error (ArcDefence): " + (e.reason || e.message));
+          throw new Error("On-chain validation error (CeloDefence): " + (e.reason || e.message));
         }
       }
       
@@ -268,12 +268,12 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       }
       
       const functionMap: Record<string, string> = {
-        arc_hp: "upgradeHP",
-        arc_ki: "upgradeKI",
-        arc_damage: "upgradeDamage",
-        arc_defence: "upgradeDefense",
-        arc_regen: "upgradeRegen",
-        arc_vamp: "upgradeVamp"
+        celo_hp: "upgradeHP",
+        celo_ki: "upgradeKI",
+        celo_damage: "upgradeDamage",
+        celo_defence: "upgradeDefense",
+        celo_regen: "upgradeRegen",
+        celo_vamp: "upgradeVamp"
       };
 
       const functionName = functionMap[id];
@@ -282,7 +282,7 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       console.log(`Calling ${functionName} on upgrade contract...`);
       
       // Manual gas limit for upgradeDefense to prevent estimateGas failure
-      const txOptions = id === "arc_defence" ? { gasLimit: 500000 } : {};
+      const txOptions = id === "celo_defence" ? { gasLimit: 500000 } : {};
       const tx = await upgradeContract[functionName](txOptions);
       
       console.log("Transaction sent:", tx.hash);
@@ -296,12 +296,12 @@ export function UpgradesModal({ onClose }: { onClose: () => void }) {
       try {
         const updatedData = await upgradeContract.upgrades(userAddress);
         const newLevels: Record<string, number> = {
-          arc_hp: Number(updatedData.hp),
-          arc_ki: Number(updatedData.ki),
-          arc_damage: Number(updatedData.damage),
-          arc_defence: Number(updatedData.defence),
-          arc_regen: Number(updatedData.regen),
-          arc_vamp: Number(updatedData.vamp)
+          celo_hp: Number(updatedData.hp),
+          celo_ki: Number(updatedData.ki),
+          celo_damage: Number(updatedData.damage),
+          celo_defence: Number(updatedData.defence),
+          celo_regen: Number(updatedData.regen),
+          celo_vamp: Number(updatedData.vamp)
         };
         setPurchasedLevels(newLevels);
         
