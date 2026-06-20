@@ -5625,31 +5625,36 @@ class StartScene extends Phaser.Scene {
         lbContentContainer.id = 'embedded-leaderboard';
         lbContentContainer.style.position = 'absolute';
         
-        // Calculate position relative to game canvas
+        // Calculate position relative to game canvas using actual game dimensions
         const updateLBPosition = () => {
             const canvasObj = this.game.canvas;
             const canvasRect = canvasObj.getBoundingClientRect();
-            
-            // The game is 1920x1080. We need to scale lbWidth/lbHeight accordingly
-            const scaleX = canvasRect.width / 1920;
-            const scaleY = canvasRect.height / 1080;
-            
-            const divWidth = (lbWidth - 40) * scaleX;
-            const divHeight = (lbHeight - 120) * scaleY;
-            const divX = canvasRect.left + (lbX - lbWidth/2 + 20) * scaleX;
-            const divY = canvasRect.top + (lbY - lbHeight/2 + 100) * scaleY;
 
-            lbContentContainer.style.left = divX + 'px';
-            lbContentContainer.style.top = divY + 'px';
-            lbContentContainer.style.width = divWidth + 'px';
+            // Use actual internal game dimensions (not hardcoded 1920/1080)
+            const gameW = this.cameras.main.width;
+            const gameH = this.cameras.main.height;
+            const scaleX = canvasRect.width / gameW;
+            const scaleY = canvasRect.height / gameH;
+
+            // Inner content area: inset 20px from each edge of the lb rectangle
+            const divWidth  = (lbWidth  - 40) * scaleX;
+            const divHeight = (lbHeight - 120) * scaleY;
+            const divX = canvasRect.left + window.scrollX + (lbX - lbWidth  / 2 + 20) * scaleX;
+            const divY = canvasRect.top  + window.scrollY + (lbY - lbHeight / 2 + 100) * scaleY;
+
+            lbContentContainer.style.left   = divX + 'px';
+            lbContentContainer.style.top    = divY + 'px';
+            lbContentContainer.style.width  = divWidth + 'px';
             lbContentContainer.style.height = divHeight + 'px';
-            
-            // Scale content based on zoom/resize
-            lbContentContainer.style.fontSize = (14 * scaleY) + 'px';
+
+            // Scale font proportionally to game height
+            lbContentContainer.style.fontSize = Math.max(10, 14 * scaleY) + 'px';
         };
 
         updateLBPosition();
         window.addEventListener('resize', updateLBPosition);
+        // Also reposition on Phaser's own scale/resize events
+        this.scale.on('resize', updateLBPosition);
         
         lbContentContainer.style.backgroundColor = 'transparent';
         lbContentContainer.style.overflowY = 'auto'; 
@@ -5812,12 +5817,14 @@ class StartScene extends Phaser.Scene {
         this.events.once('shutdown', () => {
             clearInterval(lbRefreshInterval);
             window.removeEventListener('resize', updateLBPosition);
+            this.scale.off('resize', updateLBPosition);
             lbContentContainer.remove();
             lbStyle.remove();
         });
         this.events.once('destroy', () => {
             clearInterval(lbRefreshInterval);
             window.removeEventListener('resize', updateLBPosition);
+            this.scale.off('resize', updateLBPosition);
             lbContentContainer.remove();
             lbStyle.remove();
         });
