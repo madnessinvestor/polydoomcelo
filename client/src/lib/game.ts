@@ -5603,9 +5603,43 @@ class StartScene extends Phaser.Scene {
         // Start Button
         const startBtnColor = isWalletConnected ? 0x4ade80 : 0x6b7280;
         const startBtnObj = createNeonButton(width / 2, height / 2 + 50, 240, 60, startBtnColor, 'START GAME', '28px', '#ffffff', async () => {
-            const currentWallet = (window as any).walletAddress;
+            // Step 1: Ensure wallet is connected before anything else
+            let currentWallet = (window as any).walletAddress;
+
             if (!currentWallet) {
-                alert('Wallet connection is required!');
+                if ((window as any).ethereum?.isMiniPay) {
+                    // MiniPay: request accounts directly per MiniPay docs
+                    try {
+                        startBtnObj.btnText.setText('CONNECTING...');
+                        const accounts: string[] = await (window as any).ethereum.request({
+                            method: 'eth_requestAccounts',
+                            params: [],
+                        });
+                        if (!accounts || accounts.length === 0) {
+                            startBtnObj.btnText.setText('START GAME');
+                            alert('MiniPay did not return an account. Please try again.');
+                            return;
+                        }
+                        currentWallet = accounts[0];
+                        (window as any).walletAddress = currentWallet;
+                        this.walletAddress = currentWallet;
+                        this.updateWalletButtonText(`MiniPay: ${currentWallet.substring(0, 6)}...`);
+                    } catch (err) {
+                        startBtnObj.btnText.setText('START GAME');
+                        alert('MiniPay connection failed. Please try again.');
+                        return;
+                    }
+                } else {
+                    // Browser wallet: must connect first
+                    alert('Wallet not connected! Please click "CONNECT WALLET" first.');
+                    this.connectWallet();
+                    return;
+                }
+            }
+
+            // Step 2: Verify ethereum provider is available for network check
+            if (!(window as any).ethereum) {
+                alert('No wallet provider found. Please install MetaMask or use MiniPay.');
                 return;
             }
 
@@ -5735,21 +5769,8 @@ class StartScene extends Phaser.Scene {
                 this.scene.start('MainScene');
             } catch (err) {
                 console.error('Error starting game:', err);
-                // Use defaults if everything fails
-                (window as any).characterState = {
-                    inventory: { walletAddress: currentWallet, potions: { health: 0, ki: 0, immunity: 0, score: 0 } },
-                    upgrades: { walletAddress: currentWallet, stats: { health: 0, damage: 0, speed: 0, ki: 0 } }
-                };
-                (window as any).playerUpgrades = {
-                    celo_hp: 0,
-                    celo_ki: 0,
-                    celo_damage: 0,
-                    celo_defence: 0,
-                    celo_regen: 0,
-                    celo_vamp: 0
-                };
-                this.stopOpeningMusic();
-                this.scene.start('MainScene');
+                startBtnObj.btnText.setText('START GAME');
+                alert('Error loading game data. Please try again.');
             }
         });
         this.startBtn = startBtnObj.btn as any;
