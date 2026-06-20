@@ -38,6 +38,7 @@ export default defineConfig(async ({ mode }) => {
       reportCompressedSize: false,
     },
     server: {
+      allowedHosts: true,
       fs: {
         strict: false,
         allow: [
