@@ -5130,9 +5130,22 @@ class StartScene extends Phaser.Scene {
             return;
         }
 
-        // Otherwise show wallet selector
-        this.isWalletConnecting = false; // allow re-entry after modal choice
-        this._showWalletSelector();
+        // Use the React wallet selector modal exposed by home.tsx
+        if ((window as any).__connectWallet) {
+            this.isWalletConnecting = false; // allow re-entry after modal choice
+            (window as any).__connectWallet(async (provider: any, name: string) => {
+                await this._doConnect(provider, name);
+            });
+            return;
+        }
+
+        // Fallback: try window.ethereum directly
+        if ((window as any).ethereum) {
+            await this._doConnect((window as any).ethereum, 'Wallet');
+        } else {
+            this.isWalletConnecting = false;
+            this.updateWalletButtonText('CONNECT WALLET');
+        }
     }
 
     private _showWalletSelector() {
@@ -5140,7 +5153,22 @@ class StartScene extends Phaser.Scene {
         if (document.getElementById('wallet-selector-modal')) return;
 
         const isMiniPay = !!(window as any).ethereum?.isMiniPay;
-        const hasBrowserWallet = !!(window as any).ethereum;
+
+        // Multi-wallet detection: EIP-5749 providers array or single provider
+        const allProviders: any[] = (window as any).ethereum?.providers ?? [];
+        const findProvider = (predicate: (p: any) => boolean) =>
+            allProviders.find(predicate) ?? null;
+
+        // Prefer providers array; fall back to window.ethereum
+        const metaMaskProvider = findProvider((p) => p.isMetaMask && !p.isRabby && !p.isBraveWallet)
+            ?? ((window as any).ethereum?.isMetaMask && !(window as any).ethereum?.isRabby ? (window as any).ethereum : null);
+        const rabbyProvider = findProvider((p) => p.isRabby)
+            ?? ((window as any).ethereum?.isRabby ? (window as any).ethereum : null);
+        const genericProvider = allProviders.length > 0
+            ? (allProviders[0])
+            : ((window as any).ethereum ?? null);
+
+        const hasBrowserWallet = !!(metaMaskProvider || rabbyProvider || genericProvider);
 
         // Dark Phaser overlay (click-through to cancel)
         const { width, height } = this.cameras.main;
@@ -5184,6 +5212,15 @@ class StartScene extends Phaser.Scene {
             document.head.appendChild(style);
         }
 
+        // Pick the best provider for generic "browser wallet" button
+        const browserProvider = rabbyProvider ?? metaMaskProvider ?? genericProvider;
+        const walletLabel = rabbyProvider ? 'Rabby'
+            : metaMaskProvider ? 'MetaMask'
+            : hasBrowserWallet ? 'Browser Wallet' : '';
+        const walletDesc = hasBrowserWallet
+            ? `${walletLabel} detected — click to connect`
+            : 'No browser wallet extension detected';
+
         const modal = document.createElement('div');
         modal.id = 'wallet-selector-modal';
         modal.innerHTML = `
@@ -5199,16 +5236,16 @@ class StartScene extends Phaser.Scene {
                 ${isMiniPay ? '<span class="ws-badge">DETECTED</span>' : ''}
             </button>
 
-            <button class="ws-opt ${hasBrowserWallet ? '' : 'ws-disabled'}" id="ws-browser">
+            <button class="ws-opt ${hasBrowserWallet ? 'ws-highlight' : 'ws-disabled'}" id="ws-browser">
                 <div class="ws-icon" style="background:#1c1a00">🦊</div>
                 <div class="ws-info">
-                    <div class="ws-name">MetaMask / Rabby / Browser Wallet</div>
-                    <div class="ws-desc">${hasBrowserWallet ? 'Extension detected — click to connect' : 'No browser wallet extension detected'}</div>
+                    <div class="ws-name">${hasBrowserWallet ? walletLabel : 'MetaMask / Rabby'}</div>
+                    <div class="ws-desc">${walletDesc}</div>
                 </div>
-                ${!hasBrowserWallet ? '<span class="ws-badge ws-grey">NOT FOUND</span>' : ''}
+                ${hasBrowserWallet ? '<span class="ws-badge">DETECTED</span>' : '<span class="ws-badge ws-grey">NOT FOUND</span>'}
             </button>
 
-            <button class="ws-opt ws-disabled" id="ws-wc">
+            <button class="ws-opt ws-disabled">
                 <div class="ws-icon" style="background:#0d1f3c">🔗</div>
                 <div class="ws-info">
                     <div class="ws-name">WalletConnect</div>
@@ -5237,9 +5274,9 @@ class StartScene extends Phaser.Scene {
         };
 
         document.getElementById('ws-browser')!.onclick = async () => {
-            if (!hasBrowserWallet) return;
+            if (!hasBrowserWallet || !browserProvider) return;
             cleanup();
-            await this._doConnect((window as any).ethereum, 'Wallet');
+            await this._doConnect(browserProvider, walletLabel || 'Wallet');
         };
 
         document.getElementById('ws-cancel')!.onclick = cleanup;

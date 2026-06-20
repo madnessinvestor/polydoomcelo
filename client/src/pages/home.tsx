@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Loader2, ArrowUpCircle, Beaker, Zap, Shield, Star } from "lucide-react";
@@ -62,6 +62,22 @@ export default function Home() {
     score: 0
   });
   const scale = useGameScale();
+
+  // Wallet selector modal state
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  const walletCallbackRef = useRef<((provider: any, name: string) => void) | null>(null);
+
+  const isMiniPay = !!(window as any).ethereum?.isMiniPay;
+  const allProviders: any[] = (window as any).ethereum?.providers ?? [];
+  const findP = (pred: (p: any) => boolean) => allProviders.find(pred) ?? null;
+  const metaMaskProvider = findP(p => p.isMetaMask && !p.isRabby && !p.isBraveWallet)
+    ?? ((window as any).ethereum?.isMetaMask && !(window as any).ethereum?.isRabby ? (window as any).ethereum : null);
+  const rabbyProvider = findP(p => p.isRabby)
+    ?? ((window as any).ethereum?.isRabby ? (window as any).ethereum : null);
+  const genericProvider = allProviders.length > 0 ? allProviders[0] : ((window as any).ethereum ?? null);
+  const browserProvider = rabbyProvider ?? metaMaskProvider ?? genericProvider;
+  const walletName = rabbyProvider ? 'Rabby' : metaMaskProvider ? 'MetaMask' : browserProvider ? 'Browser Wallet' : '';
+  const hasBrowserWallet = !!browserProvider;
 
   const CELO_NETWORK_CONFIG = {
     chainId: "0xa4ec", // Celo Mainnet Chain ID: 42220
@@ -137,11 +153,14 @@ export default function Home() {
         const actualFetch = (async () => {
           const provider = new ethers.BrowserProvider((window as any).ethereum);
           
-          // Ensure accounts are requested
+          // Silent check — only use already-connected accounts, never show popup on load
+          let existingAccounts: string[] = [];
           try {
-            await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
-          } catch (requestErr) {
-            console.warn("Wallet connection request failed or was rejected:", requestErr);
+            existingAccounts = await (window as any).ethereum.request({ method: 'eth_accounts' });
+          } catch (_) {}
+          if (!existingAccounts || existingAccounts.length === 0) {
+            // Wallet not connected yet — skip, game will connect on button click
+            return null;
           }
 
           const signer = await provider.getSigner();
@@ -341,6 +360,12 @@ export default function Home() {
     };
     (window as any).openProofOfShipModal = triggerProofOfShip;
 
+    // Global wallet connect bridge — called by Phaser game.ts
+    (window as any).__connectWallet = (cb: (provider: any, name: string) => void) => {
+      walletCallbackRef.current = cb;
+      setShowWalletModal(true);
+    };
+
     return () => {
       delete (window as any).showPauseModal;
       delete (window as any).hidePauseModal;
@@ -349,6 +374,7 @@ export default function Home() {
       delete (window as any).openControlsModal;
       delete (window as any).openHistoryModal;
       delete (window as any).openProofOfShipModal;
+      delete (window as any).__connectWallet;
     };
   }, [isConnected]);
 
@@ -506,6 +532,105 @@ export default function Home() {
           />
         </div>
       </div>
-    </div>
+
+      {/* React Wallet Selector Modal — triggered by Phaser via window.__connectWallet */}
+      {showWalletModal && (
+      <div
+        className="fixed inset-0 z-[9999] flex items-center justify-center"
+        style={{ background: 'rgba(0,0,0,0.8)' }}
+        onClick={() => setShowWalletModal(false)}
+      >
+        <div
+          className="relative"
+          style={{
+            background: '#0a0f1e', border: '2px solid #3b82f6',
+            boxShadow: '0 0 40px rgba(59,130,246,.5)', padding: '32px 28px',
+            minWidth: '300px', maxWidth: '420px', width: '90%', fontFamily: 'monospace',
+            borderRadius: '4px'
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          <h2 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', textAlign: 'center', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '2px' }}>
+            Connect Wallet
+          </h2>
+          <p style={{ color: '#6b7280', fontSize: '12px', textAlign: 'center', margin: '0 0 22px' }}>
+            Choose how to connect to Celo Mainnet
+          </p>
+
+          {/* MiniPay */}
+          <button
+            onClick={() => {
+              if (isMiniPay) {
+                setShowWalletModal(false);
+                walletCallbackRef.current?.((window as any).ethereum, 'MiniPay');
+              } else {
+                window.open('https://www.opera.com/mobile/minipay', '_blank');
+              }
+            }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '14px',
+              background: isMiniPay ? '#0d2010' : '#111827',
+              border: `1.5px solid ${isMiniPay ? '#4ade80' : '#1f2937'}`,
+              padding: '14px 16px', marginBottom: '10px', cursor: 'pointer',
+              borderRadius: '4px', width: '100%', boxSizing: 'border-box'
+            }}
+          >
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#1a2f1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🥭</div>
+            <div style={{ flex: 1, textAlign: 'left' }}>
+              <div style={{ color: '#fff', fontSize: '15px', fontWeight: 'bold' }}>MiniPay</div>
+              <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>{isMiniPay ? 'Detected — tap to connect' : 'Open inside Opera MiniPay app'}</div>
+            </div>
+            {isMiniPay && <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '99px', background: '#4ade80', color: '#000', fontWeight: 'bold' }}>DETECTED</span>}
+          </button>
+
+          {/* Browser Wallet (MetaMask / Rabby) */}
+          <button
+            disabled={!hasBrowserWallet}
+            onClick={() => {
+              if (!hasBrowserWallet || !browserProvider) return;
+              setShowWalletModal(false);
+              walletCallbackRef.current?.(browserProvider, walletName || 'Wallet');
+            }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '14px',
+              background: hasBrowserWallet ? '#1a2540' : '#111827',
+              border: `1.5px solid ${hasBrowserWallet ? '#4ade80' : '#1f2937'}`,
+              padding: '14px 16px', marginBottom: '10px',
+              cursor: hasBrowserWallet ? 'pointer' : 'not-allowed',
+              opacity: hasBrowserWallet ? 1 : 0.4,
+              borderRadius: '4px', width: '100%', boxSizing: 'border-box'
+            }}
+          >
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#1c1a00', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🦊</div>
+            <div style={{ flex: 1, textAlign: 'left' }}>
+              <div style={{ color: '#fff', fontSize: '15px', fontWeight: 'bold' }}>{hasBrowserWallet ? walletName : 'MetaMask / Rabby'}</div>
+              <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>{hasBrowserWallet ? `${walletName} detected — click to connect` : 'No browser wallet extension detected'}</div>
+            </div>
+            {hasBrowserWallet
+              ? <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '99px', background: '#4ade80', color: '#000', fontWeight: 'bold' }}>DETECTED</span>
+              : <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '99px', background: '#374151', color: '#9ca3af', fontWeight: 'bold' }}>NOT FOUND</span>
+            }
+          </button>
+
+          {/* WalletConnect (coming soon) */}
+          <button disabled style={{ display: 'flex', alignItems: 'center', gap: '14px', background: '#111827', border: '1.5px solid #1f2937', padding: '14px 16px', marginBottom: '10px', cursor: 'not-allowed', opacity: 0.4, borderRadius: '4px', width: '100%', boxSizing: 'border-box' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#0d1f3c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🔗</div>
+            <div style={{ flex: 1, textAlign: 'left' }}>
+              <div style={{ color: '#fff', fontSize: '15px', fontWeight: 'bold' }}>WalletConnect</div>
+              <div style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>Coming soon</div>
+            </div>
+            <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '99px', background: '#374151', color: '#9ca3af', fontWeight: 'bold' }}>SOON</span>
+          </button>
+
+          <button
+            onClick={() => setShowWalletModal(false)}
+            style={{ display: 'block', width: '100%', marginTop: '6px', padding: '10px', background: 'transparent', border: '1px solid #374151', color: '#6b7280', cursor: 'pointer', fontSize: '13px', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '1px', borderRadius: '4px' }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
   );
 }
