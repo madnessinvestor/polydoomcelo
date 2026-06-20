@@ -5608,8 +5608,6 @@ class StartScene extends Phaser.Scene {
         this.startText = startBtnObj.btnText;
 
         // Menu Buttons Grid
-        const menuY = height / 2 + 130;
-        createNeonButton(width / 2, menuY, 220, 46, 0x1a1a00, 'PROOF OF SHIP', '16px', '#FCFF52', () => (window as any).openProofOfShipModal?.());
 
         // Embedded Leaderboard in StartScene
         const lbWidth = 600; // Increased width
