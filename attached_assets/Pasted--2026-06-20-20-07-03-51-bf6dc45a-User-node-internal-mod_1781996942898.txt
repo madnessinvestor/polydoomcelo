@@ -1,0 +1,260 @@
+
+2026-06-20 20:07:03.51
+bf6dc45a
+User
+node:internal/modules/cjs/loader:1210
+
+2026-06-20 20:07:03.51
+bf6dc45a
+User
+^
+
+2026-06-20 20:07:03.51
+bf6dc45a
+User
+at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+
+2026-06-20 20:07:03.87
+bf6dc45a
+User
+at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+
+2026-06-20 20:07:10.81
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+code: 'MODULE_NOT_FOUND',
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+node:internal/modules/cjs/loader:1210
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+Node.js v20.20.0
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+}
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+throw err;
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+at node:internal/main/run_main_module:28:49 {
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+^
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+at Module._load (node:internal/modules/cjs/loader:1038:27)
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+requireStack: []
+
+2026-06-20 20:07:11.08
+bf6dc45a
+User
+Error: Cannot find module '/home/runner/workspace/dist/index.cjs'
+
+2026-06-20 20:07:11.09
+bf6dc45a
+System
+command finished with error [node ./dist/index.cjs]: exit status 1
+
+2026-06-20 20:07:11.27
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:11.39
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:11.77
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:12.01
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:13.67
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:15.41
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:17.00
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:17.30
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:19.09
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:19.75
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:19.94
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+at node:internal/main/run_main_module:28:49 {
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+throw err;
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+Error: Cannot find module '/home/runner/workspace/dist/index.cjs'
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+node:internal/modules/cjs/loader:1210
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+Node.js v20.20.0
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+^
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+at Module._load (node:internal/modules/cjs/loader:1038:27)
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+code: 'MODULE_NOT_FOUND',
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+requireStack: []
+
+2026-06-20 20:07:20.13
+bf6dc45a
+User
+}
+
+2026-06-20 20:07:20.13
+bf6dc45a
+System
+command finished with error [node ./dist/index.cjs]: exit status 1
+
+2026-06-20 20:07:20.80
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:21.45
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:23.12
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:23.93
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:25.47
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:25.63
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:27.42
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:28.07
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 20:07:29.43
+bf6dc45a
+System
+crash loop detected
+
+2026-06-20 20:07:30.06
+bf6dc45a
+System
+healthcheck failed error=healthcheck / returned status 500
