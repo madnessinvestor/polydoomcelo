@@ -5603,9 +5603,6 @@ class StartScene extends Phaser.Scene {
         const menuY = height / 2 + 130;
         createNeonButton(width / 2, menuY, 220, 46, 0x6b7280, 'UPGRADES', '20px', '#ffffff', () => (window as any).openUpgradesModal?.());
         createNeonButton(width / 2, menuY + 60, 220, 46, 0x6b7280, 'SHOPPING', '20px', '#ffffff', () => (window as any).openShoppingModal?.());
-        createNeonButton(width / 2, menuY + 120, 220, 46, 0x6b7280, 'HISTORY', '20px', '#ffffff', () => this.openHistoryModal());
-        createNeonButton(width / 2, menuY + 180, 220, 46, 0x6b7280, 'CONTROLS', '20px', '#ffffff', () => this.openControlsModal());
-        createNeonButton(width / 2, menuY + 240, 220, 46, 0x6b7280, 'SETTINGS', '20px', '#ffffff', () => this.openSettingsModal());
 
         // Embedded Leaderboard in StartScene
         const lbWidth = 600; // Increased width
