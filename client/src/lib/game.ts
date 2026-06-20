@@ -5587,13 +5587,31 @@ class StartScene extends Phaser.Scene {
         };
 
         const isWalletConnected = !!(window as any).walletAddress;
-        
-        // Connect Wallet Button
-        const walletBtnObj = createNeonButton(width / 2, height / 2 - 30, 320, 60, 0x3b82f6, isWalletConnected ? `CONNECTED: ${(window as any).walletAddress.substring(0, 6)}...` : 'CONNECT WALLET', '24px', '#ffffff', () => {
-            this.connectWallet();
+        const isMiniPayEnv = !!(window as any).ethereum?.isMiniPay;
+
+        // Determine initial button label
+        let walletBtnLabel: string;
+        if (isWalletConnected) {
+            walletBtnLabel = `CONNECTED: ${(window as any).walletAddress.substring(0, 6)}...`;
+        } else if (isMiniPayEnv) {
+            walletBtnLabel = 'AUTO-CONNECTING...';
+        } else {
+            walletBtnLabel = 'CONNECT WALLET';
+        }
+
+        // Connect Wallet Button — hidden/inert inside MiniPay (auto-connects)
+        const walletBtnObj = createNeonButton(width / 2, height / 2 - 30, 320, 60, isMiniPayEnv ? 0x22c55e : 0x3b82f6, walletBtnLabel, '24px', '#ffffff', () => {
+            if (!isMiniPayEnv) this.connectWallet();
         });
         this.walletBtn = walletBtnObj.btn as any;
         this.walletText = walletBtnObj.btnText;
+
+        // MiniPay: auto-connect on scene load (no user click needed per MiniPay docs)
+        if (isMiniPayEnv && !isWalletConnected) {
+            this.time.delayedCall(300, () => {
+                this.connectWallet();
+            });
+        }
 
         // Start Button
         const startBtnColor = isWalletConnected ? 0x4ade80 : 0x6b7280;
