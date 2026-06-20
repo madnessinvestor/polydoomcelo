@@ -63,8 +63,7 @@ export default function Home() {
   });
   const scale = useGameScale();
 
-  // Wallet selector modal state
-  const [showWalletModal, setShowWalletModal] = useState(false);
+  // Wallet selector modal state — uses useUI so isLocked=true blocks Phaser input
   const walletCallbackRef = useRef<((provider: any, name: string) => void) | null>(null);
 
   const isMiniPay = !!(window as any).ethereum?.isMiniPay;
@@ -363,7 +362,7 @@ export default function Home() {
     // Global wallet connect bridge — called by Phaser game.ts
     (window as any).__connectWallet = (cb: (provider: any, name: string) => void) => {
       walletCallbackRef.current = cb;
-      setShowWalletModal(true);
+      openModal('wallet');
     };
 
     return () => {
@@ -534,11 +533,11 @@ export default function Home() {
       </div>
 
       {/* React Wallet Selector Modal — triggered by Phaser via window.__connectWallet */}
-      {showWalletModal && (
+      {activeModal === 'wallet' && (
       <div
         className="fixed inset-0 z-[9999] flex items-center justify-center"
         style={{ background: 'rgba(0,0,0,0.8)' }}
-        onClick={() => setShowWalletModal(false)}
+        onClick={() => closeModal()}
       >
         <div
           className="relative"
@@ -561,7 +560,7 @@ export default function Home() {
           <button
             onClick={() => {
               if (isMiniPay) {
-                setShowWalletModal(false);
+                closeModal();
                 walletCallbackRef.current?.((window as any).ethereum, 'MiniPay');
               } else {
                 window.open('https://www.opera.com/mobile/minipay', '_blank');
@@ -588,7 +587,7 @@ export default function Home() {
             disabled={!hasBrowserWallet}
             onClick={() => {
               if (!hasBrowserWallet || !browserProvider) return;
-              setShowWalletModal(false);
+              closeModal();
               walletCallbackRef.current?.(browserProvider, walletName || 'Wallet');
             }}
             style={{
@@ -623,7 +622,7 @@ export default function Home() {
           </button>
 
           <button
-            onClick={() => setShowWalletModal(false)}
+            onClick={() => closeModal()}
             style={{ display: 'block', width: '100%', marginTop: '6px', padding: '10px', background: 'transparent', border: '1px solid #374151', color: '#6b7280', cursor: 'pointer', fontSize: '13px', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '1px', borderRadius: '4px' }}
           >
             Cancel
