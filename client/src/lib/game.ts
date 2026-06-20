@@ -5353,7 +5353,7 @@ class StartScene extends Phaser.Scene {
 
         // Title — rendered as Phaser text so the name is always correct
         const titleFontSize = Math.round(width * 0.072);
-        const titleY = height / 3;
+        const titleY = height * 0.2;
 
         const titleLine1 = this.add.text(0, -titleFontSize * 0.6, 'POLYDOOM', {
             fontFamily: '"Press Start 2P", monospace',
@@ -5840,10 +5840,8 @@ class StartScene extends Phaser.Scene {
             lbStyle.remove();
         });
 
-        // Contracts List
         const contractsX = width - 40;
-        const contractsY = height - 120; // Move back to bottom right area
-        const contractFontSize = '14px';
+        const contractsY = height - 120;
 
         // Wallet Display Logic
         this.networkInfoText = this.add.text(width / 2, height / 2 - 70, isWalletConnected ? 'Celo Mainnet' : '', {
@@ -5881,31 +5879,6 @@ class StartScene extends Phaser.Scene {
             sbtn.on('pointerdown', () => window.open(s.url, '_blank'));
         });
 
-        this.add.text(contractsX, contractsY, 'CONTRACTS', {
-            fontSize: '18px',
-            color: '#fbbf24',
-            fontStyle: 'bold',
-            fontFamily: 'monospace'
-        }).setOrigin(1, 0);
-
-        const contracts = [
-            { addr: '0x6101d4D79C6573c570eAA0eeabff13e663c17c08', label: 'Upgrades' },
-            { addr: '0x9b673bDBA9ed06989b1846d4C63468BCE86cf006', label: 'Leaderboard' },
-            { addr: '0x6b09296bb55f08FBD268C44a89B5B9a23db2af6a', label: 'Items' }
-        ];
-
-        contracts.forEach((c, idx) => {
-            const yPos = contractsY + 30 + (idx * 25);
-            const text = this.add.text(contractsX, yPos, `${c.label}: ${c.addr.substring(0, 6)}...${c.addr.substring(c.addr.length - 4)}`, {
-                fontSize: contractFontSize,
-                color: '#4ade80',
-                fontFamily: 'monospace'
-            }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
-
-            text.on('pointerdown', () => window.open(`https://testnet.arcscan.app/address/${c.addr}`, '_blank'));
-            text.on('pointerover', () => text.setColor('#ffffff'));
-            text.on('pointerout', () => text.setColor('#4ade80'));
-        });
 
         // Set up wallet event listeners
         if ((window as any).ethereum) {
