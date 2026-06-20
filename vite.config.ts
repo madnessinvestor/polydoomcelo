@@ -7,11 +7,9 @@ export default defineConfig(async ({ mode }) => {
   
   if (mode !== "production" && process.env.REPL_ID !== undefined) {
     try {
-      const { default: runtimeErrorOverlay } = await import("@replit/vite-plugin-runtime-error-modal");
       const { cartographer } = await import("@replit/vite-plugin-cartographer");
       const { devBanner } = await import("@replit/vite-plugin-dev-banner");
       
-      replitPlugins.push(runtimeErrorOverlay());
       replitPlugins.push(cartographer());
       replitPlugins.push(devBanner());
     } catch (e) {
