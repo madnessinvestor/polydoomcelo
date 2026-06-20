@@ -1,0 +1,266 @@
+
+
+2026-06-20 12:06:24.30
+242c986c
+System
+starting up user application
+
+2026-06-20 12:21:32.17
+8a3f52fb
+User
+Error: Cannot find module '/home/runner/workspace/dist/index.cjs'
+
+2026-06-20 12:21:32.17
+8a3f52fb
+User
+node:internal/modules/cjs/loader:1210
+
+2026-06-20 12:21:32.17
+8a3f52fb
+User
+code: 'MODULE_NOT_FOUND',
+
+2026-06-20 12:21:32.17
+8a3f52fb
+User
+}
+
+2026-06-20 12:21:32.17
+8a3f52fb
+User
+^
+
+2026-06-20 12:21:32.17
+8a3f52fb
+User
+at node:internal/main/run_main_module:28:49 {
+
+2026-06-20 12:21:32.17
+8a3f52fb
+User
+at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+
+2026-06-20 12:21:32.17
+8a3f52fb
+User
+at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+
+2026-06-20 12:21:32.17
+8a3f52fb
+User
+requireStack: []
+
+2026-06-20 12:21:32.17
+8a3f52fb
+User
+throw err;
+
+2026-06-20 12:21:32.17
+8a3f52fb
+User
+Node.js v20.20.0
+
+2026-06-20 12:21:32.18
+8a3f52fb
+System
+command finished with error [node ./dist/index.cjs]: exit status 1
+
+2026-06-20 12:21:33.66
+8a3f52fb
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:21:35.53
+8a3f52fb
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+^
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+Error: Cannot find module '/home/runner/workspace/dist/index.cjs'
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+throw err;
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+requireStack: []
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+}
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+code: 'MODULE_NOT_FOUND',
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+Node.js v20.20.0
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+at Module._load (node:internal/modules/cjs/loader:1038:27)
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+node:internal/modules/cjs/loader:1210
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+
+2026-06-20 12:21:35.89
+8a3f52fb
+User
+at node:internal/main/run_main_module:28:49 {
+
+2026-06-20 12:21:35.90
+8a3f52fb
+System
+command finished with error [node ./dist/index.cjs]: exit status 1
+
+2026-06-20 12:21:37.13
+8a3f52fb
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:21:38.43
+8a3f52fb
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:21:39.25
+8a3f52fb
+User
+node:internal/modules/cjs/loader:1210
+
+2026-06-20 12:21:39.25
+8a3f52fb
+User
+throw err;
+
+2026-06-20 12:21:39.97
+8a3f52fb
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:21:40.46
+8a3f52fb
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:21:40.62
+8a3f52fb
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:21:41.84
+8a3f52fb
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:21:42.97
+8a3f52fb
+System
+crash loop detected
+
+2026-06-20 12:25:24.65
+c8d93914
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+
+2026-06-20 12:25:24.65
+c8d93914
+System
+starting up user application
+
+2026-06-20 12:25:24.65
+c8d93914
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+
+2026-06-20 12:25:24.65
+c8d93914
+System
+healthcheck failed error=healthcheck /: Get "http://127.0.0.1:1104/": dial tcp 127.0.0.1:1104: connect: connection refused
+
+2026-06-20 12:25:24.65
+c8d93914
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:25:24.67
+c8d93914
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:25:24.68
+c8d93914
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:25:24.69
+c8d93914
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:25:24.74
+c8d93914
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:25:24.85
+c8d93914
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:25:24.87
+c8d93914
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:25:25.19
+c8d93914
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:25:26.62
+c8d93914
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:25:27.51
+c8d93914
+System
+healthcheck failed error=healthcheck / returned status 500
+
+2026-06-20 12:25:27.76
+c8d93914
+User
+3:25:27 PM [express] serving on port 5000
+
+2026-06-20 12:25:49.89
+c8d93914
+User
+3:25:49 PM [express] GET /api/leaderboard 200 in 1734ms :: [{"id":2,"playerName":"test","score":5,"wave":1,"enemiesDefeated":5,"playTime":4,"createdAt":"2026-06-20T15:01:00.888Z"},{"id":1,"playerName":"mad","score":4,"wave":1,"enemiesDefeated":4,"playTime":4,"createdAt":"2026-06-20T14:57:17.650Z"},{"id":3,"playerName":"zzz","score":4,"wave":1,"enemiesDefeated":4,"playTime":4,"createdAt":"2026-06-20T15:03:19.799Z"}]
