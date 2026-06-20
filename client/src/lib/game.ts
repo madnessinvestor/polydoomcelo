@@ -802,21 +802,8 @@ class MainScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
-        // Handle wallet auto-connect if already connected in browser
-        const autoConnectWallet = async () => {
-            if ((window as any).ethereum) {
-                try {
-                    const accounts = await (window as any).ethereum.request({ method: 'eth_accounts' });
-                    if (accounts.length > 0) {
-                        (window as any).walletAddress = accounts[0];
-                        console.log("Wallet auto-connected:", accounts[0]);
-                    }
-                } catch (err) {
-                    console.error("Error auto-connecting wallet:", err);
-                }
-            }
-        };
-        autoConnectWallet();
+        // Wallet is connected only via explicit user action in StartScene (CONNECT WALLET button).
+        // Do NOT auto-connect here — window.walletAddress is set by _doConnect() after user consent.
 
         // Initialize and apply upgrades before starting
         const baseStats = this.levelStats[this.level - 1] || this.levelStats[0];
